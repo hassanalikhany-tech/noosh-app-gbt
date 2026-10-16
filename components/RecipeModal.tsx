@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { Dish, ShoppingItem, UserProfile } from '../types';
 import DishVisual from './DishVisual';
 import { UserService } from '../services/userService';
-import { estimateCalories, estimateCookTime, getDifficulty, getDishNature, getInventoryUpdate, getShoppingShortages, isIngredientMatch, getCountryCodes } from '../utils/recipeHelpers';
+import { estimateCalories, estimateCookTime, getDifficulty, getDishNature, getInventoryUpdate, getShoppingShortages, isIngredientMatch, getCountryCodes, getUnitDisplayLabel } from '../utils/recipeHelpers';
 import { getIngredientCategoryId, getBaseIngredientName } from '../data/pantry';
 import { getRelevantInventory } from '../utils/kitchenMode';
 
@@ -207,7 +207,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
       return;
     }
     
-    const { newInventory, updatedCount, missingItems } = getInventoryUpdate(
+    const { newInventory, updatedCount, missingItems, unconvertibleItems } = getInventoryUpdate(
       user.inventory || [],
       dish.ingredients,
       servings,
@@ -280,6 +280,10 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
       setTimeout(() => setCooked(false), 3000);
     } else {
       alert('خطایی در کسر از انبار رخ داد.');
+    }
+    if (unconvertibleItems.length) {
+      const details = unconvertibleItems.map(item => `${item.item} (${item.inventoryUnit} ← ${item.recipeUnit})`).join('، ');
+      alert(`برای جلوگیری از کسر اشتباه، این اقلام از انبار کم نشدند چون واحدشان تبدیل‌پذیر نیست: ${details}. واحد موجودی را به واحد وزنی یا حجمی سازگار تغییر بده.`);
     }
   };
 
@@ -386,6 +390,11 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
                   <Utensils size={28} className="text-teal-600" />
                   <h3>مواد لازم</h3>
                 </div>
+                {user?.kitchenMode !== 'without-inventory' && (
+                  <p className="-mt-3 rounded-xl bg-teal-50 px-4 py-3 text-xs font-medium leading-6 text-teal-800">
+                    مقدارها با واحد پایه و وزنِ مخصوص هر ماده محاسبه می‌شوند؛ هر پیمانه در نوش اپ ۲۵۰ میلی‌لیتر است. اگر تبدیل یک ماده مرجع مطمئنی نداشته باشد، موجودی آن برای جلوگیری از کسر اشتباه دست‌نخورده می‌ماند.
+                  </p>
+                )}
                 
                 {hasIngredients ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -395,7 +404,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
                         <div key={idx} className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-teal-200 hover:bg-white transition-all group shadow-sm">
                           <span className="font-bold text-slate-700">{ing.item}</span>
                           <span className="font-black text-teal-600 text-sm bg-teal-50 px-3 py-1.5 rounded-xl border border-teal-100 group-hover:bg-teal-600 group-hover:text-white transition-all">
-                            {scaled > 0 ? `${toPersianDigits(scaled)} ${ing.unit}` : ing.unit}
+                            {scaled > 0 ? `${toPersianDigits(scaled)} ${getUnitDisplayLabel(ing.unit)}` : getUnitDisplayLabel(ing.unit)}
                           </span>
                         </div>
                       );

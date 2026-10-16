@@ -354,20 +354,20 @@ const AppContent: React.FC = () => {
 
     try {
       const allIngredients: any[] = [];
+      const targetServings = currentUser.familySize || 4;
       displayPlan.forEach(plan => {
-        if (plan.dish && plan.dish.ingredients) {
-          allIngredients.push(...plan.dish.ingredients);
-        }
-        if (plan.sideDish && plan.sideDish.ingredients) {
-          allIngredients.push(...plan.sideDish.ingredients);
-        }
+        [plan.dish, plan.sideDish].forEach(dish => {
+          if (!dish?.ingredients) return;
+          const scale = targetServings / (dish.servings || 4);
+          allIngredients.push(...dish.ingredients.map(ingredient => ({ ...ingredient, amount: (Number(ingredient.amount) || 0) * scale })));
+        });
       });
 
       const missingItems = getShoppingShortages(
         getRelevantInventory(currentUser),
         allIngredients,
-        currentUser.familySize || 4,
-        4
+        1,
+        1
       );
 
       // Replace previous uncompleted plan-generated rows so reopening the same plan never doubles quantities.
