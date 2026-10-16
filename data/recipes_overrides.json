@@ -397,7 +397,9 @@
       "calories": 260,
       "cookTime": 45,
       "difficulty": "آسان",
-      "servings": 3
+      "servings": 3,
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "ash_reshteh",
