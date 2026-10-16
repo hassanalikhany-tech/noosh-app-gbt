@@ -843,7 +843,9 @@
         "درب تابه را بگذارید تا سبزیجات با بخار و آب مرغ پخته و نرم شوند (حدود ۱۵ دقیقه).",
         "در آخر نمک و آب لیموترش را اضافه کرده و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "imageReviewStatus": "approved",
+      "localEdited": true
     },
     {
       "id": "dish-0-1766881812357",
