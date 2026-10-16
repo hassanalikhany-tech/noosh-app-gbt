@@ -5,7 +5,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ShieldCheck, Loader2, ArrowLeft, ArrowRight, AlertCircle, User, UserPlus, Info, Ticket, ShieldAlert, MonitorOff } from 'lucide-react';
 import { AuthService } from '../../services/authService';
 import { SecurityService } from '../../services/securityService';
-import { formatPhoneNumberInput } from '../../utils/phoneNumbers';
 
 interface AuthGateProps {
   children: React.ReactNode;
@@ -19,6 +18,8 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [step, setStep] = useState<AuthStep>('mobile');
   const [mobile, setMobile] = useState('+');
+  const [countryCode, setCountryCode] = useState('');
+  const [nationalNumber, setNationalNumber] = useState('');
   const phoneInputRef = useRef<HTMLInputElement>(null);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -57,6 +58,8 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
     const handleLogoutEvent = () => {
       setIsAuthenticated(false);
       setMobile('+');
+      setCountryCode('');
+      setNationalNumber('');
       setStep('mobile');
       setOtp(['', '', '', '', '', '']);
       AuthService.clearPhoneVerification();
@@ -90,8 +93,16 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
     void sendCode();
   };
 
-  const handlePhoneChange = (input: string) => {
-    setMobile(formatPhoneNumberInput(input));
+  const handleCountryCodeChange = (input: string) => {
+    const digits = englishDigits(input).replace(/\D/g, '').slice(0, 3);
+    setCountryCode(digits);
+    setMobile(`+${digits}${nationalNumber}`);
+  };
+
+  const handleNationalNumberChange = (input: string) => {
+    const digits = englishDigits(input).replace(/\D/g, '').slice(0, 14);
+    setNationalNumber(digits);
+    setMobile(`+${countryCode}${digits}`);
   };
 
   const finishVerifiedLogin = async (verifiedUser: any) => {
@@ -191,9 +202,19 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
               <h1 className="text-2xl sm:text-[27px] font-black text-slate-900">ورود یا ساخت حساب</h1>
               <p className="mt-2 text-sm font-medium text-slate-500">بعد از + ابتدا کد کشور و سپس شمارهٔ تلفن همراه را وارد کنید</p>
             </div>
-            <div dir="ltr" className="group flex items-center gap-3 rounded-2xl bg-slate-100/80 px-4 py-2 transition-colors focus-within:bg-white focus-within:ring-2 focus-within:ring-teal-500/30">
-              <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-xl font-black text-teal-700 shadow-sm select-none">+</span>
-              <input ref={phoneInputRef} id="phone-input" type="tel" dir="ltr" inputMode="tel" autoComplete="tel" autoFocus maxLength={15} value={mobile.slice(1)} onChange={e => handlePhoneChange(e.target.value)} aria-label="پس از علامت + ابتدا کد کشور و سپس شماره تلفن همراه" className="min-w-0 flex-1 bg-transparent px-2 py-4 text-left text-xl font-black text-slate-800 outline-none placeholder:text-slate-400" placeholder="کد کشور، سپس شماره تلفن" required />
+            <div dir="ltr" className="group flex items-stretch rounded-2xl bg-slate-100/80 p-2 transition-colors focus-within:bg-white">
+              <label className="flex w-[6.5rem] shrink-0 flex-col justify-center rounded-xl px-2 py-2 transition-colors focus-within:bg-teal-50/70">
+                <span dir="rtl" className="mb-1 text-center text-[10px] font-bold text-slate-500">کد کشور</span>
+                <span className="flex items-center justify-center gap-1.5">
+                  <span aria-hidden="true" className="text-lg font-black text-teal-700 select-none">+</span>
+                  <input ref={phoneInputRef} id="phone-input" type="tel" dir="ltr" inputMode="tel" autoComplete="tel-country-code" autoFocus maxLength={3} value={countryCode} onChange={e => handleCountryCodeChange(e.target.value)} aria-label="کد کشور پس از علامت +" className="w-12 bg-transparent text-center text-lg font-black text-slate-800 outline-none placeholder:text-slate-400" placeholder="۱" required />
+                </span>
+              </label>
+              <span aria-hidden="true" className="my-2 w-px shrink-0 bg-slate-300/70" />
+              <label className="flex min-w-0 flex-1 flex-col justify-center rounded-xl px-3 py-2 transition-colors focus-within:bg-teal-50/70">
+                <span dir="rtl" className="mb-1 text-center text-[10px] font-bold text-slate-500">شماره تلفن همراه</span>
+                <input id="phone-number-input" type="tel" dir="ltr" inputMode="tel" autoComplete="tel-national" maxLength={14} value={nationalNumber} onChange={e => handleNationalNumberChange(e.target.value)} aria-label="شماره تلفن همراه، بدون کد کشور" className="w-full bg-transparent px-1 py-1 text-left text-lg font-black text-slate-800 outline-none placeholder:text-slate-400" placeholder="شماره تلفن" required />
+              </label>
             </div>
             {error && <div className="p-4 bg-rose-50 text-rose-500 text-[11px] font-black rounded-2xl text-center border border-rose-100">{error}</div>}
             <button disabled={isLoading} className="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black text-lg flex items-center justify-center gap-4 active:scale-95 transition-all">
