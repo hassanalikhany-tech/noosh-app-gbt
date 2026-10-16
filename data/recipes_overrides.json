@@ -180,7 +180,9 @@
       "calories": 450,
       "cookTime": 90,
       "difficulty": "آسان",
-      "servings": 4
+      "servings": 4,
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "fesenjan_morgh",
