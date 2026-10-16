@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { AlertCircle, Check, CheckSquare, Copy, Download, Filter, Image as ImageIcon, LoaderCircle, RefreshCw, Search, Square, ZoomIn, X } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { AlertCircle, ArrowLeft, ArrowRight, Check, CheckSquare, Copy, Download, Filter, Image as ImageIcon, LoaderCircle, RefreshCw, Search, Square, ZoomIn, X } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { CATEGORY_LABELS, Dish } from '../../types';
 import { RecipeService } from '../../services/recipeService';
@@ -7,7 +7,7 @@ import { getDishImageCandidates } from '../../utils/dishImageSources';
 import DishVisual from '../DishVisual';
 
 type ImageAuditStatus = 'available' | 'missing' | 'broken';
-type AuditFilter = 'all' | 'missing' | 'broken' | 'duplicate' | 'replace' | 'approved' | 'create' | 'removed';
+type AuditFilter = 'all' | 'unreviewed' | 'reviewed' | 'missing' | 'broken' | 'duplicate' | 'replace' | 'approved' | 'create' | 'removed';
 type AuditResult = { status: ImageAuditStatus; url?: string };
 
 const explicitImage = (dish: Dish) => Boolean(dish.imageUrl?.trim() && dish.imageUrl.trim().toLowerCase() !== 'none');
@@ -63,7 +63,8 @@ const DishImagePreview: React.FC<{ dish: Dish; onZoom: (url: string) => void }> 
 const ImageGuide: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [zoomedImage, setZoomedImage] = useState<{ url: string; name: string } | null>(null);
+  const [zoomedImage, setZoomedImage] = useState<{ dishId: string; url: string } | null>(null);
+  const [zoomQueue, setZoomQueue] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [activeFilter, setActiveFilter] = useState<AuditFilter>('all');
@@ -89,6 +90,8 @@ const ImageGuide: React.FC = () => {
     return allDishes.filter(dish => {
       if (term && !`${dish.name} ${dish.id}`.toLocaleLowerCase().includes(term)) return false;
       const result = auditResults[dish.id];
+      if (activeFilter === 'unreviewed') return !dish.imageReviewStatus;
+      if (activeFilter === 'reviewed') return Boolean(dish.imageReviewStatus);
       if (activeFilter === 'missing') return result?.status === 'missing';
       if (activeFilter === 'broken') return result?.status === 'broken';
       if (activeFilter === 'duplicate') return duplicateDishIds.has(dish.id);
@@ -99,6 +102,8 @@ const ImageGuide: React.FC = () => {
 
   const counts = useMemo(() => ({
     approved: allDishes.filter(d => d.imageReviewStatus === 'approved').length,
+    reviewed: allDishes.filter(d => Boolean(d.imageReviewStatus)).length,
+    unreviewed: allDishes.filter(d => !d.imageReviewStatus).length,
     create: allDishes.filter(d => d.imageReviewStatus === 'create').length,
     removed: allDishes.filter(d => d.imageReviewStatus === 'removed').length,
     all: allDishes.length,
@@ -173,6 +178,27 @@ const ImageGuide: React.FC = () => {
     }
   };
 
+  const zoomIndex = zoomedImage ? zoomQueue.indexOf(zoomedImage.dishId) : -1;
+  const zoomDish = zoomedImage ? allDishes.find(dish => dish.id === zoomedImage.dishId) : undefined;
+  const moveZoom = (direction: -1 | 1) => {
+    const nextId = zoomQueue[zoomIndex + direction];
+    const nextDish = allDishes.find(dish => dish.id === nextId);
+    if (!nextId || !nextDish) return;
+    const sources = getDishImageCandidates(nextDish.id, nextDish.imageUrl);
+    setZoomedImage({ dishId: nextId, url: sources[0] || '' });
+  };
+
+  useEffect(() => {
+    if (!zoomedImage) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setZoomedImage(null);
+      if (event.key === 'ArrowRight') { event.preventDefault(); moveZoom(1); }
+      if (event.key === 'ArrowLeft') { event.preventDefault(); moveZoom(-1); }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [zoomedImage, zoomQueue, zoomIndex, allDishes]);
+
   const handleExportExcel = () => {
     const exportDishes = selectedIds.size ? allDishes.filter(dish => selectedIds.has(dish.id)) : filteredDishes;
     if (!exportDishes.length) { setMessage('موردی برای خروجی وجود ندارد.'); return; }
@@ -193,6 +219,8 @@ const ImageGuide: React.FC = () => {
   };
 
   const filterOptions: { id: AuditFilter; label: string; icon?: React.ReactNode }[] = [
+    { id: 'unreviewed', label: 'بررسی‌نشده' },
+    { id: 'reviewed', label: 'بررسی‌شده' },
     { id: 'approved', label: 'تأیید و حفظ' },
     { id: 'create', label: 'ساخت تصویر جدید' },
     { id: 'removed', label: 'حذف‌شده' },
@@ -205,13 +233,31 @@ const ImageGuide: React.FC = () => {
 
   return (
     <div dir="rtl" className="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[calc(100vh-200px)] min-h-[560px] animate-enter relative">
-      {zoomedImage && (
-        <div className="fixed inset-0 z-[1000] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-5" onClick={() => setZoomedImage(null)}>
+      {zoomedImage && zoomDish && (
+        <div className="fixed inset-0 z-[1000] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-8" onClick={() => setZoomedImage(null)}>
           <button type="button" aria-label="بستن" className="absolute top-5 left-5 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full"><X size={24} /></button>
-          <div className="max-w-4xl w-full flex flex-col items-center gap-4" onClick={event => event.stopPropagation()}>
-            <img src={zoomedImage.url} alt={zoomedImage.name} className="max-h-[72vh] max-w-full rounded-2xl object-contain bg-slate-900" onError={() => setZoomedImage(null)} />
-            <h3 className="text-white text-xl font-black">{zoomedImage.name}</h3>
-            <p dir="ltr" className="text-teal-300 font-mono text-xs break-all text-center">{zoomedImage.url}</p>
+          <div className="w-full max-w-6xl grid lg:grid-cols-[minmax(0,1fr)_300px] gap-5 items-center" onClick={event => event.stopPropagation()}>
+            <div className="min-h-[55vh] flex items-center justify-center relative rounded-3xl bg-black/25 p-3">
+              <button type="button" onClick={() => moveZoom(-1)} disabled={zoomIndex <= 0} aria-label="عکس قبلی؛ کلید جهت‌نمای چپ" className="absolute right-3 top-1/2 -translate-y-1/2 z-10 rounded-full p-3 bg-white/15 text-white hover:bg-white/25 disabled:opacity-30"><ArrowRight size={22} /></button>
+              <img src={zoomedImage.url} alt={zoomDish.name} className="max-h-[78vh] max-w-full rounded-2xl object-contain bg-slate-900" onError={() => setMessage(`تصویر «${zoomDish.name}» بارگذاری نشد؛ برای تصمیم از گزینه‌های کنار عکس استفاده کن.`)} />
+              <button type="button" onClick={() => moveZoom(1)} disabled={zoomIndex < 0 || zoomIndex >= zoomQueue.length - 1} aria-label="عکس بعدی؛ کلید جهت‌نمای راست" className="absolute left-3 top-1/2 -translate-y-1/2 z-10 rounded-full p-3 bg-white/15 text-white hover:bg-white/25 disabled:opacity-30"><ArrowLeft size={22} /></button>
+            </div>
+            <aside className="rounded-3xl bg-white p-5 shadow-2xl text-right">
+              <div className="text-xs font-bold text-emerald-700">بازبینی عکس {zoomIndex + 1} از {zoomQueue.length}</div>
+              <h3 className="mt-2 text-xl font-black text-slate-900">{zoomDish.name}</h3>
+              <p className="mt-1 text-xs text-slate-500">تصمیم اینجا ثبت می‌شود و پنجرهٔ عکس باز می‌ماند.</p>
+              <label className="block mt-5 text-xs font-bold text-slate-700" htmlFor="zoom-image-review-status">تصمیم دربارهٔ تصویر</label>
+              <select id="zoom-image-review-status" disabled={savingIds.has(zoomDish.id)} value={zoomDish.imageReviewStatus || ''} onChange={event => void toggleReviewFlag(zoomDish, (event.target.value || undefined) as Dish['imageReviewStatus'])} className="mt-2 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm font-bold text-slate-800">
+                <option value="">بررسی‌نشده</option><option value="approved">تأیید و حفظ تصویر</option><option value="replace">نیاز به جایگزینی</option><option value="create">ساخت تصویر جدید</option><option value="removed">حذف تصویر</option>
+              </select>
+              {zoomDish.imageReviewStatus && <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800"><Check size={14} /> تصمیم ثبت شده؛ از فیلتر «بررسی‌نشده» ادامه بده.</div>}
+              <div className="mt-5 flex gap-2">
+                <button type="button" onClick={() => moveZoom(-1)} disabled={zoomIndex <= 0} className="flex-1 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold text-slate-700 disabled:opacity-40"><ArrowRight size={16} className="inline ml-1" /> قبلی</button>
+                <button type="button" onClick={() => moveZoom(1)} disabled={zoomIndex < 0 || zoomIndex >= zoomQueue.length - 1} className="flex-1 rounded-xl bg-emerald-700 px-3 py-2.5 text-sm font-bold text-white disabled:opacity-40">بعدی <ArrowLeft size={16} className="inline mr-1" /></button>
+              </div>
+              <p className="mt-3 text-center text-[11px] text-slate-400">کلید ← عکس قبلی · کلید → عکس بعدی · Esc بستن</p>
+              <p dir="ltr" className="mt-4 text-left font-mono text-[10px] text-slate-400 break-all">{zoomedImage.url}</p>
+            </aside>
           </div>
         </div>
       )}
@@ -282,9 +328,9 @@ const ImageGuide: React.FC = () => {
               return (
                 <tr key={dish.id} className={`transition-colors ${isSelected ? 'bg-emerald-50/60' : 'hover:bg-slate-50'}`}>
                   <td className="p-3 text-center"><button type="button" aria-label={`انتخاب ${dish.name}`} onClick={() => handleToggleSelect(dish.id)} className={isSelected ? 'text-emerald-700' : 'text-slate-300'}>{isSelected ? <CheckSquare size={19} /> : <Square size={19} />}</button></td>
-                  <td className="p-3 text-center"><DishImagePreview dish={dish} onZoom={url => setZoomedImage({ url, name: dish.name })} /></td>
+                  <td className="p-3 text-center"><DishImagePreview dish={dish} onZoom={url => { setZoomQueue(filteredDishes.map(item => item.id)); setZoomedImage({ dishId: dish.id, url }); }} /></td>
                   <td className="p-3">
-                    <div className="font-bold text-slate-800">{dish.name}</div>
+                    <div className="flex items-center gap-2 font-bold text-slate-800">{dish.name}{dish.imageReviewStatus && <span title="برای این عکس تصمیم بازبینی ثبت شده" className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-800"><Check size={12} /> بررسی شد</span>}</div>
                     <div dir="ltr" className="text-[10px] text-slate-400 font-mono mt-1 text-right">{dish.imageUrl || 'تصویر پیش‌فرض از مخزن غذاها'}</div>
                   </td>
                   <td className="p-3"><span className="px-2.5 py-1 bg-white border border-slate-200 text-slate-600 text-[10px] font-bold rounded-lg">{CATEGORY_LABELS[dish.category] || 'سایر'}</span></td>
