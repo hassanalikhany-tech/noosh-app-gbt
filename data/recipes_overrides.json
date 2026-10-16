@@ -8593,7 +8593,9 @@
         "گوشت را به صورت کوفته‌های ریز سرخ کنید.",
         "برنج را آبکش کرده و لایه لایه با سبزی، کلم و کوفته‌ها دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "imageReviewStatus": "approved",
+      "localEdited": true
     },
     {
       "id": "dish-10-1766876956936",
