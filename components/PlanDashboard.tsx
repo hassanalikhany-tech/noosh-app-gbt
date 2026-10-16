@@ -31,7 +31,6 @@ export default function PlanDashboard(props: Props) {
         <div className="planner-hero-copy"><span className="planner-hero-kicker"><CalendarDays size={16} /> برنامه‌ریز سفرهٔ تو</span>
           <h2 id="hero-title">برنامهٔ غذایی،<br /><span>به سبک زندگی تو.</span></h2>
           <p>{user.kitchenMode === 'without-inventory' ? 'غذاها را مستقل از انبار، با فیلتر گیاهی، علاقه‌مندی‌ها و مواد کنارگذاشته‌شده در تنظیماتت برنامه‌ریزی کن.' : user.inventory?.length ? 'برنامه از غذاهایی شروع می‌شود که با موجودی خانه‌ات جورند؛ فیلترهای ذائقه و مواد کنارگذاشته‌شده هم رعایت می‌شوند.' : 'برای پیشنهاد دقیق با مواد خانه، چند قلم به انبار اضافه کن؛ تا آن زمان هم می‌توانی آزادانه برنامه غذایی بچینی.'} {user.kitchenMode === 'without-inventory' ? 'لیست خرید مقدار کامل دستورها را می‌آورد و چیزی از انبار کم نمی‌کند.' : 'کسری خرید پس از کسر موجودی ثبت‌شده حساب می‌شود.'}</p>
-          <button className="planner-hero-cta" onClick={() => document.getElementById('planner-title')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}><Sparkles size={17} /> برنامه‌ام را بچین <ArrowLeft size={17} /></button>
           <div className="planner-hero-steps"><span><i>۱</i> انتخاب بازه</span><b /><span><i>۲</i> چیدن غذاها</span><b /><span><i>۳</i> فهرست خرید</span></div>
         </div>
         <figure className="planner-hero-food-photo">
