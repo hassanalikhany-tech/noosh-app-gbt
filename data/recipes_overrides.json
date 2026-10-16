@@ -4688,7 +4688,9 @@
         "برنج را آبکش کنید و شوید را لابلای آن بریزید و دم کنید.",
         "گوشت پخته شده را در کنار پلو سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "imageReviewStatus": "approved",
+      "localEdited": true
     },
     {
       "id": "dish-1-1766876956936",
