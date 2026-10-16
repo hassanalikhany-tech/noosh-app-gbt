@@ -179,7 +179,7 @@ const ImageGuide: React.FC = () => {
     }
   };
 
-  const scanImages = async () => {
+  const scanImages = async (selectMissingAfterScan = false) => {
     setIsScanning(true);
     setMessage('');
     setAuditResults({});
@@ -208,7 +208,28 @@ const ImageGuide: React.FC = () => {
     await Promise.all(Array.from({ length: Math.min(8, allDishes.length) }, worker));
     setAuditResults(results);
     setIsScanning(false);
-    setMessage(`بررسی ${allDishes.length} تصویر تمام شد.`);
+    if (selectMissingAfterScan) {
+      const missingIds = allDishes.filter(dish => results[dish.id]?.status === 'missing').map(dish => dish.id);
+      setActiveFilter('missing');
+      setSearchTerm('');
+      setSelectedIds(new Set(missingIds));
+      setMessage(`بررسی تمام شد؛ ${missingIds.length} غذای بدون تصویر انتخاب شد. می‌توانی موارد دلخواه را از حالت انتخاب خارج کنی.`);
+    } else {
+      setMessage(`بررسی ${allDishes.length} تصویر تمام شد.`);
+    }
+  };
+
+  const handleSelectAllMissing = () => {
+    if (isScanning) return;
+    if (!allDishes.every(dish => auditResults[dish.id])) {
+      void scanImages(true);
+      return;
+    }
+    const missingIds = allDishes.filter(dish => auditResults[dish.id]?.status === 'missing').map(dish => dish.id);
+    setActiveFilter('missing');
+    setSearchTerm('');
+    setSelectedIds(new Set(missingIds));
+    setMessage(`${missingIds.length} غذای بدون تصویر انتخاب شد؛ موارد دلخواه را می‌توانی از حالت انتخاب خارج کنی.`);
   };
 
   const toggleReviewFlag = async (dish: Dish, nextStatus: Dish['imageReviewStatus']) => {
@@ -319,6 +340,13 @@ const ImageGuide: React.FC = () => {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={handleSelectAllMissing} disabled={isScanning || allDishes.length === 0} className="px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 bg-amber-100 text-amber-950 hover:bg-amber-200 disabled:opacity-60">
+              <CheckSquare size={17} /> انتخاب همهٔ غذاهای بدون عکس{counts.missing ? ` (${counts.missing})` : ''}
+            </button>
+            {visibleSelectedDishes.length > 0 && <button type="button" disabled={isBulkSaving || visibleSelectedDishes.some(dish => savingIds.has(dish.id))} onClick={() => void handleBulkCreate()} className="px-4 py-3 rounded-xl text-sm font-black flex items-center gap-2 bg-emerald-700 text-white hover:bg-emerald-800 disabled:opacity-60">
+              {isBulkSaving ? <LoaderCircle size={17} className="animate-spin" /> : <ImageIcon size={17} />}
+              ساخت تصویر برای {visibleSelectedDishes.length} انتخاب
+            </button>}
             <button type="button" onClick={scanImages} disabled={isScanning || allDishes.length === 0} className="px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 bg-emerald-700 text-white hover:bg-emerald-800 disabled:opacity-60">
               {isScanning ? <LoaderCircle size={17} className="animate-spin" /> : <Filter size={17} />}
               {isScanning ? `در حال بررسی ${scanProgress.complete} از ${scanProgress.total}` : 'بررسی در دسترس بودن عکس‌ها'}
@@ -403,13 +431,7 @@ const ImageGuide: React.FC = () => {
 
       <div className="px-5 py-3 bg-slate-900 text-white flex flex-wrap justify-between gap-3 items-center shrink-0">
         <div className="text-xs text-white/75">{visibleSelectedDishes.length} انتخاب‌شده از این فهرست · {filteredDishes.length} مورد در فهرست · {allDishes.length} غذا در کل</div>
-        <div className="flex flex-wrap items-center gap-3">
-          {visibleSelectedDishes.length > 0 && <button type="button" disabled={isBulkSaving || visibleSelectedDishes.some(dish => savingIds.has(dish.id))} onClick={() => void handleBulkCreate()} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-2.5 text-sm font-black text-slate-950 transition hover:bg-emerald-300 disabled:cursor-wait disabled:opacity-60">
-            {isBulkSaving ? <LoaderCircle size={16} className="animate-spin" /> : <ImageIcon size={16} />}
-            ساخت تصویر جدید برای {visibleSelectedDishes.length} غذا
-          </button>}
-          <div className="text-[11px] text-white/70">برای انتخاب گروهی، ابتدا فیلتر «بدون تصویر» را پس از بررسی تصاویر باز کن.</div>
-        </div>
+        <div className="text-[11px] text-white/70">تصمیم «ساخت تصویر» به‌صورت یک درخواست گروهی ثبت می‌شود؛ برای فایل واقعی عکس، مرحلهٔ تولید و انتشار لازم است.</div>
       </div>
     </div>
   );
