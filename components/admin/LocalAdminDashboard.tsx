@@ -1,16 +1,26 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, lazy, Suspense } from 'react';
 import { ArrowRight, Download, Edit3, Search, ShieldCheck, UsersRound, UtensilsCrossed, X } from 'lucide-react';
 import { Dish, CATEGORY_LABELS } from '../../types';
 import { RecipeService } from '../../services/recipeService';
 import DishEditor from './DishEditor';
+
+const ImageGuide = lazy(() => import('./ImageGuide'));
+const DuplicateResolver = lazy(() => import('./DuplicateResolver'));
+const UnitConsistencyManager = lazy(() => import('./UnitConsistencyManager'));
+const CsvToJsonConverter = lazy(() => import('./CsvToJsonConverter'));
+const BackupManager = lazy(() => import('./BackupManager'));
+const DatabaseManager = lazy(() => import('./DatabaseManager'));
 
 interface LocalAdminDashboardProps {
   onExit: () => void;
 }
 
 const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit }) => {
+  const [tab, setTab] = useState('catalog');
+  const [page, setPage] = useState(1);
   const [dishes, setDishes] = useState<Dish[]>(() => RecipeService.getAllDishes());
   const [searchTerm, setSearchTerm] = useState('');
+  useEffect(() => setPage(1), [searchTerm]);
   const [showUsersInfo, setShowUsersInfo] = useState(false);
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const [savedAt, setSavedAt] = useState('');
@@ -58,6 +68,21 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit }) => 
       </header>
 
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-8 sm:py-9">
+        <nav aria-label="بخش‌های مدیریت" className="flex flex-wrap gap-2">{[
+          ['catalog','فهرست و ویرایش غذاها'], ['images','مدیریت عکس‌ها'], ['database','ورود و خروجی غذاها'],
+          ['duplicates','اصلاح غذاهای تکراری'], ['units','مغایرت واحدها'], ['converter','مبدل اکسل'], ['backup','پشتیبان و بازیابی'], ['unavailable','بخش‌های وابسته به سرور']
+        ].map(([id,label]) => <button key={id} onClick={() => setTab(id)} aria-pressed={tab === id} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === id ? 'bg-emerald-900 text-white' : 'bg-white text-slate-700'}`}>{label}</button>)}</nav>
+        <p className="text-sm leading-7 text-slate-600">تغییرات مدیریت روی همین مرورگر ذخیره می‌شوند. این پنل فقط روی همین دستگاه اثر دارد. برای انتشار تغییرات عمومی، فایل پشتیبان یا گزارش عکس‌ها را دریافت کن تا در انتشار سایت اعمال شوند.</p>
+        <Suspense fallback={<p role="status">در حال آماده‌سازی ابزار…</p>}>
+          {tab === 'images' && <ImageGuide />}
+          {tab === 'database' && <DatabaseManager />}
+          {tab === 'duplicates' && <DuplicateResolver />}
+          {tab === 'units' && <UnitConsistencyManager />}
+          {tab === 'converter' && <CsvToJsonConverter />}
+          {tab === 'backup' && <BackupManager />}
+          {tab === 'unavailable' && <section className="rounded-3xl bg-white p-6"><h2 className="font-black">فعلاً غیرفعال؛ نیازمند ذخیره‌سازی مرکزی</h2><p className="mt-3 leading-8 text-slate-500">کاربران، ویزیتورها، اعلان سراسری، بازخورد کاربران، آمار بازدید، گزارش‌های امنیتی، پرداخت‌ها، تنظیمات قیمت و تسویه‌ها در نسخهٔ محلی در دسترس نیستند. بهینه‌سازی آنلاین با هوش مصنوعی نیز تا تعیین سرویس مناسب غیرفعال است.</p></section>}
+        </Suspense>
+        {tab === 'catalog' && <>
         <section className="grid gap-4 md:grid-cols-[1.4fr_.6fr]">
           <div className="relative overflow-hidden rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-emerald-950/5 sm:p-8">
             <div className="pointer-events-none absolute -left-10 -top-16 h-56 w-56 rounded-full border-[30px] border-[#d7b45a]/10" />
@@ -93,7 +118,7 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit }) => 
             </div>
           </div>
           <div className="divide-y divide-slate-100">
-            {filteredDishes.slice(0, 100).map(dish => (
+            {filteredDishes.slice((page - 1) * 50, page * 50).map(dish => (
               <article key={dish.id} className="flex items-center gap-3 px-5 py-3.5 transition hover:bg-[#f8faf6] sm:px-7">
                 <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#f3f6f1] text-emerald-800"><UtensilsCrossed size={18} /></div>
                 <div className="min-w-0 flex-1"><h3 className="truncate text-sm font-black">{dish.name}</h3><p className="mt-1 truncate text-[11px] text-slate-500">{CATEGORY_LABELS[dish.category] || dish.category} {dish.nationality ? `· ${dish.nationality}` : ''}</p></div>
@@ -101,9 +126,10 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit }) => 
               </article>
             ))}
             {filteredDishes.length === 0 && <div className="px-7 py-14 text-center text-sm font-semibold text-slate-500">غذایی با این عبارت پیدا نشد.</div>}
-            {filteredDishes.length > 100 && <p className="px-7 py-4 text-center text-xs font-semibold text-slate-500">۱۰۰ نتیجهٔ اول نمایش داده شده؛ برای پیدا کردن غذا، جستجو را دقیق‌تر کن.</p>}
+            <div className="flex justify-center items-center gap-4 p-5"><button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="p-2 disabled:opacity-30">قبلی</button><span>{page.toLocaleString('fa-IR')} / {Math.max(1, Math.ceil(filteredDishes.length / 50)).toLocaleString('fa-IR')}</span><button disabled={page * 50 >= filteredDishes.length} onClick={() => setPage(p => p + 1)} className="p-2 disabled:opacity-30">بعدی</button></div>
           </div>
         </section>
+        </>}
       </main>
 
       {showUsersInfo && (

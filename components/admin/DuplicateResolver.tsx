@@ -93,10 +93,6 @@ const DuplicateResolver: React.FC = () => {
   }, [allDishes, showAll, searchTerm, selectedCategory]);
 
   const executeDelete = async (dishId: string) => {
-    if (!isOnline) {
-      alert("شما آفلاین هستید! برای حذف دائمی باید به اینترنت متصل باشید.");
-      return;
-    }
     setProcessingId(dishId);
     setConfirmDeleteId(null);
     try {
@@ -132,7 +128,7 @@ const DuplicateResolver: React.FC = () => {
             </button>
             <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black ${isOnline ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300 animate-pulse'}`}>
                 {isOnline ? <Wifi size={14}/> : <WifiOff size={14}/>}
-                {isOnline ? 'ONLINE' : 'OFFLINE'}
+                {isOnline ? 'روی این دستگاه' : 'بدون اتصال'}
             </div>
         </div>
       </div>

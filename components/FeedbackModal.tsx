@@ -41,7 +41,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, user }) 
       }, 2500);
     } catch (err) {
       console.error("Feedback error:", err);
-      alert("خطا در ارتباط با سرور. لطفاً مجدداً تلاش کنید.");
+      alert("ذخیره در مرورگر انجام نشد. فضای ذخیره‌سازی را بررسی کنید.");
     } finally {
       setIsSending(false);
     }
@@ -68,8 +68,8 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, user }) 
            <div className="flex items-center gap-4">
               <div className="p-3 bg-emerald-500 text-white rounded-[1.25rem] shadow-lg"><MessageSquare size={20}/></div>
               <div>
-                <h3 className="text-lg font-black leading-none">صدای شما (ارسال نظر)</h3>
-                <p className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest mt-1">Direct Feedback System</p>
+                <h3 className="text-lg font-black leading-none">یادداشت بازخورد</h3>
+                <p className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest mt-1">فقط روی این دستگاه؛ برای مدیریت ارسال نمی‌شود</p>
               </div>
            </div>
            <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-all"><X size={20}/></button>
@@ -80,7 +80,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, user }) 
            {isSuccess ? (
               <div className="py-16 flex flex-col items-center text-center gap-5 animate-enter">
                  <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shadow-lg animate-bounce"><CheckCircle size={40}/></div>
-                 <h4 className="text-xl font-black text-slate-800">پیام شما دریافت شد</h4>
+                 <h4 className="text-xl font-black text-slate-800">یادداشت روی این دستگاه ذخیره شد</h4>
               </div>
            ) : (
               <form onSubmit={handleSubmit} className="space-y-8 animate-enter">
@@ -121,7 +121,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, user }) 
                           className="sm:w-48 bg-slate-900 text-white rounded-[2rem] font-black text-lg flex flex-col items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all disabled:opacity-50 py-6 sm:py-0"
                         >
                            {isSending ? <Loader2 size={28} className="animate-spin"/> : <Send size={28}/>}
-                           <span className="text-sm">ارسال برای مدیریت</span>
+                           <span className="text-sm">ذخیره روی دستگاه</span>
                         </button>
                     </div>
                  </div>

@@ -1,3 +1,4 @@
+import BackupManager from './admin/BackupManager';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { UserProfile, DishCategory, CATEGORY_LABELS, NatureType, VisitorProfile } from '../types';
@@ -273,6 +274,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
 
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
           <div className="max-w-4xl mx-auto py-4 sm:py-8 space-y-6 sm:space-y-10">
+            <BackupManager personalOnly />
               {/* بخش راهنمای اپلیکیشن */}
               <button 
                 onClick={() => setIsUserGuideOpen(true)}

@@ -42,7 +42,7 @@ export const GuestService = {
       if (saved?.uid === 'local-guest') return { ...saved, kitchenMode: saved.kitchenMode || GuestService.getStartMode() || 'with-inventory' };
     } catch { /* Recover a damaged local profile with safe defaults. */ }
     return {
-      uid: 'local-guest', username: 'guest', fullName: 'دوست نوش', passwordCode: '',
+      uid: 'local-guest', username: 'guest', fullName: 'مهمان عزیز', passwordCode: '',
       subscriptionExpiry: 0, role: 'user', isApproved: false,
       blacklistedDishIds: [], favoriteDishIds: [], dislikedIngredients: [],
       excludedCategories: [], preferredNatures: ['hot', 'cold', 'balanced'],

@@ -72,7 +72,8 @@ export const DB = {
       const transaction = db.transaction(storeName, 'readwrite');
       const store = transaction.objectStore(storeName);
       const request = store.put(data);
-      request.onsuccess = () => resolve();
+      transaction.oncomplete = () => resolve();
+      transaction.onabort = () => reject(transaction.error || new Error("Storage transaction aborted"));
       request.onerror = () => reject(request.error);
     });
   },
@@ -105,7 +106,8 @@ export const DB = {
       const transaction = db.transaction(storeName, 'readwrite');
       const store = transaction.objectStore(storeName);
       const request = store.delete(key);
-      request.onsuccess = () => resolve();
+      transaction.oncomplete = () => resolve();
+      transaction.onabort = () => reject(transaction.error || new Error("Storage transaction aborted"));
       request.onerror = () => reject(request.error);
     });
   }

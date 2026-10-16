@@ -4,6 +4,7 @@ const DISH_IMAGES_REPOSITORY = 'https://raw.githubusercontent.com/hassanalikhany
 export const getDishImageCandidates = (dishId?: string, imageUrl?: string): string[] => {
   const id = dishId?.trim();
   const url = imageUrl?.trim();
+  if (url?.toLowerCase() === 'none') return [];
   const hasExplicitImage = Boolean(url && url.toLowerCase() !== 'none');
   if (!id) return hasExplicitImage ? [url!] : [];
 

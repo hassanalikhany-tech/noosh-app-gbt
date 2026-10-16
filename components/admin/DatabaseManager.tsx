@@ -1,5 +1,6 @@
+import { validCatalog } from './BackupManager';
 
-import { CloudLightning, Loader2, Database, RefreshCw, Trash2, Download, ShieldAlert, FileSpreadsheet, UploadCloud, Info, AlertTriangle, Play } from 'lucide-react';
+import { Loader2, Database, RefreshCw, Download, ShieldAlert, FileSpreadsheet, UploadCloud, AlertTriangle, Play } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { RecipeService } from '../../services/recipeService';
 import { estimateCalories, estimateCookTime, getDifficulty, getDishNature } from '../../utils/recipeHelpers';
@@ -7,7 +8,6 @@ import { estimateCalories, estimateCookTime, getDifficulty, getDishNature } from
 const DatabaseManager: React.FC = () => {
   const [stats, setStats] = useState({ local: 0, cache: 0, cloud: 0 });
   const [isLoading, setIsLoading] = useState(true);
-  const [isPurging, setIsPurging] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [manualJson, setManualJson] = useState('');
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info' | 'warning'; text: string } | null>(null);
@@ -32,7 +32,7 @@ const DatabaseManager: React.FC = () => {
     }
     try {
       const dishes = JSON.parse(manualJson);
-      if (!Array.isArray(dishes)) throw new Error("فرمت وارد شده صحیح نیست. باید یک آرایه [] باشد.");
+      if (!validCatalog(dishes)) throw new Error("فرمت وارد شده صحیح نیست. باید یک آرایه [] باشد.");
       
       setIsSeeding(true);
       const res = await RecipeService.seedFromExternalData(dishes);
@@ -74,13 +74,10 @@ const DatabaseManager: React.FC = () => {
     link.click();
   };
 
-  const handlePurgeCloud = async () => {
-    if (!confirm("هشدار جدی: تمام اطلاعات فایربیس پاک خواهد شد. ادامه می‌دهید؟")) return;
-    setIsPurging(true);
-    const res = await RecipeService.purgeCloudDatabase();
-    setMessage({ type: res.success ? 'warning' : 'error', text: res.message });
-    await loadStats();
-    setIsPurging(false);
+  const handleExportJSON = () => {
+    const dishes = RecipeService.getRawDishes();
+    const url = URL.createObjectURL(new Blob([JSON.stringify(dishes, null, 2)], {type:'application/json'}));
+    const link = document.createElement('a'); link.href = url; link.download = 'noosh-recipes.json'; link.click(); URL.revokeObjectURL(url);
   };
 
   const toPersian = (n: number) => n.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
@@ -103,8 +100,8 @@ const DatabaseManager: React.FC = () => {
           <div className="flex items-center gap-4">
             <div className="p-4 bg-indigo-50 text-indigo-600 rounded-3xl shadow-inner"><Database size={36} /></div>
             <div>
-              <h2 className="text-2xl font-black text-slate-800">وضعیت بانک اطلاعاتی ابری</h2>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Cloud Database Live Sync</p>
+              <h2 className="text-2xl font-black text-slate-800">بانک دستورهای روی این دستگاه</h2>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Local Recipe Library</p>
             </div>
           </div>
           
@@ -112,9 +109,7 @@ const DatabaseManager: React.FC = () => {
             <button onClick={handleExportCSV} className="px-6 py-4 bg-blue-600 text-white rounded-2xl font-black text-sm shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all flex items-center gap-2 active:scale-95">
               <FileSpreadsheet size={20} /> استخراج CSV
             </button>
-            <button onClick={handlePurgeCloud} disabled={isPurging} className="px-4 py-4 bg-rose-50 text-rose-600 rounded-2xl font-black text-xs border border-rose-100 hover:bg-rose-100 transition-all">
-              {isPurging ? <Loader2 className="animate-spin" size={20} /> : <Trash2 size={20} />} پاکسازی کامل ابر
-            </button>
+            <button onClick={handleExportJSON} className="px-5 py-4 bg-emerald-700 text-white rounded-2xl font-black text-sm flex items-center gap-2"><Download size={19} /> خروجی JSON</button>
             <button onClick={loadStats} className="p-4 bg-slate-100 text-slate-500 rounded-2xl hover:bg-slate-200 transition-all">
                <RefreshCw size={24} className={isLoading ? "animate-spin" : ""} />
             </button>
@@ -131,7 +126,7 @@ const DatabaseManager: React.FC = () => {
             <span className="text-5xl font-black text-amber-700 relative z-10">{toPersian(stats.cache)}</span>
           </div>
           <div className="p-8 bg-indigo-50 rounded-[2rem] border border-indigo-100 text-center relative overflow-hidden group">
-            <span className="text-indigo-400 font-black text-[10px] block mb-2 uppercase tracking-tighter">دیتابیس فایربیس</span>
+            <span className="text-indigo-400 font-black text-[10px] block mb-2 uppercase tracking-tighter">کل دستورهای در دسترس</span>
             <span className="text-5xl font-black text-indigo-700 relative z-10">{toPersian(stats.cloud)}</span>
           </div>
         </div>
@@ -142,7 +137,7 @@ const DatabaseManager: React.FC = () => {
             <div className="flex items-center gap-4 mb-6">
                <div className="p-3 bg-teal-500 rounded-2xl text-slate-950"><UploadCloud size={24}/></div>
                <div>
-                  <h3 className="text-lg font-black">بارگذاری/بازیابی داده‌های ابری</h3>
+                  <h3 className="text-lg font-black">بارگذاری/بازیابی داده‌های محلی</h3>
                   <p className="text-xs text-slate-400 font-bold">Paste JSON from Converter below</p>
                </div>
             </div>
@@ -161,13 +156,13 @@ const DatabaseManager: React.FC = () => {
               className="w-full py-5 bg-teal-500 hover:bg-teal-400 text-slate-950 rounded-2xl font-black flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50 shadow-xl shadow-teal-500/20"
             >
               {isSeeding ? <Loader2 className="animate-spin" size={24} /> : <Play size={24} />}
-              انتقال مستقیم به فایربیس (Cloud Seed)
+              افزودن فهرست به کتابخانهٔ همین دستگاه
             </button>
 
             <div className="mt-6 p-4 bg-white/5 border border-white/10 rounded-2xl flex items-start gap-4">
                <AlertTriangle className="text-amber-400 flex-shrink-0" size={20} />
                <p className="text-[10px] text-slate-300 leading-relaxed font-bold">
-                 از آنجا که دیتابیس داخلی اپلیکیشن را برای سبک‌تر شدن برنامه تخلیه کرده‌ایم، در اولین اجرا باید داده‌های استخراج شده از اکسل را از طریق کادر بالا در فایربیس بارگذاری کنید. پس از یک بار موفقیت، تمامی کاربران در سراسر دنیا داده‌ها را دریافت خواهند کرد.
+                 فهرست اصلی ۶۶۷ غذا از خود برنامه بارگذاری می‌شود. وارد کردن فایل در این قسمت فقط کتابخانهٔ مرورگر فعلی را تغییر می‌دهد و به دستگاه‌های دیگر نمی‌رسد. برای انتشار تغییرات عمومی باید فایل در کد سایت اعمال شود.
                </p>
             </div>
           </div>

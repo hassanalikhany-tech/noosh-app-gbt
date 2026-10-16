@@ -68,7 +68,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   const [searchTerm, setSearchTerm] = useState(externalSearchTerm);
   
   useEffect(() => { setSearchTerm(externalSearchTerm); setCurrentPage(1); }, [externalSearchTerm]);
-  useEffect(() => { setCurrentPage(1); }, [allDishes, selectedCategory, selectedCountryId]);
+  useEffect(() => { setCurrentPage(1); }, [allDishes, selectedCategory, selectedCountryId, user.dislikedIngredients]);
 
   const flagsScrollRef = useRef<HTMLDivElement>(null);
 
@@ -121,7 +121,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
       
       if (selectedCategory === 'international' && selectedCountryId !== 'all') {
         const country = countryOptions.find(c => c.id === selectedCountryId);
-        if (!country?.matches.some(match => normalizePersian(dish.nationality || '').includes(normalizePersian(match)))) return false;
+        if (getCountryCode(dish.nationality || '') !== selectedCountryId && !country?.matches.some(match => normalizePersian(dish.nationality || '').includes(normalizePersian(match)))) return false;
       }
 
       // Filter prohibited ingredients

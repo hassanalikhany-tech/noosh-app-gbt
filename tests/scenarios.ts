@@ -1,3 +1,7 @@
+import { RecipeService as RealRecipes } from '../services/./recipeService';
+import { DB } from '../utils/db';
+import { CATEGORY_LABELS } from '../types';
+import { getDishImageCandidates } from '../utils/dishImageSources';
 import assert from 'node:assert/strict';
 import { RecipeService } from './recipeService.mock';
 import { filterDishes, getPlanningPool, generateWeeklyPlan, generateMonthlyPlan, generateSingleReplacement } from '../utils/planner';
@@ -70,4 +74,16 @@ assert.deepEqual(GuestService.get().favoriteDishIds, ['veg']);
 assert.equal(GuestService.get().weeklyPlan.length, 7);
 GuestService.stop(); assert.equal(GuestService.isActive(), false);
 assert.deepEqual(GuestService.get().favoriteDishIds, ['veg'], 'Logging out preserves guest data');
-console.log('Passed 43 checks: offline recipe catalog, mode persistence, pantry-aware and flexible planning, mode-aware shopping and cooking, filters, guest persistence, phone normalization, and Firebase auth errors.');
+console.log('Passed core checks: offline recipe catalog, mode persistence, pantry-aware and flexible planning, mode-aware shopping and cooking, filters, guest persistence, phone normalization, and Firebase auth errors.');
+
+const preferences = {familySize: 6, favoriteDishIds: ['veg'], blacklistedDishIds: ['meat'], dislikedIngredients: ['گردو'], preferredNatures: ['hot'] as const, excludedCategories: ['stew'] as const, meatlessMode: true};
+GuestService.save(preferences as any);
+for (const [key,value] of Object.entries(preferences)) assert.deepEqual((GuestService.get() as any)[key], value, `Persists ${key}`);
+assert.deepEqual(getDishImageCandidates('dish-test', 'none'), [], 'Removed pictures cannot reappear from fallbacks');
+DB.getAll = async () => [];
+DB.init = async () => { throw new Error('Test without IndexedDB'); };
+await RealRecipes.initialize();
+assert.equal(RealRecipes.getAllDishes().length, 667, 'Actual service exposes all 667 bundled recipes without storage or network');
+assert.ok(RealRecipes.getAllDishes().every(d => d.category in CATEGORY_LABELS), 'Every recipe belongs to a visible search category');
+assert.ok(RealRecipes.getAllDishes().filter(d => d.id.includes('1782263836159')).every(d => d.ingredients.some(i => i.amount > 0)), 'Supplemental recipes contain usable shopping quantities');
+console.log('Release checks passed: personal settings persistence, removed image fallback, 667 real service recipes and valid categories.');

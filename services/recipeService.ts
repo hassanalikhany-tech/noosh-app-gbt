@@ -3,7 +3,7 @@ import { Dish, UserProfile } from '../types';
 import { DB } from '../utils/db';
 import { DEFAULT_DISHES } from '../data/recipes';
 import RECIPE_CATALOG from '../data/recipes_catalog.json';
-import { getHiddenDishIds, getRenamedDishes } from '../utils/dishStorage';
+import { getHiddenDishIds, getRenamedDishes, hideDishIds } from '../utils/dishStorage';
 
 // غذاهای تکمیلیِ همراه اپ که در فایل فهرست اصلی نیستند.
 const EXTRA_CLOUD_DISHES: any[] = [
@@ -195,9 +195,18 @@ const mergeAllDishes = (sources: Dish[][]): Dish[] => {
   const map = new Map<string, Dish>();
   if (DEFAULT_DISHES) DEFAULT_DISHES.forEach(d => map.set(d.id, d));
   (RECIPE_CATALOG as unknown as Dish[]).forEach(d => map.set(d.id, d));
-  EXTRA_CLOUD_DISHES.forEach(d => map.set(d.id, d));
+  EXTRA_CLOUD_DISHES.forEach(d => map.set(d.id, {
+    ...d, category: 'international', nationality: d.Nationality,
+    nature: d.nature === 'گرم' ? 'hot' : d.nature === 'سرد' ? 'cold' : 'balanced',
+    ingredients: d.Ingredients_List.split('|').map((entry: string) => {
+      const [item, raw = ''] = entry.split(':');
+      const value = raw.trim().replace(/[۰-۹]/g, c => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(c)));
+      const match = value.match(/^(\d+(?:\.\d+)?)\s*(.*)$/);
+      return { item: item.trim(), amount: match ? Number(match[1]) : 0, unit: match ? match[2] : value };
+    }),
+  }));
   sources.forEach(arr => {
-    if (arr) arr.forEach(d => map.set(d.id, d));
+    if (arr) arr.forEach(d => { if (!map.has(d.id) || (d as Dish & { localEdited?: boolean }).localEdited || d.imageReviewStatus) map.set(d.id, d); });
   });
   return Array.from(map.values());
 };
@@ -262,7 +271,7 @@ export const RecipeService = {
 
   updateDish: async (dishId: string, updates: Partial<Dish>): Promise<boolean> => {
     try {
-      cachedDishes = cachedDishes.map(d => d.id === dishId ? { ...d, ...updates } : d);
+      cachedDishes = cachedDishes.map(d => d.id === dishId ? { ...d, ...updates, localEdited: true } : d);
       const updatedDish = cachedDishes.find(d => d.id === dishId);
       if (updatedDish) await DB.put('dishes', updatedDish);
       notifyRecipesUpdate(cachedDishes.length);
@@ -276,7 +285,7 @@ export const RecipeService = {
       // Update cache and local DB
       cachedDishes = cachedDishes.map(d => {
         const update = updates.find(u => u.id === d.id);
-        return update ? { ...d, ...update.data } : d;
+        return update ? { ...d, ...update.data, localEdited: true } : d;
       });
       
       const dbInstance = await DB.init();
@@ -297,7 +306,7 @@ export const RecipeService = {
 
   deleteDish: async (dishId: string): Promise<boolean> => {
     try {
-      cachedDishes = cachedDishes.filter(d => d.id !== dishId);
+      hideDishIds([dishId]);
       await DB.delete('dishes', dishId);
       notifyRecipesUpdate(cachedDishes.length);
       return true;
@@ -320,7 +329,7 @@ export const RecipeService = {
   getLocalCount: () => cachedDishes.length,
 
   seedFromExternalData: async (dishes: Dish[]) => {
-    cachedDishes = mergeAllDishes([cachedDishes, dishes]);
+    cachedDishes = mergeAllDishes([cachedDishes, dishes.map(d => ({ ...d, localEdited: true }))]);
     const dbInstance = await DB.init();
     const transaction = dbInstance.transaction('dishes', 'readwrite');
     const store = transaction.objectStore('dishes');
@@ -331,6 +340,6 @@ export const RecipeService = {
   },
 
   purgeCloudDatabase: async () => {
-    return { success: false, message: "در نسخهٔ محلی پایگاه دادهٔ ابری وجود ندارد؛ فهرست غذاها پاک نشد." };
+    return { success: false, message: "در این نسخه پایگاه دادهٔ ابری وجود ندارد؛ فهرست غذاها پاک نشد." };
   }
 };

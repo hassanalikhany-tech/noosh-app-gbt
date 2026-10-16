@@ -7,7 +7,7 @@ import { getDishImageCandidates } from '../../utils/dishImageSources';
 import DishVisual from '../DishVisual';
 
 type ImageAuditStatus = 'available' | 'missing' | 'broken';
-type AuditFilter = 'all' | 'missing' | 'broken' | 'duplicate' | 'replace';
+type AuditFilter = 'all' | 'missing' | 'broken' | 'duplicate' | 'replace' | 'approved' | 'create' | 'removed';
 type AuditResult = { status: ImageAuditStatus; url?: string };
 
 const explicitImage = (dish: Dish) => Boolean(dish.imageUrl?.trim() && dish.imageUrl.trim().toLowerCase() !== 'none');
@@ -92,12 +92,15 @@ const ImageGuide: React.FC = () => {
       if (activeFilter === 'missing') return result?.status === 'missing';
       if (activeFilter === 'broken') return result?.status === 'broken';
       if (activeFilter === 'duplicate') return duplicateDishIds.has(dish.id);
-      if (activeFilter === 'replace') return dish.imageReviewStatus === 'replace';
+      if (['replace', 'approved', 'create', 'removed'].includes(activeFilter)) return dish.imageReviewStatus === activeFilter;
       return true;
     });
   }, [allDishes, searchTerm, activeFilter, auditResults, duplicateDishIds]);
 
   const counts = useMemo(() => ({
+    approved: allDishes.filter(d => d.imageReviewStatus === 'approved').length,
+    create: allDishes.filter(d => d.imageReviewStatus === 'create').length,
+    removed: allDishes.filter(d => d.imageReviewStatus === 'removed').length,
     all: allDishes.length,
     missing: allDishes.filter(dish => auditResults[dish.id]?.status === 'missing').length,
     broken: allDishes.filter(dish => auditResults[dish.id]?.status === 'broken').length,
@@ -157,16 +160,16 @@ const ImageGuide: React.FC = () => {
     setMessage(`بررسی ${allDishes.length} تصویر تمام شد.`);
   };
 
-  const toggleReviewFlag = async (dish: Dish) => {
-    const nextStatus = dish.imageReviewStatus === 'replace' ? 'approved' : 'replace';
+  const toggleReviewFlag = async (dish: Dish, nextStatus: Dish['imageReviewStatus']) => {
+    if (nextStatus === 'removed' && !confirm('تصویر این غذا روی دستگاه شما حذف و با نماد غذا جایگزین شود؟')) return;
     setSavingIds(previous => new Set(previous).add(dish.id));
-    const saved = await RecipeService.updateDish(dish.id, { imageReviewStatus: nextStatus });
+    const saved = await RecipeService.updateDish(dish.id, { imageReviewStatus: nextStatus, ...(nextStatus === 'removed' ? { imageUrl: 'none' } : nextStatus === 'approved' && auditResults[dish.id]?.url ? { imageUrl: auditResults[dish.id].url } : {}) });
     setSavingIds(previous => { const next = new Set(previous); next.delete(dish.id); return next; });
     if (saved) {
-      setMessage(nextStatus === 'replace' ? `«${dish.name}» برای جایگزینی علامت خورد.` : `علامت بازبینی «${dish.name}» برداشته شد.`);
+      setMessage(`وضعیت تصویر «${dish.name}» روی این دستگاه ذخیره شد.`);
       setRefreshKey(key => key + 1);
     } else {
-      setMessage('ذخیرهٔ علامت انجام نشد. اتصال Firebase یا دسترسی مدیریت را بررسی کنید.');
+      setMessage('ذخیره انجام نشد. فضای ذخیره‌سازی و مجوز مرورگر را بررسی کنید.');
     }
   };
 
@@ -181,7 +184,7 @@ const ImageGuide: React.FC = () => {
       'تصویر قابل نمایش در اپ': auditResults[dish.id]?.url || '',
       'وضعیت بررسی': auditResults[dish.id]?.status || 'بررسی نشده',
       'منبع تکراری': duplicateDishIds.has(dish.id) ? 'بله؛ آدرس یکسان' : 'خیر',
-      'نیازمند جایگزینی': dish.imageReviewStatus === 'replace' ? 'بله' : 'خیر',
+      'وضعیت انتخاب‌شده': dish.imageReviewStatus || 'بررسی نشده',
     }));
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
@@ -190,6 +193,9 @@ const ImageGuide: React.FC = () => {
   };
 
   const filterOptions: { id: AuditFilter; label: string; icon?: React.ReactNode }[] = [
+    { id: 'approved', label: 'تأیید و حفظ' },
+    { id: 'create', label: 'ساخت تصویر جدید' },
+    { id: 'removed', label: 'حذف‌شده' },
     { id: 'all', label: 'همه' },
     { id: 'missing', label: 'بدون تصویر' },
     { id: 'broken', label: 'لینک خراب' },
@@ -216,7 +222,7 @@ const ImageGuide: React.FC = () => {
             <div className="p-3.5 bg-emerald-50 text-emerald-700 rounded-2xl"><ImageIcon size={27} /></div>
             <div>
               <h2 className="text-xl md:text-2xl font-black text-slate-800">بازبینی عکس غذاها</h2>
-              <p className="text-sm text-slate-500 mt-1">همان عکس و مسیر جایگزینی که کارت‌های غذا در اپ استفاده می‌کنند.</p>
+              <p className="text-sm text-slate-500 mt-1">تصویرها را بررسی و علامت‌گذاری کن؛ خروجی گزارش را برای اصلاح و انتشار ارسال کن. تأیید و حفظ یعنی این تصویر در بازبینی‌های بعدی تغییر نکند.</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -225,6 +231,11 @@ const ImageGuide: React.FC = () => {
               {isScanning ? `در حال بررسی ${scanProgress.complete} از ${scanProgress.total}` : 'بررسی در دسترس بودن عکس‌ها'}
             </button>
             <button type="button" onClick={() => { setRefreshKey(key => key + 1); setAuditResults({}); }} className="p-3 bg-white border border-slate-200 text-slate-500 rounded-xl hover:bg-slate-50" title="تازه‌سازی فهرست"><RefreshCw size={19} /></button>
+            <button type="button" onClick={() => {
+              const rows = allDishes.filter(d => d.imageReviewStatus).map(d => ({ id: d.id, name: d.name, imageUrl: d.imageUrl, imageReviewStatus: d.imageReviewStatus }));
+              const url = URL.createObjectURL(new Blob([JSON.stringify({version: 1, reviews: rows}, null, 2)], {type: 'application/json'}));
+              const a = document.createElement('a'); a.href = url; a.download = 'noosh-image-reviews.json'; a.click(); URL.revokeObjectURL(url);
+            }} className="rounded-xl bg-emerald-100 px-4 py-3 text-sm font-bold">دریافت گزارش برای اصلاح عکس‌ها</button>
             <button type="button" onClick={handleExportExcel} className="px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 bg-slate-800 text-white hover:bg-slate-900">
               <Download size={17} /> خروجی اکسل
             </button>
@@ -284,9 +295,9 @@ const ImageGuide: React.FC = () => {
                     {isDuplicate && <span className="block mt-1 text-[10px] text-amber-700">آدرس عکس تکراری</span>}
                   </td>
                   <td className="p-3 text-center">
-                    <button type="button" disabled={savingIds.has(dish.id)} onClick={() => toggleReviewFlag(dish)} className={`px-3 py-2 rounded-lg text-[11px] font-bold disabled:opacity-50 ${flagged ? 'bg-amber-100 text-amber-900' : 'bg-white border border-slate-200 text-slate-600 hover:border-amber-300'}`}>
-                      {savingIds.has(dish.id) ? 'در حال ذخیره...' : flagged ? 'در صف جایگزینی' : 'علامت برای جایگزینی'}
-                    </button>
+                    <select aria-label={`وضعیت تصویر ${dish.name}`} disabled={savingIds.has(dish.id)} value={dish.imageReviewStatus || ''} onChange={event => void toggleReviewFlag(dish, (event.target.value || undefined) as Dish['imageReviewStatus'])} className="max-w-44 rounded-lg border border-slate-200 bg-white p-2 text-xs">
+                      <option value="">بررسی نشده</option><option value="approved">تأیید و حفظ تصویر</option><option value="replace">نیاز به جایگزینی</option><option value="create">ساخت تصویر جدید</option><option value="removed">حذف تصویر</option>
+                    </select>
                   </td>
                   <td className="p-3 text-center"><button type="button" onClick={() => handleCopy(dish.id)} className={`p-2 rounded-lg ${copiedId === dish.id ? 'bg-emerald-100 text-emerald-800' : 'text-slate-400 hover:bg-slate-100'}`} title="کپی شناسه">{copiedId === dish.id ? <Check size={16} /> : <Copy size={16} />}</button></td>
                 </tr>
