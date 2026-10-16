@@ -47,7 +47,7 @@
         "سبزی سرخ‌شده را همراه با لیمو عمانی‌هایی که سوراخ کرده و خیسانده‌اید به خورش اضافه کنید.",
         "اجازه دهید خورش با حرارت بسیار ملایم به مدت ۲ الی ۳ ساعت جا بیفتد تا روغن سیاه پس بدهد. نمک را در اواخر پخت اضافه کنید."
       ],
-      "imageUrl": "/images/recipes/ghormeh-sabzi-review.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1541532713592-79a0317b6b77?q=80&w=600&auto=format&fit=crop",
       "nationality": "ir",
       "nature": "balanced",
       "natureLabel": "معتدل (سبزیجات گرم، لوبیا سرد)",
@@ -56,7 +56,7 @@
       "cookTime": 180,
       "difficulty": "متوسط",
       "servings": 4,
-      "imageReviewStatus": "completed",
+      "imageReviewStatus": "replace",
       "localEdited": true
     },
     {
@@ -110,7 +110,7 @@
         "در اواخر پخت، نمک، زعفران دم‌کرده، کمی پودر دارچین و یک قاشق گلاب برای عطر بی‌نظیر آن اضافه کنید.",
         "سیب‌زمینی‌ها را خلال کرده، سرخ کنید و هنگام سرو روی خورش بگذارید."
       ],
-      "imageUrl": "/images/recipes/gheimeh-sibzamini-review.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=600&auto=format&fit=crop",
       "nationality": "ir",
       "nature": "hot",
       "natureLabel": "گرم و خشک",
@@ -119,7 +119,7 @@
       "cookTime": 120,
       "difficulty": "آسان",
       "servings": 4,
-      "imageReviewStatus": "completed",
+      "imageReviewStatus": "replace",
       "localEdited": true
     },
     {
@@ -172,7 +172,7 @@
         "زرشک را شسته و با کره، کمی شکر و گلاب تفت دهید تا پف کند (مواظب باشید نسوزد). خلال پسته را اضافه کنید.",
         "در پایان مقداری از برنج رویی را با زعفران مخلوط کرده و پلو را با برنج زعفرانی و زرشک و تکه‌های مرغ تزیین کنید."
       ],
-      "imageUrl": "/images/recipes/zereshk-polo-morgh-review.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?q=80&w=600&auto=format&fit=crop",
       "nationality": "ir",
       "nature": "cold",
       "natureLabel": "سرد و تر (به دلیل طبع مرغ)",
@@ -181,7 +181,7 @@
       "cookTime": 90,
       "difficulty": "آسان",
       "servings": 4,
-      "imageReviewStatus": "completed",
+      "imageReviewStatus": "replace",
       "localEdited": true
     },
     {
@@ -229,7 +229,7 @@
         "رب انار را اضافه کنید و خوب مخلوط کنید.",
         "اگر فسنجانِ ملس می‌پسندید، کمی شکر اضافه کنید. بگذارید خورش با حرارت کم کاملاً جا بیفتد و غلیظ و تیره‌رنگ شود."
       ],
-      "imageUrl": "/images/recipes/fesenjan-morgh-review.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1608897013039-887f21d8c804?q=80&w=600&auto=format&fit=crop",
       "nationality": "ir",
       "nature": "hot",
       "natureLabel": "بسیار گرم و خشک",
@@ -238,7 +238,7 @@
       "cookTime": 180,
       "difficulty": "سخت",
       "servings": 4,
-      "imageReviewStatus": "completed",
+      "imageReviewStatus": "replace",
       "localEdited": true
     },
     {
@@ -285,7 +285,7 @@
         "جوجه‌ها را به سیخ بکشید و روی زغال ملایم یا در فر کباب کنید.",
         "در حین کباب کردن، مخلوط کره ذوب‌شده و زعفران را با قلم‌مو روی جوجه‌ها بمالید تا آبدار و لذیذ بمانند."
       ],
-      "imageUrl": "/images/recipes/joojeh-kabab-review.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=600&auto=format&fit=crop",
       "nationality": "ir",
       "nature": "hot",
       "natureLabel": "گرم و خشک",
@@ -294,7 +294,7 @@
       "cookTime": 45,
       "difficulty": "متوسط",
       "servings": 3,
-      "imageReviewStatus": "completed",
+      "imageReviewStatus": "replace",
       "localEdited": true
     },
     {
@@ -332,7 +332,7 @@
         "سیخ کباب را بردارید و گلوله‌ای از گوشت برداشته و روی سیخ فرم دهید و با انگشت اشاره و شصت شیارهای منظم ایجاد کنید.",
         "روی زغال داغ و یکدست کباب کنید و مکرر سیخ‌ها را بچرخانید تا گوشت نریزد."
       ],
-      "imageUrl": "/images/recipes/kebab-koobideh-review.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=600&auto=format&fit=crop",
       "nationality": "ir",
       "nature": "balanced",
       "natureLabel": "معتدل مایل به گرم",
@@ -341,7 +341,7 @@
       "cookTime": 60,
       "difficulty": "سخت",
       "servings": 4,
-      "imageReviewStatus": "completed",
+      "imageReviewStatus": "replace",
       "localEdited": true
     },
     {
@@ -389,7 +389,7 @@
         "کشک را با کمی آب رقیق کرده به مواد اضافه کنید و اجازه دهید به روغن بیفتد.",
         "هنگام سرو با کشک غلیظ، پیاز داغ، سیر داغ، نعناع داغ و مغز گردو تزیین کنید."
       ],
-      "imageUrl": "/images/recipes/kashk-bademjan-review.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=600&auto=format&fit=crop",
       "nationality": "ir",
       "nature": "cold",
       "natureLabel": "سرد و خشک (بادنجان سرد است)",
@@ -398,7 +398,7 @@
       "cookTime": 45,
       "difficulty": "آسان",
       "servings": 3,
-      "imageReviewStatus": "completed",
+      "imageReviewStatus": "replace",
       "localEdited": true
     },
     {
@@ -445,7 +445,7 @@
         "در اواسط پخت رشته، مقداری پیاز داغ و نعناع داغ درون خمیر آش بریزید تا عطر غذا عالی شود.",
         "آش را از روی حرارت بردارید و با کشک، نعناع داغ، پیاز داغ و سیر داغ تزیین و سرو کنید."
       ],
-      "imageUrl": "/images/recipes/ash-reshteh-review.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?q=80&w=600&auto=format&fit=crop",
       "nationality": "ir",
       "nature": "balanced",
       "natureLabel": "معتدل (تنوع حبوبات و سبزیجات)",
@@ -454,7 +454,7 @@
       "cookTime": 90,
       "difficulty": "متوسط",
       "servings": 6,
-      "imageReviewStatus": "completed",
+      "imageReviewStatus": "replace",
       "localEdited": true
     },
     {
@@ -502,7 +502,7 @@
         "تابه مناسبی را با روغن داغ پر کنید. مقداری از مواد را کف دست پهن و فرم دهید و وسط آن سوراخی شیاردار بکنید تا مغزپخت شود.",
         "دو طرف کتلت‌ها را در روغن داغ سرخ کنید تا سرخ و برشته شوند و با گوجه فرنگی میل فرمایید."
       ],
-      "imageUrl": "/images/recipes/kotlet-goosht-review.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1606757389105-646d073027ef?q=80&w=600&auto=format&fit=crop",
       "nationality": "ir",
       "nature": "balanced",
       "natureLabel": "معتدل رو به گرم",
@@ -511,7 +511,7 @@
       "cookTime": 45,
       "difficulty": "آسان",
       "servings": 4,
-      "imageReviewStatus": "completed",
+      "imageReviewStatus": "create",
       "localEdited": true
     },
     {
@@ -558,7 +558,7 @@
         "کف قابلمه کمی روغن بزنید، سیب‌زمینی‌های ورقه شده را برای ته‌دیگ بچینید.",
         "ماکارونی و مایه گوشتی را لایه لایه داخل قابلمه بریزید و در نهایت به مدت ۴۰ الی ۵۰ دقیقه بگذارید دم بکشد."
       ],
-      "imageUrl": "/images/recipes/macaroni-goosht-review.jpg",
+      "imageUrl": "https://images.unsplash.com/photo-1546548970-71785318a17b?q=80&w=600&auto=format&fit=crop",
       "nationality": "ir",
       "nature": "cold",
       "natureLabel": "سرد و تر (به دلیل ماکارونی گندم فرآوری شده)",
@@ -567,7 +567,7 @@
       "cookTime": 60,
       "difficulty": "آسان",
       "servings": 4,
-      "imageReviewStatus": "completed",
+      "imageReviewStatus": "replace",
       "localEdited": true
     },
     {
@@ -1549,9 +1549,8 @@
         "آلو پاراتا را به صورت گرم همراه با ماست ساده، چاتنی گشنیز یا انواع ترشیجات هندی سرو کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "completed",
-      "localEdited": true,
-      "imageUrl": "/images/recipes/aloo-paratha-review.jpg"
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1766959134379",
@@ -2895,9 +2894,8 @@
         "مخلوط خامه و آرد را به آرامی به قابلمه اضافه کرده و مداوم هم بزنید. اجازه دهید ۵ تا ۱۰ دقیقه دیگر روی حرارت بماند تا سس کاملاً غلیظ شود و جا بیفتد."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "completed",
-      "localEdited": true,
-      "imageUrl": "/images/recipes/chicken-paprikash-review.jpg"
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1770148243186",
@@ -3570,9 +3568,8 @@
         "پس از خروج از فر، برگ‌های ریحان تازه را روی پیتزا پخش کرده و مقداری روغن زیتون روی آن بپاشید و به صورت گرم سرو کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "completed",
-      "localEdited": true,
-      "imageUrl": "/images/recipes/pizza-margherita-review.jpg"
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1770853484001",
@@ -3631,9 +3628,8 @@
         "بال‌های آماده را در کنار ساقه کرفس و سس بلوچیز چیده و میل کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "completed",
-      "localEdited": true,
-      "imageUrl": "/images/recipes/buffalo-wings-review.jpg"
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1770853534565",
@@ -3693,9 +3689,8 @@
         "سیخ‌ها را روی زغال ملایم کباب کنید یا قطعات مرغ را در سینی فر چیده و در فر از قبل گرم شده با دمای ۲۰۰ درجه سانتی‌گراد به مدت ۳۰ تا ۴۰ دقیقه قرار دهید تا طلایی و مغزپخت شوند."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "completed",
-      "localEdited": true,
-      "imageUrl": "/images/recipes/saffron-grilled-wings-review.jpg"
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1770853689129",
@@ -3749,9 +3744,8 @@
         "مرغ را در یک قابلمه با مقدار کمی روغن تفت دهید تا پوست آن طلایی شود، سپس آن را در فر با دمای ۱۸۰ درجه سانتی‌گراد به مدت ۱.۵ تا ۲ ساعت قرار دهید یا در قابلمه با حرارت بسیار ملایم بپزید تا کاملاً مغزپخت و سرخ شود."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "completed",
-      "localEdited": true,
-      "imageUrl": "/images/recipes/morgh-longi-review.jpg"
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1770856639426",
@@ -3839,9 +3833,8 @@
         "تخم‌مرغ نیمرو را در مرکز ظرف قرار داده و یک قاشق رب فلفل کره‌ای (گوچوجانگ) در کنار آن بگذارید و قبل از میل کردن تمام مواد را با هم مخلوط کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "completed",
-      "localEdited": true,
-      "imageUrl": "/images/recipes/bibimbap-beef-review.jpg"
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1771343394089",
@@ -3880,9 +3873,8 @@
         "نیمروی آماده شده را بلافاصله در ظرف سرو کشیده و همراه با نان تازه سنتی مانند بربری یا سنگک میل کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "completed",
-      "localEdited": true,
-      "imageUrl": "/images/recipes/fried-eggs-review.jpg"
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1771724051452",
@@ -3937,9 +3929,8 @@
         "جوجه‌های سرخ شده را که به رنگ قهوه‌ای روشن درآمده‌اند در ظرف چیده و سس رب انار و گردو را روی آن‌ها یا در کنار ظرف قرار دهید و همراه با برنج کته زعفرانی سرو کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "completed",
-      "localEdited": true,
-      "imageUrl": "/images/recipes/akbar-joojeh-review.jpg"
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1775503642242",
@@ -4008,9 +3999,8 @@
         "سطح رویی خمیر را با کره ذوب شده چرب کنید و سینی را در فر از پیش گرم شده با دمای 180 درجه سانتی‌گراد به مدت 30 الی 35 دقیقه قرار دهید تا گوشت پخته و خمیر کاملاً طلایی و ترد شود."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "completed",
-      "localEdited": true,
-      "imageUrl": "/images/recipes/turkish-ufo-kebab-review.jpg"
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1776124802762",
@@ -4076,9 +4066,8 @@
         "حدود ۵۰۰ میلی‌لیتر آب به قابلمه اضافه کرده و اجازه دهید اردک به مدت ۳ ساعت با شعله بسیار ملایم بپزد تا کاملاً مغزپخت شده و سس آن غلیظ شود."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "completed",
-      "localEdited": true,
-      "imageUrl": "/images/recipes/stuffed-duck-review.jpg"
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1776124850907",
@@ -4158,9 +4147,8 @@
         "در مرحله آخر، سیر له شده را به همراه نمک، فلفل، زردچوبه و فلفل قرمز به سوپ اضافه کنید و اجازه دهید چند قل بزند تا جا بیفتد و سپس سرو کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "completed",
-      "localEdited": true,
-      "imageUrl": "/images/recipes/turkish-iskembe-corbasi-review.jpg"
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1776124877276",
@@ -4223,7 +4211,9 @@
         "سیرهای له شده و پیازهای باقی‌مانده از مایه مرینیت را به تابه اضافه کنید. سپس یک لیوان آب گرم را دور تا دور بلدرچین‌ها ریخته، درب ظرف را بگذارید و اجازه دهید با حرارت بسیار ملایم به مدت ۴۵ تا ۶۰ دقیقه بپزد.",
         "در ۱۵ دقیقه پایانی پخت، مابقی زعفران دم‌کرده را روی بلدرچین‌ها بریزید و اجازه دهید سس خوراک غلیظ و جا افتاده شود. این غذا را می‌توانید در کنار چلو یا خوراک سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "imageReviewStatus": "create",
+      "localEdited": true
     },
     {
       "id": "dish-0-1776124903557",
@@ -4287,7 +4277,9 @@
         "هویج‌ها را به صورت خلالی خرد کرده و در صورت تمایل کمی تفت دهید، سپس همراه با آلوهای خیس خورده به خورش اضافه کنید.",
         "در ۳۰ دقیقه پایانی پخت، زعفران دم‌کرده و نمک را اضافه کرده و اجازه دهید خورش کاملاً جا بیفتد و غلیظ شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "imageReviewStatus": "create",
+      "localEdited": true
     },
     {
       "id": "dish-0-1776124930573",
