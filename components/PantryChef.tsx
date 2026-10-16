@@ -5,7 +5,7 @@ import { ChefHat, Sparkles, Search, X, UtensilsCrossed, RefreshCw, Trash2, Check
 import { PANTRY_ITEMS, getIngredientCategoryId } from '../data/pantry';
 import { RecipeService } from '../services/recipeService';
 import { Dish, KitchenMode, UserProfile, InventoryItem } from '../types';
-import { isIngredientMatch, isInventoryIngredientMatch, getStandardUnit, convertToBase, areUnitsComparable, isDishProhibited } from '../utils/recipeHelpers';
+import { isIngredientMatch, isInventoryIngredientMatch, getStandardUnit, convertToBase, convertAmountBetweenUnits, areUnitsComparable, isDishProhibited } from '../utils/recipeHelpers';
 import { UserService } from '../services/userService';
 import RecipeModal from './RecipeModal';
 import MealCard from './MealCard';
@@ -181,6 +181,17 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
       console.error("Failed to sync inventory update:", err);
       // Optional: Rollback if sync fails significantly, but usually Firestore handles offline/sync
     });
+  };
+
+  const changeInventoryUnit = (item: InventoryItem, nextUnit: string) => {
+    if (nextUnit === item.unit) return;
+    const converted = convertAmountBetweenUnits(item.amount, item.unit, nextUnit, item.name);
+    if (!converted) {
+      setAddMessage(`تبدیل ${item.unit} به ${nextUnit} برای ${item.name} مرجع مطمئنی ندارد؛ مقدار و واحد قبلی حفظ شد.`);
+      return;
+    }
+    updateInventoryItem(item.id, { amount: converted.amount, unit: nextUnit });
+    setAddMessage(converted.estimated ? `مقدار ${item.name} با وزن مرجع متوسط تبدیل شد؛ برای دقت کامل، وزن واقعی را وارد کن.` : `واحد ${item.name} با حفظ مقدار واقعی تغییر کرد.`);
   };
 
   const addToInventory = async (itemName: string, amount = 1, unit?: string, focusNext = false) => {
@@ -467,7 +478,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                                             />
                                             <select 
                                               value={item.unit} 
-                                              onChange={(e) => updateInventoryItem(item.id, { unit: e.target.value })}
+                                              onChange={(e) => changeInventoryUnit(item, e.target.value)}
                                               className="text-[9px] text-slate-400 bg-transparent outline-none cursor-pointer hover:text-teal-500"
                                             >
                                               <option value="کیلوگرم">کیلوگرم</option>
@@ -499,14 +510,13 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                                           onChange={e => {
                                             const previousUnit = item.minThresholdUnit || item.unit;
                                             const nextUnit = e.target.value;
-                                            const thresholdBase = convertToBase(item.minThreshold, previousUnit, item.name);
-                                            const nextUnitBase = convertToBase(1, nextUnit, item.name);
-                                            if (!areUnitsComparable(thresholdBase, nextUnitBase) || nextUnitBase.value <= 0) {
+                                            const converted = convertAmountBetweenUnits(item.minThreshold, previousUnit, nextUnit, item.name);
+                                            if (!converted) {
                                               setAddMessage('واحد آستانه باید از همان بُعد موجودی باشد؛ مثلاً کیلوگرم با گرم.');
                                               return;
                                             }
-                                            const nextThreshold = Math.round((thresholdBase.value / nextUnitBase.value) * 1000) / 1000;
-                                            updateInventoryItem(item.id, { minThreshold: nextThreshold, minThresholdUnit: nextUnit });
+                                            updateInventoryItem(item.id, { minThreshold: converted.amount, minThresholdUnit: nextUnit });
+                                            if (converted.estimated) setAddMessage(`آستانهٔ ${item.name} با وزن مرجع متوسط تبدیل شد؛ اگر وزن دقیق داری، آن را ثبت کن.`);
                                           }}
                                         >
                                           <option value="کیلوگرم">کیلوگرم</option><option value="عدد">عدد</option><option value="بسته">بسته</option><option value="لیتر">لیتر</option><option value="گرم">گرم</option><option value="میلی‌لیتر">میلی‌لیتر</option>

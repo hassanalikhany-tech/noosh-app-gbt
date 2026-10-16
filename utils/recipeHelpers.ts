@@ -122,7 +122,7 @@ export const UNIT_CONVERSIONS: Record<string, UnitDefinition> = {
   'کیلوگرم': { factor: 1000, type: 'weight', baseUnit: 'g' }, 'اونس': { factor: 28.349523125, type: 'weight', baseUnit: 'g' },
   'پوند': { factor: 453.59237, type: 'weight', baseUnit: 'g' }, 'مثقال': { factor: 4.608, type: 'weight', baseUnit: 'g' }, 'سیر': { factor: 75, type: 'weight', baseUnit: 'g' },
   'میلی‌لیتر': { factor: 1, type: 'volume', baseUnit: 'ml' }, 'لیتر': { factor: 1000, type: 'volume', baseUnit: 'ml' },
-  'پیمانه': { factor: 250, type: 'volume', baseUnit: 'ml' }, 'استکان': { factor: 100, type: 'volume', baseUnit: 'ml' }, 'لیوان': { factor: 250, type: 'volume', baseUnit: 'ml' },
+  'پیمانه': { factor: 250, type: 'volume', baseUnit: 'ml' }, 'پیمانه آمریکایی': { factor: 236.5882365, type: 'volume', baseUnit: 'ml' }, 'استکان': { factor: 100, type: 'volume', baseUnit: 'ml' }, 'لیوان': { factor: 250, type: 'volume', baseUnit: 'ml' },
   'قاشق غذاخوری': { factor: 15, type: 'volume', baseUnit: 'ml' }, 'قاشق چایخوری': { factor: 5, type: 'volume', baseUnit: 'ml' }, 'قاشق مرباخوری': { factor: 10, type: 'volume', baseUnit: 'ml' },
   'عدد': { factor: 1, type: 'count', baseUnit: 'count:piece' }, 'حلقه': { factor: 1, type: 'count', baseUnit: 'count:slice' },
   'بسته': { factor: 1, type: 'count', baseUnit: 'count:pack' }, 'قوطی': { factor: 1, type: 'count', baseUnit: 'count:can' }, 'حبه': { factor: 1, type: 'count', baseUnit: 'count:clove' },
@@ -134,7 +134,9 @@ const UNIT_ALIASES: Record<string, string> = {
   g: 'گرم', gram: 'گرم', grams: 'گرم', kg: 'کیلوگرم', kilo: 'کیلوگرم', kilogram: 'کیلوگرم', kilograms: 'کیلوگرم', mg: 'میلی‌گرم',
   oz: 'اونس', ounce: 'اونس', ounces: 'اونس', lb: 'پوند', lbs: 'پوند', pound: 'پوند', pounds: 'پوند',
   ml: 'میلی‌لیتر', milliliter: 'میلی‌لیتر', milliliters: 'میلی‌لیتر', millilitre: 'میلی‌لیتر', l: 'لیتر', liter: 'لیتر', liters: 'لیتر', litre: 'لیتر', litres: 'لیتر',
-  cup: 'پیمانه', cups: 'پیمانه', tbsp: 'قاشق غذاخوری', tablespoon: 'قاشق غذاخوری', tablespoons: 'قاشق غذاخوری', tsp: 'قاشق چایخوری', teaspoon: 'قاشق چایخوری', teaspoons: 'قاشق چایخوری',
+  // English recipe cups are US customary; keep their exact volume internally,
+  // then render them as milliliters so the app never presents US measures.
+  cup: 'پیمانه آمریکایی', cups: 'پیمانه آمریکایی', 'us cup': 'پیمانه آمریکایی', 'us cups': 'پیمانه آمریکایی', tbsp: 'قاشق غذاخوری', tablespoon: 'قاشق غذاخوری', tablespoons: 'قاشق غذاخوری', tsp: 'قاشق چایخوری', teaspoon: 'قاشق چایخوری', teaspoons: 'قاشق چایخوری',
   piece: 'عدد', pieces: 'عدد', number: 'عدد', each: 'عدد', clove: 'حبه', cloves: 'حبه', pack: 'بسته', package: 'بسته', can: 'قوطی',
 };
 
@@ -144,6 +146,7 @@ export const normalizeUnit = (unit: string): string => {
   if (UNIT_ALIASES[u]) return UNIT_ALIASES[u];
   if (u.includes('به میزان لازم') || u.includes('به مقدار لازم') || u.includes('دلخواه')) return 'به میزان لازم';
   if (u === 'کیلو') return 'کیلوگرم';
+  if (u === 'پیمانه آمریکایی') return 'پیمانه آمریکایی';
   if (/^(کیلوگرم|گرم|میلی‌گرم|اونس|پوند|مثقال|سیر)$/.test(u)) return u;
   if (/^(میلی‌لیتر|میلیلیتر|سی‌سی|cc)$/.test(u)) return 'میلی‌لیتر';
   if (u === 'لیتر') return u;
@@ -166,9 +169,43 @@ export const normalizeUnit = (unit: string): string => {
 
 export const getUnitDisplayLabel = (unit: string): string => {
   const normalized = normalizeUnit(unit);
-  return ['گرم', 'میلی‌گرم', 'کیلوگرم', 'اونس', 'پوند', 'مثقال', 'سیر', 'میلی‌لیتر', 'لیتر', 'پیمانه', 'استکان', 'لیوان', 'قاشق غذاخوری', 'قاشق چایخوری', 'قاشق مرباخوری'].includes(normalized)
+  if (normalized === 'پیمانه آمریکایی') return 'میلی‌لیتر';
+  return ['گرم', 'میلی‌گرم', 'کیلوگرم', 'اونس', 'پوند', 'مثقال', 'سیر', 'میلی‌لیتر', 'لیتر', 'پیمانه', 'پیمانه آمریکایی', 'استکان', 'لیوان', 'قاشق غذاخوری', 'قاشق چایخوری', 'قاشق مرباخوری'].includes(normalized)
     ? normalized
     : unit;
+};
+
+/** Convert one entered quantity into familiar Iranian kitchen/shopping units. */
+export const formatQuantityForDisplay = (amount: number, unit: string, itemName?: string): { amount: number; unit: string; estimated: boolean } => {
+  const normalized = normalizeUnit(unit);
+  const originalDefinition = UNIT_CONVERSIONS[normalized];
+  // Keep recipe counts as counts; the count-to-weight conversion is for stock
+  // reconciliation only and must not rewrite how a cook measures ingredients.
+  if (originalDefinition?.type === 'count') return { amount, unit: getUnitDisplayLabel(normalized), estimated: false };
+  // Preserve familiar Iranian kitchen measures in recipe instructions. Only
+  // imported US cups are localized to metric; their volume is not the same as
+  // Noosh's 250 ml پیمانه.
+  if (originalDefinition?.type === 'volume' && normalized !== 'پیمانه آمریکایی') return { amount, unit: getUnitDisplayLabel(normalized), estimated: false };
+  const converted = convertToBase(amount, normalized, itemName);
+  if (converted.type === 'weight') {
+    const useKg = converted.value >= 1000;
+    const displayedAmount = useKg ? Math.round((converted.value / 1000) * 1000) / 1000 : Math.round(converted.value);
+    return { amount: displayedAmount, unit: useKg ? 'کیلوگرم' : 'گرم', estimated: Boolean(converted.estimated) };
+  }
+  if (converted.type === 'volume' && normalized === 'پیمانه آمریکایی') {
+    const useLiter = converted.value >= 1000;
+    const displayedAmount = useLiter ? Math.round((converted.value / 1000) * 1000) / 1000 : Math.round(converted.value);
+    return { amount: displayedAmount, unit: useLiter ? 'لیتر' : 'میلی‌لیتر', estimated: false };
+  }
+  return { amount, unit: getUnitDisplayLabel(normalized), estimated: false };
+};
+
+/** Safely preserve the physical quantity when a user changes a pantry unit. */
+export const convertAmountBetweenUnits = (amount: number, fromUnit: string, toUnit: string, itemName?: string): { amount: number; estimated: boolean } | null => {
+  const from = convertToBase(1, fromUnit, itemName);
+  const to = convertToBase(1, toUnit, itemName);
+  if (!areUnitsComparable(from, to) || to.value <= 0) return null;
+  return { amount: Math.round((amount * from.value / to.value) * 1000) / 1000, estimated: Boolean(from.estimated || to.estimated) };
 };
 
 // USDA portions are quoted per US cup (236.588 ml). The table is deliberately

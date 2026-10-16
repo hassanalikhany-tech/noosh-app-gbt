@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { Dish, ShoppingItem, UserProfile } from '../types';
 import DishVisual from './DishVisual';
 import { UserService } from '../services/userService';
-import { estimateCalories, estimateCookTime, getDifficulty, getDishNature, getInventoryUpdate, getShoppingShortages, isIngredientMatch, getCountryCodes, getUnitDisplayLabel } from '../utils/recipeHelpers';
+import { estimateCalories, estimateCookTime, getDifficulty, getDishNature, getInventoryUpdate, getShoppingShortages, isIngredientMatch, getCountryCodes, formatQuantityForDisplay } from '../utils/recipeHelpers';
 import { getIngredientCategoryId, getBaseIngredientName } from '../data/pantry';
 import { getRelevantInventory } from '../utils/kitchenMode';
 
@@ -396,7 +396,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
                 </div>
                 {user?.kitchenMode !== 'without-inventory' && (
                   <p className="-mt-3 rounded-xl bg-teal-50 px-4 py-3 text-xs font-medium leading-6 text-teal-800">
-                    مقدارها با واحد پایه و وزنِ مخصوص هر ماده محاسبه می‌شوند؛ هر پیمانه در نوش اپ ۲۵۰ میلی‌لیتر است. اگر تبدیل یک ماده مرجع مطمئنی نداشته باشد، موجودی آن برای جلوگیری از کسر اشتباه دست‌نخورده می‌ماند.
+                    واحدهای خرید و نمایش بر پایهٔ گرم/کیلوگرم و میلی‌لیتر/لیتر هستند؛ پیمانهٔ استاندارد نوش اپ ۲۵۰ میلی‌لیتر است. واحدهای انگلیسیِ رسپی‌های بین‌المللی در نمایش به مقیاس‌های متریک تبدیل می‌شوند. اگر تبدیل یک ماده مرجع مطمئنی نداشته باشد، موجودی برای جلوگیری از کسر اشتباه دست‌نخورده می‌ماند.
                   </p>
                 )}
                 
@@ -404,11 +404,12 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {dish.ingredients.map((ing, idx) => {
                       const scaled = getScaledAmount(ing.amount);
+                      const localQuantity = scaled > 0 ? formatQuantityForDisplay(scaled, ing.unit, ing.item) : null;
                       return (
                         <div key={idx} className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-teal-200 hover:bg-white transition-all group shadow-sm">
                           <span className="font-bold text-slate-700">{ing.item}</span>
                           <span className="font-black text-teal-600 text-sm bg-teal-50 px-3 py-1.5 rounded-xl border border-teal-100 group-hover:bg-teal-600 group-hover:text-white transition-all">
-                            {scaled > 0 ? `${toPersianDigits(scaled)} ${getUnitDisplayLabel(ing.unit)}` : getUnitDisplayLabel(ing.unit)}
+                            {localQuantity ? `${toPersianDigits(localQuantity.amount)} ${localQuantity.unit}` : formatQuantityForDisplay(0, ing.unit, ing.item).unit}
                           </span>
                         </div>
                       );
