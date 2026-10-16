@@ -9861,7 +9861,9 @@
         "لپه را به مایه اضافه کنید.",
         "برنج را آبکش کرده و لایه لایه با مایه گوشتی و دارچین دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "imageReviewStatus": "approved",
+      "localEdited": true
     },
     {
       "id": "dish-11-1766876956936",
