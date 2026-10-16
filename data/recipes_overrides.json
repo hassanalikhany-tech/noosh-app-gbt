@@ -293,7 +293,9 @@
       "calories": 290,
       "cookTime": 45,
       "difficulty": "متوسط",
-      "servings": 3
+      "servings": 3,
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "kebab_koobideh",
