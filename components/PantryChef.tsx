@@ -19,6 +19,8 @@ interface PantryChefProps {
 
 type ResultFilter = 'all' | 'perfect' | 'near' | 'cookable' | 'quick' | 'favorites';
 
+const PANTRY_STARTER_ITEMS = ['مرغ', 'تخم مرغ', 'برنج', 'گوجه فرنگی', 'پیاز', 'سیب زمینی', 'ماست', 'گوشت چرخ‌کرده'];
+
 interface ProcessedResult {
   dish: Dish;
   matchedItems: string[];
@@ -55,6 +57,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
   const newItemNameRef = useRef<HTMLInputElement>(null);
 
   const inventory = useMemo(() => user.inventory || [], [user.inventory]);
+  const starterItemsToAdd = PANTRY_STARTER_ITEMS.filter(name => !inventory.some(item => isIngredientMatch(item.name, name)));
 
   const isBelowThreshold = (item: InventoryItem) => {
     const current = convertToBase(item.amount, item.unit, item.name);
@@ -518,7 +521,17 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                             <span className="pantry-empty-icon"><Package size={25}/></span>
                             <div><strong>انبارت را با چند قلم پرکاربرد شروع کن</strong><p>روی هر مورد بزن تا یک‌راست به انبار اضافه شود؛ بعد مقدار دقیقش را تنظیم کن.</p></div>
                             <div className="pantry-starter-grid">
-                              {['مرغ', 'تخم مرغ', 'برنج', 'گوجه فرنگی', 'پیاز', 'سیب زمینی', 'ماست', 'گوشت چرخ‌کرده'].map(item => (
+                              {starterItemsToAdd.map(item => (
+                                <button type="button" key={item} onClick={() => addToInventory(item)}><Plus size={14}/>{item}</button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {inventory.length > 0 && starterItemsToAdd.length > 0 && (
+                          <div className="space-y-1 border-t border-slate-100 p-4 sm:p-5">
+                            <div><strong className="text-sm font-black text-slate-700">قلم‌های پرکاربرد بعدی</strong><p className="mt-1 text-xs leading-6 text-slate-500">مواردی را که هنوز در انبارت نیستند انتخاب کن؛ پیشنهادها بعد از هر افزودن باقی می‌مانند.</p></div>
+                            <div className="pantry-starter-grid">
+                              {starterItemsToAdd.map(item => (
                                 <button type="button" key={item} onClick={() => addToInventory(item)}><Plus size={14}/>{item}</button>
                               ))}
                             </div>
