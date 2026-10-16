@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { Dish, ShoppingItem, UserProfile } from '../types';
 import DishVisual from './DishVisual';
 import { UserService } from '../services/userService';
-import { estimateCalories, estimateCookTime, getDifficulty, getDishNature, getInventoryUpdate, getShoppingShortages, isIngredientMatch, getCountryCode } from '../utils/recipeHelpers';
+import { estimateCalories, estimateCookTime, getDifficulty, getDishNature, getInventoryUpdate, getShoppingShortages, isIngredientMatch, getCountryCodes } from '../utils/recipeHelpers';
 import { getIngredientCategoryId, getBaseIngredientName } from '../data/pantry';
 import { getRelevantInventory } from '../utils/kitchenMode';
 
@@ -300,14 +300,19 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
 
           {/* Row 1: Dish Name */}
           <div className="text-center mb-8 pt-2 [@media(orientation:landscape)_and_(max-height:500px)]:mb-2 [@media(orientation:landscape)_and_(max-height:500px)]:pt-0 flex flex-col items-center gap-2">
-            {dish.nationality && getCountryCode(dish.nationality) && (
-              <div className="w-12 h-8 rounded-lg overflow-hidden shadow-lg border-2 border-white/50 mb-2">
-                <img 
-                  src={`https://flagcdn.com/w160/${getCountryCode(dish.nationality)}.png`} 
-                  alt={dish.nationality} 
-                  className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
+            {getCountryCodes(dish.nationality).length > 0 && (
+              <div className="flex w-12 h-8 rounded-lg overflow-hidden shadow-lg border-2 border-white/50 mb-2" aria-label={`پرچم ${dish.nationality}`}>
+                {getCountryCodes(dish.nationality).map(code => (
+                  <img
+                    key={code}
+                    src={`https://flagcdn.com/w160/${code}.png`}
+                    alt={code}
+                    className="h-full min-w-0 flex-1 object-cover"
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                    onError={event => { event.currentTarget.style.display = 'none'; }}
+                  />
+                ))}
               </div>
             )}
             <h2 className="text-3xl sm:text-5xl [@media(orientation:landscape)_and_(max-height:500px)]:text-2xl font-black text-slate-900 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] tracking-tight leading-tight">

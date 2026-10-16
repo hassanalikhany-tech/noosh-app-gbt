@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { RecipeService } from './recipeService.mock';
 import { filterDishes, getPlanningPool, generateWeeklyPlan, generateMonthlyPlan, generateSingleReplacement } from '../utils/planner';
 import { getRelevantInventory, usesInventory } from '../utils/kitchenMode';
-import { getInventoryUpdate, getShoppingShortages } from '../utils/recipeHelpers';
+import { getCountryCode, getCountryCodes, getInventoryUpdate, getShoppingShortages } from '../utils/recipeHelpers';
 import { normalizePersian, englishDigits } from '../utils/text';
 import { formatPhoneNumberInput, getPhoneUserDocumentIds, normalizePhoneNumber } from '../utils/phoneNumbers';
 import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthErrors';
@@ -47,6 +47,12 @@ assert.equal((await generateWeeklyPlan(base)).plan.length, 7);
 assert.equal((await generateMonthlyPlan(base)).plan.length, 30);
 assert.equal((await generateSingleReplacement(base, ['meat','unknown-time'])).id, 'veg');
 assert.equal(normalizePersian('  كوكوي  سبزي '), normalizePersian('کوکوی سبزی'));
+for (const [nationality, code] of [['آذربایجان','az'], ['اتریش','at'], ['اردنی','jo'], ['ازبکستان','uz'], ['قزاقستان','kz'], ['تاجیکستان','tj'], ['سنگاپور','sg'], ['فلسطینی','ps'], ['مغولستان','mn'], ['انگلستان','gb']] as const) {
+  assert.equal(getCountryCode(nationality), code, `${nationality} uses its official flag code`);
+}
+assert.deepEqual(getCountryCodes('ازبکستان/قزاقستان'), ['uz', 'kz'], 'Shared cuisines retain both country flags');
+assert.deepEqual(getCountryCodes('چین | ویتنام'), ['cn', 'vn'], 'Combined nationalities map to both official flags');
+assert.equal(getCountryCode('اروپا'), null, 'Regions are not misrepresented as countries');
 assert.equal(englishDigits('۰۹۱٢٣'), '09123');
 assert.equal(normalizePhoneNumber('0912 345 6789'), '+989123456789', 'Iranian local mobile becomes E.164');
 assert.equal(normalizePhoneNumber('+1 (415) 555-0132'), '+14155550132', 'US/Canada numbers accept common formatting');

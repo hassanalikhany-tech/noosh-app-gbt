@@ -382,15 +382,20 @@ export const getCountryCode = (nationality: string | undefined): string | null =
   const n = nationality.trim().toLowerCase();
   if (/^[a-z]{2}$/.test(n)) return n === 'uk' ? 'gb' : n;
   const countries: Array<[string, string[]]> = [
-    ['ir', ['ایران', 'iran', 'persia', 'persian']], ['sa', ['عربستان', 'saudi']], ['ye', ['یمن', 'yemen']],
-    ['eg', ['مصر', 'egypt', 'egyptian']], ['lb', ['لبنان', 'lebanon']], ['tr', ['ترکیه', 'turkey', 'turkish']],
+    ['az', ['آذربایجان', 'azerbaijan', 'azerbaijani']], ['at', ['اتریش', 'austria', 'austrian']],
+    ['jo', ['اردن', 'اردنی', 'jordan', 'jordanian']], ['uz', ['ازبکستان', 'uzbekistan', 'uzbek']],
+    ['kz', ['قزاقستان', 'کازاخستان', 'kazakhstan', 'kazakh']], ['tj', ['تاجیکستان', 'tajikistan', 'tajik']],
+    ['sg', ['سنگاپور', 'singapore', 'singaporean']], ['ps', ['فلسطین', 'فلسطینی', 'palestine', 'palestinian']],
+    ['mn', ['مغولستان', 'mongolia', 'mongolian']],
+    ['ir', ['ایران', 'ایرانی', 'iran', 'iranian', 'persia', 'persian']], ['sa', ['عربستان', 'saudi']], ['ye', ['یمن', 'yemen']],
+    ['eg', ['مصر', 'egypt', 'egyptian']], ['lb', ['لبنان', 'لبنانی', 'lebanon', 'lebanese']], ['tr', ['ترکیه', 'ترکی', 'turkey', 'turkish']],
     ['af', ['افغانستان', 'afghanistan']], ['ma', ['مراکش', 'morocco', 'moroccan']], ['pe', ['پرو', 'peru']],
     ['br', ['برزیل', 'brazil', 'brazilian']], ['ar', ['آرژانتین', 'argentina']], ['mx', ['مکزیک', 'mexico', 'mexican']],
     ['id', ['اندونزی', 'indonesia']], ['th', ['تایلند', 'thailand', 'thai']], ['vn', ['ویتنام', 'vietnam', 'vietnamese']],
     ['in', ['هند', 'india', 'indian']], ['cn', ['چین', 'china', 'chinese']], ['jp', ['ژاپن', 'japan', 'japanese']],
-    ['gb', ['بریتانیا', 'united kingdom', 'britain', 'british', 'england', 'uk']], ['hu', ['مجارستان', 'hungary', 'hungarian']],
+    ['gb', ['بریتانیا', 'انگلستان', 'united kingdom', 'britain', 'british', 'england', 'uk']], ['hu', ['مجارستان', 'hungary', 'hungarian']],
     ['it', ['ایتالیا', 'italy', 'italian']], ['fr', ['فرانسه', 'france', 'french']], ['ru', ['روسیه', 'russia', 'russian']],
-    ['gr', ['یونان', 'greece', 'greek']], ['es', ['اسپانیا', 'spain', 'spanish']], ['us', ['آمریکا', 'امریکا', 'united states', 'usa', 'american']],
+    ['gr', ['یونان', 'یونانی', 'greece', 'greek']], ['es', ['اسپانیا', 'spain', 'spanish']], ['us', ['آمریکا', 'امریکا', 'united states', 'usa', 'american']],
     ['kr', ['کره جنوبی', 'south korea', 'korea', 'korean']], ['de', ['آلمان', 'germany', 'german']], ['ca', ['کانادا', 'canada', 'canadian']],
     ['au', ['استرالیا', 'australia', 'australian']], ['pk', ['پاکستان', 'pakistan', 'pakistani']], ['iq', ['عراق', 'iraq', 'iraqi']],
     ['sy', ['سوریه', 'syria', 'syrian']], ['jp', ['ژاپنی', 'japanese']], ['nl', ['هلند', 'netherlands', 'dutch']],
@@ -401,4 +406,12 @@ export const getCountryCode = (nationality: string | undefined): string | null =
     ['cl', ['شیلی', 'chile', 'chilean']], ['cu', ['کوبا', 'cuba', 'cuban']], ['pl', ['لهستانی', 'polish']],
   ];
   return countries.find(([, aliases]) => aliases.some(alias => n === alias || n.includes(alias)))?.[0] || null;
+};
+
+/** Returns every country code represented by a combined cuisine nationality. */
+export const getCountryCodes = (nationality: string | undefined): string[] => {
+  if (!nationality?.trim()) return [];
+  const parts = nationality.split(/\s*(?:\||\/|,|،)\s*/).filter(Boolean);
+  const codes = parts.map(part => getCountryCode(part)).filter((code): code is string => Boolean(code));
+  return [...new Set(codes)];
 };

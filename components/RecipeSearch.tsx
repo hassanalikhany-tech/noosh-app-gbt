@@ -1,10 +1,10 @@
 import { normalizePersian } from '../utils/text';
 
-import { Search, Database, ChevronRight, ChevronLeft, LayoutList, MapPin, BarChart3, X, Flag } from 'lucide-react';
+import { Search, Database, ChevronRight, ChevronLeft, LayoutList, MapPin, BarChart3, X } from 'lucide-react';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Dish, DishCategory, CATEGORY_LABELS, UserProfile } from '../types';
 import { RecipeService } from '../services/recipeService';
-import { getCountryCode, isDishProhibited } from '../utils/recipeHelpers';
+import { getCountryCode, getCountryCodes, isDishProhibited } from '../utils/recipeHelpers';
 import MealCard from './MealCard';
 
 interface RecipeSearchProps {
@@ -17,6 +17,15 @@ const ITEMS_PER_PAGE = 24;
 
 const COUNTRY_DATA = [
   { id: 'ir', label: 'ایران', matches: ['ایران', 'Iran'] },
+  { id: 'az', label: 'آذربایجان', matches: ['آذربایجان', 'Azerbaijan'] },
+  { id: 'at', label: 'اتریش', matches: ['اتریش', 'Austria'] },
+  { id: 'jo', label: 'اردن', matches: ['اردن', 'اردنی', 'Jordan', 'Jordanian'] },
+  { id: 'uz', label: 'ازبکستان', matches: ['ازبکستان', 'Uzbekistan'] },
+  { id: 'kz', label: 'قزاقستان', matches: ['قزاقستان', 'کازاخستان', 'Kazakhstan'] },
+  { id: 'tj', label: 'تاجیکستان', matches: ['تاجیکستان', 'Tajikistan'] },
+  { id: 'sg', label: 'سنگاپور', matches: ['سنگاپور', 'Singapore'] },
+  { id: 'ps', label: 'فلسطین', matches: ['فلسطین', 'فلسطینی', 'Palestine', 'Palestinian'] },
+  { id: 'mn', label: 'مغولستان', matches: ['مغولستان', 'Mongolia'] },
   { id: 'sa', label: 'عربستان سعودی', matches: ['عربستان', 'Saudi', 'Saudi Arabia'] },
   { id: 'ye', label: 'یمن', matches: ['یمن', 'Yemen'] },
   { id: 'eg', label: 'مصر', matches: ['مصر', 'Egypt'] },
@@ -45,7 +54,7 @@ const COUNTRY_DATA = [
 ].sort((a, b) => a.label.localeCompare(b.label, 'fa'));
 
 const CountryFlag: React.FC<{ country: { id: string; label: string } }> = ({ country }) => {
-  const code = getCountryCode(country.id) || getCountryCode(country.label);
+  const code = getCountryCodes(country.id)[0] || getCountryCodes(country.label)[0] || getCountryCode(country.id) || getCountryCode(country.label);
   const sources = code ? [
     `https://flagcdn.com/w160/${code}.png`,
     `https://flagcdn.com/${code}.svg`,
@@ -55,7 +64,7 @@ const CountryFlag: React.FC<{ country: { id: string; label: string } }> = ({ cou
   useEffect(() => setSourceIndex(0), [code]);
 
   if (!sources.length || sourceIndex >= sources.length) {
-    return <span aria-label={`پرچم ${country.label} بارگذاری نشد`} className="w-full h-full bg-slate-100 grid place-items-center"><Flag aria-hidden="true" size={18} className="text-slate-400" /></span>;
+    return <span aria-label={`منطقهٔ غذایی ${country.label}`} title={`منطقهٔ غذایی ${country.label}`} className="w-full h-full bg-slate-100 grid place-items-center"><MapPin aria-hidden="true" size={18} className="text-slate-500" /></span>;
   }
   return <img src={sources[sourceIndex]} alt={country.label} className="w-full h-full object-cover" onError={() => setSourceIndex(index => index + 1)} loading="lazy" decoding="async" />;
 };
@@ -99,11 +108,12 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
     const nationalities = new Set<string>(allDishes.filter(dish => dish.category === 'international').flatMap(dish => dish.nationality?.trim() ? [dish.nationality.trim()] : []));
     for (const nationality of nationalities) {
       if (covered.has(normalizePersian(nationality))) continue;
-      const countryCode = getCountryCode(nationality);
-      if (countryCode && options.some(country => country.id === countryCode)) {
+      const countryCodes = getCountryCodes(nationality);
+      if (countryCodes.length && countryCodes.every(code => options.some(country => country.id === code))) {
         covered.add(normalizePersian(nationality));
         continue;
       }
+      const countryCode = countryCodes.length === 1 ? countryCodes[0] : getCountryCode(nationality);
       options.push({ id: countryCode || `country-${normalizePersian(nationality)}`, label: nationality, matches: [nationality, ...(countryCode ? [countryCode] : [])] });
       covered.add(normalizePersian(nationality));
     }
@@ -121,7 +131,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
       
       if (selectedCategory === 'international' && selectedCountryId !== 'all') {
         const country = countryOptions.find(c => c.id === selectedCountryId);
-        if (getCountryCode(dish.nationality || '') !== selectedCountryId && !country?.matches.some(match => normalizePersian(dish.nationality || '').includes(normalizePersian(match)))) return false;
+        if (!getCountryCodes(dish.nationality || '').includes(selectedCountryId) && !country?.matches.some(match => normalizePersian(dish.nationality || '').includes(normalizePersian(match)))) return false;
       }
 
       // Filter prohibited ingredients
