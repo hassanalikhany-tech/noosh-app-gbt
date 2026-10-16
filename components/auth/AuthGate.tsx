@@ -2,7 +2,7 @@ import { GuestService } from '../../services/guestService';
 import { englishDigits } from '../../utils/text';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Smartphone, ShieldCheck, Loader2, ArrowLeft, ArrowRight, AlertCircle, User, UserPlus, Info, Ticket, ShieldAlert, MonitorOff } from 'lucide-react';
+import { ShieldCheck, Loader2, ArrowLeft, ArrowRight, AlertCircle, User, UserPlus, Info, Ticket, ShieldAlert, MonitorOff } from 'lucide-react';
 import { AuthService } from '../../services/authService';
 import { SecurityService } from '../../services/securityService';
 import { formatPhoneNumberInput } from '../../utils/phoneNumbers';
@@ -189,11 +189,11 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
           <form onSubmit={handleMobileSubmit} className="space-y-5">
             <div className="text-center">
               <h1 className="text-2xl sm:text-[27px] font-black text-slate-900">ورود یا ساخت حساب</h1>
-              <p className="mt-2 text-sm font-medium text-slate-500">شمارهٔ تلفن همراه را با کد کشور وارد کنید</p>
+              <p className="mt-2 text-sm font-medium text-slate-500">بعد از + ابتدا کد کشور و سپس شمارهٔ تلفن همراه را وارد کنید</p>
             </div>
-            <div className="relative group">
-              <input ref={phoneInputRef} id="phone-input" type="tel" dir="ltr" inputMode="tel" autoComplete="tel" autoFocus maxLength={16} value={mobile} onChange={e => handlePhoneChange(e.target.value)} aria-label="شماره تلفن همراه با کد کشور" className="w-full px-8 py-5 bg-slate-50 border-2 border-slate-100 rounded-[2rem] outline-none text-xl font-black text-center focus:border-teal-500 transition-all shadow-inner" placeholder="کد کشور و شماره تلفن" required />
-              <Smartphone className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300" size={24} />
+            <div dir="ltr" className="group flex items-center gap-3 rounded-2xl bg-slate-100/80 px-4 py-2 transition-colors focus-within:bg-white focus-within:ring-2 focus-within:ring-teal-500/30">
+              <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-xl font-black text-teal-700 shadow-sm select-none">+</span>
+              <input ref={phoneInputRef} id="phone-input" type="tel" dir="ltr" inputMode="tel" autoComplete="tel" autoFocus maxLength={15} value={mobile.slice(1)} onChange={e => handlePhoneChange(e.target.value)} aria-label="پس از علامت + ابتدا کد کشور و سپس شماره تلفن همراه" className="min-w-0 flex-1 bg-transparent px-2 py-4 text-left text-xl font-black text-slate-800 outline-none placeholder:text-slate-400" placeholder="کد کشور، سپس شماره تلفن" required />
             </div>
             {error && <div className="p-4 bg-rose-50 text-rose-500 text-[11px] font-black rounded-2xl text-center border border-rose-100">{error}</div>}
             <button disabled={isLoading} className="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black text-lg flex items-center justify-center gap-4 active:scale-95 transition-all">
