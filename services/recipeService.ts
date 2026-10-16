@@ -192,7 +192,7 @@ const EXTRA_CLOUD_DISHES: any[] = [
 ];
 
 // تابع ادغام هوشمند برای جلوگیری از حذف غذاهای اصلی هنگام دریافت داده‌ها
-const mergeAllDishes = (sources: Dish[][]): Dish[] => {
+const mergeAllDishes = (sources: Dish[][], allowLocalOverrides = true): Dish[] => {
   const map = new Map<string, Dish>();
   if (DEFAULT_DISHES) DEFAULT_DISHES.forEach(d => map.set(d.id, d));
   (RECIPE_CATALOG as unknown as Dish[]).forEach(d => map.set(d.id, d));
@@ -208,7 +208,14 @@ const mergeAllDishes = (sources: Dish[][]): Dish[] => {
     }),
   }));
   sources.forEach(arr => {
-    if (arr) arr.forEach(d => { if (!map.has(d.id) || (d as Dish & { localEdited?: boolean }).localEdited || d.imageReviewStatus) map.set(d.id, d); });
+    if (arr) arr.forEach(d => {
+      // Bundled catalog data is the published source of truth. Keep local-only
+      // dishes, but do not let an older IndexedDB copy replace newer images or
+      // recipe edits shipped with the current release.
+      if (!map.has(d.id) || (allowLocalOverrides && ((d as Dish & { localEdited?: boolean }).localEdited || d.imageReviewStatus))) {
+        map.set(d.id, d);
+      }
+    });
   });
   return Array.from(map.values());
 };
@@ -225,19 +232,17 @@ export const RecipeService = {
   initialize: async (): Promise<{count: number}> => {
     try {
       const localCache = await DB.getAll('dishes');
-      cachedDishes = mergeAllDishes([localCache || []]);
+      cachedDishes = mergeAllDishes([localCache || []], false);
       isInitialized = true;
-      
-      if (!localCache || localCache.length < 650) {
-        try {
-          const dbInstance = await DB.init();
-          const transaction = dbInstance.transaction('dishes', 'readwrite');
-          const store = transaction.objectStore('dishes');
-          for (const d of cachedDishes) {
-            await store.put(d);
-          }
-        } catch (dbErr) {}
-      }
+
+      // Refresh existing browser caches as well as first-time installs so
+      // deployed catalog and image changes are reflected after the next load.
+      try {
+        const dbInstance = await DB.init();
+        const transaction = dbInstance.transaction('dishes', 'readwrite');
+        const store = transaction.objectStore('dishes');
+        for (const d of cachedDishes) await store.put(d);
+      } catch (dbErr) {}
 
       return { count: cachedDishes.length };
     } catch (e) {
