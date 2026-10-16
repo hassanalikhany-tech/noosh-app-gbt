@@ -202,8 +202,8 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
               <h1 className="text-2xl sm:text-[27px] font-black text-slate-900">ورود یا ساخت حساب</h1>
               <p className="mt-2 text-sm font-medium text-slate-500">بعد از + ابتدا کد کشور و سپس شمارهٔ تلفن همراه را وارد کنید</p>
             </div>
-            <div dir="ltr" className="group flex items-stretch rounded-2xl bg-slate-100/80 p-2 transition-colors focus-within:bg-white">
-              <label className="flex w-[6.5rem] shrink-0 flex-col justify-center rounded-xl px-2 py-2 transition-colors focus-within:bg-teal-50/70">
+            <div dir="ltr" className="group flex items-stretch rounded-2xl bg-slate-100/80 p-2">
+              <label className="flex w-[6.5rem] shrink-0 flex-col justify-center rounded-xl px-2 py-2 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(100,116,139,0.18)]">
                 <span dir="rtl" className="mb-1 text-center text-[10px] font-bold text-slate-500">کد کشور</span>
                 <span className="flex items-center justify-center gap-1.5">
                   <span aria-hidden="true" className="text-lg font-black text-teal-700 select-none">+</span>
@@ -211,7 +211,7 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
                 </span>
               </label>
               <span aria-hidden="true" className="my-2 w-px shrink-0 bg-slate-300/70" />
-              <label className="flex min-w-0 flex-1 flex-col justify-center rounded-xl px-3 py-2 transition-colors focus-within:bg-teal-50/70">
+              <label className="flex min-w-0 flex-1 flex-col justify-center rounded-xl px-3 py-2 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(100,116,139,0.18)]">
                 <span dir="rtl" className="mb-1 text-center text-[10px] font-bold text-slate-500">شماره تلفن همراه</span>
                 <input id="phone-number-input" type="tel" dir="ltr" inputMode="tel" autoComplete="tel-national" maxLength={Math.max(1, 15 - countryCode.length)} value={nationalNumber} onChange={e => handleNationalNumberChange(e.target.value)} aria-label="شماره تلفن همراه، بدون کد کشور" className="w-full bg-transparent px-1 py-1 text-left text-lg font-black text-slate-800 outline-none placeholder:text-slate-400" placeholder="شماره تلفن" required />
               </label>
