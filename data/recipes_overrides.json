@@ -453,7 +453,9 @@
       "calories": 340,
       "cookTime": 90,
       "difficulty": "متوسط",
-      "servings": 6
+      "servings": 6,
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "kotlet_goosht",
