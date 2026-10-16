@@ -79,7 +79,7 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
         onSave();
         onClose();
       } else {
-        alert("ذخیرهٔ محلی این غذا انجام نشد. دوباره تلاش کنید.");
+        alert("تغییر در GitHub ثبت نشد و برای دیگر کاربران منتشر نشد. اتصال امن Netlify را بررسی کن؛ ویرایش این دستگاه همچنان باقی است.");
       }
     } catch (error) {
       alert("ذخیرهٔ محلی این غذا با خطا روبه‌رو شد.");

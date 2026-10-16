@@ -3,6 +3,7 @@ import { Dish, UserProfile } from '../types';
 import { DB } from '../utils/db';
 import { DEFAULT_DISHES } from '../data/recipes';
 import RECIPE_CATALOG from '../data/recipes_catalog.json';
+import RECIPE_OVERRIDES from '../data/recipes_overrides.json';
 import { getHiddenDishIds, getRenamedDishes, hideDishIds } from '../utils/dishStorage';
 
 // غذاهای تکمیلیِ همراه اپ که در فایل فهرست اصلی نیستند.
@@ -195,6 +196,7 @@ const mergeAllDishes = (sources: Dish[][]): Dish[] => {
   const map = new Map<string, Dish>();
   if (DEFAULT_DISHES) DEFAULT_DISHES.forEach(d => map.set(d.id, d));
   (RECIPE_CATALOG as unknown as Dish[]).forEach(d => map.set(d.id, d));
+  (RECIPE_OVERRIDES.dishes as Dish[]).forEach(d => map.set(d.id, d));
   EXTRA_CLOUD_DISHES.forEach(d => map.set(d.id, {
     ...d, category: 'international', nationality: d.Nationality,
     nature: d.nature === 'گرم' ? 'hot' : d.nature === 'سرد' ? 'cold' : 'balanced',
@@ -259,11 +261,26 @@ export const RecipeService = {
     const hiddenIds = getHiddenDishIds();
     const renamedMap = getRenamedDishes();
     return cachedDishes
-      .filter(d => !hiddenIds.includes(d.id))
+      .filter(d => !hiddenIds.includes(d.id) && !RECIPE_OVERRIDES.hiddenDishIds.includes(d.id))
       .map(d => renamedMap[d.id] ? { ...d, name: renamedMap[d.id] } : d);
   },
 
   getRawDishes: (): Dish[] => cachedDishes,
+
+  publishCatalog: async (): Promise<{ success: boolean; commit?: string; error?: string }> => {
+    try {
+      const response = await fetch('/.netlify/functions/publish-catalog', {
+        method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ dishes: cachedDishes, hiddenDishIds: [...new Set([...getHiddenDishIds(), ...RECIPE_OVERRIDES.hiddenDishIds])] }),
+      });
+      const result = await response.json();
+      if (!response.ok) return { success: false, error: result.error || 'ثبت در GitHub انجام نشد.' };
+      window.dispatchEvent(new CustomEvent('recipes-published', { detail: { commit: result.commit, count: result.count } }));
+      return { success: true, commit: result.commit };
+    } catch {
+      return { success: false, error: 'ارتباط با سرویس انتشار برقرار نشد؛ تغییر روی این دستگاه مانده است.' };
+    }
+  },
 
   isDishAccessible: (dishId: string, user: UserProfile | null): boolean => {
     return true; 
@@ -275,7 +292,9 @@ export const RecipeService = {
       const updatedDish = cachedDishes.find(d => d.id === dishId);
       if (updatedDish) await DB.put('dishes', updatedDish);
       notifyRecipesUpdate(cachedDishes.length);
-      return true;
+      const published = await RecipeService.publishCatalog();
+      if (!published.success) window.dispatchEvent(new CustomEvent('recipes-publish-error', { detail: published.error }));
+      return published.success;
     } catch (e) { return false; }
   },
 
@@ -297,7 +316,9 @@ export const RecipeService = {
       }
       
       notifyRecipesUpdate(cachedDishes.length);
-      return true;
+      const published = await RecipeService.publishCatalog();
+      if (!published.success) window.dispatchEvent(new CustomEvent('recipes-publish-error', { detail: published.error }));
+      return published.success;
     } catch (e) {
       console.error("Batch update failed:", e);
       return false;
@@ -309,7 +330,9 @@ export const RecipeService = {
       hideDishIds([dishId]);
       await DB.delete('dishes', dishId);
       notifyRecipesUpdate(cachedDishes.length);
-      return true;
+      const published = await RecipeService.publishCatalog();
+      if (!published.success) window.dispatchEvent(new CustomEvent('recipes-publish-error', { detail: published.error }));
+      return published.success;
     } catch (e) { return false; }
   },
 
@@ -336,6 +359,8 @@ export const RecipeService = {
     for (const dish of cachedDishes) await store.put(dish);
     isInitialized = true;
     notifyRecipesUpdate(cachedDishes.length);
+    const published = await RecipeService.publishCatalog();
+    if (!published.success) throw new Error(published.error);
     return { success: true, message: "انجام شد" };
   },
 

@@ -1,5 +1,5 @@
 import PlanDashboard from './components/PlanDashboard';
-import LocalAdminDashboard from './components/admin/LocalAdminDashboard';
+import AdminAccessGate from './components/admin/AdminAccessGate';
 
 import { CalendarDays, RefreshCw, ChefHat, Search, Settings, Trophy, X, ShoppingCart, Heart, Clock, Trash2, Calendar, Leaf, Sparkles, Utensils, ShieldCheck, ArrowRight, CloudDownload, UserX, Info, CheckCircle2, Wand2, Loader2, ScanFace, Printer, Share2, MessageCircle, Smartphone, Database, ShieldAlert, FilterX, Check, AlertTriangle, Shield, LayoutDashboard, Bell, Zap, Maximize, Minimize, Package } from 'lucide-react';
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
@@ -490,7 +490,7 @@ const AppContent: React.FC = () => {
   );
 
   const isAdminPath = window.location.pathname.replace(/\/+$/, '') === '/admin';
-  if (isAdminPath) return <LocalAdminDashboard onExit={() => { window.history.replaceState({}, '', '/'); window.location.reload(); }} />;
+  if (isAdminPath) return <AdminAccessGate onExit={() => { window.history.replaceState({}, '', '/'); window.location.reload(); }} />;
 
   const navItems = [
     { id: 'pantry', label: 'آشپزخانه من', icon: ChefHat },

@@ -13,9 +13,10 @@ const DatabaseManager = lazy(() => import('./DatabaseManager'));
 
 interface LocalAdminDashboardProps {
   onExit: () => void;
+  onLogout?: () => void;
 }
 
-const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit }) => {
+const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit, onLogout }) => {
   const [tab, setTab] = useState('catalog');
   const [page, setPage] = useState(1);
   const [dishes, setDishes] = useState<Dish[]>(() => RecipeService.getAllDishes());
@@ -24,11 +25,23 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit }) => 
   const [showUsersInfo, setShowUsersInfo] = useState(false);
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const [savedAt, setSavedAt] = useState('');
+  const [publishMessage, setPublishMessage] = useState('');
 
   const refresh = () => setDishes(RecipeService.getAllDishes());
   useEffect(() => {
     window.addEventListener('recipes-updated', refresh);
-    return () => window.removeEventListener('recipes-updated', refresh);
+    const published = (event: Event) => {
+      const commit = (event as CustomEvent<{commit?: string}>).detail?.commit;
+      setPublishMessage(`در GitHub ثبت شد (${commit?.slice(0, 7) || 'ثبت موفق'}). Netlify در حال انتشار نسخهٔ تازه است.`);
+    };
+    const failed = (event: Event) => setPublishMessage((event as CustomEvent<string>).detail || 'ثبت در GitHub انجام نشد.');
+    window.addEventListener('recipes-published', published);
+    window.addEventListener('recipes-publish-error', failed);
+    return () => {
+      window.removeEventListener('recipes-updated', refresh);
+      window.removeEventListener('recipes-published', published);
+      window.removeEventListener('recipes-publish-error', failed);
+    };
   }, []);
 
   const filteredDishes = useMemo(() => {
@@ -60,10 +73,10 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit }) => 
             <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[#d7b45a] text-[#173c2b]"><ShieldCheck size={23} /></div>
             <div>
               <h1 className="text-lg font-black sm:text-xl">مدیریت نوش</h1>
-              <p className="text-[11px] font-semibold text-emerald-100/75">مدیریت محلی روی همین دستگاه</p>
+              <p className="text-[11px] font-semibold text-emerald-100/75">پنل مدیر · ثبت تغییرها در GitHub و انتشار با Netlify</p>
             </div>
           </div>
-          <button onClick={onExit} className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-bold transition hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d7b45a]"><ArrowRight size={17} /> بازگشت به اپ</button>
+          <div className="flex gap-2"><button onClick={onExit} className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-4 py-2.5 text-sm font-bold transition hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d7b45a]"><ArrowRight size={17} /> بازگشت به اپ</button>{onLogout && <button onClick={onLogout} className="rounded-xl bg-rose-700 px-4 py-2.5 text-sm font-bold">خروج مدیر</button>}</div>
         </div>
       </header>
 
@@ -72,7 +85,7 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit }) => 
           ['catalog','فهرست و ویرایش غذاها'], ['images','مدیریت عکس‌ها'], ['database','ورود و خروجی غذاها'],
           ['duplicates','اصلاح غذاهای تکراری'], ['units','مغایرت واحدها'], ['converter','مبدل اکسل'], ['backup','پشتیبان و بازیابی'], ['unavailable','بخش‌های وابسته به سرور']
         ].map(([id,label]) => <button key={id} onClick={() => setTab(id)} aria-pressed={tab === id} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === id ? 'bg-emerald-900 text-white' : 'bg-white text-slate-700'}`}>{label}</button>)}</nav>
-        <p className="text-sm leading-7 text-slate-600">تغییرات مدیریت روی همین مرورگر ذخیره می‌شوند. این پنل فقط روی همین دستگاه اثر دارد. برای انتشار تغییرات عمومی، فایل پشتیبان یا گزارش عکس‌ها را دریافت کن تا در انتشار سایت اعمال شوند.</p>
+        <p role="status" aria-live="polite" className={`rounded-xl p-3 text-sm leading-7 ${publishMessage.includes('انجام نشد') ? 'bg-rose-50 text-rose-800' : 'bg-emerald-50 text-emerald-900'}`}>{publishMessage || 'هر ذخیره، حذف، یا تغییر عکس پس از ثبت در GitHub به انتشار عمومی Netlify می‌رود.'}</p>
         <Suspense fallback={<p role="status">در حال آماده‌سازی ابزار…</p>}>
           {tab === 'images' && <ImageGuide />}
           {tab === 'database' && <DatabaseManager />}
@@ -91,7 +104,7 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit }) => 
               <div>
                 <p className="text-xs font-black tracking-wide text-emerald-800">کتابخانهٔ غذاهای نوش</p>
                 <h2 className="mt-2 text-2xl font-black leading-tight sm:text-3xl">غذاها را همین‌جا مدیریت کن</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">ویرایش‌ها و پشتیبان این فهرست فقط در مرورگر فعلی ذخیره می‌شوند؛ برای نگه‌داشتن نسخهٔ پشتیبان، فایل JSON را دریافت کن.</p>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">تغییر هر غذا ابتدا ثبت می‌شود و سپس با حساب مدیر در GitHub قرار می‌گیرد تا Netlify آن را برای همه منتشر کند. فایل JSON هم برای پشتیبان در دسترس است.</p>
               </div>
             </div>
             <div className="relative mt-7 flex flex-wrap gap-3">

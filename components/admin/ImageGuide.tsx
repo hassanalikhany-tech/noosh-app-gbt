@@ -166,10 +166,10 @@ const ImageGuide: React.FC = () => {
     const saved = await RecipeService.updateDish(dish.id, { imageReviewStatus: nextStatus, ...(nextStatus === 'removed' ? { imageUrl: 'none' } : nextStatus === 'approved' && auditResults[dish.id]?.url ? { imageUrl: auditResults[dish.id].url } : {}) });
     setSavingIds(previous => { const next = new Set(previous); next.delete(dish.id); return next; });
     if (saved) {
-      setMessage(`وضعیت تصویر «${dish.name}» روی این دستگاه ذخیره شد.`);
+      setMessage(`وضعیت تصویر «${dish.name}» در GitHub ثبت شد؛ Netlify انتشار را شروع می‌کند.`);
       setRefreshKey(key => key + 1);
     } else {
-      setMessage('ذخیره انجام نشد. فضای ذخیره‌سازی و مجوز مرورگر را بررسی کنید.');
+      setMessage('وضعیت در این دستگاه ذخیره شد، اما انتشار سراسری در GitHub انجام نشد. اتصال امن مدیریت را بررسی کن.');
     }
   };
 
