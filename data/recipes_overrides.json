@@ -510,7 +510,9 @@
       "calories": 280,
       "cookTime": 45,
       "difficulty": "آسان",
-      "servings": 4
+      "servings": 4,
+      "imageReviewStatus": "create",
+      "localEdited": true
     },
     {
       "id": "macaroni_goosht",
