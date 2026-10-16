@@ -7,7 +7,7 @@ import { getDishImageCandidates } from '../../utils/dishImageSources';
 import DishVisual from '../DishVisual';
 
 type ImageAuditStatus = 'available' | 'missing' | 'broken';
-type AuditFilter = 'all' | 'unreviewed' | 'reviewed' | 'missing' | 'broken' | 'duplicate' | 'replace' | 'approved' | 'create' | 'removed';
+type AuditFilter = 'all' | 'unreviewed' | 'reviewed' | 'missing' | 'broken' | 'duplicate' | 'replace' | 'approved' | 'create' | 'removed' | 'completed';
 type AuditResult = { status: ImageAuditStatus; url?: string };
 
 const explicitImage = (dish: Dish) => Boolean(dish.imageUrl?.trim() && dish.imageUrl.trim().toLowerCase() !== 'none');
@@ -95,7 +95,7 @@ const ImageGuide: React.FC = () => {
       if (activeFilter === 'missing') return result?.status === 'missing';
       if (activeFilter === 'broken') return result?.status === 'broken';
       if (activeFilter === 'duplicate') return duplicateDishIds.has(dish.id);
-      if (['replace', 'approved', 'create', 'removed'].includes(activeFilter)) return dish.imageReviewStatus === activeFilter;
+      if (['replace', 'approved', 'create', 'removed', 'completed'].includes(activeFilter)) return dish.imageReviewStatus === activeFilter;
       return true;
     });
   }, [allDishes, searchTerm, activeFilter, auditResults, duplicateDishIds]);
@@ -106,6 +106,7 @@ const ImageGuide: React.FC = () => {
     unreviewed: allDishes.filter(d => !d.imageReviewStatus).length,
     create: allDishes.filter(d => d.imageReviewStatus === 'create').length,
     removed: allDishes.filter(d => d.imageReviewStatus === 'removed').length,
+    completed: allDishes.filter(d => d.imageReviewStatus === 'completed').length,
     all: allDishes.length,
     missing: allDishes.filter(dish => auditResults[dish.id]?.status === 'missing').length,
     broken: allDishes.filter(dish => auditResults[dish.id]?.status === 'broken').length,
@@ -224,6 +225,7 @@ const ImageGuide: React.FC = () => {
     { id: 'approved', label: 'تأیید و حفظ' },
     { id: 'create', label: 'ساخت تصویر جدید' },
     { id: 'removed', label: 'حذف‌شده' },
+    { id: 'completed', label: 'جایگزین‌شده' },
     { id: 'all', label: 'همه' },
     { id: 'missing', label: 'بدون تصویر' },
     { id: 'broken', label: 'لینک خراب' },
@@ -248,7 +250,7 @@ const ImageGuide: React.FC = () => {
               <p className="mt-1 text-xs text-slate-500">تصمیم اینجا ثبت می‌شود و پنجرهٔ عکس باز می‌ماند.</p>
               <label className="block mt-5 text-xs font-bold text-slate-700" htmlFor="zoom-image-review-status">تصمیم دربارهٔ تصویر</label>
               <select id="zoom-image-review-status" disabled={savingIds.has(zoomDish.id)} value={zoomDish.imageReviewStatus || ''} onChange={event => void toggleReviewFlag(zoomDish, (event.target.value || undefined) as Dish['imageReviewStatus'])} className="mt-2 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm font-bold text-slate-800">
-                <option value="">بررسی‌نشده</option><option value="approved">تأیید و حفظ تصویر</option><option value="replace">نیاز به جایگزینی</option><option value="create">ساخت تصویر جدید</option><option value="removed">حذف تصویر</option>
+                <option value="">بررسی‌نشده</option><option value="approved">تأیید و حفظ تصویر</option><option value="replace">نیاز به جایگزینی</option><option value="create">ساخت تصویر جدید</option><option value="removed">حذف تصویر</option><option value="completed">تصویر جایگزین شد</option>
               </select>
               {zoomDish.imageReviewStatus && <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800"><Check size={14} /> تصمیم ثبت شده؛ از فیلتر «بررسی‌نشده» ادامه بده.</div>}
               <div className="mt-5 flex gap-2">
@@ -330,7 +332,7 @@ const ImageGuide: React.FC = () => {
                   <td className="p-3 text-center"><button type="button" aria-label={`انتخاب ${dish.name}`} onClick={() => handleToggleSelect(dish.id)} className={isSelected ? 'text-emerald-700' : 'text-slate-300'}>{isSelected ? <CheckSquare size={19} /> : <Square size={19} />}</button></td>
                   <td className="p-3 text-center"><DishImagePreview dish={dish} onZoom={url => { setZoomQueue(filteredDishes.map(item => item.id)); setZoomedImage({ dishId: dish.id, url }); }} /></td>
                   <td className="p-3">
-                    <div className="flex items-center gap-2 font-bold text-slate-800">{dish.name}{dish.imageReviewStatus && <span title="برای این عکس تصمیم بازبینی ثبت شده" className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-800"><Check size={12} /> بررسی شد</span>}</div>
+                    <div className="flex items-center gap-2 font-bold text-slate-800">{dish.name}{dish.imageReviewStatus && <span title={dish.imageReviewStatus === 'completed' ? 'تصویر تازه منتشر شده' : 'برای این عکس تصمیم بازبینی ثبت شده'} className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-800"><Check size={12} /> {dish.imageReviewStatus === 'completed' ? 'تصویر جایگزین شد' : 'بررسی شد'}</span>}</div>
                     <div dir="ltr" className="text-[10px] text-slate-400 font-mono mt-1 text-right">{dish.imageUrl || 'تصویر پیش‌فرض از مخزن غذاها'}</div>
                   </td>
                   <td className="p-3"><span className="px-2.5 py-1 bg-white border border-slate-200 text-slate-600 text-[10px] font-bold rounded-lg">{CATEGORY_LABELS[dish.category] || 'سایر'}</span></td>
@@ -342,7 +344,7 @@ const ImageGuide: React.FC = () => {
                   </td>
                   <td className="p-3 text-center">
                     <select aria-label={`وضعیت تصویر ${dish.name}`} disabled={savingIds.has(dish.id)} value={dish.imageReviewStatus || ''} onChange={event => void toggleReviewFlag(dish, (event.target.value || undefined) as Dish['imageReviewStatus'])} className="max-w-44 rounded-lg border border-slate-200 bg-white p-2 text-xs">
-                      <option value="">بررسی نشده</option><option value="approved">تأیید و حفظ تصویر</option><option value="replace">نیاز به جایگزینی</option><option value="create">ساخت تصویر جدید</option><option value="removed">حذف تصویر</option>
+                      <option value="">بررسی نشده</option><option value="approved">تأیید و حفظ تصویر</option><option value="replace">نیاز به جایگزینی</option><option value="create">ساخت تصویر جدید</option><option value="removed">حذف تصویر</option><option value="completed">تصویر جایگزین شد</option>
                     </select>
                   </td>
                   <td className="p-3 text-center"><button type="button" onClick={() => handleCopy(dish.id)} className={`p-2 rounded-lg ${copiedId === dish.id ? 'bg-emerald-100 text-emerald-800' : 'text-slate-400 hover:bg-slate-100'}`} title="کپی شناسه">{copiedId === dish.id ? <Check size={16} /> : <Copy size={16} />}</button></td>

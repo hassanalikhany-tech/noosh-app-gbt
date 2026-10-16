@@ -83,7 +83,7 @@ assert.deepEqual(getDishImageCandidates('dish-test', 'none'), [], 'Removed pictu
 DB.getAll = async () => [];
 DB.init = async () => { throw new Error('Test without IndexedDB'); };
 await RealRecipes.initialize();
-assert.equal(RealRecipes.getAllDishes().length, 667, 'Actual service exposes all 667 bundled recipes without storage or network');
+assert.equal(RealRecipes.getAllDishes().length, 666, 'Actual service exposes all visible recipes without storage or network; one intentionally hidden duplicate is excluded');
 assert.ok(RealRecipes.getAllDishes().every(d => d.category in CATEGORY_LABELS), 'Every recipe belongs to a visible search category');
 assert.ok(RealRecipes.getAllDishes().filter(d => d.id.includes('1782263836159')).every(d => d.ingredients.some(i => i.amount > 0)), 'Supplemental recipes contain usable shopping quantities');
-console.log('Release checks passed: personal settings persistence, removed image fallback, 667 real service recipes and valid categories.');
+console.log('Release checks passed: personal settings persistence, removed image fallback, 666 visible service recipes and valid categories.');

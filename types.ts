@@ -36,7 +36,7 @@ export interface Dish {
   difficulty?: string;
   natureLabel?: string;
   servings?: number;
-  imageReviewStatus?: 'approved' | 'replace' | 'create' | 'removed';
+  imageReviewStatus?: 'approved' | 'replace' | 'create' | 'removed' | 'completed';
 }
 
 export interface DayPlan {
