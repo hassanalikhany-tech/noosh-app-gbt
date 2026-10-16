@@ -2,7 +2,6 @@ import PlanDashboard from './components/PlanDashboard';
 
 import { CalendarDays, RefreshCw, ChefHat, Search, Settings, Trophy, X, ShoppingCart, Heart, Clock, Trash2, Calendar, Leaf, Sparkles, Utensils, ShieldCheck, ArrowRight, CloudDownload, UserX, Info, CheckCircle2, Wand2, Loader2, ScanFace, Printer, Share2, MessageCircle, Smartphone, Database, ShieldAlert, FilterX, Check, AlertTriangle, Shield, LayoutDashboard, Bell, Zap, Maximize, Minimize, Package } from 'lucide-react';
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
-const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'));
 import Challenges from './components/Challenges';
 import MealCard from './components/MealCard';
 const PantryChef = lazy(() => import('./components/PantryChef'));
@@ -24,7 +23,6 @@ import metadata from './metadata.json';
 
 type ViewMode = 'plan' | 'pantry' | 'search' | 'challenges' | 'settings';
 
-const ADMIN_MOBILE = '09143013288';
 
 interface FilterNotif {
   show: boolean;
@@ -38,7 +36,6 @@ interface FilterNotif {
 
 const AppContent: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
-  const [isAdminMode, setIsAdminMode] = useState(false);
   const [displayPlan, setDisplayPlan] = useState<DayPlan[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('pantry');
   const [globalSearchTerm, setGlobalSearchTerm] = useState('');
@@ -173,9 +170,7 @@ const AppContent: React.FC = () => {
           await UserService.logout();
         }
 
-        // ۳. هماهنگ‌سازی دستورهای غذایی با سرور ابری در پس‌زمینه بدون ایجاد تاخیر در لود اولیه
-        // Recipe documents are public catalogue data, so they should sync for guests too.
-        RecipeService.syncFromCloud(false).catch(err => console.error("Sync from cloud failed:", err));
+        // The current release is intentionally local-only; recipes are bundled and cached on this device.
       } catch (err) { 
         console.error("Critical error in initApp:", err); 
       } finally { 
@@ -194,17 +189,8 @@ const AppContent: React.FC = () => {
 
     window.addEventListener('user-data-updated', handleUserUpdate);
 
-    // Periodically update last active
-    const interval = setInterval(() => {
-      const mobile = localStorage.getItem('noosh_auth_mobile');
-      if (mobile) {
-        UserService.updateProfile('', { lastActiveAt: Date.now() }).catch(() => {});
-      }
-    }, 1000 * 60 * 3); // Every 3 minutes
-
     return () => {
       window.removeEventListener('user-data-updated', handleUserUpdate);
-      clearInterval(interval);
     };
   }, []);
 
@@ -502,8 +488,17 @@ const AppContent: React.FC = () => {
     </div>
   );
 
-  const isAdmin = currentUser.role === 'admin' || currentUser.uid === ADMIN_MOBILE;
-  if (isAdminMode && isAdmin) return <Suspense fallback={<div role="status">در حال بارگذاری مدیریت…</div>}><AdminDashboard onLogout={handleLogout} onSwitchToApp={() => setIsAdminMode(false)} /></Suspense>;
+  const isAdminPath = window.location.pathname.replace(/\/+$/, '') === '/admin';
+  if (isAdminPath) return (
+    <div className="min-h-[100dvh] bg-[#f7f8f4] flex items-center justify-center p-5 dir-rtl">
+      <section className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-xl shadow-emerald-950/5">
+        <ShieldAlert className="mx-auto mb-4 text-amber-600" size={34} />
+        <h1 className="text-xl font-black text-slate-900">پنل مدیریت در نسخهٔ محلی فعال نیست</h1>
+        <p className="mt-3 text-sm leading-7 text-slate-600">در این نسخه اطلاعات فقط روی همین دستگاه ذخیره می‌شود و مدیریت مرکزی کاربران یا داده‌های دیگران وجود ندارد.</p>
+        <button onClick={() => { window.history.replaceState({}, '', '/'); }} className="mt-6 rounded-2xl bg-[#183d2b] px-5 py-3 text-sm font-bold text-white">بازگشت به نوش</button>
+      </section>
+    </div>
+  );
 
   const navItems = [
     { id: 'pantry', label: 'آشپزخانه من', icon: ChefHat },
@@ -656,7 +651,6 @@ const AppContent: React.FC = () => {
                    </div>
                 )}
              </button>
-             {isAdmin && <button onClick={() => setIsAdminMode(true)} className="p-2 sm:p-3.5 bg-slate-900 text-teal-400 rounded-xl sm:rounded-2xl shadow-lg border border-white/10"><ShieldAlert size={18} className="sm:w-6 sm:h-6" /></button>}
              <button onClick={() => setIsShoppingListOpen(true)} className="relative p-2 sm:p-3.5 bg-emerald-600 text-white rounded-xl sm:rounded-2xl shadow-lg">
               <ShoppingCart aria-label="لیست خرید" size={18} className="sm:w-6 sm:h-6" />
               {activeShoppingCount > 0 && (

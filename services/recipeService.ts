@@ -1,17 +1,5 @@
 
 import { Dish, UserProfile } from '../types';
-import { 
-  collection, 
-  getDocs,
-  getDocsFromServer,
-  writeBatch,
-  doc,
-  query,
-  limit,
-  updateDoc,
-  deleteDoc
-} from "firebase/firestore";
-import { auth, db } from "./firebase";
 import { DB } from '../utils/db';
 import { DEFAULT_DISHES } from '../data/recipes';
 import { getHiddenDishIds, getRenamedDishes } from '../utils/dishStorage';
@@ -391,50 +379,9 @@ export const RecipeService = {
   isSyncing: () => _isSyncing,
 
   syncFromCloud: async (forceServer: boolean = true): Promise<{count: number, error?: string}> => {
-    if (_isSyncing) return { count: cachedDishes.length };
-    _isSyncing = true;
-    notifyRecipesUpdate(cachedDishes.length, { syncing: true });
-    const errors: string[] = [];
-    try {
-      const dishesQuery = query(collection(db, "dishes"), limit(4000));
-      const [githubResult, firestoreResult] = await Promise.allSettled([
-        withTimeout(fetch(GITHUB_CSV_URL).then(async response => {
-          if (!response.ok) throw new Error(`فهرست پشتیبان پاسخ ${response.status} داد.`);
-          return parseGitHubCSV(await response.text());
-        }), 15000, 'دریافت فهرست پشتیبان بیش از حد طول کشید.'),
-        withTimeout((forceServer ? getDocsFromServer(dishesQuery) : getDocs(dishesQuery)).then(snapshot =>
-          snapshot.docs.map(item => ({ ...item.data(), id: item.id } as Dish))
-        ), 15000, 'دریافت غذاها از Firebase بیش از حد طول کشید.'),
-      ]);
-      const githubDishes = githubResult.status === 'fulfilled' ? githubResult.value : [];
-      const cloudDishes = firestoreResult.status === 'fulfilled' ? firestoreResult.value : [];
-      if (githubResult.status === 'rejected') errors.push('فهرست پشتیبان دریافت نشد.');
-      if (firestoreResult.status === 'rejected') errors.push('اتصال به مجموعهٔ غذاهای Firebase برقرار نشد.');
-
-      if (githubDishes.length || cloudDishes.length) {
-        // A complete Firestore catalogue is authoritative. Older CSV exports can contain the same meals under synthetic IDs.
-        cachedDishes = cloudDishes.length >= 600
-          ? mergeAllDishes([cachedDishes, cloudDishes])
-          : mergeAllDishes([cachedDishes, githubDishes, cloudDishes]);
-        try {
-          const dbInstance = await DB.init();
-          const transaction = dbInstance.transaction('dishes', 'readwrite');
-          const store = transaction.objectStore('dishes');
-          for (const dish of cachedDishes) await store.put(dish);
-        } catch { /* The live catalogue remains usable if local cache is unavailable. */ }
-        isInitialized = true;
-      }
-      const hasCompleteCatalogue = Math.max(githubDishes.length, cloudDishes.length) >= 600;
-      const error = errors.length && !hasCompleteCatalogue ? errors.join(' ') : undefined;
-      notifyRecipesUpdate(cachedDishes.length, { syncing: false, error });
-      return { count: cachedDishes.length, error };
-    } catch (e: any) {
-      const error = e?.message || 'همگام‌سازی غذاها انجام نشد.';
-      notifyRecipesUpdate(cachedDishes.length, { syncing: false, error });
-      return { count: cachedDishes.length, error };
-    } finally {
-      _isSyncing = false;
-    }
+    // Recipes ship with the app and are cached in IndexedDB. No cloud or remote CSV requests.
+    void forceServer;
+    return { count: cachedDishes.length };
   },
 
   getAllDishes: (): Dish[] => {
@@ -453,8 +400,6 @@ export const RecipeService = {
 
   updateDish: async (dishId: string, updates: Partial<Dish>): Promise<boolean> => {
     try {
-      const dishRef = doc(db, "dishes", dishId);
-      await updateDoc(dishRef, updates);
       cachedDishes = cachedDishes.map(d => d.id === dishId ? { ...d, ...updates } : d);
       const updatedDish = cachedDishes.find(d => d.id === dishId);
       if (updatedDish) await DB.put('dishes', updatedDish);
@@ -466,17 +411,6 @@ export const RecipeService = {
   updateDishesBatch: async (updates: { id: string, data: Partial<Dish> }[]): Promise<boolean> => {
     if (updates.length === 0) return true;
     try {
-      const batch = writeBatch(db);
-      const updatedIds = new Set<string>();
-      
-      updates.forEach(u => {
-        const dishRef = doc(db, "dishes", u.id);
-        batch.update(dishRef, u.data);
-        updatedIds.add(u.id);
-      });
-      
-      await batch.commit();
-      
       // Update cache and local DB
       cachedDishes = cachedDishes.map(d => {
         const update = updates.find(u => u.id === d.id);
@@ -501,7 +435,6 @@ export const RecipeService = {
 
   deleteDish: async (dishId: string): Promise<boolean> => {
     try {
-      await deleteDoc(doc(db, "dishes", dishId));
       cachedDishes = cachedDishes.filter(d => d.id !== dishId);
       await DB.delete('dishes', dishId);
       notifyRecipesUpdate(cachedDishes.length);
@@ -525,21 +458,17 @@ export const RecipeService = {
   getLocalCount: () => cachedDishes.length,
 
   seedFromExternalData: async (dishes: Dish[]) => {
-    const batchSize = 400;
-    for (let i = 0; i < dishes.length; i += batchSize) {
-      const chunk = dishes.slice(i, i + batchSize);
-      const batch = writeBatch(db);
-      chunk.forEach(d => batch.set(doc(db, "dishes", d.id), d));
-      await batch.commit();
-    }
+    cachedDishes = mergeAllDishes([cachedDishes, dishes]);
+    const dbInstance = await DB.init();
+    const transaction = dbInstance.transaction('dishes', 'readwrite');
+    const store = transaction.objectStore('dishes');
+    for (const dish of cachedDishes) await store.put(dish);
+    isInitialized = true;
+    notifyRecipesUpdate(cachedDishes.length);
     return { success: true, message: "انجام شد" };
   },
 
   purgeCloudDatabase: async () => {
-    const snapshot = await getDocs(collection(db, "dishes"));
-    const batch = writeBatch(db);
-    snapshot.docs.forEach(d => batch.delete(d.ref));
-    await batch.commit();
-    return { success: true, message: "پاکسازی شد" };
+    return { success: false, message: "در نسخهٔ محلی پایگاه دادهٔ ابری وجود ندارد؛ فهرست غذاها پاک نشد." };
   }
 };

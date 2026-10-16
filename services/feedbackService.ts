@@ -1,43 +1,29 @@
+import { UserFeedback, FeedbackCategory } from '../types';
 
-import { collection, addDoc, getDocs, query, orderBy, doc, updateDoc } from "firebase/firestore";
-import { db } from "./firebase";
-import { UserFeedback, FeedbackCategory } from "../types";
+const KEY = 'noosh_local_feedback_v1';
+const readAll = (): UserFeedback[] => {
+  try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
+};
+const saveAll = (items: UserFeedback[]) => localStorage.setItem(KEY, JSON.stringify(items));
 
 export const FeedbackService = {
-  /**
-   * Submit feedback using the exact same simple logic as NotificationService
-   */
   submitFeedback: async (userId: string, userName: string, mobile: string, category: FeedbackCategory, message: string) => {
-    const feedback = {
+    const feedback: UserFeedback = {
+      id: `local-${Date.now()}`,
       user_id: userId,
       user_name: userName,
       user_mobile: mobile,
-      category: category,
-      message: message,
+      category,
+      message,
       status: 'new',
       created_at: Date.now(),
-      device: navigator.userAgent
+      device: navigator.userAgent,
     };
-    
-    // Using simple addDoc just like notifications
-    const docRef = await addDoc(collection(db, "user_feedback"), feedback);
-    return { id: docRef.id, ...feedback };
+    saveAll([feedback, ...readAll()]);
+    return feedback;
   },
-
-  /**
-   * Get all feedback for admin
-   */
-  getAllFeedback: async (): Promise<UserFeedback[]> => {
-    const q = query(collection(db, "user_feedback"), orderBy("created_at", "desc"));
-    const snap = await getDocs(q);
-    return snap.docs.map(d => ({ id: d.id, ...d.data() } as UserFeedback));
-  },
-
-  /**
-   * Update feedback status and optional fields
-   */
+  getAllFeedback: async (): Promise<UserFeedback[]> => readAll(),
   updateFeedbackStatus: async (feedbackId: string, status: UserFeedback['status'], extraFields: Partial<UserFeedback> = {}) => {
-    const ref = doc(db, "user_feedback", feedbackId);
-    await updateDoc(ref, { status, ...extraFields });
-  }
+    saveAll(readAll().map(item => item.id === feedbackId ? { ...item, ...extraFields, status } : item));
+  },
 };

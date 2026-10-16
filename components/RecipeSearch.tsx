@@ -1,6 +1,6 @@
 import { normalizePersian } from '../utils/text';
 
-import { Search, Database, RefreshCw, ChevronRight, ChevronLeft, LayoutList, MapPin, CloudDownload, Loader2, BarChart3, X, Flag } from 'lucide-react';
+import { Search, Database, ChevronRight, ChevronLeft, LayoutList, MapPin, BarChart3, X, Flag } from 'lucide-react';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Dish, DishCategory, CATEGORY_LABELS, UserProfile } from '../types';
 import { RecipeService } from '../services/recipeService';
@@ -64,8 +64,6 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   const [selectedCategory, setSelectedCategory] = useState<DishCategory | 'all'>('all');
   const [selectedCountryId, setSelectedCountryId] = useState<string | 'all'>('all');
   const [allDishes, setAllDishes] = useState<Dish[]>([]);
-  const [isSyncing, setIsSyncing] = useState(() => RecipeService.isSyncing());
-  const [syncError, setSyncError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState(externalSearchTerm);
   
@@ -76,10 +74,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
 
   const loadDishes = (event?: Event) => {
     setAllDishes(RecipeService.getAllDishes());
-    const detail = (event as CustomEvent<{ syncing?: boolean; error?: string }> | undefined)?.detail;
-    if (detail?.syncing !== undefined) setIsSyncing(detail.syncing);
-    if (detail?.error) setSyncError(detail.error);
-    else if (detail?.syncing === false) setSyncError('');
+    void event;
   };
 
   useEffect(() => {
@@ -87,17 +82,6 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
     window.addEventListener('recipes-updated', loadDishes);
     return () => window.removeEventListener('recipes-updated', loadDishes);
   }, []);
-
-  const handleManualSync = async () => {
-    setIsSyncing(true);
-    setSyncError('');
-    try {
-      const result = await RecipeService.syncFromCloud(true);
-      if (result.error) setSyncError(result.error);
-    } catch (error) {
-      setSyncError(error instanceof Error ? error.message : 'ارتباط با فهرست غذاها برقرار نشد.');
-    } finally { setIsSyncing(false); }
-  };
 
   const scrollFlags = (direction: 'right' | 'left') => {
     if (flagsScrollRef.current) {
@@ -199,16 +183,12 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
                        {toPersian(allDishes.length)}
                     </span>
                  </div>
-                 <button onClick={handleManualSync} disabled={isSyncing} className="p-2 sm:p-4 bg-white border border-slate-200 text-slate-500 rounded-lg sm:rounded-2xl hover:text-emerald-600 transition-all shadow-sm active:scale-95">
-                    {isSyncing ? <Loader2 className="animate-spin" size={16} sm:size={22} /> : <CloudDownload size={16} sm:size={22} />}
-                 </button>
               </div>
             </div>
 
-            <div className={`catalog-status ${syncError ? 'catalog-error' : ''}`} aria-live="polite">
-              {isSyncing ? <Loader2 size={17} className="animate-spin" /> : <Database size={17} />}
-              <span>{isSyncing ? `در حال دریافت همهٔ غذاها… ${toPersian(allDishes.length)} مورد آماده است.` : syncError ? `دریافت غذاهای Firebase کامل نشد؛ ${toPersian(allDishes.length)} غذا در دسترس است.` : allDishes.length >= 600 ? `همهٔ ${toPersian(allDishes.length)} غذا در کتابخانه آماده است.` : `اکنون ${toPersian(allDishes.length)} غذا در دستگاه ذخیره است.`}</span>
-              {!isSyncing && (syncError || allDishes.length < 600) && <button onClick={handleManualSync}><RefreshCw size={14}/> تلاش دوباره</button>}
+            <div className="catalog-status" aria-live="polite">
+              <Database size={17} />
+              <span>{`${toPersian(allDishes.length)} غذا در کتابخانهٔ همین دستگاه آماده است.`}</span>
             </div>
             {selectedCategory === 'international' && (
               <div className="relative pt-2 sm:pt-4 border-t border-white/40 animate-enter flex items-center group/flags">
