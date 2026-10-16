@@ -237,7 +237,9 @@
       "calories": 550,
       "cookTime": 180,
       "difficulty": "سخت",
-      "servings": 4
+      "servings": 4,
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "joojeh_kabab",
