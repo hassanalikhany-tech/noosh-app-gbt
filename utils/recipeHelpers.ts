@@ -379,32 +379,26 @@ export const getStandardUnit = (itemName: string, dishes: Dish[]): string => {
 
 export const getCountryCode = (nationality: string | undefined): string | null => {
   if (!nationality) return null;
-  const n = nationality.toLowerCase();
-  if (n.includes('یونان') || n.includes('greek') || n.includes('greece') || n === 'gr') return 'gr';
-  if (n.includes('ایران') || n.includes('iran') || n === 'ir') return 'ir';
-  if (n.includes('ایتالیا') || n.includes('italy') || n === 'it') return 'it';
-  if (n.includes('فرانسه') || n.includes('france') || n === 'fr') return 'fr';
-  if (n.includes('ترکیه') || n.includes('turkey') || n === 'tr') return 'tr';
-  if (n.includes('هند') || n.includes('india') || n === 'in') return 'in';
-  if (n.includes('چین') || n.includes('china') || n === 'cn') return 'cn';
-  if (n.includes('ژاپن') || n.includes('japan') || n === 'jp') return 'jp';
-  if (n.includes('مکزیک') || n.includes('mexico') || n === 'mx') return 'mx';
-  if (n.includes('آمریکا') || n.includes('usa') || n === 'us') return 'us';
-  if (n.includes('لبنان') || n.includes('lebanon') || n === 'lb') return 'lb';
-  if (n.includes('افغانستان') || n.includes('afghanistan') || n === 'af') return 'af';
-  if (n.includes('روسیه') || n.includes('russia') || n === 'ru') return 'ru';
-  if (n.includes('اسپانیا') || n.includes('spain') || n === 'es') return 'es';
-  if (n.includes('بریتانیا') || n.includes('uk') || n === 'gb') return 'gb';
-  if (n.includes('مصر') || n.includes('egypt') || n === 'eg') return 'eg';
-  if (n.includes('عربستان') || n.includes('saudi') || n === 'sa') return 'sa';
-  if (n.includes('یمن') || n.includes('yemen') || n === 'ye') return 'ye';
-  if (n.includes('مراکش') || n.includes('morocco') || n === 'ma') return 'ma';
-  if (n.includes('پرو') || n.includes('peru') || n === 'pe') return 'pe';
-  if (n.includes('برزیل') || n.includes('brazil') || n === 'br') return 'br';
-  if (n.includes('آرژانتین') || n.includes('argentina') || n === 'ar') return 'ar';
-  if (n.includes('اندونزی') || n.includes('indonesia') || n === 'id') return 'id';
-  if (n.includes('تایلند') || n.includes('thailand') || n === 'th') return 'th';
-  if (n.includes('ویتنام') || n.includes('vietnam') || n === 'vn') return 'vn';
-  if (n.includes('مجارستان') || n.includes('hungary') || n === 'hu') return 'hu';
-  return null;
+  const n = nationality.trim().toLowerCase();
+  if (/^[a-z]{2}$/.test(n)) return n === 'uk' ? 'gb' : n;
+  const countries: Array<[string, string[]]> = [
+    ['ir', ['ایران', 'iran', 'persia', 'persian']], ['sa', ['عربستان', 'saudi']], ['ye', ['یمن', 'yemen']],
+    ['eg', ['مصر', 'egypt', 'egyptian']], ['lb', ['لبنان', 'lebanon']], ['tr', ['ترکیه', 'turkey', 'turkish']],
+    ['af', ['افغانستان', 'afghanistan']], ['ma', ['مراکش', 'morocco', 'moroccan']], ['pe', ['پرو', 'peru']],
+    ['br', ['برزیل', 'brazil', 'brazilian']], ['ar', ['آرژانتین', 'argentina']], ['mx', ['مکزیک', 'mexico', 'mexican']],
+    ['id', ['اندونزی', 'indonesia']], ['th', ['تایلند', 'thailand', 'thai']], ['vn', ['ویتنام', 'vietnam', 'vietnamese']],
+    ['in', ['هند', 'india', 'indian']], ['cn', ['چین', 'china', 'chinese']], ['jp', ['ژاپن', 'japan', 'japanese']],
+    ['gb', ['بریتانیا', 'united kingdom', 'britain', 'british', 'england', 'uk']], ['hu', ['مجارستان', 'hungary', 'hungarian']],
+    ['it', ['ایتالیا', 'italy', 'italian']], ['fr', ['فرانسه', 'france', 'french']], ['ru', ['روسیه', 'russia', 'russian']],
+    ['gr', ['یونان', 'greece', 'greek']], ['es', ['اسپانیا', 'spain', 'spanish']], ['us', ['آمریکا', 'امریکا', 'united states', 'usa', 'american']],
+    ['kr', ['کره جنوبی', 'south korea', 'korea', 'korean']], ['de', ['آلمان', 'germany', 'german']], ['ca', ['کانادا', 'canada', 'canadian']],
+    ['au', ['استرالیا', 'australia', 'australian']], ['pk', ['پاکستان', 'pakistan', 'pakistani']], ['iq', ['عراق', 'iraq', 'iraqi']],
+    ['sy', ['سوریه', 'syria', 'syrian']], ['jp', ['ژاپنی', 'japanese']], ['nl', ['هلند', 'netherlands', 'dutch']],
+    ['be', ['بلژیک', 'belgium', 'belgian']], ['ch', ['سوئیس', 'switzerland', 'swiss']], ['se', ['سوئد', 'sweden', 'swedish']],
+    ['pl', ['لهستان', 'poland', 'polish']], ['pt', ['پرتغال', 'portugal', 'portuguese']], ['ua', ['اوکراین', 'ukraine', 'ukrainian']],
+    ['ng', ['نیجریه', 'nigeria', 'nigerian']], ['za', ['آفریقای جنوبی', 'south africa']], ['ph', ['فیلیپین', 'philippines', 'filipino']],
+    ['my', ['مالزی', 'malaysia', 'malaysian']], ['il', ['اسرائیل', 'israel']], ['co', ['کلمبیا', 'colombia', 'colombian']],
+    ['cl', ['شیلی', 'chile', 'chilean']], ['cu', ['کوبا', 'cuba', 'cuban']], ['pl', ['لهستانی', 'polish']],
+  ];
+  return countries.find(([, aliases]) => aliases.some(alias => n === alias || n.includes(alias)))?.[0] || null;
 };

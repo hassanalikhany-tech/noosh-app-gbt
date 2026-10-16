@@ -1,10 +1,10 @@
 import { normalizePersian } from '../utils/text';
 
-import { Search, Database, RefreshCw, ChevronRight, ChevronLeft, LayoutList, MapPin, CloudDownload, Loader2, BarChart3, X } from 'lucide-react';
+import { Search, Database, RefreshCw, ChevronRight, ChevronLeft, LayoutList, MapPin, CloudDownload, Loader2, BarChart3, X, Globe2 } from 'lucide-react';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Dish, DishCategory, CATEGORY_LABELS, UserProfile } from '../types';
 import { RecipeService } from '../services/recipeService';
-import { isDishProhibited } from '../utils/recipeHelpers';
+import { getCountryCode, isDishProhibited } from '../utils/recipeHelpers';
 import MealCard from './MealCard';
 
 interface RecipeSearchProps {
@@ -43,6 +43,20 @@ const COUNTRY_DATA = [
   { id: 'es', label: 'اسپانیا', matches: ['اسپانیا', 'Spain'] },
   { id: 'us', label: 'آمریکا', matches: ['آمریکا', 'USA'] },
 ].sort((a, b) => a.label.localeCompare(b.label, 'fa'));
+
+const CountryFlag: React.FC<{ country: { id: string; label: string } }> = ({ country }) => {
+  const code = getCountryCode(country.id) || getCountryCode(country.label);
+  const [failed, setFailed] = useState(!code);
+  useEffect(() => setFailed(!code), [code]);
+  const emoji = code
+    ? String.fromCodePoint(...code.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0)))
+    : null;
+
+  if (failed) return emoji
+    ? <span aria-hidden="true" className="text-2xl leading-none">{emoji}</span>
+    : <Globe2 aria-hidden="true" size={20} className="text-indigo-400" />;
+  return <img src={`https://flagcdn.com/w160/${code}.png`} alt={country.label} className="w-full h-full object-cover" onError={() => setFailed(true)} loading="lazy" decoding="async" />;
+};
 
 const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externalSearchTerm = '' }) => {
   const [selectedCategory, setSelectedCategory] = useState<DishCategory | 'all'>('all');
@@ -99,7 +113,12 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
     const nationalities = new Set<string>(allDishes.filter(dish => dish.category === 'international').flatMap(dish => dish.nationality?.trim() ? [dish.nationality.trim()] : []));
     for (const nationality of nationalities) {
       if (covered.has(normalizePersian(nationality))) continue;
-      options.push({ id: normalizePersian(nationality), label: nationality, matches: [nationality] });
+      const countryCode = getCountryCode(nationality);
+      if (countryCode && options.some(country => country.id === countryCode)) {
+        covered.add(normalizePersian(nationality));
+        continue;
+      }
+      options.push({ id: countryCode || `country-${normalizePersian(nationality)}`, label: nationality, matches: [nationality, ...(countryCode ? [countryCode] : [])] });
       covered.add(normalizePersian(nationality));
     }
     return options.sort((a, b) => a.label.localeCompare(b.label, 'fa'));
@@ -215,7 +234,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
                       className={`relative w-9 h-9 sm:w-12 sm:h-12 rounded-xl border-2 transition-all flex-shrink-0 overflow-hidden ${selectedCountryId === c.id ? 'border-indigo-600 scale-110 shadow-lg' : 'border-slate-100 hover:border-slate-300'}`}
                       title={c.label}
                     >
-                      <img src={`https://flagcdn.com/w160/${c.id}.png`} alt={c.label} className="w-full h-full object-cover" />
+                      <CountryFlag country={c} />
                     </button>
                   ))}
                 </div>

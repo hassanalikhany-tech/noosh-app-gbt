@@ -120,6 +120,16 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
     return num.toString().replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
   };
 
+  const changeFamilySize = async (nextSize: number) => {
+    const familySize = Math.max(1, Math.min(20, Math.round(nextSize)));
+    try {
+      const updatedUser = await UserService.updateProfile(user.username, { familySize });
+      onUpdateUser(updatedUser);
+    } catch {
+      if (onNotify) onNotify('ذخیره انجام نشد', 'تعداد اعضای خانواده ذخیره نشد؛ دوباره تلاش کنید.', AlertTriangle, 'rose');
+    }
+  };
+
   const handleRemoveFavorite = async (e: React.MouseEvent, dishId: string) => {
     e.stopPropagation();
     try {
@@ -236,7 +246,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                 </div>
                 <div>
                   <h2 className="text-lg sm:text-2xl font-black text-slate-800 leading-none">
-                    {user.fullName || user.phoneNumber || user.mobileNumber || user.username || "کاربر نـوش"}
+                    {user.uid === 'local-guest' ? 'مهمان عزیز' : user.fullName || user.phoneNumber || user.mobileNumber || user.username || "کاربر نـوش"}
                   </h2>
                   {user.role && user.role !== 'user' && user.role !== 'normal' && (
                     <p className="text-teal-600 text-[8px] sm:text-xs font-black mt-1 sm:mt-2 uppercase tracking-widest">
@@ -285,6 +295,18 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
               </button>
 
               {/* بخش تنظیمات هوشمند و فیلترهای سریع */}
+              <section className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-8 shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                <div>
+                  <h2 className="text-base sm:text-xl font-black text-slate-800">تعداد اعضای خانواده</h2>
+                  <p className="text-xs text-slate-500 mt-1 leading-6">مقدار مواد رسپی‌ها، کسری خرید و محاسبهٔ انبار بر پایهٔ این تعداد تنظیم می‌شود. دستورهای اصلی برای ۴ نفر ثبت شده‌اند.</p>
+                </div>
+                <div className="flex items-center justify-between sm:justify-center gap-4 bg-slate-50 border border-slate-100 rounded-2xl p-2 min-w-44">
+                  <button type="button" aria-label="کم کردن تعداد اعضای خانواده" disabled={(user.familySize || 4) <= 1} onClick={() => void changeFamilySize((user.familySize || 4) - 1)} className="w-11 h-11 rounded-xl bg-white border border-slate-200 text-slate-600 grid place-items-center hover:text-rose-600 disabled:opacity-40"><Minus size={18} /></button>
+                  <span className="text-center min-w-16"><strong className="block text-xl font-black text-slate-900">{toPersian(user.familySize || 4)}</strong><small className="text-[10px] text-slate-500">نفر</small></span>
+                  <button type="button" aria-label="زیاد کردن تعداد اعضای خانواده" disabled={(user.familySize || 4) >= 20} onClick={() => void changeFamilySize((user.familySize || 4) + 1)} className="w-11 h-11 rounded-xl bg-white border border-slate-200 text-slate-600 grid place-items-center hover:text-emerald-700 disabled:opacity-40"><Plus size={18} /></button>
+                </div>
+              </section>
+
               <div id="smart-filters-section" className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100 space-y-6 sm:space-y-8">
                  <div className="flex items-center gap-3 sm:gap-4">
                     <div className="p-3 sm:p-4 bg-teal-50 text-teal-600 rounded-xl sm:rounded-[1.5rem]">
@@ -420,7 +442,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
               </div>
 
               <div className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100 space-y-6 sm:space-y-8">
-                <div className="flex items-center gap-3 sm:gap-4"><div className="p-3 sm:p-4 bg-rose-50 text-rose-600 rounded-xl sm:rounded-[1.5rem]"><UserX size={22} className="sm:w-8" /></div><div><h2 className="text-base sm:text-2xl font-black text-slate-800">مواد غذایی ممنوعه</h2><p className="text-[9px] sm:text-xs text-slate-400 font-bold mt-1">غذاهای حاوی این مواد هرگز پیشنهاد نمی‌شوند</p></div></div>
+                <div className="flex items-center gap-3 sm:gap-4"><div className="p-3 sm:p-4 bg-rose-50 text-rose-600 rounded-xl sm:rounded-[1.5rem]"><UserX size={22} className="sm:w-8" /></div><div><h2 className="text-base sm:text-2xl font-black text-slate-800">مواد غذایی ممنوعه</h2><p className="text-[10px] sm:text-xs text-slate-500 font-medium mt-1 leading-5">مواد حساسیت‌زا یا خوراکی‌هایی را که نمی‌خورید اضافه کنید؛ غذاهای دارای این مواد از پیشنهادها حذف می‌شوند.</p></div></div>
                 <div className="relative">
                   <input 
                     type="text" 
@@ -521,7 +543,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
               </div>
 
               <div className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100">
-                <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-10"><div className="p-3 sm:p-4 bg-indigo-50 text-indigo-600 rounded-xl sm:rounded-[1.5rem]"><FilterX size={22} className="sm:w-8" /></div><div><h2 className="text-base sm:text-2xl font-black text-slate-800">فیلتر هوشمند دسته‌ها</h2><p className="text-[9px] sm:text-xs text-slate-400 font-bold mt-1">دسته‌های انتخابی از برنامه حذف می‌شوند</p></div></div>
+                <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-10"><div className="p-3 sm:p-4 bg-indigo-50 text-indigo-600 rounded-xl sm:rounded-[1.5rem]"><FilterX size={22} className="sm:w-8" /></div><div><h2 className="text-base sm:text-2xl font-black text-slate-800">فیلتر هوشمند دسته‌ها</h2><p className="text-[10px] sm:text-xs text-slate-500 font-medium mt-1 leading-5">با خاموش‌کردن هر دسته، غذاهای آن از پیشنهادهای خودکار و برنامهٔ غذایی کنار گذاشته می‌شوند.</p></div></div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
                     {(Object.keys(CATEGORY_LABELS) as DishCategory[]).map(cat => (
                       <button 
