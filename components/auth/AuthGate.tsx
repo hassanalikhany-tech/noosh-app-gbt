@@ -168,7 +168,6 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
                 <span className="text-4xl font-black italic text-slate-900">NOOSH</span>
                 <span className="text-xl font-black text-teal-600">APP</span>
              </div>
-             <p className="text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">همراه سلامت و آسایش شما</p>
           </div>
         </div>
         <div id="recaptcha-container" className="auth-recaptcha-container" aria-label="بررسی امنیتی درخواست پیامک" />
@@ -176,11 +175,7 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
         {step === 'start' && (
           <div className="space-y-4">
             <div className="text-center mb-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-black border border-emerald-100 mb-3">
-                <ChefHat size={14} /> آشپزی به سبک خودت
-              </div>
               <h1 className="text-2xl sm:text-[27px] font-black text-slate-900">به نوش خوش آمدی</h1>
-              <p className="text-xs text-slate-500 font-medium leading-6 mt-2">بعد از ورود، حالت استفاده از انبار را با کلید صفحهٔ اول انتخاب کن.</p>
             </div>
 
             <button type="button" onClick={() => { GuestService.start(); setIsAuthenticated(true); }} className="onboard-choice group w-full text-right p-5 sm:p-6 rounded-[1.6rem] bg-[#173d32] hover:bg-[#204c3f] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200 text-white shadow-lg shadow-emerald-950/10 transition-all">
@@ -188,16 +183,14 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
                 <span className="w-12 h-12 shrink-0 rounded-2xl bg-white/10 text-emerald-200 flex items-center justify-center"><ChefHat size={23} /></span>
                 <span className="min-w-0 flex-1">
                   <strong className="block text-sm font-black">ادامه به نوش</strong>
-                  <small className="block text-[11px] leading-5 text-emerald-100/75 mt-1">بعداً هر زمان خواستی حالت انبار را روشن یا خاموش کن.</small>
+                  <small className="block text-[11px] leading-5 text-emerald-100/75 mt-1">شروع بدون ساخت حساب</small>
                 </span>
                 <ArrowLeft className="text-emerald-200 shrink-0 group-hover:-translate-x-1 transition-transform" size={19} />
               </span>
             </button>
 
-            <p className="text-center text-[10px] leading-5 text-slate-400 px-3">هر وقت خواستی می‌توانی بین دستورها و انبار جابه‌جا شوی. علاقه‌مندی‌ها و انتخاب‌ها روی همین مرورگر می‌مانند.</p>
             <div className="pt-2 text-center border-t border-slate-100">
-              <span className="text-[11px] text-slate-500">حساب کاربری داری؟</span>
-              <button type="button" onClick={() => { setError(''); setStep('mobile'); }} className="mr-2 inline-flex items-center gap-1 text-[11px] font-black text-teal-700 hover:text-teal-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded-lg px-1 py-2">ورود یا ساخت حساب <ArrowRight size={14} /></button>
+              <button type="button" onClick={() => { setError(''); setStep('mobile'); }} className="inline-flex items-center gap-1 text-[11px] font-black text-teal-700 hover:text-teal-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded-lg px-1 py-2">ورود یا ساخت حساب <ArrowRight size={14} /></button>
             </div>
           </div>
         )}
