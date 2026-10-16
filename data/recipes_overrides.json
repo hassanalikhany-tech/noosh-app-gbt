@@ -502,7 +502,7 @@
         "تابه مناسبی را با روغن داغ پر کنید. مقداری از مواد را کف دست پهن و فرم دهید و وسط آن سوراخی شیاردار بکنید تا مغزپخت شود.",
         "دو طرف کتلت‌ها را در روغن داغ سرخ کنید تا سرخ و برشته شوند و با گوجه فرنگی میل فرمایید."
       ],
-      "imageUrl": "https://images.unsplash.com/photo-1606757389105-646d073027ef?q=80&w=600&auto=format&fit=crop",
+      "imageUrl": "/images/dishes/kotlet_goosht.jpg",
       "nationality": "ir",
       "nature": "balanced",
       "natureLabel": "معتدل رو به گرم",
@@ -511,7 +511,7 @@
       "cookTime": 45,
       "difficulty": "آسان",
       "servings": 4,
-      "imageReviewStatus": "create",
+      "imageReviewStatus": "completed",
       "localEdited": true
     },
     {
@@ -4212,8 +4212,9 @@
         "در ۱۵ دقیقه پایانی پخت، مابقی زعفران دم‌کرده را روی بلدرچین‌ها بریزید و اجازه دهید سس خوراک غلیظ و جا افتاده شود. این غذا را می‌توانید در کنار چلو یا خوراک سرو کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "create",
-      "localEdited": true
+      "imageReviewStatus": "completed",
+      "localEdited": true,
+      "imageUrl": "/images/dishes/dish-0-1776124877276.jpg"
     },
     {
       "id": "dish-0-1776124903557",
@@ -4278,8 +4279,9 @@
         "در ۳۰ دقیقه پایانی پخت، زعفران دم‌کرده و نمک را اضافه کرده و اجازه دهید خورش کاملاً جا بیفتد و غلیظ شود."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "create",
-      "localEdited": true
+      "imageReviewStatus": "completed",
+      "localEdited": true,
+      "imageUrl": "/images/dishes/dish-0-1776124903557.jpg"
     },
     {
       "id": "dish-0-1776124930573",
