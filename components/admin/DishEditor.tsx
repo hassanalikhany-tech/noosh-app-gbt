@@ -79,10 +79,10 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
         onSave();
         onClose();
       } else {
-        alert("خطا در ذخیره‌سازی اطلاعات در فایربیس.");
+        alert("ذخیرهٔ محلی این غذا انجام نشد. دوباره تلاش کنید.");
       }
     } catch (error) {
-      alert("خطای سیستمی در برقراری ارتباط با دیتابیس.");
+      alert("ذخیرهٔ محلی این غذا با خطا روبه‌رو شد.");
     } finally {
       setIsSaving(false);
     }
@@ -253,7 +253,7 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
             className="px-12 py-3.5 bg-emerald-600 text-white rounded-2xl font-black shadow-xl shadow-emerald-100 flex items-center gap-2 hover:bg-emerald-700 active:scale-95 transition-all disabled:opacity-50"
           >
             {isSaving ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> : <Save size={20} />}
-            ذخیره تغییرات در فایربیس
+            ذخیرهٔ تغییرات روی همین دستگاه
           </button>
         </div>
       </div>
