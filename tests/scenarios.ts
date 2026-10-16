@@ -7,10 +7,15 @@ import { normalizePersian, englishDigits } from '../utils/text';
 import { formatPhoneNumberInput, getPhoneUserDocumentIds, normalizePhoneNumber } from '../utils/phoneNumbers';
 import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthErrors';
 import { GuestService } from '../services/guestService';
+import { DEFAULT_DISHES } from '../data/recipes';
+import recipeCatalog from '../data/recipes_catalog.json';
 const storage = new Map();
 globalThis.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) } as any;
 globalThis.window = { dispatchEvent: () => true } as any;
 const base: any = { username: 'test', excludedCategories: [], preferredNatures: [], favoriteDishIds: [], blacklistedDishIds: [], dislikedIngredients: [] };
+assert.equal(recipeCatalog.length, 652, 'The offline catalog contains the 652 dishes from the published recipe backup');
+assert.equal(new Set(recipeCatalog.map(dish => dish.id)).size, recipeCatalog.length, 'Offline recipe IDs are unique');
+assert.ok(DEFAULT_DISHES.length >= 10, 'Curated built-in recipes are retained alongside the imported catalog');
 RecipeService.dishes = [
  { id: 'veg', name: 'خوراک سبزیجات', category: 'khorak', cookTime: 20, nature: 'گرم', ingredients: [{item:'هویج', amount:1, unit:'کیلوگرم'}] },
  { id: 'meat', name: 'خورش گوشت', category: 'stew', cookTime: 120, nature: 'cold', ingredients: [{item:'گوشت', amount:1, unit:'کیلوگرم'}] },
@@ -65,4 +70,4 @@ assert.deepEqual(GuestService.get().favoriteDishIds, ['veg']);
 assert.equal(GuestService.get().weeklyPlan.length, 7);
 GuestService.stop(); assert.equal(GuestService.isActive(), false);
 assert.deepEqual(GuestService.get().favoriteDishIds, ['veg'], 'Logging out preserves guest data');
-console.log('Passed 40 checks: mode persistence, pantry-aware and flexible planning, mode-aware shopping and cooking, filters, guest persistence, phone normalization, and Firebase auth errors.');
+console.log('Passed 43 checks: offline recipe catalog, mode persistence, pantry-aware and flexible planning, mode-aware shopping and cooking, filters, guest persistence, phone normalization, and Firebase auth errors.');

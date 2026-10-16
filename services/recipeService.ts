@@ -2,9 +2,10 @@
 import { Dish, UserProfile } from '../types';
 import { DB } from '../utils/db';
 import { DEFAULT_DISHES } from '../data/recipes';
+import RECIPE_CATALOG from '../data/recipes_catalog.json';
 import { getHiddenDishIds, getRenamedDishes } from '../utils/dishStorage';
 
-// ۵ غذای جدید درخواستی کاربر برای ارسال مستقیم به دیتابیس فایربیس و ادغام دائمی
+// غذاهای تکمیلیِ همراه اپ که در فایل فهرست اصلی نیستند.
 const EXTRA_CLOUD_DISHES: any[] = [
   {
     "name": "آرایس کفته کلاسیک لبنانی",
@@ -189,150 +190,11 @@ const EXTRA_CLOUD_DISHES: any[] = [
   }
 ];
 
-const GITHUB_CSV_URL = "https://raw.githubusercontent.com/hassanalikhany-tech/noosh-app/main/Noosh_DB_2026-06-29%20(1).csv";
-
-const withTimeout = <T,>(promise: Promise<T>, milliseconds: number, message: string): Promise<T> =>
-  new Promise((resolve, reject) => {
-    const timer = window.setTimeout(() => reject(new Error(message)), milliseconds);
-    promise.then(
-      value => { window.clearTimeout(timer); resolve(value); },
-      error => { window.clearTimeout(timer); reject(error); }
-    );
-  });
-
-function parseCSVStringToRows(text: string): string[][] {
-  const cleanText = text.replace(/^\uFEFF/, '');
-  const result: string[][] = [];
-  let row: string[] = [];
-  let current = '';
-  let inQuotes = false;
-  
-  for (let i = 0; i < cleanText.length; i++) {
-    const char = cleanText[i];
-    const nextChar = cleanText[i + 1];
-    
-    if (inQuotes) {
-      if (char === '"' && nextChar === '"') {
-        current += '"';
-        i++;
-      } else if (char === '"') {
-        inQuotes = false;
-      } else {
-        current += char;
-      }
-    } else {
-      if (char === '"') {
-        inQuotes = true;
-      } else if (char === ',') {
-        row.push(current);
-        current = '';
-      } else if (char === '\r' || char === '\n') {
-        if (char === '\r' && nextChar === '\n') i++;
-        row.push(current);
-        if (row.length > 1 || (row.length === 1 && row[0].trim() !== '')) {
-          result.push(row);
-        }
-        row = [];
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-  }
-  if (current !== '' || row.length > 0) {
-    row.push(current);
-    if (row.length > 1 || (row.length === 1 && row[0].trim() !== '')) {
-      result.push(row);
-    }
-  }
-  return result;
-}
-
-const toEnglishDigits = (str: string) => str.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString());
-
-const parseGitHubCSV = (csvText: string): Dish[] => {
-  const rows = parseCSVStringToRows(csvText);
-  if (rows.length < 2) return [];
-
-  const headers = rows[0].map(h => h.trim().toLowerCase());
-  const getIdx = (name: string) => headers.indexOf(name.toLowerCase());
-
-  const idIdx = getIdx("id");
-  const nameIdx = getIdx("name");
-  const catIdx = getIdx("category");
-  const descIdx = getIdx("description");
-  const natureIdx = getIdx("nature_type");
-  const natureLabelIdx = getIdx("nature_label");
-  const moslehIdx = getIdx("mosleh");
-  const calIdx = getIdx("calories");
-  const timeIdx = getIdx("cooktime");
-  const diffIdx = getIdx("difficulty");
-  const natIdx = getIdx("nationality");
-  const ingIdx = getIdx("ingredients_list");
-  const stepsIdx = getIdx("recipe_steps");
-
-  const dishes: Dish[] = [];
-
-  for (let i = 1; i < rows.length; i++) {
-    const r = rows[i];
-    const name = nameIdx !== -1 && r[nameIdx] ? r[nameIdx].trim() : '';
-    if (!name) continue;
-
-    const id = idIdx !== -1 && r[idIdx] ? r[idIdx].trim() : `gh-${i}`;
-    const category = (catIdx !== -1 && r[catIdx] ? r[catIdx].trim() : 'stew') as any;
-    const description = descIdx !== -1 && r[descIdx] ? r[descIdx].trim() : '';
-    const nature = (natureIdx !== -1 && r[natureIdx] ? r[natureIdx].trim() : undefined) as any;
-    const natureLabel = natureLabelIdx !== -1 && r[natureLabelIdx] ? r[natureLabelIdx].trim() : undefined;
-    const mosleh = moslehIdx !== -1 && r[moslehIdx] ? r[moslehIdx].trim() : undefined;
-    
-    const calStr = calIdx !== -1 && r[calIdx] ? toEnglishDigits(`${r[calIdx]}`).replace(/\D/g, '') : '';
-    const calories = calStr ? Number(calStr) : undefined;
-
-    const timeStr = timeIdx !== -1 && r[timeIdx] ? toEnglishDigits(`${r[timeIdx]}`).replace(/\D/g, '') : '';
-    const cookTime = timeStr ? Number(timeStr) : undefined;
-
-    const difficulty = diffIdx !== -1 && r[diffIdx] ? r[diffIdx].trim() : undefined;
-    const nationality = natIdx !== -1 && r[natIdx] ? r[natIdx].trim() : 'ir';
-
-    const ingRaw = ingIdx !== -1 && r[ingIdx] ? r[ingIdx].trim() : '';
-    const ingredients = ingRaw ? ingRaw.split(' | ').map(part => {
-      const [item, amountStr, ...unitParts] = part.split(':');
-      const amtClean = amountStr ? toEnglishDigits(amountStr).replace(/[^0-9.]/g, '') : '1';
-      return {
-        item: (item || '').trim(),
-        amount: Number(amtClean) || 1,
-        unit: (unitParts.join(':') || '').trim() || 'واحد'
-      };
-    }).filter(ing => ing.item !== '') : [];
-
-    const stepsRaw = stepsIdx !== -1 && r[stepsIdx] ? r[stepsIdx].trim() : '';
-    const recipeSteps = stepsRaw ? stepsRaw.split(' | ').map(s => s.trim()).filter(Boolean) : [];
-
-    dishes.push({
-      id,
-      name,
-      category,
-      description,
-      nature,
-      natureLabel,
-      mosleh,
-      calories: calories || undefined,
-      cookTime: cookTime || undefined,
-      difficulty,
-      nationality,
-      ingredients,
-      recipeSteps,
-      hasRealData: true
-    });
-  }
-
-  return dishes;
-};
-
 // تابع ادغام هوشمند برای جلوگیری از حذف غذاهای اصلی هنگام دریافت داده‌ها
 const mergeAllDishes = (sources: Dish[][]): Dish[] => {
   const map = new Map<string, Dish>();
   if (DEFAULT_DISHES) DEFAULT_DISHES.forEach(d => map.set(d.id, d));
+  (RECIPE_CATALOG as unknown as Dish[]).forEach(d => map.set(d.id, d));
   EXTRA_CLOUD_DISHES.forEach(d => map.set(d.id, d));
   sources.forEach(arr => {
     if (arr) arr.forEach(d => map.set(d.id, d));
