@@ -700,7 +700,9 @@
         "مایه تن ماهی و شوید را لابلای برنج آبکش شده در قابلمه بریزید.",
         "اجازه دهید برنج ۳۰ تا ۴۰ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "imageReviewStatus": "approved",
+      "localEdited": true
     },
     {
       "id": "dish-0-1766876956936",
