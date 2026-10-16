@@ -1,0 +1,1 @@
+export const RecipeService = { dishes: [] as any[], getAllDishes() { return this.dishes; }, getLocalCount() { return this.dishes.length; } };

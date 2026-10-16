@@ -1,0 +1,548 @@
+
+import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { UserProfile, DishCategory, CATEGORY_LABELS, NatureType, VisitorProfile } from '../types';
+import { UserService } from '../services/userService';
+import { LogOut, User, Sun, Snowflake, Scale, Heart, Plus, ThumbsDown, RotateCcw, ShieldCheck, Award, Info, Layers, Minus, FilterX, X, Check, CheckCircle, AlertTriangle, UserX, Search, MessageSquare, Camera, BookOpen, ChevronLeft, Leaf, Zap, Trophy, ChefHat, Sparkles } from 'lucide-react';
+import { RecipeService } from '../services/recipeService';
+import { PANTRY_ITEMS } from '../data/pantry';
+import { CHALLENGES } from '../data/challenges';
+import DishVisual from './DishVisual';
+import FeedbackModal from './FeedbackModal';
+import UserGuide from './UserGuide';
+
+interface PreferencesProps {
+  user: UserProfile;
+  onUpdateUser: (update: UserProfile | ((prev: UserProfile) => UserProfile)) => void;
+  onLogout: () => void;
+  onNotify?: (title: string, message: string, icon: any, color: string) => void;
+  onToggleFilter?: (filter: 'onlyFavoritesMode' | 'quickMealsMode' | 'meatlessMode') => void;
+}
+
+const ToggleSwitch = ({ isActive, onChange }: { isActive: boolean; onChange: () => void }) => {
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); onChange(); }}
+      type="button"
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+        isActive ? 'bg-teal-500' : 'bg-slate-200'
+      }`}
+    >
+      <span
+        className={`pointer-events-none absolute top-0.5 right-0.5 h-4 w-4 transform rounded-full bg-white shadow transition-all duration-200 ease-in-out ${
+          isActive ? 'translate-x-[-20px]' : 'translate-x-[0px]'
+        }`}
+      />
+    </button>
+  );
+};
+
+const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout, onNotify, onToggleFilter }) => {
+  const [ingredientSearch, setIngredientSearch] = useState('');
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isUserGuideOpen, setIsUserGuideOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 1024 * 1024) { // 1MB limit
+      if (onNotify) onNotify('خطای تصویر', 'حجم تصویر باید کمتر از ۱ مگابایت باشد.', AlertTriangle, 'rose');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64 = event.target?.result as string;
+      try {
+        const updatedUser = await UserService.updateProfile(user.username, { avatar: base64 });
+        onUpdateUser(updatedUser);
+        if (onNotify) onNotify('بروزرسانی موفق', 'تصویر پروفایل شما با موفقیت تغییر کرد.', CheckCircle, 'emerald');
+      } catch (err) {
+        if (onNotify) onNotify('خطا', 'مشکلی در ذخیره تصویر پیش آمد.', AlertTriangle, 'rose');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const toggleCategory = (cat: DishCategory) => {
+    onUpdateUser(prev => {
+      const currentExcluded = prev.excludedCategories || [];
+      let newExcluded: DishCategory[];
+      if (currentExcluded.includes(cat)) {
+        newExcluded = currentExcluded.filter(c => c !== cat);
+      } else {
+        newExcluded = [...currentExcluded, cat];
+      }
+      UserService.updateProfile(prev.username, { excludedCategories: newExcluded });
+      return { ...prev, excludedCategories: newExcluded };
+    });
+  };
+
+  const toggleNature = (nature: NatureType) => {
+    onUpdateUser(prev => {
+      const currentNatures = prev.preferredNatures || ['balanced'];
+      const isActive = currentNatures.includes(nature);
+      let newNatures: NatureType[];
+      if (isActive) {
+        if (currentNatures.length <= 1) {
+          if (onNotify) onNotify('خطای تنظیمات', 'حداقل یک طبع باید فعال بماند.', AlertTriangle, 'rose');
+          return prev;
+        }
+        newNatures = currentNatures.filter(n => n !== nature);
+      } else {
+        newNatures = [...currentNatures, nature];
+      }
+      UserService.updateProfile(prev.username, { preferredNatures: newNatures });
+      return { ...prev, preferredNatures: newNatures };
+    });
+  };
+
+  const toggleIngredient = (ing: string) => {
+    onUpdateUser(prev => {
+      let current = [...(prev.dislikedIngredients || [])];
+      if (current.includes(ing)) {
+        current = current.filter(i => i !== ing);
+      } else {
+        current = [...current, ing];
+      }
+      UserService.updateProfile(prev.username, { dislikedIngredients: current });
+      return { ...prev, dislikedIngredients: current };
+    });
+  };
+
+  const toPersian = (num: number | string | undefined | null) => {
+    if (num === undefined || num === null) return '۰';
+    return num.toString().replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+  };
+
+  const handleRemoveFavorite = async (e: React.MouseEvent, dishId: string) => {
+    e.stopPropagation();
+    try {
+      const updatedUser = await UserService.toggleFavorite(user.username, dishId);
+      onUpdateUser(updatedUser);
+    } catch (err) {}
+  };
+
+  const handleRemoveBlacklist = async (e: React.MouseEvent, dishId: string) => {
+    e.stopPropagation();
+    try {
+      const updatedUser = await UserService.toggleBlacklist(user.username, dishId);
+      onUpdateUser(updatedUser);
+    } catch (err) {}
+  };
+
+  const favoritesList = useMemo(() => RecipeService.getRawDishes().filter(d => (user.favoriteDishIds || []).includes(d.id)), [user.favoriteDishIds]);
+  const blacklistedList = useMemo(() => RecipeService.getRawDishes().filter(d => (user.blacklistedDishIds || []).includes(d.id)), [user.blacklistedDishIds]);
+  
+  const commonIngredients = useMemo(() => {
+    const all = PANTRY_ITEMS.flatMap(c => c.items);
+    if (!ingredientSearch) return all.slice(0, 15);
+    return all.filter(i => i.includes(ingredientSearch)).slice(0, 20);
+  }, [ingredientSearch]);
+
+  const handleToggleChallenge = async (challengeId: string) => {
+    const isCurrentlyActive = user.activeChallengeId === challengeId;
+    const nextActiveId = isCurrentlyActive ? null : challengeId;
+    const selectedChallenge = CHALLENGES.find(c => c.id === challengeId);
+    
+    try {
+      const updatedUser = await UserService.updateProfile(user.username, { activeChallengeId: nextActiveId });
+      onUpdateUser(updatedUser);
+      if (onNotify && selectedChallenge) {
+        if (isCurrentlyActive) {
+          onNotify(
+            'چالش غیرفعال شد',
+            'برنامه غذایی شما به حالت عادی بازگشت.',
+            'bg-slate-600',
+            Trophy
+          );
+        } else {
+          onNotify(
+            `چالش ${selectedChallenge.title} فعال شد`,
+            selectedChallenge.description,
+            'emerald',
+            selectedChallenge.icon
+          );
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleMainChallengeToggle = async () => {
+    try {
+      if (user.activeChallengeId) {
+        const updatedUser = await UserService.updateProfile(user.username, { activeChallengeId: null });
+        onUpdateUser(updatedUser);
+        if (onNotify) {
+          onNotify(
+            'چالش غیرفعال شد',
+            'برنامه غذایی شما به حالت عادی بازگشت.',
+            'bg-slate-600',
+            Trophy
+          );
+        }
+      } else {
+        const updatedUser = await UserService.updateProfile(user.username, { activeChallengeId: 'vegan-week' });
+        onUpdateUser(updatedUser);
+        if (onNotify) {
+          onNotify(
+            'چالش هفته گیاه‌خواری فعال شد',
+            'یک هفته بدون گوشت قرمز، مرغ و ماهی. تمرکز روی سبزیجات و حبوبات.',
+            'emerald',
+            Leaf
+          );
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-full [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter">
+      {/* هدر شیشه‌ای دقیق با فونت استاندارد */}
+      <div className="sticky top-0 [@media(orientation:landscape)_and_(max-height:500px)]:relative z-[900] bg-white/40 backdrop-blur-2xl px-4 py-3 sm:py-6 sm:px-10">
+          <div className="backdrop-blur-3xl bg-white/50 border border-white/60 rounded-[1.75rem] sm:rounded-[3.5rem] p-4 sm:p-10 shadow-xl shadow-slate-200/50 max-w-5xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-8">
+              <div className="flex items-center gap-3 sm:gap-6 text-right w-full sm:w-auto">
+                <div 
+                  className="relative group cursor-pointer"
+                  onClick={handleAvatarClick}
+                >
+                  <div className="w-16 h-16 sm:w-24 sm:h-24 bg-slate-100 rounded-2xl sm:rounded-[2.5rem] flex items-center justify-center shadow-inner overflow-hidden border-2 border-white ring-4 ring-slate-50">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <User size={32} className="text-slate-300 sm:w-12 sm:h-12" />
+                    )}
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 sm:bottom-1 sm:right-1 w-6 h-6 sm:w-8 sm:h-8 bg-teal-500 text-white rounded-lg flex items-center justify-center shadow-lg border-2 border-white group-hover:scale-110 transition-transform">
+                    <Camera size={14} className="sm:w-5 sm:h-5" />
+                  </div>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handleAvatarChange} 
+                  />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-2xl font-black text-slate-800 leading-none">
+                    {user.fullName || user.phoneNumber || user.mobileNumber || user.username || "کاربر نـوش"}
+                  </h2>
+                  {user.role && user.role !== 'user' && user.role !== 'normal' && (
+                    <p className="text-teal-600 text-[8px] sm:text-xs font-black mt-1 sm:mt-2 uppercase tracking-widest">
+                      {user.role === 'admin' ? 'ادمین' : user.role === 'visitor' ? 'ویزیتور' : ''}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex gap-2 sm:gap-4 w-full sm:w-auto">
+                 {!!document.fullscreenElement && (
+                   <button onClick={() => document.exitFullscreen()} className="flex-1 sm:flex-none px-3 py-2.5 sm:px-8 sm:py-4 bg-slate-100 text-slate-700 rounded-xl sm:rounded-[1.5rem] font-black flex items-center justify-center gap-2 transition-all active:scale-95 text-[10px] sm:text-sm shadow-sm">
+                     <X size={16} className="sm:w-5" /> خروج از تمام صفحه
+                   </button>
+                 )}
+                 <button onClick={() => setIsFeedbackOpen(true)} className="flex-1 sm:flex-none px-3 py-2.5 sm:px-8 sm:py-4 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl sm:rounded-[1.5rem] font-black flex items-center justify-center gap-2 transition-all active:scale-95 text-[10px] sm:text-sm shadow-sm"><MessageSquare size={16} className="sm:w-5" /> ارسال نظر</button>
+                 <button onClick={onLogout} className="flex-1 sm:flex-none px-3 py-2.5 sm:px-8 sm:py-4 bg-rose-600 text-white rounded-xl sm:rounded-[1.5rem] font-black shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 text-[10px] sm:text-sm"><LogOut size={16} className="sm:w-5" /> خروج</button>
+              </div>
+            </div>
+          </div>
+      </div>
+
+      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} user={user} />
+      <UserGuide isOpen={isUserGuideOpen} onClose={() => setIsUserGuideOpen(false)} />
+
+      <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
+          <div className="max-w-4xl mx-auto py-4 sm:py-8 space-y-6 sm:space-y-10">
+              {/* بخش راهنمای اپلیکیشن */}
+              <button 
+                onClick={() => setIsUserGuideOpen(true)}
+                className="w-full bg-gradient-to-r from-teal-600 to-blue-600 rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-xl shadow-teal-100 border border-teal-500/20 group hover:scale-[1.02] transition-all active:scale-95 text-right"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <div className="p-4 sm:p-6 bg-white/20 backdrop-blur-md text-white rounded-2xl sm:rounded-[2rem] group-hover:rotate-12 transition-transform">
+                      <BookOpen size={28} className="sm:w-10 sm:h-10" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg sm:text-3xl font-black text-white">راهنمای استفاده از اپلیکیشن</h2>
+                      <p className="text-[10px] sm:text-sm text-teal-50 font-bold mt-1 sm:mt-2 opacity-80">آموزش کامل تمام بخش‌ها و امکانات نـوش به زبان ساده</p>
+                    </div>
+                  </div>
+                  <div className="hidden sm:flex w-12 h-12 bg-white/10 rounded-full items-center justify-center text-white">
+                    <ChevronLeft size={24} />
+                  </div>
+                </div>
+              </button>
+
+              {/* بخش تنظیمات هوشمند و فیلترهای سریع */}
+              <div id="smart-filters-section" className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100 space-y-6 sm:space-y-8">
+                 <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="p-3 sm:p-4 bg-teal-50 text-teal-600 rounded-xl sm:rounded-[1.5rem]">
+                       <Layers size={22} className="sm:w-8" />
+                    </div>
+                    <div>
+                       <h2 className="text-base sm:text-2xl font-black text-slate-800">تنظیمات هوشمند و فیلترهای سریع</h2>
+                       <p className="text-[9px] sm:text-xs text-slate-400 font-bold mt-1">مدیریت آسان رژیم‌های فعال، شخصی‌سازی برنامه‌ها و چالش‌ها با کلیدهای روشن/خاموش</p>
+                    </div>
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    {/* رژیم بدون گوشت */}
+                    <div className="flex items-center justify-between p-4 sm:p-6 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-2xl sm:rounded-[2rem] transition-all">
+                       <div className="flex items-center gap-3 sm:gap-4 text-right">
+                          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
+                             <Leaf size={20} className="sm:w-6 sm:h-6" />
+                          </div>
+                          <div>
+                             <h3 className="text-xs sm:text-sm font-black text-slate-800">رژیم بدون گوشت</h3>
+                             <p className="text-[10px] text-slate-400 font-semibold mt-0.5 leading-normal">حذف خودکار غذاهای گوشتی و کباب‌ها</p>
+                          </div>
+                       </div>
+                       <ToggleSwitch 
+                          isActive={!!user.meatlessMode} 
+                          onChange={() => onToggleFilter?.('meatlessMode')} 
+                       />
+                    </div>
+
+                    {/* فیلتر فقط محبوب‌ها */}
+                    <div className="flex items-center justify-between p-4 sm:p-6 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-2xl sm:rounded-[2rem] transition-all">
+                       <div className="flex items-center gap-3 sm:gap-4 text-right">
+                          <div className="p-3 bg-rose-50 text-rose-600 rounded-xl shrink-0">
+                             <Heart size={20} className="sm:w-6 sm:h-6" fill={user.onlyFavoritesMode ? "currentColor" : "none"} />
+                          </div>
+                          <div>
+                             <h3 className="text-xs sm:text-sm font-black text-slate-800">فقط غذاهای محبوب من</h3>
+                             <p className="text-[10px] text-slate-400 font-semibold mt-0.5 leading-normal">پیشنهاد هوشمند فقط از موارد پسندیده</p>
+                          </div>
+                       </div>
+                       <ToggleSwitch 
+                          isActive={!!user.onlyFavoritesMode} 
+                          onChange={() => onToggleFilter?.('onlyFavoritesMode')} 
+                       />
+                    </div>
+
+                    {/* غذاهای سریع پشت */}
+                    <div className="flex items-center justify-between p-4 sm:p-6 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-2xl sm:rounded-[2rem] transition-all">
+                       <div className="flex items-center gap-3 sm:gap-4 text-right">
+                          <div className="p-3 bg-amber-50 text-amber-500 rounded-xl shrink-0">
+                             <Zap size={20} className="sm:w-6 sm:h-6" />
+                          </div>
+                          <div>
+                             <h3 className="text-xs sm:text-sm font-black text-slate-800">غذاهای سریع‌پخت</h3>
+                             <p className="text-[10px] text-slate-400 font-semibold mt-0.5 leading-normal">اولویت عالی به غذاهای زیر ۴۵ دقیقه</p>
+                          </div>
+                       </div>
+                       <ToggleSwitch 
+                          isActive={!!user.quickMealsMode} 
+                          onChange={() => onToggleFilter?.('quickMealsMode')} 
+                       />
+                    </div>
+
+                    {/* چالش‌های هفتگی */}
+                    <div className="flex items-center justify-between p-4 sm:p-6 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-2xl sm:rounded-[2rem] transition-all">
+                       <div className="flex items-center gap-3 sm:gap-4 text-right">
+                          <div className="p-3 bg-violet-50 text-violet-600 rounded-xl shrink-0">
+                             <Trophy size={20} className="sm:w-6 sm:h-6" />
+                          </div>
+                          <div>
+                             <h3 className="text-xs sm:text-sm font-black text-slate-800">چالش‌های هفتگی فعال</h3>
+                             <p className="text-[10px] text-slate-400 font-semibold mt-0.5 leading-normal">
+                                {user.activeChallengeId 
+                                   ? `چالش فعال: ${CHALLENGES.find(c => c.id === user.activeChallengeId)?.title || "هفته گیاه‌خواری"}` 
+                                   : 'بدون چالش هفتگی فعال'}
+                             </p>
+                          </div>
+                       </div>
+                       <ToggleSwitch 
+                          isActive={!!user.activeChallengeId} 
+                          onChange={handleMainChallengeToggle} 
+                       />
+                    </div>
+                 </div>
+
+                 {/* انتخاب و تغییر مستقیم چالش در صورت فعال بودن */}
+                 {user.activeChallengeId && (
+                    <div className="mt-4 pt-4 border-t border-slate-100/80 animate-enter text-right">
+                       <p className="text-xs font-bold text-slate-600 mb-3 block">شما می‌توانید چالش فعال خود را از بین گزینه‌های زیر تغییر دهید:</p>
+                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {CHALLENGES.map(ch => {
+                             const isCurrent = user.activeChallengeId === ch.id;
+                             const ChIcon = ch.icon;
+                             return (
+                                <button
+                                   key={ch.id}
+                                   onClick={() => handleToggleChallenge(ch.id)}
+                                   className={`flex items-center gap-3 p-3.5 rounded-xl border border-slate-200/80 transition-all text-right ${
+                                      isCurrent 
+                                         ? 'bg-violet-600 border-violet-600 text-white shadow-md' 
+                                         : 'bg-white hover:bg-slate-50 text-slate-700'
+                                   }`}
+                                >
+                                   <div className={`p-1.5 rounded-lg shrink-0 ${isCurrent ? 'bg-white/20 text-white' : `${ch.color} text-white`}`}>
+                                      <ChIcon size={16} />
+                                   </div>
+                                   <div className="min-w-0 flex-1">
+                                      <h4 className="text-xs font-black truncate">{ch.title}</h4>
+                                      <p className={`text-[9px] truncate ${isCurrent ? 'text-violet-100' : 'text-slate-400'}`}>{ch.description}</p>
+                                   </div>
+                                </button>
+                             );
+                          })}
+                       </div>
+                    </div>
+                 )}
+              </div>
+
+              <div className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100 space-y-6 sm:space-y-8">
+                 <div className="flex items-center gap-3 sm:gap-4"><div className="p-3 sm:p-4 bg-orange-50 text-orange-600 rounded-xl sm:rounded-[1.5rem]"><ShieldCheck size={22} className="sm:w-8" /></div><div><h2 className="text-base sm:text-2xl font-black text-slate-800">فیلتر طبع غذاها</h2><p className="text-[9px] sm:text-xs text-slate-400 font-bold mt-1">انتخاب مزاج برای پیشنهادات دقیق‌تر</p></div></div>
+                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
+                    {[
+                      { id: 'hot', label: 'طبع گرم', icon: Sun, color: 'orange' },
+                      { id: 'cold', label: 'طبع سرد', icon: Snowflake, color: 'blue' },
+                      { id: 'balanced', label: 'طبع معتدل', icon: Scale, color: 'emerald' }
+                    ].map(n => (
+                      <button key={n.id} onClick={() => toggleNature(n.id as NatureType)} className={`flex items-center justify-between p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border-2 transition-all active:scale-95 ${(user.preferredNatures || []).includes(n.id as NatureType) ? `bg-${n.color === 'blue' ? 'blue-600' : n.color + '-500'} border-${n.color === 'blue' ? 'blue-700' : n.color + '-600'} text-white shadow-xl` : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}`}>
+                         <div className="flex items-center gap-3 sm:gap-4"><n.icon size={22} className="sm:w-7" /><span className="font-black text-xs sm:text-base">{n.label}</span></div>
+                         {(user.preferredNatures || []).includes(n.id as NatureType) ? <CheckCircle size={18} className="sm:w-6" /> : <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-slate-100"></div>}
+                      </button>
+                    ))}
+                 </div>
+              </div>
+
+              <div className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100 space-y-6 sm:space-y-8">
+                <div className="flex items-center gap-3 sm:gap-4"><div className="p-3 sm:p-4 bg-rose-50 text-rose-600 rounded-xl sm:rounded-[1.5rem]"><UserX size={22} className="sm:w-8" /></div><div><h2 className="text-base sm:text-2xl font-black text-slate-800">مواد غذایی ممنوعه</h2><p className="text-[9px] sm:text-xs text-slate-400 font-bold mt-1">غذاهای حاوی این مواد هرگز پیشنهاد نمی‌شوند</p></div></div>
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    placeholder="جستجو و انتخاب ماده غذایی..." 
+                    value={ingredientSearch} 
+                    onChange={e => setIngredientSearch(e.target.value)} 
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' && ingredientSearch.trim()) {
+                            toggleIngredient(ingredientSearch.trim());
+                            setIngredientSearch('');
+                        }
+                    }}
+                    className="w-full px-12 py-3 sm:px-16 sm:py-5 bg-slate-50 border-2 border-slate-100 rounded-xl sm:rounded-[2rem] outline-none focus:border-rose-400 font-bold text-sm sm:text-lg transition-all" 
+                  />
+                  <Search className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 text-slate-300 sm:w-6" size={18} />
+                  {ingredientSearch && (
+                    <button 
+                      onClick={() => { toggleIngredient(ingredientSearch.trim()); setIngredientSearch(''); }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 px-3 py-1.5 sm:px-4 sm:py-2 bg-rose-600 text-white rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black shadow-lg animate-enter"
+                    >
+                      ثبت ماده
+                    </button>
+                  )}
+                </div>
+
+                {/* نمایش نتایج جستجو */}
+                {ingredientSearch && (
+                  <div className="flex flex-wrap gap-2 animate-enter bg-rose-50/30 p-4 rounded-2xl border border-rose-100/50">
+                    {commonIngredients.filter(i => !(user.dislikedIngredients || []).includes(i)).map(ing => (
+                      <button 
+                        key={ing} 
+                        onClick={() => { toggleIngredient(ing); setIngredientSearch(''); }}
+                        className="px-4 py-2 bg-white border border-rose-200 text-rose-600 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black flex items-center gap-2 hover:bg-rose-50 transition-all active:scale-95"
+                      >
+                        <Plus size={14} /> {ing}
+                      </button>
+                    ))}
+                    {commonIngredients.filter(i => !(user.dislikedIngredients || []).includes(i)).length === 0 && (
+                      <p className="text-[10px] sm:text-xs text-rose-400 font-bold italic w-full text-center">موردی یافت نشد، از دکمه ثبت بالا استفاده کنید.</p>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-2 sm:gap-3">
+                  {(user.dislikedIngredients || []).map(ing => (
+                    <button key={ing} onClick={() => toggleIngredient(ing)} className="px-4 py-2 sm:px-6 sm:py-3 bg-rose-600 text-white rounded-lg sm:rounded-2xl text-[10px] sm:text-sm font-black flex items-center gap-2 sm:gap-3 shadow-lg">
+                      {ing} <X size={14} className="sm:w-4" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                  <div className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100 space-y-6 sm:space-y-8">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="p-3 bg-rose-50 text-rose-600 rounded-xl sm:rounded-[1.5rem]"><Heart size={22} fill="currentColor"/></div>
+                      <h2 className="text-sm sm:text-xl font-black text-slate-800">غذاهای محبوب من</h2>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3 max-h-48 sm:max-h-64 overflow-y-auto no-scrollbar">
+                        {favoritesList.length > 0 ? favoritesList.map(dish => (
+                            <div key={dish.id} className="relative group rounded-xl sm:rounded-2xl overflow-hidden h-16 sm:h-20 bg-slate-50 border border-slate-100">
+                                <DishVisual category={dish.category} className="w-full h-full opacity-40" dishId={dish.id} />
+                                <span className="absolute inset-0 flex items-center justify-center text-[9px] sm:text-[10px] font-black p-2 text-center text-slate-700 leading-tight">{dish.name}</span>
+                                <button 
+                                  onClick={(e) => handleRemoveFavorite(e, dish.id)}
+                                  className="absolute top-1 left-1 p-1 bg-white/80 rounded-full text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                >
+                                  <X size={12} strokeWidth={3} />
+                                </button>
+                            </div>
+                        )) : (
+                          <div className="col-span-2 py-10 text-center text-slate-300 text-xs font-bold italic">لیست خالی است</div>
+                        )}
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100 space-y-6 sm:space-y-8">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="p-3 bg-slate-100 text-slate-600 rounded-xl sm:rounded-[1.5rem]"><ThumbsDown size={22}/></div>
+                      <h2 className="text-sm sm:text-xl font-black text-slate-800">لیست سیاه غذاها</h2>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3 max-h-48 sm:max-h-64 overflow-y-auto no-scrollbar">
+                        {blacklistedList.length > 0 ? blacklistedList.map(dish => (
+                            <div key={dish.id} className="relative group rounded-xl sm:rounded-2xl overflow-hidden h-16 sm:h-20 bg-slate-50 border border-slate-100">
+                                <DishVisual category={dish.category} className="w-full h-full opacity-40" dishId={dish.id} />
+                                <span className="absolute inset-0 flex items-center justify-center text-[9px] sm:text-[10px] font-black p-2 text-center text-slate-700 leading-tight">{dish.name}</span>
+                                <button 
+                                  onClick={(e) => handleRemoveBlacklist(e, dish.id)}
+                                  className="absolute top-1 left-1 p-1 bg-white/80 rounded-full text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                >
+                                  <X size={12} strokeWidth={3} />
+                                </button>
+                            </div>
+                        )) : (
+                          <div className="col-span-2 py-10 text-center text-slate-300 text-xs font-bold italic">لیست خالی است</div>
+                        )}
+                    </div>
+                  </div>
+              </div>
+
+              <div className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100">
+                <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-10"><div className="p-3 sm:p-4 bg-indigo-50 text-indigo-600 rounded-xl sm:rounded-[1.5rem]"><FilterX size={22} className="sm:w-8" /></div><div><h2 className="text-base sm:text-2xl font-black text-slate-800">فیلتر هوشمند دسته‌ها</h2><p className="text-[9px] sm:text-xs text-slate-400 font-bold mt-1">دسته‌های انتخابی از برنامه حذف می‌شوند</p></div></div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+                    {(Object.keys(CATEGORY_LABELS) as DishCategory[]).map(cat => (
+                      <button 
+                        key={cat} 
+                        onClick={() => toggleCategory(cat)} 
+                        className={`px-3 py-3 sm:px-6 sm:py-6 rounded-xl sm:rounded-[2rem] text-[10px] sm:text-sm font-black transition-all border-2 flex flex-col items-center gap-2 sm:gap-3 ${
+                          user.excludedCategories?.includes(cat) 
+                            ? 'bg-slate-50 border-slate-100 text-slate-400 opacity-60' 
+                            : 'bg-white border-teal-500 text-teal-700 shadow-lg ring-2 sm:ring-8 ring-teal-50'
+                        }`}
+                      >
+                          {CATEGORY_LABELS[cat]}
+                          {user.excludedCategories?.includes(cat) ? <X size={14} className="sm:w-5" /> : <Check size={14} className="sm:w-5" />}
+                      </button>
+                    ))}
+                </div>
+              </div>
+          </div>
+      </div>
+    </div>
+  );
+};
+
+export default Preferences;

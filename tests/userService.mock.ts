@@ -1,0 +1,1 @@
+export const UserService = { updateProfile: async (_: string, updates: any) => ({ ...updates }) };
