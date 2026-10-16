@@ -340,7 +340,9 @@
       "calories": 420,
       "cookTime": 60,
       "difficulty": "سخت",
-      "servings": 4
+      "servings": 4,
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "kashk_bademjan",
