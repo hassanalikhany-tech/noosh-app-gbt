@@ -46,7 +46,11 @@ const COUNTRY_DATA = [
 
 const CountryFlag: React.FC<{ country: { id: string; label: string } }> = ({ country }) => {
   const code = getCountryCode(country.id) || getCountryCode(country.label);
-  const sources = code ? [`https://flagcdn.com/w160/${code}.png`, `https://flagcdn.com/${code}.svg`] : [];
+  const sources = code ? [
+    `https://flagcdn.com/w160/${code}.png`,
+    `https://flagcdn.com/${code}.svg`,
+    `https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.3.2/flags/4x3/${code}.svg`,
+  ] : [];
   const [sourceIndex, setSourceIndex] = useState(0);
   useEffect(() => setSourceIndex(0), [code]);
 
