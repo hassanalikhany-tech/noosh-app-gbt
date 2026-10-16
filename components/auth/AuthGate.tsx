@@ -1,23 +1,25 @@
 import { GuestService } from '../../services/guestService';
 import { englishDigits } from '../../utils/text';
 
-import React, { useState, useEffect } from 'react';
-import { Smartphone, ShieldCheck, Loader2, ArrowLeft, ArrowRight, AlertCircle, User, UserPlus, Info, Ticket, ShieldAlert, MonitorOff, ChefHat } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Smartphone, ShieldCheck, Loader2, ArrowLeft, ArrowRight, AlertCircle, User, UserPlus, Info, Ticket, ShieldAlert, MonitorOff } from 'lucide-react';
 import { AuthService } from '../../services/authService';
 import { SecurityService } from '../../services/securityService';
+import { formatPhoneNumberInput } from '../../utils/phoneNumbers';
 
 interface AuthGateProps {
   children: React.ReactNode;
 }
 
-type AuthStep = 'start' | 'mobile' | 'registration' | 'otp' | 'device_check';
+type AuthStep = 'mobile' | 'registration' | 'otp' | 'device_check';
 
 const RESEND_COOLDOWN = 60;
 
 const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [step, setStep] = useState<AuthStep>('start');
-  const [mobile, setMobile] = useState('');
+  const [step, setStep] = useState<AuthStep>('mobile');
+  const [mobile, setMobile] = useState('+');
+  const phoneInputRef = useRef<HTMLInputElement>(null);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [referralCode, setReferralCode] = useState('');
@@ -29,9 +31,14 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
 
   useEffect(() => {
     if (step === 'otp') {
-      setTimeout(() => document.getElementById('otp-input-0')?.focus(), 100);
+      const timeout = window.setTimeout(() => document.getElementById('otp-input-0')?.focus(), 100);
+      return () => window.clearTimeout(timeout);
     }
-  }, [step]);
+    if (step === 'mobile' && isAuthenticated === false) {
+      const timeout = window.setTimeout(() => phoneInputRef.current?.focus(), 100);
+      return () => window.clearTimeout(timeout);
+    }
+  }, [step, isAuthenticated]);
 
   useEffect(() => {
     const timer = setInterval(() => setResendTimer(prev => prev > 0 ? prev - 1 : 0), 1000);
@@ -49,7 +56,8 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
     // شنود رویداد خروج برای بازگشت به صفحه لاگین
     const handleLogoutEvent = () => {
       setIsAuthenticated(false);
-      setStep('start');
+      setMobile('+');
+      setStep('mobile');
       setOtp(['', '', '', '', '', '']);
       AuthService.clearPhoneVerification();
     };
@@ -62,7 +70,7 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
 
   const sendCode = async () => {
     const normalizedPhone = AuthService.normalizePhoneNumber(mobile);
-    if (!normalizedPhone) return setError('شماره را با کد کشور وارد کنید؛ نمونه: ‎+1، ‎+44، ‎+61 یا شمارهٔ ایران با 09.');
+    if (!normalizedPhone) return setError('شمارهٔ همراه را همراه با کد کشور وارد کنید.');
     setIsLoading(true);
     setError('');
     try {
@@ -80,6 +88,10 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
   const handleMobileSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     void sendCode();
+  };
+
+  const handlePhoneChange = (input: string) => {
+    setMobile(formatPhoneNumberInput(input));
   };
 
   const finishVerifiedLogin = async (verifiedUser: any) => {
@@ -172,42 +184,28 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
         </div>
         <div id="recaptcha-container" className="auth-recaptcha-container" aria-label="بررسی امنیتی درخواست پیامک" />
 
-        {step === 'start' && (
-          <div className="space-y-4">
-            <div className="text-center mb-5">
-              <h1 className="text-2xl sm:text-[27px] font-black text-slate-900">به نوش خوش آمدی</h1>
-            </div>
-
-            <button type="button" onClick={() => { GuestService.start(); setIsAuthenticated(true); }} className="onboard-choice group w-full text-right p-5 sm:p-6 rounded-[1.6rem] bg-[#173d32] hover:bg-[#204c3f] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200 text-white shadow-lg shadow-emerald-950/10 transition-all">
-              <span className="flex items-center gap-4">
-                <span className="w-12 h-12 shrink-0 rounded-2xl bg-white/10 text-emerald-200 flex items-center justify-center"><ChefHat size={23} /></span>
-                <span className="min-w-0 flex-1">
-                  <strong className="block text-sm font-black">ادامه به نوش</strong>
-                  <small className="block text-[11px] leading-5 text-emerald-100/75 mt-1">شروع بدون ساخت حساب</small>
-                </span>
-                <ArrowLeft className="text-emerald-200 shrink-0 group-hover:-translate-x-1 transition-transform" size={19} />
-              </span>
-            </button>
-
-            <div className="pt-2 text-center border-t border-slate-100">
-              <button type="button" onClick={() => { setError(''); setStep('mobile'); }} className="inline-flex items-center gap-1 text-[11px] font-black text-teal-700 hover:text-teal-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded-lg px-1 py-2">ورود یا ساخت حساب <ArrowRight size={14} /></button>
-            </div>
-          </div>
-        )}
-
         {step === 'mobile' && (
-          <form onSubmit={handleMobileSubmit} className="space-y-6">
-            <p className="text-slate-500 font-bold text-sm text-center">شماره موبایل را همراه کد کشور وارد کنید</p>
+          <div className="space-y-4">
+          <form onSubmit={handleMobileSubmit} className="space-y-5">
+            <div className="text-center">
+              <h1 className="text-2xl sm:text-[27px] font-black text-slate-900">ورود یا ساخت حساب</h1>
+              <p className="mt-2 text-sm font-medium text-slate-500">شمارهٔ تلفن همراه را با کد کشور وارد کنید</p>
+            </div>
             <div className="relative group">
-              <input type="tel" dir="ltr" inputMode="tel" autoComplete="tel" maxLength={24} value={mobile} onChange={e => setMobile(englishDigits(e.target.value))} className="w-full px-8 py-5 bg-slate-50 border-2 border-slate-100 rounded-[2rem] outline-none text-xl font-black text-center focus:border-teal-500 transition-all shadow-inner" placeholder="+1 415 555 0132  یا  09xxxxxxxxx" required />
+              <input ref={phoneInputRef} id="phone-input" type="tel" dir="ltr" inputMode="tel" autoComplete="tel" autoFocus maxLength={16} value={mobile} onChange={e => handlePhoneChange(e.target.value)} aria-label="شماره تلفن همراه با کد کشور" className="w-full px-8 py-5 bg-slate-50 border-2 border-slate-100 rounded-[2rem] outline-none text-xl font-black text-center focus:border-teal-500 transition-all shadow-inner" placeholder="کد کشور و شماره تلفن" required />
               <Smartphone className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-300" size={24} />
             </div>
-            <p className="-mt-3 text-center text-[10px] font-bold leading-6 text-slate-400">آمریکا و کانادا ‎+1 · اروپا کد کشور مانند ‎+44 یا ‎+49 · استرالیا ‎+61 · ایران 09 یا ‎+98</p>
             {error && <div className="p-4 bg-rose-50 text-rose-500 text-[11px] font-black rounded-2xl text-center border border-rose-100">{error}</div>}
             <button disabled={isLoading} className="w-full py-5 bg-slate-900 text-white rounded-[2rem] font-black text-lg flex items-center justify-center gap-4 active:scale-95 transition-all">
               {isLoading ? <Loader2 className="animate-spin" /> : 'ارسال کد تأیید'} <ArrowRight size={22} />
             </button>
           </form>
+          <div className="pt-3 text-center border-t border-slate-100">
+            <button type="button" onClick={() => { GuestService.start(); setIsAuthenticated(true); }} className="w-full inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-black text-slate-600 transition-colors hover:border-teal-200 hover:bg-teal-50 hover:text-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400">
+              ورود به‌عنوان مهمان <ArrowLeft size={17} />
+            </button>
+          </div>
+          </div>
         )}
 
         {step === 'registration' && (

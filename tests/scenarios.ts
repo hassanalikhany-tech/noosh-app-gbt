@@ -4,7 +4,7 @@ import { filterDishes, getPlanningPool, generateWeeklyPlan, generateMonthlyPlan,
 import { getRelevantInventory, usesInventory } from '../utils/kitchenMode';
 import { getInventoryUpdate, getShoppingShortages } from '../utils/recipeHelpers';
 import { normalizePersian, englishDigits } from '../utils/text';
-import { getPhoneUserDocumentIds, normalizePhoneNumber } from '../utils/phoneNumbers';
+import { formatPhoneNumberInput, getPhoneUserDocumentIds, normalizePhoneNumber } from '../utils/phoneNumbers';
 import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthErrors';
 import { GuestService } from '../services/guestService';
 const storage = new Map();
@@ -44,6 +44,9 @@ assert.equal(normalizePhoneNumber('+1 (415) 555-0132'), '+14155550132', 'US/Cana
 assert.equal(normalizePhoneNumber('0044 20 7946 0018'), '+442079460018', '00-prefixed European numbers become E.164');
 assert.equal(normalizePhoneNumber('+61 412 345 678'), '+61412345678', 'Australian E.164 numbers are preserved');
 assert.equal(normalizePhoneNumber('۴۱۲۳۴۵۶۷۸۹'), null, 'Ambiguous international numbers require a country code');
+assert.equal(formatPhoneNumberInput('+1 (415) 555-0132'), '+14155550132', 'Phone input keeps the international plus and strips formatting');
+assert.equal(formatPhoneNumberInput('0044 20 7946 0018'), '+442079460018', 'Pasted 00-prefixed numbers become international plus format');
+assert.equal(formatPhoneNumberInput(''), '+', 'Phone input keeps the plus prefix ready for typing');
 assert.deepEqual(getPhoneUserDocumentIds('+989123456789'), ['09123456789', '+989123456789'], 'Iranian profile lookup preserves legacy document IDs');
 assert.match(getFirebaseAuthErrorMessage({code:'auth/network-request-failed'}), /اینترنت/);
 assert.match(getFirebaseAuthErrorMessage({code:'auth/region-not-allowed'}), /کشور/);
@@ -62,4 +65,4 @@ assert.deepEqual(GuestService.get().favoriteDishIds, ['veg']);
 assert.equal(GuestService.get().weeklyPlan.length, 7);
 GuestService.stop(); assert.equal(GuestService.isActive(), false);
 assert.deepEqual(GuestService.get().favoriteDishIds, ['veg'], 'Logging out preserves guest data');
-console.log('Passed 37 checks: mode persistence, pantry-aware and flexible planning, mode-aware shopping and cooking, filters, guest persistence, phone normalization, and Firebase auth errors.');
+console.log('Passed 40 checks: mode persistence, pantry-aware and flexible planning, mode-aware shopping and cooking, filters, guest persistence, phone normalization, and Firebase auth errors.');
