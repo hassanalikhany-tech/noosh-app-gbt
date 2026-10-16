@@ -301,9 +301,6 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
             </div>
           </div>
         )}
-        {step === 'mobile' && <div className="guest-entry">
-          <button type="button" onClick={() => { setError(''); setStep('start'); }} className="mx-auto flex items-center gap-2 text-xs font-black text-teal-700 hover:text-teal-900"><ArrowRight size={15} /> بازگشت به انتخاب روش شروع</button>
-        </div>}
       </div>
     </div>
   );
