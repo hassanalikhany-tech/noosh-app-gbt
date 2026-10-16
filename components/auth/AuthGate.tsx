@@ -207,13 +207,13 @@ const AuthGate: React.FC<AuthGateProps> = ({ children }) => {
                 <span dir="rtl" className="mb-1 text-center text-[10px] font-bold text-slate-500">کد کشور</span>
                 <span className="flex items-center justify-center gap-1.5">
                   <span aria-hidden="true" className="text-lg font-black text-teal-700 select-none">+</span>
-                  <input ref={phoneInputRef} id="phone-input" type="tel" dir="ltr" inputMode="tel" autoComplete="tel-country-code" autoFocus maxLength={3} value={countryCode} onChange={e => handleCountryCodeChange(e.target.value)} aria-label="کد کشور پس از علامت +" className="w-12 bg-transparent text-center text-lg font-black text-slate-800 outline-none placeholder:text-slate-400" required />
+                  <input ref={phoneInputRef} id="phone-input" type="tel" dir="ltr" inputMode="tel" autoComplete="tel-country-code" autoFocus maxLength={3} value={countryCode} onChange={e => handleCountryCodeChange(e.target.value)} aria-label="کد کشور پس از علامت +" className="w-12 bg-transparent text-center text-lg font-black text-slate-800 outline-none focus-visible:outline-none placeholder:text-slate-400" required />
                 </span>
               </label>
               <span aria-hidden="true" className="my-2 w-px shrink-0 bg-slate-300/70" />
               <label className="flex min-w-0 flex-1 flex-col justify-center rounded-xl px-3 py-2 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(100,116,139,0.18)]">
                 <span dir="rtl" className="mb-1 text-center text-[10px] font-bold text-slate-500">شماره تلفن همراه</span>
-                <input id="phone-number-input" type="tel" dir="ltr" inputMode="tel" autoComplete="tel-national" maxLength={Math.max(1, 15 - countryCode.length)} value={nationalNumber} onChange={e => handleNationalNumberChange(e.target.value)} aria-label="شماره تلفن همراه، بدون کد کشور" className="w-full bg-transparent px-1 py-1 text-left text-lg font-black text-slate-800 outline-none placeholder:text-slate-400" placeholder="شماره تلفن" required />
+                <input id="phone-number-input" type="tel" dir="ltr" inputMode="tel" autoComplete="tel-national" maxLength={Math.max(1, 15 - countryCode.length)} value={nationalNumber} onChange={e => handleNationalNumberChange(e.target.value)} aria-label="شماره تلفن همراه، بدون کد کشور" className="w-full bg-transparent px-1 py-1 text-left text-lg font-black text-slate-800 outline-none focus-visible:outline-none placeholder:text-slate-400" placeholder="شماره تلفن" required />
               </label>
             </div>
             {error && <div className="p-4 bg-rose-50 text-rose-500 text-[11px] font-black rounded-2xl text-center border border-rose-100">{error}</div>}
