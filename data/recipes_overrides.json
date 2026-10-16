@@ -566,7 +566,9 @@
       "calories": 490,
       "cookTime": 60,
       "difficulty": "آسان",
-      "servings": 4
+      "servings": 4,
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "dish-0-1766794336335",
