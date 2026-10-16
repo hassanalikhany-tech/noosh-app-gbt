@@ -98,6 +98,9 @@ export const isIngredientMatch = (selected: string, ingredient: string): boolean
 /** Pantry matching is stricter than preference/search matching: near-name foods
  * (for example red beans and pinto beans) must never consume each other's stock. */
 export const isInventoryIngredientMatch = (stockName: string, recipeName: string): boolean => {
+  // Imported recipe labels occasionally contain multiple foods in one field.
+  // Never let a partial pantry-name match consume stock for a compound item.
+  if (/\s+(?:یا|و)\s+|[,،/|]/.test(stockName) || /\s+(?:یا|و)\s+|[,،/|]/.test(recipeName)) return false;
   const stock = normalizeItemName(getBaseIngredientName(stockName));
   const recipe = normalizeItemName(getBaseIngredientName(recipeName));
   if (!stock || !recipe) return false;
@@ -109,7 +112,7 @@ export const isInventoryIngredientMatch = (stockName: string, recipeName: string
 };
 
 export type QuantityType = 'weight' | 'volume' | 'count' | 'unknown';
-export interface BaseQuantity { value: number; type: QuantityType; baseUnit: string; form?: 'raw' | 'prepared' }
+export interface BaseQuantity { value: number; type: QuantityType; baseUnit: string; form?: 'raw' | 'prepared'; estimated?: boolean }
 interface UnitDefinition { factor: number; type: QuantityType; baseUnit: string }
 
 // Noosh standard: mass -> g, volume -> ml, counts stay in their own unit family.
@@ -182,6 +185,48 @@ const VOLUME_MASS_REFERENCES: Array<{ aliases: string[]; gramsPerUsCup: number; 
   { aliases: ['شیر'], gramsPerUsCup: 244 }, { aliases: ['روغن زیتون'], gramsPerUsCup: 216 },
   { aliases: ['گردو'], gramsPerUsCup: 117 },
 ];
+
+// Count-to-mass conversions are intentionally limited to produce whose
+// reference-piece weights are documented in USDA FoodData Central. A recipe
+// that says only "1 onion" uses the medium reference piece. Natural produce
+// varies, so these values are estimates, not a claim about the user's actual
+// onion or potato. Explicit small/large sizes are left unconverted unless a
+// matching reference is added here.
+const PIECE_MASS_REFERENCES: Array<{ aliases: string[]; gramsPerPiece: number; unit: 'عدد' | 'حبه' }> = [
+  { aliases: ['پیاز', 'پیاز قرمز', 'پیاز سفید'], gramsPerPiece: 110, unit: 'عدد' },
+  { aliases: ['سیب زمینی'], gramsPerPiece: 213, unit: 'عدد' },
+  { aliases: ['گوجه فرنگی'], gramsPerPiece: 123, unit: 'عدد' },
+  { aliases: ['فلفل دلمه ای'], gramsPerPiece: 119, unit: 'عدد' },
+  { aliases: ['هویج'], gramsPerPiece: 61, unit: 'عدد' },
+  { aliases: ['سیر'], gramsPerPiece: 3, unit: 'حبه' },
+];
+
+const getPieceMassReference = (itemName: string | undefined, unit: string) => {
+  if (!itemName) return undefined;
+  const normalizedUnit = normalizeUnit(unit);
+  if (normalizedUnit !== 'عدد' && normalizedUnit !== 'حبه' && normalizedUnit !== 'قطعه' && normalizedUnit !== 'دانه' && normalizedUnit !== 'تکه') return undefined;
+  // The actual amount field is authoritative. Imported labels sometimes repeat
+  // it ("پیاز ۲ عدد"); strip only a leading/trailing count, never a number in
+  // the middle of a compound ingredient.
+  if (/\s+(?:یا|و)\s+|[,،/|]/.test(itemName)) return undefined;
+  const label = itemName
+    .replace(/^\s*[0-9۰-۹٠-٩]+\s*(?:عدد|دونه|دانه|حبه|قطعه)?\s*/,'')
+    .replace(/\s*[0-9۰-۹٠-٩]+(?:[.,٫][0-9۰-۹٠-٩]+)?\s*(?:عدد|دونه|دانه|حبه|قطعه)?\s*$/,'');
+  if (/[0-9۰-۹٠-٩]/.test(label)) return undefined;
+  const normalized = normalizeItemName(label);
+  const explicitSize = /بزرگ|درشت|کوچک|ریز/.test(normalized);
+  if (explicitSize) return undefined;
+  const withoutDescriptors = normalized
+    .replace(/متوسط/g, '')
+    .replace(/تازه|خام|خردشده|نگینی|حلقهشده|رندهشده|رنده|خلالیشده|خلالی|پوستگرفته|پوستکنده/g, '');
+  const reference = PIECE_MASS_REFERENCES.find(entry => entry.unit === (normalizedUnit === 'حبه' ? 'حبه' : 'عدد') && entry.aliases.some(alias => normalizeItemName(alias) === withoutDescriptors));
+  if (!reference) return undefined;
+  // "قطعه" and similar are generic; use these only for the explicit whole
+  // piece names above. Cloves are only meaningful as garlic cloves.
+  if (normalizedUnit === 'حبه' && reference.unit !== 'حبه') return undefined;
+  if (normalizedUnit !== 'حبه' && reference.unit === 'حبه') return undefined;
+  return reference.gramsPerPiece;
+};
 const getIngredientDensity = (itemName?: string): number | undefined => {
   if (!itemName) return undefined;
   // Mixed/alternative ingredients have no single defensible bulk density.
@@ -198,7 +243,7 @@ const getIngredientDensity = (itemName?: string): number | undefined => {
 const getIngredientForm = (itemName?: string): BaseQuantity['form'] => {
   if (!itemName) return undefined;
   const item = normalizeItemName(itemName);
-  if (/پخته|آبپز|آبکش|سرخ|کباب|بخارپز|تنوری/.test(item)) return 'prepared';
+  if (/پخته|آبپز|آبکش|سرخ|کباب|بخارپز|تنوری|داغ|کاراملی/.test(item)) return 'prepared';
   if (/خام|خشک/.test(item)) return 'raw';
   return undefined;
 };
@@ -208,6 +253,10 @@ export const convertToBase = (amount: number, unit: string, itemName?: string): 
   const definition = UNIT_CONVERSIONS[normalizedUnit];
   const form = getIngredientForm(itemName);
   if (!definition) return { value: amount, type: 'unknown', baseUnit: normalizedUnit, form };
+  if (definition.type === 'count' && form !== 'prepared') {
+    const gramsPerPiece = getPieceMassReference(itemName, normalizedUnit);
+    if (gramsPerPiece !== undefined) return { value: amount * gramsPerPiece, type: 'weight', baseUnit: 'g', form, estimated: true };
+  }
   const baseValue = amount * definition.factor;
   if (definition.type === 'volume') {
     const density = getIngredientDensity(itemName);
@@ -246,6 +295,7 @@ export const getInventoryUpdate = (
   let updatedCount = 0;
   const missingItems: any[] = [];
   const unconvertibleItems: Array<{ item: string; inventoryUnit: string; recipeUnit: string }> = [];
+  const estimatedConversions: Array<{ item: string; amount: number; unit: string; grams: number }> = [];
 
   ingredients.forEach(ing => {
     const requiredAmount = (ing.amount || 0) * scale;
@@ -259,6 +309,7 @@ export const getInventoryUpdate = (
     const ingredientUnit = ing.unit?.trim() || 'نامشخص';
     if (normalizeUnit(ingredientUnit) === 'به میزان لازم') return;
     const need = convertToBase(requiredAmount, ingredientUnit, ing.item);
+    if (need.estimated) estimatedConversions.push({ item: itemName, amount: requiredAmount, unit: ingredientUnit, grams: need.value });
     const matchingRows = newInventory.filter(row => isInventoryIngredientMatch(row.name, ing.item) && Number(row.amount) > 0);
     let remaining = need.value;
     let comparableRows = 0;
@@ -269,6 +320,7 @@ export const getInventoryUpdate = (
       for (const row of matchingRows) {
         const stock = convertToBase(Number(row.amount), row.unit || '', row.name);
         if (!areUnitsComparable(stock, need) || stock.value <= 0) continue;
+        if (stock.estimated && !need.estimated) estimatedConversions.push({ item: itemName, amount: Number(row.amount), unit: row.unit || '', grams: stock.value });
         comparableRows++;
         const consumedBase = Math.min(remaining, stock.value);
         const amountPerStoredUnit = stock.value / Number(row.amount);
@@ -319,7 +371,7 @@ export const getInventoryUpdate = (
     }
   });
 
-  return { newInventory, updatedCount, missingItems, unconvertibleItems };
+  return { newInventory, updatedCount, missingItems, unconvertibleItems, estimatedConversions };
 };
 
 /** Calculate shopping deficits for a plan without consuming or changing pantry stock. */

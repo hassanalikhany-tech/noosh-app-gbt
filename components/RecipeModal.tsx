@@ -207,7 +207,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
       return;
     }
     
-    const { newInventory, updatedCount, missingItems, unconvertibleItems } = getInventoryUpdate(
+    const { newInventory, updatedCount, missingItems, unconvertibleItems, estimatedConversions } = getInventoryUpdate(
       user.inventory || [],
       dish.ingredients,
       servings,
@@ -284,6 +284,10 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
     if (unconvertibleItems.length) {
       const details = unconvertibleItems.map(item => `${item.item} (${item.inventoryUnit} ← ${item.recipeUnit})`).join('، ');
       alert(`برای جلوگیری از کسر اشتباه، این اقلام از انبار کم نشدند چون واحدشان تبدیل‌پذیر نیست: ${details}. واحد موجودی را به واحد وزنی یا حجمی سازگار تغییر بده.`);
+    }
+    if (estimatedConversions.length) {
+      const details = [...new Set(estimatedConversions.map(item => `${item.item}: ${toPersianDigits(item.amount)} ${item.unit} ≈ ${toPersianDigits(Math.round(item.grams))} گرم`))].join('، ');
+      alert(`برای اقلام شمارشی، از وزن مرجع متوسط استفاده شد؛ وزن واقعی هر قلم می‌تواند متفاوت باشد. اگر وزن دقیق‌تری داری، موجودی را با گرم/کیلوگرم ثبت کن.\n${details}`);
     }
   };
 
