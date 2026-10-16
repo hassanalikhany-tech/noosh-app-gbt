@@ -118,7 +118,9 @@
       "calories": 380,
       "cookTime": 120,
       "difficulty": "آسان",
-      "servings": 4
+      "servings": 4,
+      "imageReviewStatus": "replace",
+      "localEdited": true
     },
     {
       "id": "zereshk_polo_morgh",
