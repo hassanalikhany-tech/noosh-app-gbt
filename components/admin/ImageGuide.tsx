@@ -72,6 +72,7 @@ const ImageGuide: React.FC = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [scanProgress, setScanProgress] = useState({ complete: 0, total: 0 });
   const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
+  const [isBulkSaving, setIsBulkSaving] = useState(false);
   const [message, setMessage] = useState('');
 
   const allDishes = useMemo(() => RecipeService.getAllDishes(), [refreshKey]);
@@ -120,9 +121,53 @@ const ImageGuide: React.FC = () => {
     return next;
   });
 
-  const handleSelectAll = () => setSelectedIds(previous =>
-    previous.size === filteredDishes.length ? new Set() : new Set(filteredDishes.map(dish => dish.id))
-  );
+  const visibleSelectedDishes = filteredDishes.filter(dish => selectedIds.has(dish.id));
+  const allVisibleSelected = filteredDishes.length > 0 && visibleSelectedDishes.length === filteredDishes.length;
+
+  const handleSelectAll = () => setSelectedIds(previous => {
+    const next = new Set(previous);
+    if (filteredDishes.length > 0 && filteredDishes.every(dish => next.has(dish.id))) {
+      filteredDishes.forEach(dish => next.delete(dish.id));
+    } else {
+      filteredDishes.forEach(dish => next.add(dish.id));
+    }
+    return next;
+  });
+
+  const handleBulkCreate = async () => {
+    const targets = visibleSelectedDishes;
+    if (!targets.length || isBulkSaving) return;
+    if (!confirm(`درخواست ساخت تصویر جدید برای ${targets.length} غذای انتخاب‌شده ثبت شود؟ این درخواست یکجا در کاتالوگ منتشر می‌شود؛ خود فایل تصویر پس از آماده‌شدن در انتشار بعدی اضافه خواهد شد.`)) return;
+
+    const targetIds = new Set(targets.map(dish => dish.id));
+    setIsBulkSaving(true);
+    setSavingIds(previous => new Set([...previous, ...targetIds]));
+    setMessage('در حال ثبت گروهی درخواست ساخت تصویر…');
+    const saved = await RecipeService.updateDishesBatch(targets.map(dish => ({
+      id: dish.id,
+      data: { imageReviewStatus: 'create' },
+    })));
+    setSavingIds(previous => {
+      const next = new Set(previous);
+      targetIds.forEach(id => next.delete(id));
+      return next;
+    });
+    setIsBulkSaving(false);
+
+    if (saved) {
+      setSelectedIds(previous => {
+        const next = new Set(previous);
+        targetIds.forEach(id => next.delete(id));
+        return next;
+      });
+      setActiveFilter('create');
+      setSearchTerm('');
+      setMessage(`درخواست ساخت تصویر برای ${targets.length} غذا یکجا در GitHub ثبت شد؛ Netlify انتشار را شروع می‌کند.`);
+      setRefreshKey(key => key + 1);
+    } else {
+      setMessage('ثبت گروهی در GitHub انجام نشد. اتصال امن مدیریت را بررسی کن؛ وضعیت محلی ممکن است ذخیره شده باشد.');
+    }
+  };
 
   const handleCopy = async (text: string) => {
     try {
@@ -311,7 +356,7 @@ const ImageGuide: React.FC = () => {
         <table className="w-full text-right text-sm min-w-[850px]">
           <thead className="bg-white text-slate-500 font-bold text-xs sticky top-0 z-10 shadow-sm">
             <tr>
-              <th className="p-4 w-12 text-center"><button type="button" aria-label="انتخاب همه" onClick={handleSelectAll}>{selectedIds.size === filteredDishes.length && filteredDishes.length ? <CheckSquare size={18} className="text-emerald-700" /> : <Square size={18} />}</button></th>
+              <th className="p-4 w-12 text-center"><button type="button" aria-label={allVisibleSelected ? 'لغو انتخاب همهٔ موارد این فهرست' : 'انتخاب همهٔ موارد این فهرست'} title={allVisibleSelected ? 'لغو انتخاب همهٔ موارد این فهرست' : 'انتخاب همهٔ موارد این فهرست'} disabled={!filteredDishes.length} onClick={handleSelectAll} className="disabled:opacity-30">{allVisibleSelected ? <CheckSquare size={18} className="text-emerald-700" /> : <Square size={18} />}</button></th>
               <th className="p-4 w-24 text-center">پیش‌نمایش</th>
               <th className="p-4">غذا</th>
               <th className="p-4">دسته</th>
@@ -356,9 +401,15 @@ const ImageGuide: React.FC = () => {
         </table>
       </div>
 
-      <div className="px-5 py-3 bg-slate-900 text-white flex flex-wrap justify-between gap-2 items-center shrink-0">
-        <div className="text-xs text-white/75">{selectedIds.size} انتخاب‌شده · {filteredDishes.length} مورد در این فهرست · {allDishes.length} غذا در کل</div>
-        <div className="text-[11px] text-white/70">تکراری یعنی آدرس تصویر یکسان؛ مرتبط‌بودن عکس را خودتان علامت بزنید.</div>
+      <div className="px-5 py-3 bg-slate-900 text-white flex flex-wrap justify-between gap-3 items-center shrink-0">
+        <div className="text-xs text-white/75">{visibleSelectedDishes.length} انتخاب‌شده از این فهرست · {filteredDishes.length} مورد در فهرست · {allDishes.length} غذا در کل</div>
+        <div className="flex flex-wrap items-center gap-3">
+          {visibleSelectedDishes.length > 0 && <button type="button" disabled={isBulkSaving || visibleSelectedDishes.some(dish => savingIds.has(dish.id))} onClick={() => void handleBulkCreate()} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-2.5 text-sm font-black text-slate-950 transition hover:bg-emerald-300 disabled:cursor-wait disabled:opacity-60">
+            {isBulkSaving ? <LoaderCircle size={16} className="animate-spin" /> : <ImageIcon size={16} />}
+            ساخت تصویر جدید برای {visibleSelectedDishes.length} غذا
+          </button>}
+          <div className="text-[11px] text-white/70">برای انتخاب گروهی، ابتدا فیلتر «بدون تصویر» را پس از بررسی تصاویر باز کن.</div>
+        </div>
       </div>
     </div>
   );
