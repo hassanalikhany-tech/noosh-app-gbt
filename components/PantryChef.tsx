@@ -1,7 +1,8 @@
 import { normalizePersian } from '../utils/text';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { ChefHat, Sparkles, Search, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Minus, Save, ShoppingCart, ChevronDown, Drumstick, Wheat, Carrot } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { ChefHat, Sparkles, Search, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Minus, Save, ShoppingCart, ChevronDown, Drumstick, Wheat, Carrot, ClipboardList } from 'lucide-react';
 import { PANTRY_ITEMS, getIngredientCategoryId } from '../data/pantry';
 import { RecipeService } from '../services/recipeService';
 import { Dish, KitchenMode, UserProfile, InventoryItem } from '../types';
@@ -38,6 +39,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
   const [newItemUnit, setNewItemUnit] = useState('عدد');
   const [addMessage, setAddMessage] = useState('');
   const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
+  const [isInventoryOverviewOpen, setIsInventoryOverviewOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['proteins']);
   const [expandedSubcategories, setExpandedSubcategories] = useState<string[]>(['proteins-meat']);
   const [dishCount, setDishCount] = useState(() => RecipeService.getAllDishes().length);
@@ -56,7 +58,61 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
   const resultsAreaRef = useRef<HTMLDivElement>(null);
   const newItemNameRef = useRef<HTMLInputElement>(null);
 
-  const inventory = useMemo(() => user.inventory || [], [user.inventory]);
+  const rawInventory = useMemo(() => user.inventory || [], [user.inventory]);
+  const inventory = useMemo(() => {
+    const merged: InventoryItem[] = [];
+    const indexes = new Map<string, number>();
+    rawInventory.forEach(item => {
+      const key = normalizePersian(item.name).trim().replace(/\s+/g, ' ');
+      const index = indexes.get(key);
+      if (index === undefined) {
+        indexes.set(key, merged.length);
+        merged.push({ ...item });
+        return;
+      }
+      const existing = merged[index];
+      const convertedAmount = item.unit === existing.unit
+        ? { amount: item.amount, estimated: false }
+        : convertAmountBetweenUnits(item.amount, item.unit, existing.unit, existing.name);
+      // Keep incompatible or estimate-only legacy rows intact; never guess while consolidating stock.
+      if (!convertedAmount || convertedAmount.estimated) {
+        indexes.set(`${key}\u0000${item.id}`, merged.length);
+        merged.push({ ...item });
+        return;
+      }
+      existing.amount = Math.round((existing.amount + convertedAmount.amount) * 1000) / 1000;
+      existing.lastUpdated = Math.max(existing.lastUpdated, item.lastUpdated);
+      const incomingThreshold = convertAmountBetweenUnits(
+        item.minThreshold,
+        item.minThresholdUnit || item.unit,
+        existing.minThresholdUnit || existing.unit,
+        existing.name
+      );
+      if (incomingThreshold && !incomingThreshold.estimated) {
+        existing.minThreshold = Math.round((existing.minThreshold + incomingThreshold.amount) * 1000) / 1000;
+      }
+    });
+    return merged;
+  }, [rawInventory]);
+
+  useEffect(() => {
+    if (inventory.length === rawInventory.length) return;
+    onUpdateUser({ ...user, inventory });
+    UserService.updateInventory(user.username, inventory).catch(err => console.error('Failed to merge duplicate pantry rows:', err));
+  }, [inventory, rawInventory.length, user, onUpdateUser]);
+
+  useEffect(() => {
+    if (!isInventoryOverviewOpen) return;
+    document.body.style.overflow = 'hidden';
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsInventoryOverviewOpen(false);
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, [isInventoryOverviewOpen]);
   const starterItemsToAdd = PANTRY_STARTER_ITEMS.filter(name => !inventory.some(item => isInventoryIngredientMatch(item.name, name)));
 
   const isBelowThreshold = (item: InventoryItem) => {
@@ -442,7 +498,12 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                           <Package className="text-teal-500" size={20} />
                           موجودی انبار شما
                         </h3>
-                        <span className="text-[10px] text-slate-400 font-black">{toPersian(inventory.length)} قلم در انبار</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-slate-400 font-black">{toPersian(inventory.length)} قلم در انبار</span>
+                          <button type="button" onClick={() => setIsInventoryOverviewOpen(true)} className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-4 focus:ring-emerald-100" aria-haspopup="dialog">
+                            <ClipboardList size={16} /> نمایش جدولی
+                          </button>
+                        </div>
                       </div>
                       
                       <div className="bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm">
@@ -678,6 +739,47 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
           <button type="button" onClick={() => onNavigate('search')}>جستجوی غذا</button>
         </div>
       </section>}
+      {isInventoryOverviewOpen && createPortal(
+        <div className="fixed inset-0 z-[10000] flex flex-col bg-[#f4f7f4] text-slate-800 animate-enter" dir="rtl" role="presentation" onClick={() => setIsInventoryOverviewOpen(false)}>
+          <section role="dialog" aria-modal="true" aria-labelledby="inventory-overview-title" className="flex min-h-0 flex-1 flex-col" onClick={event => event.stopPropagation()}>
+            <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-emerald-100 bg-white/95 px-4 py-4 shadow-sm backdrop-blur-xl sm:px-8 sm:py-5">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700"><Package size={22} /></span>
+                <div className="min-w-0">
+                  <h2 id="inventory-overview-title" className="truncate text-lg font-black text-slate-900 sm:text-2xl">موجودی انبار آشپزخانه</h2>
+                  <p className="mt-1 text-xs text-slate-500">{toPersian(inventory.length)} قلم غذایی · مرتب‌شده بر اساس نام</p>
+                </div>
+              </div>
+              <button type="button" onClick={() => setIsInventoryOverviewOpen(false)} aria-label="بستن جدول موجودی" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition hover:bg-emerald-100 hover:text-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-100"><X size={20} /></button>
+            </header>
+            <div className="min-h-0 flex-1 overflow-auto p-3 sm:p-8">
+              <div className="mx-auto max-w-6xl overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm sm:rounded-3xl">
+                {inventory.length ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[620px] border-collapse text-right">
+                      <thead className="bg-emerald-50 text-xs font-black text-emerald-900 sm:text-sm">
+                        <tr><th className="px-4 py-4 sm:px-6">مادهٔ غذایی</th><th className="px-4 py-4 sm:px-6">موجودی</th><th className="px-4 py-4 sm:px-6">آستانهٔ هشدار</th><th className="px-4 py-4 sm:px-6">وضعیت</th></tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {[...inventory].sort((a, b) => a.name.localeCompare(b.name, 'fa')).map(item => {
+                          const isLow = isBelowThreshold(item);
+                          return <tr key={item.id} className="transition hover:bg-emerald-50/40">
+                            <td className="px-4 py-4 font-bold text-slate-800 sm:px-6">{item.name}</td>
+                            <td className="whitespace-nowrap px-4 py-4 font-black text-emerald-800 sm:px-6">{toPersian(item.amount)} <span className="text-xs font-semibold text-slate-500">{item.unit}</span></td>
+                            <td className="whitespace-nowrap px-4 py-4 text-slate-600 sm:px-6">{toPersian(item.minThreshold)} {item.minThresholdUnit || item.unit}</td>
+                            <td className="px-4 py-4 sm:px-6"><span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black ${isLow ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-800'}`}><i className={`h-1.5 w-1.5 rounded-full ${isLow ? 'bg-rose-500' : 'bg-emerald-500'}`} />{isLow ? 'نیازمند خرید' : 'موجود'}</span></td>
+                          </tr>;
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : <div className="flex min-h-64 flex-col items-center justify-center gap-3 p-8 text-center"><Package size={34} className="text-emerald-300" /><strong className="text-slate-700">هنوز قلمی در انبار ثبت نشده است</strong><span className="text-sm text-slate-500">با فرم افزودن، موجودی آشپزخانه‌ات را ثبت کن.</span></div>}
+              </div>
+            </div>
+          </section>
+        </div>,
+        document.body
+      )}
       {selectedDish && <RecipeModal dish={selectedDish} isOpen={!!selectedDish} onClose={() => setSelectedDish(null)} user={user} onUpdateUser={onUpdateUser} />}
     </div>
   );
