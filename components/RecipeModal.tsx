@@ -17,6 +17,12 @@ interface RecipeModalProps {
   onUpdateUser?: (user: UserProfile) => void;
 }
 
+interface InventoryNotice {
+  title: string;
+  description: string;
+  sections: Array<{ title: string; items: string[]; tone: 'amber' | 'rose' | 'teal' }>;
+}
+
 const EXCLUDED_SHOPPING_ITEMS = ['آب', 'آب جوش', 'آب ولرم', 'آب سرد', 'آب گرم', 'نمک', 'فلفل', 'زردچوبه', 'روغن', 'ادویه'];
 
 const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, onUpdateUser }) => {
@@ -29,6 +35,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timerInput, setTimerInput] = useState(10); // Default 10 mins
   const [isAlarmPlaying, setIsAlarmPlaying] = useState(false);
+  const [inventoryNotice, setInventoryNotice] = useState<InventoryNotice | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const hasRecipe = dish.recipeSteps && dish.recipeSteps.length > 0;
@@ -44,6 +51,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
       setAddedToCart(false);
       setServings(user?.familySize || 4);
       setCheckedSteps([]);
+      setInventoryNotice(null);
       setTimerSeconds(0);
       setIsTimerRunning(false);
       document.body.style.overflow = 'hidden';
@@ -60,7 +68,16 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
     if (!isOpen || !hasRecipe) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key === 'Escape') {
+        if (inventoryNotice) {
+          e.preventDefault();
+          e.stopPropagation();
+          setInventoryNotice(null);
+          return;
+        }
+        onClose();
+        return;
+      }
       if (e.target instanceof HTMLElement && e.target.closest('input, textarea, select, button, [contenteditable]')) return;
       if (e.code === 'Space') {
         e.preventDefault();
@@ -74,7 +91,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, checkedSteps, dish.recipeSteps]);
+  }, [isOpen, checkedSteps, dish.recipeSteps, inventoryNotice, onClose]);
 
   // Timer logic
   useEffect(() => {
@@ -214,6 +231,25 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
       dish.servings || 4
     );
 
+    const noticeSections: InventoryNotice['sections'] = [];
+
+    if (unconvertibleItems.length) {
+      const details = unconvertibleItems.map(item => `${item.item} · واحد انبار: ${item.inventoryUnit} · واحد دستور: ${item.recipeUnit}`);
+      noticeSections.push({
+        title: 'از این اقلام چیزی کم نشد',
+        items: details,
+        tone: 'rose'
+      });
+    }
+    if (estimatedConversions.length) {
+      const details = [...new Set(estimatedConversions.map(item => `${item.item}: ${toPersianDigits(item.amount)} ${item.unit} ≈ ${toPersianDigits(Math.round(item.grams))} گرم`))];
+      noticeSections.push({
+        title: 'تبدیل تقریبی اقلام شمارشی',
+        items: details,
+        tone: 'amber'
+      });
+    }
+
     if (updatedCount > 0 || hasIngredients) {
       setCooked(true);
       
@@ -279,15 +315,19 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
       
       setTimeout(() => setCooked(false), 3000);
     } else {
-      alert('خطایی در کسر از انبار رخ داد.');
+      setInventoryNotice({
+        title: 'کسر از انبار انجام نشد',
+        description: 'در محاسبهٔ موجودی مشکلی پیش آمد. دوباره تلاش کن.',
+        sections: []
+      });
+      return;
     }
-    if (unconvertibleItems.length) {
-      const details = unconvertibleItems.map(item => `${item.item} (${item.inventoryUnit} ← ${item.recipeUnit})`).join('، ');
-      alert(`برای جلوگیری از کسر اشتباه، این اقلام از انبار کم نشدند چون واحدشان تبدیل‌پذیر نیست: ${details}. واحد موجودی را به واحد وزنی یا حجمی سازگار تغییر بده.`);
-    }
-    if (estimatedConversions.length) {
-      const details = [...new Set(estimatedConversions.map(item => `${item.item}: ${toPersianDigits(item.amount)} ${item.unit} ≈ ${toPersianDigits(Math.round(item.grams))} گرم`))].join('، ');
-      alert(`برای اقلام شمارشی، از وزن مرجع متوسط استفاده شد؛ وزن واقعی هر قلم می‌تواند متفاوت باشد. اگر وزن دقیق‌تری داری، موجودی را با گرم/کیلوگرم ثبت کن.\n${details}`);
+    if (noticeSections.length) {
+      setInventoryNotice({
+        title: 'گزارش کسر از انبار',
+        description: 'موجودی فقط در تبدیل‌های قابل‌اعتماد کم می‌شود. وزن اقلام شمارشی تقریبی است و ممکن است با اندازهٔ واقعی تفاوت داشته باشد.',
+        sections: noticeSections
+      });
     }
   };
 
@@ -295,6 +335,33 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center [@media(orientation:landscape)_and_(max-height:500px)]:items-start p-0 [@media(orientation:landscape)_and_(max-height:500px)]:p-4 bg-black/80 backdrop-blur-md overflow-hidden [@media(orientation:landscape)_and_(max-height:500px)]:overflow-y-auto" onClick={onClose}>
+      {inventoryNotice && (
+        <div className="absolute inset-0 z-[300] flex items-center justify-center bg-slate-950/55 backdrop-blur-sm p-4 animate-enter" onClick={() => setInventoryNotice(null)}>
+          <section role="alertdialog" aria-modal="true" aria-labelledby="inventory-notice-title" className="w-full max-w-lg max-h-[85dvh] overflow-y-auto rounded-[2rem] border border-emerald-100 bg-white p-5 sm:p-7 text-right shadow-2xl shadow-emerald-950/20" onClick={event => event.stopPropagation()}>
+            <div className="mb-4 flex items-start gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700"><Scale size={22} /></div>
+              <div className="min-w-0 flex-1 pt-0.5">
+                <h3 id="inventory-notice-title" className="text-lg font-black text-slate-900">{inventoryNotice.title}</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-600">{inventoryNotice.description}</p>
+              </div>
+              <button type="button" aria-label="بستن گزارش" onClick={() => setInventoryNotice(null)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-emerald-100 hover:text-emerald-800"><X size={18} /></button>
+            </div>
+            <div className="space-y-3">
+              {inventoryNotice.sections.map(section => (
+                <div key={section.title} className={`rounded-2xl border p-4 ${section.tone === 'rose' ? 'border-rose-100 bg-rose-50/70' : section.tone === 'amber' ? 'border-amber-100 bg-amber-50/70' : 'border-emerald-100 bg-emerald-50/70'}`}>
+                  <h4 className={`mb-2 text-sm font-black ${section.tone === 'rose' ? 'text-rose-800' : section.tone === 'amber' ? 'text-amber-900' : 'text-emerald-800'}`}>{section.title}</h4>
+                  <ul className="space-y-1.5">
+                    {section.items.map((item, index) => <li key={`${item}-${index}`} className="text-sm leading-6 text-slate-700">{item}</li>)}
+                  </ul>
+                  {section.tone === 'rose' && <p className="mt-2 text-xs leading-5 text-rose-700">برای کسر دقیق، واحد موجودی را به واحد وزنی یا حجمی سازگار تغییر بده.</p>}
+                  {section.tone === 'amber' && <p className="mt-2 text-xs leading-5 text-amber-800">اگر وزن دقیق‌تری داری، موجودی را با گرم یا کیلوگرم ثبت کن.</p>}
+                </div>
+              ))}
+            </div>
+            <button type="button" autoFocus onClick={() => setInventoryNotice(null)} className="mt-5 w-full rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-900/15 transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-200">متوجه شدم</button>
+          </section>
+        </div>
+      )}
       <div role="dialog" aria-modal="true" aria-label={`دستور پخت ${dish.name}`} className="relative w-full h-[100dvh] sm:w-[95vw] sm:h-[95vh] [@media(orientation:landscape)_and_(max-height:500px)]:h-auto rounded-none sm:rounded-[3rem] bg-white flex flex-col animate-enter shadow-2xl overflow-hidden [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible" onClick={e => e.stopPropagation()}>
         
         {/* Glassmorphism Header */}
