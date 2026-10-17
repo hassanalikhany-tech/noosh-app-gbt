@@ -8,6 +8,7 @@ import { RecipeService } from '../services/recipeService';
 import { Dish, KitchenMode, UserProfile, InventoryItem } from '../types';
 import { isIngredientMatch, isInventoryIngredientMatch, getStandardUnit, convertToBase, convertAmountBetweenUnits, areUnitsComparable, isDishProhibited } from '../utils/recipeHelpers';
 import { UserService } from '../services/userService';
+import { getPantryUnitPreference, suggestPantryUnit } from '../utils/pantryUnits';
 import RecipeModal from './RecipeModal';
 import MealCard from './MealCard';
 
@@ -135,9 +136,9 @@ interface ProcessedResult {
 const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate, onKitchenModeChange }) => {
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('1');
-  const [newItemUnit, setNewItemUnit] = useState('عدد');
   const [addMessage, setAddMessage] = useState('');
   const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
+  const [pendingUnitCorrection, setPendingUnitCorrection] = useState<{ id: string; name: string; oldAmount: number; oldUnit: string; nextUnit: string; oldThreshold: number; oldThresholdUnit: string; amount: string; threshold: string } | null>(null);
   const [isInventoryOverviewOpen, setIsInventoryOverviewOpen] = useState(false);
   const [inventoryOverviewView, setInventoryOverviewView] = useState<'rows' | 'table'>('table');
   const [isInlineAddingInventory, setIsInlineAddingInventory] = useState(false);
@@ -344,7 +345,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     if (nextUnit === item.unit) return;
     const converted = convertAmountBetweenUnits(item.amount, item.unit, nextUnit, item.name);
     if (!converted) {
-      setAddMessage(`تبدیل ${item.unit} به ${nextUnit} برای ${item.name} مرجع مطمئنی ندارد؛ مقدار و واحد قبلی حفظ شد.`);
+      setPendingUnitCorrection({ id: item.id, name: item.name, oldAmount: item.amount, oldUnit: item.unit, nextUnit, oldThreshold: item.minThreshold, oldThresholdUnit: item.minThresholdUnit || item.unit, amount: '', threshold: '' });
       return;
     }
     updateInventoryItem(item.id, { amount: converted.amount, unit: nextUnit });
@@ -361,7 +362,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     };
     const existingItem = inventory.find(item => isInventoryIngredientMatch(item.name, cleanName));
     if (existingItem) {
-      const targetUnit = unit || existingItem.unit;
+      const targetUnit = getPantryUnitPreference(cleanName) || unit || existingItem.unit;
       const convertedStock = targetUnit === existingItem.unit
         ? { amount: existingItem.amount, estimated: false }
         : convertAmountBetweenUnits(existingItem.amount, existingItem.unit, targetUnit, existingItem.name);
@@ -410,13 +411,14 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
       defaultThreshold = 2;
     }
 
+    const selectedUnit = getPantryUnitPreference(cleanName) || unit || defaultUnit;
     const newItem: InventoryItem = {
       id: crypto.randomUUID?.() || Math.random().toString(36).slice(2, 11),
       name: cleanName,
       amount,
-      unit: unit || defaultUnit,
+      unit: selectedUnit,
       minThreshold: Math.max(0.01, Math.min(defaultThreshold, amount * 0.3)),
-      minThresholdUnit: unit || defaultUnit,
+      minThresholdUnit: selectedUnit,
       lastUpdated: Date.now()
     };
     const newInventory = [...inventory, newItem];
@@ -501,12 +503,10 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     </div>
   ) : <span className="whitespace-nowrap font-black text-emerald-800">{toPersian(item.amount)} <small className="font-semibold text-slate-500">{item.unit}</small></span>;
 
-  const renderInlineInventoryForm = (compact = false) => <form onSubmit={event => { event.preventDefault(); void addToInventory(newItemName, Number(newItemAmount), newItemUnit); }} className={`grid gap-2 ${compact ? 'grid-cols-1 sm:grid-cols-[minmax(160px,1fr)_90px_125px_auto_auto]' : 'grid-cols-1 md:grid-cols-[minmax(220px,1fr)_110px_145px_auto_auto]'}`}>
-    <FoodIngredientCombobox id={`inline-pantry-name-${compact ? 'modal' : 'list'}`} value={newItemName} onChange={setNewItemName} onSelect={(_name, categoryId) => setNewItemUnit(['proteins', 'grains', 'vegetables'].includes(categoryId) ? 'کیلوگرم' : 'عدد')} placeholder="نام ماده را جست‌وجو یا وارد کن…" />
+  const renderInlineInventoryForm = (compact = false) => <form onSubmit={event => { event.preventDefault(); void addToInventory(newItemName, Number(newItemAmount)); }} className={`grid gap-2 ${compact ? 'grid-cols-1 sm:grid-cols-[minmax(160px,1fr)_90px_auto_auto_auto]' : 'grid-cols-1 md:grid-cols-[minmax(220px,1fr)_110px_auto_auto_auto]'}`}>
+    <FoodIngredientCombobox id={`inline-pantry-name-${compact ? 'modal' : 'list'}`} value={newItemName} onChange={setNewItemName} placeholder="نام ماده را جست‌وجو یا وارد کن…" />
     <input aria-label="مقدار قلم تازه" type="number" min="0" step="any" value={newItemAmount} onChange={event => setNewItemAmount(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-center text-sm font-black outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" />
-    <select aria-label="واحد قلم تازه" value={newItemUnit} onChange={event => setNewItemUnit(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-bold outline-none focus:border-emerald-400">
-      <option value="عدد">عدد</option><option value="کیلوگرم">کیلوگرم</option><option value="گرم">گرم</option><option value="بسته">بسته</option><option value="لیتر">لیتر</option><option value="میلی‌لیتر">میلی‌لیتر</option>
-    </select>
+    <span className="flex min-h-11 items-center justify-center rounded-xl bg-emerald-50 px-3 text-xs font-black text-emerald-800">{newItemName.trim() ? `واحد: ${suggestPantryUnit(newItemName)}` : 'واحد پس از انتخاب ماده'}</span>
     <button type="submit" disabled={!newItemName.trim() || Number(newItemAmount) <= 0} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17} /> افزودن</button>
     <button type="button" aria-label="بستن ردیف افزودن" onClick={() => setIsInlineAddingInventory(false)} className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-3 py-3 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={17} /></button>
   </form>;
@@ -758,14 +758,12 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                         افزودن کالا به انبار
                       </h3>
                       <div className="pantry-add-card bg-white border border-slate-100 rounded-[1.25rem] p-4 sm:p-5 shadow-sm flex flex-col">
-                        <form className="pantry-quick-add" onSubmit={event => { event.preventDefault(); void addToInventory(newItemName, Number(newItemAmount), newItemUnit, true); }}>
+                        <form className="pantry-quick-add" onSubmit={event => { event.preventDefault(); void addToInventory(newItemName, Number(newItemAmount), undefined, true); }}>
                           <label htmlFor="pantry-new-name">نام مادهٔ غذایی</label>
-                          <FoodIngredientCombobox id="pantry-new-name" inputRef={newItemNameRef} value={newItemName} onChange={setNewItemName} onSelect={(_name, categoryId) => setNewItemUnit(['proteins', 'grains', 'vegetables'].includes(categoryId) ? 'کیلوگرم' : 'عدد')} placeholder="نام را جست‌وجو یا دستی وارد کن…" />
+                          <FoodIngredientCombobox id="pantry-new-name" inputRef={newItemNameRef} value={newItemName} onChange={setNewItemName} placeholder="نام را جست‌وجو یا دستی وارد کن…" />
                           <div className="pantry-amount-row">
                             <input aria-label="مقدار کالا" type="number" min="0" step="any" value={newItemAmount} onChange={event => setNewItemAmount(event.target.value)} />
-                            <select aria-label="واحد کالا" value={newItemUnit} onChange={event => setNewItemUnit(event.target.value)}>
-                              <option value="عدد">عدد</option><option value="کیلوگرم">کیلوگرم</option><option value="گرم">گرم</option><option value="بسته">بسته</option><option value="لیتر">لیتر</option><option value="میلی‌لیتر">میلی‌لیتر</option>
-                            </select>
+                            <span className="pantry-selected-unit" aria-live="polite">{newItemName.trim() ? `واحد ثبت: ${suggestPantryUnit(newItemName)}` : 'واحد پس از انتخاب ماده'}</span>
                             <button type="submit" disabled={!newItemName.trim() || Number(newItemAmount) <= 0}><Plus size={17} /> افزودن به انبار</button>
                           </div>
                           {addMessage && <p className="pantry-add-feedback" aria-live="polite">{addMessage}</p>}
@@ -947,6 +945,26 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
           </section>
         </div>,
         document.body
+      )}
+      {pendingUnitCorrection && createPortal(
+        <div className="fixed inset-0 z-[11000] grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm" dir="rtl" role="presentation" onClick={() => setPendingUnitCorrection(null)}>
+          <section role="dialog" aria-modal="true" aria-labelledby="unit-correction-title" className="w-full max-w-lg rounded-[28px] border border-white/70 bg-[#f7f9f6] p-5 shadow-2xl sm:p-7" onClick={event => event.stopPropagation()}>
+            <div className="flex items-start gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-100 text-amber-800"><AlertTriangle size={21}/></span><div><h2 id="unit-correction-title" className="text-lg font-black text-slate-900">اصلاح دستی واحد {pendingUnitCorrection.name}</h2><p className="mt-1 text-xs leading-6 text-slate-600">برای تبدیل {pendingUnitCorrection.oldUnit} به {pendingUnitCorrection.nextUnit} مرجع قابل اعتمادی نداریم. موجودی قبلی تغییر نکرده؛ مقدار واقعی را با واحد تازه وارد کن.</p></div></div>
+            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-6 text-amber-900">موجودی ثبت‌شده: <strong>{toPersian(pendingUnitCorrection.oldAmount)} {pendingUnitCorrection.oldUnit}</strong><br/>آستانهٔ هشدار فعلی: <strong>{toPersian(pendingUnitCorrection.oldThreshold)} {pendingUnitCorrection.oldThresholdUnit}</strong></div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="text-xs font-bold text-slate-600">موجودی واقعی به {pendingUnitCorrection.nextUnit}<input autoFocus type="number" min="0" step="any" value={pendingUnitCorrection.amount} onChange={event => setPendingUnitCorrection(current => current ? { ...current, amount: event.target.value } : current)} className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-slate-900 outline-none focus:border-emerald-600" /></label>
+              <label className="text-xs font-bold text-slate-600">آستانهٔ هشدار به {pendingUnitCorrection.nextUnit}<input type="number" min="0" step="any" value={pendingUnitCorrection.threshold} onChange={event => setPendingUnitCorrection(current => current ? { ...current, threshold: event.target.value } : current)} className="mt-2 h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-slate-900 outline-none focus:border-emerald-600" /></label>
+            </div>
+            <p className="mt-2 text-[10px] leading-5 text-slate-500">هر دو مقدار را بررسی کن؛ مقدار قبلیِ قاشق/پیمانه بدون حدس به کیلوگرم یا واحد تازه تبدیل نمی‌شود.</p>
+            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"><button type="button" onClick={() => setPendingUnitCorrection(null)} className="rounded-xl bg-white px-4 py-3 text-sm font-bold text-slate-600 ring-1 ring-slate-200">انصراف</button><button type="button" disabled={!pendingUnitCorrection.amount.trim() || !pendingUnitCorrection.threshold.trim() || !Number.isFinite(Number(pendingUnitCorrection.amount)) || !Number.isFinite(Number(pendingUnitCorrection.threshold)) || Number(pendingUnitCorrection.amount) < 0 || Number(pendingUnitCorrection.threshold) < 0} onClick={() => {
+              const correction = pendingUnitCorrection;
+              if (!correction) return;
+              updateInventoryItem(correction.id, { amount: Number(correction.amount), unit: correction.nextUnit, minThreshold: Number(correction.threshold), minThresholdUnit: correction.nextUnit });
+              setAddMessage(`موجودی و آستانهٔ ${correction.name} با واحد ${correction.nextUnit} اصلاح شد.`);
+              setPendingUnitCorrection(null);
+            }} className="rounded-xl bg-emerald-800 px-5 py-3 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-40">ثبت مقدار و واحد جدید</button></div>
+          </section>
+        </div>, document.body
       )}
       {selectedDish && <RecipeModal dish={selectedDish} isOpen={!!selectedDish} onClose={() => setSelectedDish(null)} user={user} onUpdateUser={onUpdateUser} />}
     </div>

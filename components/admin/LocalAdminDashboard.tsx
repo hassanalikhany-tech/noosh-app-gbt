@@ -7,6 +7,7 @@ import DishEditor from './DishEditor';
 const ImageGuide = lazy(() => import('./ImageGuide'));
 const DuplicateResolver = lazy(() => import('./DuplicateResolver'));
 const UnitConsistencyManager = lazy(() => import('./UnitConsistencyManager'));
+const PantryUnitManager = lazy(() => import('./PantryUnitManager'));
 const CsvToJsonConverter = lazy(() => import('./CsvToJsonConverter'));
 const BackupManager = lazy(() => import('./BackupManager'));
 const DatabaseManager = lazy(() => import('./DatabaseManager'));
@@ -83,13 +84,14 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit, onLog
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-8 sm:py-9">
         <nav aria-label="بخش‌های مدیریت" className="flex flex-wrap gap-2">{[
           ['catalog','فهرست و ویرایش غذاها'], ['images','مدیریت عکس‌ها'], ['database','ورود و خروجی غذاها'],
-          ['duplicates','اصلاح غذاهای تکراری'], ['units','مغایرت واحدها'], ['converter','مبدل اکسل'], ['backup','پشتیبان و بازیابی'], ['unavailable','بخش‌های وابسته به سرور']
+          ['duplicates','اصلاح غذاهای تکراری'], ['pantry-units','واحدهای انبار'], ['units','مغایرت واحد رسپی‌ها'], ['converter','مبدل اکسل'], ['backup','پشتیبان و بازیابی'], ['unavailable','بخش‌های وابسته به سرور']
         ].map(([id,label]) => <button key={id} onClick={() => setTab(id)} aria-pressed={tab === id} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === id ? 'bg-emerald-900 text-white' : 'bg-white text-slate-700'}`}>{label}</button>)}</nav>
         <p role="status" aria-live="polite" className={`rounded-xl p-3 text-sm leading-7 ${publishMessage.includes('انجام نشد') ? 'bg-rose-50 text-rose-800' : 'bg-emerald-50 text-emerald-900'}`}>{publishMessage || 'هر ذخیره، حذف، یا تغییر عکس پس از ثبت در GitHub به انتشار عمومی Netlify می‌رود.'}</p>
         <Suspense fallback={<p role="status">در حال آماده‌سازی ابزار…</p>}>
           {tab === 'images' && <ImageGuide />}
           {tab === 'database' && <DatabaseManager />}
           {tab === 'duplicates' && <DuplicateResolver />}
+          {tab === 'pantry-units' && <PantryUnitManager />}
           {tab === 'units' && <UnitConsistencyManager />}
           {tab === 'converter' && <CsvToJsonConverter />}
           {tab === 'backup' && <BackupManager />}
