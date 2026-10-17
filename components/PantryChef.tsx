@@ -2,7 +2,7 @@ import { normalizePersian } from '../utils/text';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChefHat, Sparkles, Search, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Minus, Save, ShoppingCart, Pencil } from 'lucide-react';
+import { ChefHat, Sparkles, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Minus, Save, ShoppingCart, Pencil } from 'lucide-react';
 import { PANTRY_ITEMS, getIngredientCategoryId } from '../data/pantry';
 import { RecipeService } from '../services/recipeService';
 import { Dish, KitchenMode, UserProfile, InventoryItem } from '../types';
@@ -149,7 +149,6 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     window.addEventListener('recipes-updated', syncCount);
     return () => window.removeEventListener('recipes-updated', syncCount);
   }, []);
-  const [pantrySearchTerm, setPantrySearchTerm] = useState('');
   const [rawResults, setRawResults] = useState<ProcessedResult[] | null>(null);
   const [activeFilter, setActiveFilter] = useState<ResultFilter>('all');
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
@@ -531,11 +530,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                 <div className="pantry-toolbar-icon"><Package size={20} /></div>
                 <div><strong>انبار مواد غذایی آشپزخانه</strong><span>{toPersian(inventory.length)} قلم ثبت‌شده · {user.kitchenMode === 'with-inventory' ? 'در پیشنهادها و محاسبهٔ خرید استفاده می‌شود.' : 'فعلاً در پیشنهادها و خرید دخالت ندارد.'}</span></div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full lg:w-auto">
-                <div className="relative flex-grow w-full sm:w-auto">
-                   <input type="text" placeholder="جستجوی مواد غذایی..." value={pantrySearchTerm} onChange={(e) => setPantrySearchTerm(e.target.value)} className="w-full sm:w-64 px-10 sm:px-12 py-2.5 sm:py-4 bg-white border-2 border-slate-300 rounded-xl sm:rounded-2xl text-slate-800 font-black outline-none focus:border-teal-500 transition-all shadow-md placeholder:text-slate-400 text-xs sm:text-sm" />
-                   <Search className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} sm:size={20} />
-                </div>
+              <div className="flex w-full flex-col sm:w-auto sm:flex-row">
                 {user.kitchenMode !== 'without-inventory' && <button 
                   onClick={() => suggestFromInventory()} 
                   className="w-full sm:w-auto px-6 py-2.5 sm:px-10 sm:py-4 bg-teal-500 hover:bg-teal-400 text-white rounded-xl sm:rounded-2xl font-black shadow-lg flex items-center justify-center gap-2 sm:gap-3 transition-all active:scale-95 disabled:opacity-40 text-xs sm:text-sm" 
