@@ -33,15 +33,64 @@ interface FoodIngredientComboboxProps {
 
 const FoodIngredientCombobox: React.FC<FoodIngredientComboboxProps> = ({ id, value, onChange, onSelect, placeholder, inputRef }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [menuRect, setMenuRect] = useState<DOMRect | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const query = normalizePersian(value).trim();
-  return <div className="relative min-w-0 flex-1">
+  const groupedOptions = useMemo(() => PANTRY_ITEMS.map(category => ({
+    ...category,
+    groups: category.subcategories.map(subcategory => ({
+      ...subcategory,
+      items: subcategory.items
+        .filter((item, index, all) => all.indexOf(item) === index)
+        .filter(item => !query || normalizePersian(item).includes(query)),
+    })).filter(subcategory => subcategory.items.length > 0),
+  })).filter(category => category.groups.length > 0), [query]);
+  const flatOptions = useMemo(() => groupedOptions.flatMap(category => category.groups.flatMap(group => group.items.map(item => ({ item, categoryId: category.id })))), [groupedOptions]);
+  const availableBelow = menuRect ? window.innerHeight - menuRect.bottom - 16 : 0;
+  const availableAbove = menuRect ? menuRect.top - 16 : 0;
+  const placeMenuAbove = availableBelow < 220 && availableAbove > availableBelow;
+  const menuMaxHeight = Math.max(100, Math.min(340, placeMenuAbove ? availableAbove : availableBelow));
+
+  const refreshMenuPosition = () => {
+    const rect = rootRef.current?.getBoundingClientRect();
+    if (rect) setMenuRect(rect);
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    refreshMenuPosition();
+    const handleOutsidePointer = (event: PointerEvent) => {
+      if (rootRef.current?.contains(event.target as Node) || menuRef.current?.contains(event.target as Node)) return;
+      setIsOpen(false);
+    };
+    window.addEventListener('resize', refreshMenuPosition);
+    window.addEventListener('scroll', refreshMenuPosition, true);
+    document.addEventListener('pointerdown', handleOutsidePointer);
+    return () => {
+      window.removeEventListener('resize', refreshMenuPosition);
+      window.removeEventListener('scroll', refreshMenuPosition, true);
+      document.removeEventListener('pointerdown', handleOutsidePointer);
+    };
+  }, [isOpen]);
+
+  useEffect(() => setActiveIndex(0), [query]);
+
+  return <div ref={rootRef} className="relative min-w-0 flex-1">
     <input
       id={id}
       ref={inputRef}
       value={value}
-      onFocus={() => setIsOpen(true)}
-      onChange={event => { onChange(event.target.value); setIsOpen(true); }}
-      onKeyDown={event => { if (event.key === 'Escape') setIsOpen(false); }}
+      onFocus={event => { refreshMenuPosition(); setIsOpen(true); }}
+      onClick={event => { refreshMenuPosition(); setIsOpen(true); }}
+      onChange={event => { onChange(event.target.value); refreshMenuPosition(); setIsOpen(true); }}
+      onKeyDown={event => {
+        if (event.key === 'Escape') setIsOpen(false);
+        else if (event.key === 'ArrowDown' && flatOptions.length) { event.preventDefault(); setIsOpen(true); setActiveIndex(current => Math.min(current + 1, flatOptions.length - 1)); }
+        else if (event.key === 'ArrowUp' && flatOptions.length) { event.preventDefault(); setActiveIndex(current => Math.max(current - 1, 0)); }
+        else if (event.key === 'Enter' && isOpen && flatOptions[activeIndex]) { event.preventDefault(); const option = flatOptions[activeIndex]; onChange(option.item); onSelect?.(option.item, option.categoryId); setIsOpen(false); }
+      }}
       placeholder={placeholder}
       autoComplete="off"
       role="combobox"
@@ -50,22 +99,25 @@ const FoodIngredientCombobox: React.FC<FoodIngredientComboboxProps> = ({ id, val
       aria-autocomplete="list"
       className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-800 outline-none transition focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100"
     />
-    {isOpen && <>
-      <button type="button" tabIndex={-1} aria-label="بستن فهرست مواد" className="fixed inset-0 z-[40] cursor-default" onClick={() => setIsOpen(false)} />
-      <div id={`${id}-options`} role="listbox" className="absolute inset-x-0 top-full z-[50] mt-2 max-h-72 overflow-y-auto rounded-2xl border border-emerald-100 bg-white p-2 text-right shadow-2xl shadow-slate-900/15">
-        {PANTRY_ITEMS.map(category => {
-          const options = category.subcategories.flatMap(subcategory => subcategory.items)
-            .filter((item, index, all) => all.indexOf(item) === index)
-            .filter(item => !query || normalizePersian(item).includes(query));
-          if (!options.length) return null;
-          return <div key={category.id} className="mb-1 last:mb-0">
-            <div className="sticky top-0 z-[1] rounded-lg bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-900">{category.title}</div>
-            {options.map(item => <button key={`${category.id}-${item}`} type="button" role="option" aria-selected={value === item} onMouseDown={event => event.preventDefault()} onClick={() => { onChange(item); onSelect?.(item, category.id); setIsOpen(false); }} className="block w-full rounded-lg px-3 py-2 text-right text-sm font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-900">{item}</button>)}
-          </div>;
-        })}
-        {!PANTRY_ITEMS.some(category => category.subcategories.some(subcategory => subcategory.items.some(item => !query || normalizePersian(item).includes(query)))) && <p className="px-3 py-4 text-sm text-slate-500">ماده‌ای در فهرست نیست؛ همین نام را می‌توانی دستی ثبت کنی.</p>}
-      </div>
-    </>}
+    {isOpen && menuRect && createPortal(<div
+      ref={menuRef}
+      id={`${id}-options`}
+      role="listbox"
+      className="pantry-food-combobox-menu"
+      style={{ position: 'fixed', left: menuRect.left, top: placeMenuAbove ? menuRect.top - menuMaxHeight - 7 : menuRect.bottom + 7, width: menuRect.width, maxHeight: menuMaxHeight, zIndex: 10000 }}
+    >
+      {groupedOptions.map(category => <section key={category.id} className="pantry-food-combobox-category">
+        <h4>{category.title}</h4>
+        {category.groups.map(group => <div key={`${category.id}-${group.title}`} className="pantry-food-combobox-subgroup">
+          <h5>{group.title}</h5>
+          <div className="pantry-food-combobox-options">{group.items.map(item => {
+            const optionIndex = flatOptions.findIndex(option => option.item === item && option.categoryId === category.id);
+            return <button key={`${category.id}-${group.title}-${item}`} type="button" role="option" aria-selected={value === item} data-active={optionIndex === activeIndex} onMouseEnter={() => setActiveIndex(optionIndex)} onClick={() => { onChange(item); onSelect?.(item, category.id); setIsOpen(false); }} className="pantry-food-combobox-option">{item}</button>;
+          })}</div>
+        </div>)}
+      </section>)}
+      {!flatOptions.length && <p className="pantry-food-combobox-empty">ماده‌ای در فهرست نیست؛ همین نام را می‌توانی دستی ثبت کنی.</p>}
+    </div>, document.body)}
   </div>;
 };
 
@@ -309,19 +361,27 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     };
     const existingItem = inventory.find(item => isInventoryIngredientMatch(item.name, cleanName));
     if (existingItem) {
-      let addedAmount = amount;
-      if (unit && unit !== existingItem.unit) {
-        const currentUnitBase = convertToBase(1, existingItem.unit, existingItem.name);
-        const incomingBase = convertToBase(amount, unit, cleanName);
-        if (areUnitsComparable(currentUnitBase, incomingBase) && currentUnitBase.value > 0) {
-          addedAmount = incomingBase.value / currentUnitBase.value;
-        } else {
-          setAddMessage(`واحد ${unit} با واحد ${existingItem.unit} یکی نیست؛ واحد قبلی را انتخاب کن.`);
-          return;
-        }
+      const targetUnit = unit || existingItem.unit;
+      const convertedStock = targetUnit === existingItem.unit
+        ? { amount: existingItem.amount, estimated: false }
+        : convertAmountBetweenUnits(existingItem.amount, existingItem.unit, targetUnit, existingItem.name);
+      if (!convertedStock) {
+        setAddMessage(`موجودی قبلی ${existingItem.name} با واحد ${existingItem.unit} به ${targetUnit} تبدیل مطمئنی ندارد؛ واحد قبلی حفظ شد و چیزی اضافه نشد.`);
+        return;
       }
-      updateInventoryItem(existingItem.id, { amount: Math.round((existingItem.amount + addedAmount) * 1000) / 1000 });
-      setAddMessage(`${cleanName} به موجودی اضافه شد.`);
+      const convertedThreshold = (existingItem.minThresholdUnit || existingItem.unit) === targetUnit
+        ? { amount: existingItem.minThreshold, estimated: false }
+        : convertAmountBetweenUnits(existingItem.minThreshold, existingItem.minThresholdUnit || existingItem.unit, targetUnit, existingItem.name);
+      const updatedStock = Math.round((convertedStock.amount + amount) * 1000) / 1000;
+      updateInventoryItem(existingItem.id, {
+        amount: updatedStock,
+        unit: targetUnit,
+        ...(convertedThreshold ? { minThreshold: convertedThreshold.amount, minThresholdUnit: targetUnit } : {}),
+      });
+      const wasEstimated = convertedStock.estimated || Boolean(convertedThreshold?.estimated);
+      setAddMessage(wasEstimated
+        ? `${cleanName} با واحد ${targetUnit} اضافه شد؛ تبدیل موجودی قبلی تقریبی بود، مقدار را بررسی کن.`
+        : `${cleanName} با واحد ${targetUnit} به موجودی اضافه شد.`);
       prepareNextEntry();
       return;
     }
