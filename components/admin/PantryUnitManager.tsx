@@ -11,11 +11,18 @@ type RegistryItem = { key: string; name: string; category: string; recipeUnits: 
 type UnitIssue = { unit: string; dishes: string[]; reason: string; estimated: boolean };
 const PAGE_SIZE = 100;
 const CATEGORY_TITLES: Record<string, string> = Object.fromEntries(PANTRY_ITEMS.map(category => [category.id, category.title]));
+const MASS_UNITS = new Set(['کیلوگرم', 'گرم', 'میلی‌گرم', 'سیر', 'مثقال', 'تن', 'اونس', 'پوند']);
+const REFERENCE_UNITS = [...PANTRY_UNIT_OPTIONS.filter(unit => !MASS_UNITS.has(normalizeUnit(unit))), 'قطعه', 'پیمانه آمریکایی'];
 
 const getUnitIssue = (name: string, recipeUnit: string, stockUnit: string, dishes: string[]): UnitIssue | null => {
   if (normalizeUnit(recipeUnit) === 'به میزان لازم') return null;
   const conversion = convertAmountBetweenUnits(1, recipeUnit, stockUnit, name);
-  if (conversion) return conversion.estimated ? { unit: recipeUnit, dishes, estimated: true, reason: `تبدیل ${recipeUnit} به ${stockUnit} با وزن مرجع تقریبی انجام می‌شود.` } : null;
+  if (conversion) {
+    if (!conversion.estimated) return null;
+    const reference = convertToBase(1, recipeUnit, name);
+    const grams = reference.type === 'weight' && reference.baseUnit === 'g' ? Math.round(reference.value * 10) / 10 : undefined;
+    return { unit: recipeUnit, dishes, estimated: true, reason: grams ? `با وزن مرجع تقریبی، هر ۱ ${recipeUnit} حدود ${grams.toLocaleString('fa-IR')} گرم محاسبه می‌شود.` : `تبدیل ${recipeUnit} به ${stockUnit} با وزن مرجع تقریبی انجام می‌شود.` };
+  }
   const recipeBase = convertToBase(1, recipeUnit, name);
   const stockBase = convertToBase(1, stockUnit, name);
   if (recipeBase.type === 'unknown') return { unit: recipeUnit, dishes, estimated: false, reason: `واحد «${recipeUnit}» در جدول تبدیل نوش تعریف نشده است.` };
@@ -29,6 +36,8 @@ const getUnitIssue = (name: string, recipeUnit: string, stockUnit: string, dishe
 const PantryUnitManager: React.FC = () => {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [units, setUnits] = useState<Record<string, string>>(() => (PANTRY_UNIT_PREFERENCES as { units?: Record<string, string> }).units || {});
+  const [weightEquivalences, setWeightEquivalences] = useState<Record<string, Record<string, number>>>(() => (PANTRY_UNIT_PREFERENCES as { weightEquivalences?: Record<string, Record<string, number>> }).weightEquivalences || {});
+  const [referenceUnits, setReferenceUnits] = useState<Record<string, string>>({});
   const [search, setSearch] = useState('');
   const [onlyIssues, setOnlyIssues] = useState(false);
   const [page, setPage] = useState(1);
@@ -93,12 +102,12 @@ const PantryUnitManager: React.FC = () => {
     try {
       const completeUnits = Object.fromEntries(registry.map(item => [item.key, units[item.key] || suggestPantryUnit(item.name)]));
       const response = await fetch('/.netlify/functions/publish-pantry-units', {
-        method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ units: completeUnits }),
+        method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ units: completeUnits, weightEquivalences }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'ثبت واحدها انجام نشد.');
       setUnits(completeUnits);
-      setMessage(`تنظیم واحد ${result.count.toLocaleString('fa-IR')} ماده در GitHub ثبت شد (${String(result.commit || '').slice(0, 7)}). Netlify در حال انتشار است.`);
+      setMessage(`تنظیم واحدها و وزن‌های مرجع ${result.count.toLocaleString('fa-IR')} ماده در GitHub ثبت شد (${String(result.commit || '').slice(0, 7)}). Netlify در حال انتشار است.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'ارتباط با سرویس انتشار برقرار نشد.');
     } finally {
@@ -113,7 +122,7 @@ const PantryUnitManager: React.FC = () => {
 
   return <section className="overflow-hidden rounded-[28px] border border-emerald-950/5 bg-white text-right shadow-sm">
     <header className="flex flex-col gap-4 bg-[#173c2b] p-6 text-white sm:flex-row sm:items-center sm:justify-between sm:p-8">
-      <div className="flex items-start gap-4"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#d7b45a] text-[#173c2b]"><Scale size={23}/></span><div><h2 className="text-xl font-black sm:text-2xl">واحد استاندارد مواد انبار</h2><p className="mt-2 max-w-2xl text-xs leading-6 text-emerald-50/80">برای هر ماده واحد متناسب با خرید و مصرف ایرانی را تعیین کن. واحدهای رسپی با مقدار واقعی بررسی می‌شوند تا موارد غیرقابل‌تبدیل پیش از انتشار آشکار شوند.</p></div></div>
+      <div className="flex items-start gap-4"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#d7b45a] text-[#173c2b]"><Scale size={23}/></span><div><h2 className="text-xl font-black sm:text-2xl">واحد استاندارد مواد انبار</h2><p className="mt-2 max-w-2xl text-xs leading-6 text-emerald-50/80">برای هر ماده واحد خرید را تعیین کن؛ برای واحدهای شمارشی یا حجمی ناسازگار هم معادل تقریبی هر واحد به گرم را وارد کن. این وزن مرجع در محاسبهٔ انبار و خرید استفاده و به‌عنوان تخمینی مشخص می‌شود.</p></div></div>
       <button type="button" onClick={() => void save()} disabled={saving || loading || !registry.length} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#d7b45a] px-5 py-3 text-sm font-black text-[#173c2b] disabled:opacity-60">{saving ? <LoaderCircle className="animate-spin" size={17}/> : <Save size={17}/>} ثبت و انتشار واحدها</button>
     </header>
 
@@ -130,15 +139,16 @@ const PantryUnitManager: React.FC = () => {
     </div>
 
     {loading ? <div className="p-16 text-center text-sm font-bold text-slate-500">در حال آماده‌سازی فهرست مواد و دستورها…</div> : <>
-      <div className="overflow-x-auto"><table className="w-full min-w-[760px] table-fixed text-right">
-        <thead className="bg-slate-50 text-[11px] font-black text-slate-500"><tr><th className="w-[23%] px-4 py-4">ماده و دسته</th><th className="w-[20%] px-4 py-4">واحد خرید و انبار</th><th className="w-[17%] px-4 py-4">واحدهای رسپی</th><th className="px-4 py-4">نتیجهٔ بررسی</th></tr></thead>
+      <div className="overflow-x-auto"><table className="w-full min-w-[1060px] table-fixed text-right">
+        <thead className="bg-slate-50 text-[11px] font-black text-slate-500"><tr><th className="w-[18%] px-4 py-4">ماده و دسته</th><th className="w-[15%] px-4 py-4">واحد خرید و انبار</th><th className="w-[19%] px-4 py-4">معادل هر واحد به گرم</th><th className="w-[17%] px-4 py-4">واحدهای رسپی</th><th className="px-4 py-4">نتیجه و راه‌حل</th></tr></thead>
         <tbody className="divide-y divide-slate-100">{pageItems.map(item => <tr key={item.key} className="align-top hover:bg-[#fbfcfa]">
           <td className="px-4 py-4"><strong className="block text-sm font-black text-slate-800">{item.name}</strong><small className="mt-1 block text-[10px] text-slate-500">{CATEGORY_TITLES[item.category] || 'سایر مواد'} · {Object.values(item.recipeUnits as Record<string, { count: number; dishes: string[] }>).reduce((sum, usage) => sum + usage.count, 0).toLocaleString('fa-IR')} بار در رسپی</small></td>
           <td className="px-4 py-4"><select aria-label={`واحد پیش‌فرض ${item.name}`} value={item.unit} onChange={event => changeUnit(item.key, event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-bold text-slate-800 outline-none focus:border-emerald-600">{PANTRY_UNIT_OPTIONS.map(unit => <option key={unit} value={unit}>{unit}</option>)}</select></td>
+          <td className="px-4 py-4"><div className="space-y-2"><div className="flex items-center gap-1.5"><select aria-label={`واحد مرجع وزنی ${item.name}`} value={referenceUnits[item.key] || (Object.keys(item.recipeUnits).find(unit => !MASS_UNITS.has(normalizeUnit(unit)) && unit !== 'نامشخص') || 'عدد')} onChange={event => setReferenceUnits(current => ({ ...current, [item.key]: event.target.value }))} className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-2 py-2 text-[10px] font-bold">{REFERENCE_UNITS.map(unit => <option key={unit} value={unit}>{unit}</option>)}</select><span className="shrink-0 text-[10px] text-slate-500">≈ گرم</span></div>{(() => { const refUnit = referenceUnits[item.key] || (Object.keys(item.recipeUnits).find(unit => !MASS_UNITS.has(normalizeUnit(unit)) && unit !== 'نامشخص') || 'عدد'); return <><input aria-label={`وزن تقریبی هر ${refUnit} ${item.name} به گرم`} type="number" min="0" max="100000000" step="any" placeholder="ثبت نشده" value={weightEquivalences[item.key]?.[refUnit] ?? ''} onChange={event => { const value = Number(event.target.value); setWeightEquivalences(current => { const next = { ...current, [item.key]: { ...(current[item.key] || {}) } }; if (!event.target.value || !Number.isFinite(value) || value <= 0) { delete next[item.key][refUnit]; if (!Object.keys(next[item.key]).length) delete next[item.key]; } else next[item.key][refUnit] = value; return next; }); }} className="w-full rounded-lg border border-slate-200 bg-white px-2 py-2 text-center text-xs font-black"/><small className="block text-[9px] leading-4 text-slate-500">وزن هر ۱ {refUnit} از این ماده</small></>; })()}</div></td>
           <td className="px-4 py-4"><div className="flex flex-wrap gap-1.5">{Object.entries(item.recipeUnits as Record<string, { count: number; dishes: string[] }>).length ? (Object.entries(item.recipeUnits as Record<string, { count: number; dishes: string[] }>)).map(([unit, usage]) => <span key={unit} className="rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-bold text-slate-600">{unit} × {usage.count.toLocaleString('fa-IR')}</span>) : <span className="text-[10px] text-slate-400">در رسپی نیامده</span>}</div></td>
           <td className="px-4 py-4">{!item.issues.length ? <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[10px] font-black text-emerald-800"><CheckCircle2 size={13}/> قابل تبدیل</span> : <div className="space-y-2">{item.issues.map(issue => <div key={`${issue.unit}-${issue.reason}`} className={`rounded-xl p-2.5 text-[10px] leading-5 ${issue.estimated ? 'bg-amber-50 text-amber-900' : 'bg-rose-50 text-rose-800'}`}><strong className="flex items-center gap-1 font-black"><AlertCircle size={13}/>{issue.estimated ? 'تبدیل تقریبی' : 'ناسازگار'}: {issue.unit} ← {item.unit}</strong><p className="mt-1">{issue.reason}</p><small className="mt-1 block opacity-75">نمونه رسپی: {issue.dishes.slice(0, 2).join('، ')}{issue.dishes.length > 2 ? ' و …' : ''}</small></div>)}</div>}</td>
         </tr>)}
-        {!pageItems.length && <tr><td colSpan={4} className="p-12 text-center text-sm font-bold text-slate-500">ماده‌ای با این جستجو پیدا نشد.</td></tr>}</tbody>
+        {!pageItems.length && <tr><td colSpan={5} className="p-12 text-center text-sm font-bold text-slate-500">ماده‌ای با این جستجو پیدا نشد.</td></tr>}</tbody>
       </table></div>
       <footer className="flex flex-col gap-3 border-t border-slate-100 px-4 py-4 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6"><span>نمایش {(Math.min((page - 1) * PAGE_SIZE + 1, filtered.length)).toLocaleString('fa-IR')} تا {Math.min(page * PAGE_SIZE, filtered.length).toLocaleString('fa-IR')} از {filtered.length.toLocaleString('fa-IR')} ماده</span><div className="flex items-center gap-3"><button type="button" disabled={page <= 1} onClick={() => setPage(value => value - 1)} className="rounded-lg bg-slate-100 px-3 py-2 font-bold disabled:opacity-40">قبلی</button><span>{page.toLocaleString('fa-IR')} / {pageCount.toLocaleString('fa-IR')}</span><button type="button" disabled={page >= pageCount} onClick={() => setPage(value => value + 1)} className="rounded-lg bg-slate-100 px-3 py-2 font-bold disabled:opacity-40">بعدی</button></div></footer>
     </>}

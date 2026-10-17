@@ -1,4 +1,8 @@
 {
   "version": 1,
-  "units": {}
+  "units": {},
+  "weightEquivalences": {
+    "تخممرغ": { "عدد": 50 },
+    "اردک": { "عدد": 1800 }
+  }
 }

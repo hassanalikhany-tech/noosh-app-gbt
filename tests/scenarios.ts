@@ -56,7 +56,8 @@ assert.deepEqual(convertAmountBetweenUnits(2, 'پیمانه', 'کیلوگرم', 
 assert.equal(convertAmountBetweenUnits(1, 'قاشق غذاخوری', 'کیلوگرم', 'گوجه فرنگی'), null, 'Tomato spoon-to-weight conversion stays blocked until a trustworthy density is defined');
 assert.equal(getPantryUnitKey('گوجه فرنگی رنده شده'), normalizeItemName('گوجه فرنگی'), 'Recipe variants resolve to the canonical pantry item for unit settings');
 assert.equal(suggestPantryUnit('ماست'), 'کیلوگرم', 'Yogurt defaults to the familiar market weight until its admin preference is published');
-assert.equal(convertAmountBetweenUnits(6, 'عدد', 'گرم', 'تخم مرغ'), null, 'Egg counts cannot be converted to weight without a verified portion reference');
+assert.deepEqual(convertAmountBetweenUnits(6, 'عدد', 'گرم', 'تخم مرغ'), {amount:300,estimated:true}, 'Admin-approved average egg weight converts counts to gram stock and stays marked as an estimate');
+assert.deepEqual(convertAmountBetweenUnits(1, 'عدد', 'کیلوگرم', 'اردک'), {amount:1.8,estimated:true}, 'Admin-approved average duck weight converts a whole bird to pantry kilograms');
 assert.ok(areUnitsComparable(convertToBase(1, 'کیلوگرم'), convertToBase(1000, 'گرم')), 'Metric weight units share grams as their base');
 assert.ok(areUnitsComparable(convertToBase(1, 'لیتر'), convertToBase(1000, 'میلی‌لیتر')), 'Metric volume units share milliliters as their base');
 const twoRiceCups = convertToBase(2, 'پیمانه', 'برنج');
@@ -89,8 +90,13 @@ assert.equal(largeOnionUnconverted.newInventory[0].amount, 500, 'An explicit lar
 assert.equal(largeOnionUnconverted.unconvertibleItems.length, 1, 'Unsupported produce sizes are surfaced rather than guessed');
 const compoundFoodUnmatched = getInventoryUpdate([{id:'tomato',name:'گوجه فرنگی',amount:3,unit:'عدد'}], [{item:'گوجه فرنگی و خیارشور',amount:1,unit:'عدد'}], 4);
 assert.equal(compoundFoodUnmatched.newInventory[0].amount, 3, 'A compound recipe label cannot partially match and consume a single-food pantry row');
-const eggCountRemainsCount = convertToBase(2, 'عدد', 'تخم مرغ');
-assert.equal(eggCountRemainsCount.type, 'count', 'Eggs remain count-based instead of being guessed as edible weight');
+const eggCountUsesManagerReference = convertToBase(2, 'عدد', 'تخم مرغ');
+assert.equal(eggCountUsesManagerReference.type, 'weight', 'The admin-approved egg reference reconciles recipe counts with pantry weight');
+assert.equal(eggCountUsesManagerReference.value, 100, 'Two eggs use the configured approximate 50 g per egg');
+assert.equal(eggCountUsesManagerReference.estimated, true, 'Admin-defined piece weights stay visibly approximate');
+const eggStockAfterRecipe = getInventoryUpdate([{id:'eggs',name:'تخم مرغ',amount:500,unit:'گرم'}], [{item:'تخم مرغ',amount:2,unit:'عدد'}], 4);
+assert.equal(eggStockAfterRecipe.newInventory[0].amount, 400, 'The manager-defined egg weight is used for actual pantry deduction');
+assert.deepEqual(getShoppingShortages([{id:'duck',name:'اردک',amount:2,unit:'کیلوگرم'}], [{item:'اردک',amount:1,unit:'عدد'}], 4), [], 'The manager-defined duck reference is shared by shopping calculations');
 assert.equal((await generateWeeklyPlan(base)).plan.length, 7);
 assert.equal((await generateMonthlyPlan(base)).plan.length, 30);
 assert.equal((await generateSingleReplacement(base, ['meat','unknown-time'])).id, 'veg');

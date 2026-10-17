@@ -1,5 +1,6 @@
 import { Dish, NatureType, UserProfile } from '../types';
 import { getIngredientCategoryId, getBaseIngredientName } from '../data/pantry';
+import PANTRY_UNIT_PREFERENCES from '../data/pantry_unit_preferences.json';
 
 export const isDishProhibited = (dish: Dish, user: UserProfile): boolean => {
   if (!user.dislikedIngredients || user.dislikedIngredients.length === 0) return false;
@@ -285,11 +286,25 @@ const getIngredientForm = (itemName?: string): BaseQuantity['form'] => {
   return undefined;
 };
 
+const getAdminWeightEquivalence = (itemName: string | undefined, unit: string): number | undefined => {
+  if (!itemName || /\s+(?:یا|و)\s+|[,،/|]/.test(itemName)) return undefined;
+  const normalizedItem = normalizeItemName(itemName);
+  if (/بزرگ|درشت|کوچک|ریز/.test(normalizedItem)) return undefined;
+  const canonical = normalizeItemName(getBaseIngredientName(itemName));
+  const raw = (PANTRY_UNIT_PREFERENCES as { weightEquivalences?: Record<string, Record<string, number>> }).weightEquivalences || {};
+  const reference = raw[canonical]?.[normalizeUnit(unit)];
+  return Number.isFinite(reference) && reference > 0 ? reference : undefined;
+};
+
 export const convertToBase = (amount: number, unit: string, itemName?: string): BaseQuantity => {
   const normalizedUnit = normalizeUnit(unit);
   const definition = UNIT_CONVERSIONS[normalizedUnit];
   const form = getIngredientForm(itemName);
   if (!definition) return { value: amount, type: 'unknown', baseUnit: normalizedUnit, form };
+  const adminGramsPerUnit = getAdminWeightEquivalence(itemName, normalizedUnit);
+  if (adminGramsPerUnit !== undefined && definition.type !== 'weight') {
+    return { value: amount * adminGramsPerUnit, type: 'weight', baseUnit: 'g', form, estimated: true };
+  }
   if (definition.type === 'count' && form !== 'prepared') {
     const gramsPerPiece = getPieceMassReference(itemName, normalizedUnit);
     if (gramsPerPiece !== undefined) return { value: amount * gramsPerPiece, type: 'weight', baseUnit: 'g', form, estimated: true };
