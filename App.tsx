@@ -426,9 +426,7 @@ const AppContent: React.FC = () => {
   const footerMessage = useMemo(() => {
     if (planLoading) return "در حال تنظیم هوشمند برنامه غذایی شما...";
     if (RecipeService.getLocalCount() === 0) return "در حال بارگذاری بانک اطلاعات پخت‌ها...";
-    if (!currentUser) return "دستیار هوشمند نوش آماده به کار است";
-
-    if (currentUser.uid === "local-guest") return "دستیار هوشمند نوش آماده به کار است";
+    if (!currentUser || currentUser.uid === "local-guest") return "";
     const now = Date.now();
     const expiry = currentUser.subscriptionExpiry || 0;
     if (expiry < now) return "⚠️ اشتراک شما منقضی شده؛ جهت دسترسی کامل تمدید کنید.";
@@ -450,7 +448,7 @@ const AppContent: React.FC = () => {
         return `🔍 فیلتر فعال: ${activeFilters.join(' + ')} (در حال اعمال روی پیشنهادات)`;
     }
 
-    return "دستیار هوشمند نوش آماده به کار است";
+    return "";
   }, [planLoading, RecipeService.getLocalCount(), currentUser]);
 
   const persianDate = useMemo(() => {
@@ -715,7 +713,7 @@ const AppContent: React.FC = () => {
                 <span className="hidden sm:inline text-lg font-black">تنظیمات</span>
             </button>
             <div className="flex-grow flex flex-col items-center justify-center gap-0.5 text-slate-500">
-               <span className="flex items-center gap-2 md:gap-4 font-black"><Sparkles size={18} className="text-amber-400 md:w-5 md:h-5" /><span className="text-xs md:text-sm truncate">{footerMessage}</span></span>
+               {footerMessage && <span className="flex items-center gap-2 md:gap-4 font-black"><Sparkles size={18} className="text-amber-400 md:w-5 md:h-5" /><span className="text-xs md:text-sm truncate">{footerMessage}</span></span>}
                <span className="site-credit-desktop">طراحی و توسعه توسط شرکت فنی‌مهندسی <strong>CYDEVIT</strong></span>
             </div>
             <div className="flex items-center gap-3 md:gap-6">
