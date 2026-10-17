@@ -2,7 +2,7 @@ import { normalizePersian } from '../utils/text';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChefHat, Sparkles, Search, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Minus, Save, ShoppingCart, ChevronDown, Drumstick, Wheat, Carrot, ClipboardList, Pencil } from 'lucide-react';
+import { ChefHat, Sparkles, Search, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Minus, Save, ShoppingCart, Pencil } from 'lucide-react';
 import { PANTRY_ITEMS, getIngredientCategoryId } from '../data/pantry';
 import { RecipeService } from '../services/recipeService';
 import { Dish, KitchenMode, UserProfile, InventoryItem } from '../types';
@@ -142,8 +142,6 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
   const [isInventoryOverviewOpen, setIsInventoryOverviewOpen] = useState(false);
   const [inventoryOverviewView, setInventoryOverviewView] = useState<'rows' | 'table'>('table');
   const [isInlineAddingInventory, setIsInlineAddingInventory] = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(['proteins']);
-  const [expandedSubcategories, setExpandedSubcategories] = useState<string[]>(['proteins-meat']);
   const [dishCount, setDishCount] = useState(() => RecipeService.getAllDishes().length);
 
   useEffect(() => {
@@ -222,9 +220,6 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     const threshold = convertToBase(item.minThreshold, item.minThresholdUnit || item.unit, item.name);
     return areUnitsComparable(current, threshold) ? current.value <= threshold.value : false;
   };
-
-  const toggleCategory = (id: string) => setExpandedCategories(current => current.includes(id) ? current.filter(value => value !== id) : [...current, id]);
-  const toggleSubcategory = (id: string) => setExpandedSubcategories(current => current.includes(id) ? current.filter(value => value !== id) : [...current, id]);
 
   const lowStockItems = useMemo(() => {
     return inventory.filter(isBelowThreshold);
@@ -460,17 +455,6 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     }
   }, [rawResults, activeFilter, user.favoriteDishIds]);
 
-  const filteredCategories = useMemo(() => {
-    if (!pantrySearchTerm) return PANTRY_ITEMS;
-    const term = normalizePersian(pantrySearchTerm);
-    return PANTRY_ITEMS.map(cat => ({
-      ...cat,
-      items: cat.items.filter(i => normalizePersian(i).includes(term)),
-      subcategories: cat.subcategories.map(sub => ({ ...sub, items: sub.items.filter(i => normalizePersian(i).includes(term)) })).filter(sub => sub.items.length > 0),
-    }))
-      .filter(cat => cat.items.length > 0);
-  }, [pantrySearchTerm]);
-
   const toPersian = (n: number) => n.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
 
   const getResultCount = (filter: ResultFilter) => {
@@ -626,9 +610,9 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 gap-6 pantry-workspace">
                     {/* لیست موجودی فعلی */}
-                    <div className="lg:col-span-2 order-2 space-y-4">
+                    <div className="order-1 space-y-4 pantry-inventory-panel">
                       <div className="flex items-center justify-between">
                         <h3 className="text-slate-800 font-black text-sm sm:text-base flex items-center gap-2">
                           <Package className="text-teal-500" size={20} />
@@ -636,8 +620,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                         </h3>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] text-slate-400 font-black">{toPersian(inventory.length)} قلم در انبار</span>
-                          <button type="button" onClick={() => setIsInventoryOverviewOpen(true)} className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-4 focus:ring-emerald-100" aria-haspopup="dialog">
-                            <ClipboardList size={16} /> مدیریت موجودی
+                          <button type="button" onClick={() => setIsInventoryOverviewOpen(true)} className="inline-flex items-center gap-2 rounded-xl bg-emerald-800 px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-emerald-900 focus:outline-none focus:ring-4 focus:ring-emerald-100" aria-haspopup="dialog">
+                            <Plus size={16} /> افزودن / مدیریت موجودی
                           </button>
                         </div>
                       </div>
@@ -751,71 +735,6 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                       </div>
                     </div>
 
-                    {/* افزودن به انبار */}
-                    <div className="order-1 space-y-4">
-                      <h3 className="text-slate-800 font-black text-sm sm:text-base flex items-center gap-2">
-                        <Plus className="text-teal-500" size={20} />
-                        افزودن کالا به انبار
-                      </h3>
-                      <div className="pantry-add-card bg-white border border-slate-100 rounded-[1.25rem] p-4 sm:p-5 shadow-sm flex flex-col">
-                        <form className="pantry-quick-add" onSubmit={event => { event.preventDefault(); void addToInventory(newItemName, Number(newItemAmount), undefined, true); }}>
-                          <label htmlFor="pantry-new-name">نام مادهٔ غذایی</label>
-                          <FoodIngredientCombobox id="pantry-new-name" inputRef={newItemNameRef} value={newItemName} onChange={setNewItemName} placeholder="نام را جست‌وجو یا دستی وارد کن…" />
-                          <div className="pantry-amount-row">
-                            <input aria-label="مقدار کالا" type="number" min="0" step="any" value={newItemAmount} onChange={event => setNewItemAmount(event.target.value)} />
-                            <span className="pantry-selected-unit" aria-live="polite">{newItemName.trim() ? `واحد ثبت: ${suggestPantryUnit(newItemName)}` : 'واحد پس از انتخاب ماده'}</span>
-                            <button type="submit" disabled={!newItemName.trim() || Number(newItemAmount) <= 0}><Plus size={17} /> افزودن به انبار</button>
-                          </div>
-                          {addMessage && <p className="pantry-add-feedback" aria-live="polite">{addMessage}</p>}
-                        </form>
-                        <div className="relative mb-4">
-                          <input 
-                            type="text" 
-                            placeholder="از فهرست آماده هم انتخاب کن…" 
-                            value={pantrySearchTerm}
-                            className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black outline-none focus:border-teal-500"
-                            onChange={(e) => setPantrySearchTerm(e.target.value)}
-                          />
-                        </div>
-                        <div className="pantry-category-list flex-grow overflow-y-auto no-scrollbar space-y-2">
-                          {filteredCategories.map(cat => (
-                            <section key={cat.id} className="pantry-category">
-                              <button type="button" className="pantry-category-toggle" aria-expanded={expandedCategories.includes(cat.id) || !!pantrySearchTerm} onClick={() => toggleCategory(cat.id)}>
-                                <span className={`pantry-category-icon pantry-icon-${cat.id}`}>
-                                  {cat.id === 'proteins' ? <Drumstick size={16}/> : cat.id === 'grains' ? <Wheat size={16}/> : cat.id === 'vegetables' ? <Carrot size={16}/> : <Sparkles size={16}/>}
-                                </span>
-                                <span className="pantry-category-name">{cat.title}<small>{toPersian(cat.items.length)} مادهٔ غذایی</small></span>
-                                <span className="pantry-category-count">{toPersian(cat.items.filter(item => inventory.some(stock => isInventoryIngredientMatch(stock.name, item))).length)} در انبار</span>
-                                <ChevronDown className={`pantry-chevron ${expandedCategories.includes(cat.id) || pantrySearchTerm ? 'is-open' : ''}`} size={17}/>
-                              </button>
-                              {(expandedCategories.includes(cat.id) || !!pantrySearchTerm) && (
-                                <div className="pantry-subcategory-list">
-                                  {cat.subcategories.map(sub => (
-                                    <div className="pantry-subcategory" key={sub.id}>
-                                      <button type="button" className="pantry-subcategory-toggle" aria-expanded={expandedSubcategories.includes(sub.id) || !!pantrySearchTerm} onClick={() => toggleSubcategory(sub.id)}>
-                                        <span>{sub.title}</span><small>{toPersian(sub.items.length)} قلم</small>
-                                        <ChevronDown className={`pantry-chevron ${expandedSubcategories.includes(sub.id) || pantrySearchTerm ? 'is-open' : ''}`} size={14}/>
-                                      </button>
-                                      {(expandedSubcategories.includes(sub.id) || !!pantrySearchTerm) && (
-                                        <div className="pantry-item-chips">
-                                          {sub.items.map(item => {
-                                            const isInInv = inventory.some(i => isInventoryIngredientMatch(i.name, item));
-                                            return <button type="button" key={item} onClick={() => isInInv ? null : addToInventory(item)} className={`pantry-item-chip ${isInInv ? 'is-added' : ''}`}>
-                                              {item}{isInInv ? <CheckCircle2 size={12}/> : <Plus size={12}/>}
-                                            </button>;
-                                          })}
-                                        </div>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </section>
-                          ))}
-                          {filteredCategories.length === 0 && <p>ماده‌ای با این نام پیدا نشد. می‌توانی نامش را در کادر ثبت سریع وارد کنی.</p>}
-                        </div>
-                      </div>
-                    </div>
                   </div>
               </div>
 

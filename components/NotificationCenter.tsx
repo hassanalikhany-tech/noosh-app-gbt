@@ -156,7 +156,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
                    </p>
                 </div>
                 <div className="mt-8 pt-8 text-center opacity-10 logo-animate">
-                   <img src="https://i.ibb.co/gMDKtj4p/3.png" className="w-12 h-12 mx-auto grayscale" alt="Noosh" />
+                   <img src="/brand/noosh-logo.png" className="w-12 h-12 mx-auto grayscale" alt="نشان نوش‌اپ" />
                 </div>
              </div>
            )}
