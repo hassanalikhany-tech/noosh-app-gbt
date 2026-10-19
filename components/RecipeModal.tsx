@@ -221,7 +221,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
         
         {/* Glassmorphism Header */}
         <div className="recipe-modal-header sticky top-0 [@media(orientation:landscape)_and_(max-height:500px)]:relative z-[100] bg-white/90 backdrop-blur-2xl border-b border-white/50 p-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-8 [@media(orientation:landscape)_and_(max-height:500px)]:p-4 shadow-xl flex-shrink-0">
-          <div className="mb-2 flex items-center justify-between [@media(orientation:landscape)_and_(max-height:500px)]:mb-1">
+          <div className="mb-2 flex items-center justify-between pt-8 sm:pt-0 [@media(orientation:landscape)_and_(max-height:500px)]:mb-1">
             <button
               type="button"
               aria-label="بازگشت به صفحهٔ قبل"
