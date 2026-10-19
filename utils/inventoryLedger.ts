@@ -20,7 +20,7 @@ export const normalizeInventoryStorage = (inventory: InventoryItem[]) => invento
     value: row.measurement?.enteredAmount === amount && row.measurement.enteredUnit === row.unit && row.measurement.baseUnit === definition.baseUnit && Number.isFinite(row.measurement.value) && row.measurement.value >= 0 ? row.measurement.value : roundQuantity(amount * definition.factor),
     baseUnit: definition.baseUnit, enteredAmount: amount, enteredUnit: row.unit,
   } : undefined;
-  return { ...row, ingredientId: row.ingredientId || getIngredientIdentity(row.name), state: row.state || getPhysicalForm(row.name), measurement };
+  return { ...row, ingredientId: row.ingredientId || getIngredientIdentity(row.name), state: getPhysicalForm(row.name), measurement };
 });
 
 export const prepareCooking = (inventory: InventoryItem[], dish: Dish, servings: number): CookingDraft => {

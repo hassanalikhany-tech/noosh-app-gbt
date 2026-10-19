@@ -40,7 +40,9 @@ assert.equal(repeated.lines[1].shortage!.amount,200,'Stock is allocated only onc
 assert.equal(getShoppingShortages([stock(1)],[{item:'برنج',amount:600,unit:'گرم'},{item:'برنج',amount:600,unit:'گرم'}],4)[0].amount,200);
 assert.equal(evaluateInventory([stock(1),stock(0.5,'کیلوگرم','برنج','rice2')],dish(1200,'گرم').ingredients,4).newInventory[1].amount,0.3,'Multiple stock lots are consumed conservatively');
 assert.equal(evaluateInventory([stock(5,'کیلوگرم','برنج خام')],dish(1,'کیلوگرم').ingredients,4).newInventory[0].amount,4,'Explicit raw and unqualified raw match');
-assert.ok(Math.abs(evaluateInventory([stock()],dish(1,'کیلوگرم','برنج پخته').ingredients,4).newInventory[0].amount-4.65)<1e-9,'Prepared recipe quantities use an average raw-to-cooked yield');
+assert.equal(evaluateInventory([stock()],dish(1,'کیلوگرم','برنج پخته').ingredients,4).newInventory[0].amount,4,'A prepared-word recipe label still consumes only the recipe quantity on the raw-food basis');
+assert.equal(evaluateInventory([{...stock(),state:'prepared'}],dish(1,'کیلوگرم','برنج').ingredients,4).newInventory[0].amount,4,'Legacy stock state does not prevent raw ingredient deduction');
+assert.equal(normalizeInventoryStorage([{...stock(),state:'prepared'}])[0].state,'raw','Legacy pantry state is normalized to the single raw-food basis');
 const invalid = evaluateInventory([stock()],dish(NaN).ingredients,4);
 assert.equal(invalid.lines[0].status,'unmeasured'); assert.equal(invalid.newInventory[0].amount,5);
 assert.throws(()=>evaluateInventory([stock()],dish().ingredients,0));

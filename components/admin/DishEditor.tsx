@@ -4,7 +4,7 @@ import { X, Save, Plus, Trash2, Clock, Flame, Info, Utensils, ChefHat, Globe, Ac
 import { Dish, DishCategory, CATEGORY_LABELS, Ingredient, NatureType } from '../../types';
 import { PANTRY_ITEMS } from '../../data/pantry';
 import { PANTRY_UNIT_OPTIONS } from '../../utils/pantryUnits';
-import { convertIngredientQuantity, getIngredientIdentity, getPhysicalForm, parseQuantity } from '../../utils/recipeHelpers';
+import { convertIngredientQuantity, getIngredientIdentity, parseQuantity } from '../../utils/recipeHelpers';
 import { RecipeService } from '../../services/recipeService';
 
 interface DishEditorProps {
@@ -92,7 +92,8 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
     if (!Number.isFinite(Number(formData.servings)) || Number(formData.servings) <= 0 || formData.ingredients.some(ingredient => !ingredient.item.trim() || !Number.isFinite(parseQuantity(ingredient.amount)))) { setError('نام مواد، مقدارهای غیرمنفی و تعداد نفرات پایه را بررسی کن.'); return; }
     setIsSaving(true);
     try {
-      const success = await RecipeService.updateDish(formData.id, formData);
+      const rawBasisDish = { ...formData, ingredients: formData.ingredients.map(ingredient => ({ ...ingredient, state: 'raw' as const })) };
+      const success = await RecipeService.updateDish(formData.id, rawBasisDish);
       if (success) {
         onSave();
         onClose();
@@ -224,6 +225,7 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
                 <Plus size={16} /> افزودن ردیف
               </button>
             </div>
+            <p className="rounded-xl bg-emerald-50 px-4 py-3 text-xs leading-6 text-emerald-900">مقدار مواد اولیه و کسر از انبار همیشه بر پایهٔ مادهٔ خام است؛ وزن‌کشی بعد از پخت لازم نیست.</p>
             <div className="space-y-3">
               {(formData.ingredients || []).map((ing, idx) => (
                 <div key={idx} className="flex flex-wrap gap-2 items-center rounded-xl border border-slate-100 p-3">
@@ -231,7 +233,6 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
                   <input type="number" min="0" step="any" aria-label={`مقدار ${ing.item}`} placeholder="مقدار" value={ing.amount} onChange={e => handleIngredientChange(idx, 'amount', parseFloat(e.target.value) || 0)} className="w-20 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm text-center" />
                   <select aria-label={`واحد ${ing.item}`} value={ing.unit} onChange={e => handleIngredientChange(idx, 'unit', e.target.value)} className="w-36 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold">{!PANTRY_UNIT_OPTIONS.includes(ing.unit) && ing.unit !== 'به میزان لازم' && <option value={ing.unit}>{ing.unit || 'بدون واحد'}</option>}{[...PANTRY_UNIT_OPTIONS,'به میزان لازم'].map(unit => <option key={unit} value={unit}>{unit}</option>)}</select>
                   <select aria-label={`هویت انباری ${ing.item}`} value={ing.ingredientId || ''} onChange={e => handleIngredientChange(idx,'ingredientId',e.target.value)} className="max-w-52 rounded-xl border border-slate-200 bg-white p-2 text-xs"><option value="">تطبیق بر اساس نام ماده</option>{PANTRY_ITEMS.map(category => <optgroup key={category.id} label={category.title}>{[...new Set(category.items)].map(name => <option key={name} value={getIngredientIdentity(name)}>{name}</option>)}</optgroup>)}</select>
-                  <select aria-label={`حالت ${ing.item}`} value={ing.state || getPhysicalForm(ing.item) || 'raw'} onChange={e => handleIngredientChange(idx,'state',e.target.value)} className="rounded-xl border border-slate-200 bg-white p-2 text-xs"><option value="raw">مادهٔ خام / پیش از پخت</option><option value="prepared">پخته / آماده‌شده</option></select>
                   {pendingUnits.includes(idx) && <p className="w-full rounded-lg bg-amber-50 p-2 text-xs text-amber-900">تبدیل قطعی نبود؛ مقدار صحیح برای واحد جدید را وارد کن.</p>}
                   <button onClick={() => removeIngredient(idx)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all"><Trash2 size={18}/></button>
                 </div>

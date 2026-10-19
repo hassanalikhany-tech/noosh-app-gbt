@@ -211,14 +211,14 @@ export const convertAmountBetweenUnits = (amount: number, fromUnit: string, toUn
 // USDA portions are quoted per US cup (236.588 ml). The table is deliberately
 // ingredient-specific; where no reliable density exists, volume remains ml.
 const US_CUP_ML = 236.5882365;
-const VOLUME_MASS_REFERENCES: Array<{ aliases: string[]; gramsPerUsCup: number; state?: 'raw' | 'cooked' }> = [
-  // FoodData Central/USDA household portions; specific forms stay separate.
+const VOLUME_MASS_REFERENCES: Array<{ aliases: string[]; gramsPerUsCup: number }> = [
+  // FoodData Central/USDA household portions; all recipe and stock amounts use raw ingredients.
   { aliases: ['آرد نخودچی', 'آرد نخود'], gramsPerUsCup: 92 },
-  { aliases: ['برنج'], gramsPerUsCup: 185, state: 'raw' }, { aliases: ['برنج'], gramsPerUsCup: 158, state: 'cooked' },
-  { aliases: ['عدس'], gramsPerUsCup: 192, state: 'raw' }, { aliases: ['عدس'], gramsPerUsCup: 198, state: 'cooked' },
-  { aliases: ['لوبیا قرمز'], gramsPerUsCup: 184, state: 'raw' }, { aliases: ['لوبیا سفید'], gramsPerUsCup: 202, state: 'raw' },
-  { aliases: ['لوبیا چیتی'], gramsPerUsCup: 193, state: 'raw' },
-  { aliases: ['نخود'], gramsPerUsCup: 200, state: 'raw' }, { aliases: ['نخود'], gramsPerUsCup: 164, state: 'cooked' },
+  { aliases: ['برنج'], gramsPerUsCup: 185 },
+  { aliases: ['عدس'], gramsPerUsCup: 192 },
+  { aliases: ['لوبیا قرمز'], gramsPerUsCup: 184 }, { aliases: ['لوبیا سفید'], gramsPerUsCup: 202 },
+  { aliases: ['لوبیا چیتی'], gramsPerUsCup: 193 },
+  { aliases: ['نخود'], gramsPerUsCup: 200 },
   { aliases: ['شیر'], gramsPerUsCup: 244 }, { aliases: ['روغن زیتون'], gramsPerUsCup: 216 },
   { aliases: ['گردو'], gramsPerUsCup: 117 },
 ];
@@ -323,12 +323,8 @@ const getIngredientDensity = (itemName?: string): number | undefined => {
   if (!itemName) return undefined;
   // Mixed/alternative ingredients have no single defensible bulk density.
   if (/\s+(?:یا|و)\s+|[,،/|]/.test(itemName)) return undefined;
-  const item = normalizeItemName(itemName);
   const canonicalItem = getIngredientIdentity(itemName);
-  const cooked = /پخته|پخت|آبپز|آبکش|پز/.test(item);
-  const match = VOLUME_MASS_REFERENCES.find(entry => entry.aliases.some(alias => canonicalItem === getIngredientIdentity(alias)) &&
-    (!entry.state || (entry.state === 'cooked' ? cooked : !cooked))) ||
-    VOLUME_MASS_REFERENCES.find(entry => !entry.state && entry.aliases.some(alias => canonicalItem === getIngredientIdentity(alias)));
+  const match = VOLUME_MASS_REFERENCES.find(entry => entry.aliases.some(alias => canonicalItem === getIngredientIdentity(alias)));
   if (match) return match.gramsPerUsCup / US_CUP_ML;
   const category = getIngredientCategoryId(itemName);
   const fallback = category ? VOLUME_CATEGORY_GRAMS_PER_APP_CUP[category] : undefined;
@@ -337,8 +333,8 @@ const getIngredientDensity = (itemName?: string): number | undefined => {
 
 const getIngredientForm = (itemName?: string): BaseQuantity['form'] => {
   if (!itemName) return undefined;
-  const item = normalizeItemName(itemName);
-  if (/پخته|آبپز|آبکش|سرخ|کباب|بخارپز|تنوری|کاراملی/.test(item)) return 'prepared';
+  // Recipes describe raw ingredients consumed from the pantry. Cooking changes
+  // the dish, but never changes the quantity basis used for inventory accounting.
   return 'raw';
 };
 
@@ -406,20 +402,11 @@ export const getPhysicalForm = getIngredientForm;
 export const getIngredientMeasurementName = (ingredient: Ingredient) => {
   if (!ingredient.ingredientId && !ingredient.state) return ingredient.item;
   const size = /بزرگ|درشت/.test(ingredient.item + ingredient.unit) ? 'بزرگ' : /کوچک|ریز/.test(ingredient.item + ingredient.unit) ? 'کوچک' : /متوسط/.test(ingredient.item + ingredient.unit) ? 'متوسط' : '';
-  return `${ingredient.ingredientId || getIngredientIdentity(ingredient.item)} ${size} ${(ingredient.state || getIngredientForm(ingredient.item)) === 'prepared' ? 'پخته' : ''}`.trim();
+  return `${ingredient.ingredientId || getIngredientIdentity(ingredient.item)} ${size}`.trim();
 };
 export type ReferenceOverrides = Record<string, Record<string, number>>;
 export interface QuantityConversion { amount: number; estimated: boolean; reason: string }
-
-const rawYieldFromPrepared = (itemName: string) => {
-  const item = getIngredientIdentity(itemName);
-  if (/برنج|عدس|لوبیا|نخود|لپه|ماش|پاستا|ماکارونی|بلغور/.test(item)) return 0.35;
-  if (/مرغ|گوشت|ماهی|میگو/.test(item)) return 0.75;
-  if (getIngredientCategoryId(itemName) === 'vegetables') return 0.9;
-  return 1;
-};
-
-/** Direct dimensional conversions take precedence; preparation changes use an average yield when needed. */
+/** Converts measurement units only; ingredient quantities always use the raw-food basis. */
 export const convertIngredientQuantity = (
   amount: number, fromUnit: string, toUnit: string, itemName: string,
   stockName = itemName, references?: ReferenceOverrides
@@ -433,20 +420,12 @@ export const convertIngredientQuantity = (
       const size = (label: string) => /بزرگ|درشت/.test(label) ? 'large' : /کوچک|ریز/.test(label) ? 'small' : /متوسط/.test(label) ? 'medium' : '';
       if (size(itemName + fromUnit) !== size(stockName + toUnit)) return null;
     }
-    let stateRatio = 1;
-    const sourceForm = getIngredientForm(itemName), targetForm = getIngredientForm(stockName);
-    if (from.type === 'weight' && sourceForm && targetForm && sourceForm !== targetForm) stateRatio = sourceForm === 'prepared' ? rawYieldFromPrepared(itemName) : 1 / rawYieldFromPrepared(stockName);
-    return { amount: roundQuantity(amount * from.factor / to.factor * stateRatio), estimated: stateRatio !== 1, reason: stateRatio === 1 ? 'تبدیل مستقیم در یک خانوادهٔ واحد' : `معادل خام/پخته با بازده میانگین ${roundQuantity(stateRatio,3)} (تخمینی)` };
+    return { amount: roundQuantity(amount * from.factor / to.factor), estimated: false, reason: 'تبدیل مستقیم واحد؛ مبنا همیشه مقدار مادهٔ خام است' };
   }
   const sourceMass = getWeightPerUnit(fromUnit, itemName, references);
   const targetMass = getWeightPerUnit(toUnit, stockName, references);
   if (sourceMass === undefined || targetMass === undefined || targetMass <= 0) return null;
-  const sourceForm = getIngredientForm(itemName), targetForm = getIngredientForm(stockName);
-  const stateRatio = sourceForm && targetForm && sourceForm !== targetForm
-    ? sourceForm === 'prepared' ? rawYieldFromPrepared(itemName) : 1 / rawYieldFromPrepared(stockName)
-    : 1;
-  const adjustedSourceMass = sourceMass * stateRatio;
-  return { amount: roundQuantity(amount * adjustedSourceMass / targetMass), estimated: true, reason: `هر ۱ ${fromUnit} ${itemName} ≈ ${roundQuantity(adjustedSourceMass,6)} گرم؛ هر ۱ ${toUnit} موجودی ≈ ${roundQuantity(targetMass,6)} گرم (میانگین تقریبی)` };
+  return { amount: roundQuantity(amount * sourceMass / targetMass), estimated: true, reason: `هر ۱ ${fromUnit} ${itemName} ≈ ${roundQuantity(sourceMass,6)} گرم؛ هر ۱ ${toUnit} موجودی ≈ ${roundQuantity(targetMass,6)} گرم (میانگین تقریبی)` };
 };
 
 export interface InventoryEvaluationLine {
@@ -502,7 +481,7 @@ export const evaluateInventory = (inventory: InventoryItem[], ingredients: Ingre
     }
     if (remaining > 1e-9) {
       line.status = candidates.length && !compatible ? 'blocked' : 'shortage';
-      line.reason = line.status === 'blocked' ? 'واحد، اندازه یا حالت ماده سازگار نیست؛ مقدار مصرف واقعی را در واحد انبار وارد کن.' : 'موجودی کافی ثبت نشده است؛ مقدار مصرف از انبار هرگز بیشتر از موجودی نمی‌شود.';
+      line.reason = line.status === 'blocked' ? 'واحد یا اندازهٔ ماده سازگار نیست؛ مقدار مصرف واقعی را در واحد انبار وارد کن.' : 'موجودی کافی ثبت نشده است؛ مقدار مصرف از انبار هرگز بیشتر از موجودی نمی‌شود.';
       const normalized = convertToBase(remaining, unit, measurementName, shortageReferences);
       // Unknown conversions keep the original amount/unit and an unresolved flag.
       const value = line.status === 'blocked' ? remaining : normalized.value;

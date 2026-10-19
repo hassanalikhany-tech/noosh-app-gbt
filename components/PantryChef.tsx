@@ -6,7 +6,7 @@ import { ChefHat, Sparkles, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2,
 import { PANTRY_ITEMS, getIngredientCategoryId } from '../data/pantry';
 import { RecipeService } from '../services/recipeService';
 import { Dish, KitchenMode, UserProfile, InventoryItem } from '../types';
-import { isIngredientMatch, isInventoryIngredientMatch, getStandardUnit, convertToBase, convertAmountBetweenUnits, areUnitsComparable, isDishProhibited, evaluateInventory, roundQuantity, getIngredientIdentity, getPhysicalForm } from '../utils/recipeHelpers';
+import { isIngredientMatch, isInventoryIngredientMatch, getStandardUnit, convertToBase, convertAmountBetweenUnits, areUnitsComparable, isDishProhibited, evaluateInventory, roundQuantity, getIngredientIdentity } from '../utils/recipeHelpers';
 import { UserService } from '../services/userService';
 import { getPantryUnitPreference, suggestPantryUnit } from '../utils/pantryUnits';
 import RecipeModal from './RecipeModal';
@@ -163,7 +163,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     const merged: InventoryItem[] = [];
     const indexes = new Map<string, number>();
     rawInventory.forEach(item => {
-      const key = `${getIngredientIdentity(item.name)}:${item.state || getPhysicalForm(item.name)}:${JSON.stringify(item.unitWeightGrams || {})}`;
+      const key = `${getIngredientIdentity(item.name)}:${JSON.stringify(item.unitWeightGrams || {})}`;
       const index = indexes.get(key);
       if (index === undefined) {
         indexes.set(key, merged.length);
@@ -330,7 +330,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
       setNewItemAmount('1');
       if (focusNext) window.requestAnimationFrame(() => newItemNameRef.current?.focus());
     };
-    const existingItem = inventory.find(item => isInventoryIngredientMatch(item.name, cleanName) && (item.state || getPhysicalForm(item.name)) === getPhysicalForm(cleanName));
+    const existingItem = inventory.find(item => isInventoryIngredientMatch(item.name, cleanName));
     if (existingItem) {
       const inputUnit = unit || suggestPantryUnit(cleanName);
       const incoming = convertAmountBetweenUnits(amount, inputUnit, existingItem.unit, existingItem.name);
