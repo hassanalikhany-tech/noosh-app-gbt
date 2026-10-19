@@ -2,38 +2,41 @@
 @media (max-width: 767px) {
   html, body, #root { min-width: 320px; width: 100%; max-width: 100%; overflow-x: hidden; }
   .noosh-app { min-height: 100dvh; min-height: 100svh; }
-  .noosh-app > header { height: 64px; padding-inline: 14px; box-shadow: 0 3px 16px #183d3b0b; }
+  .noosh-app > header { height: 56px; padding-inline: 12px; box-shadow: 0 3px 16px #183d3b0b; }
   .noosh-app > header > div { gap: 8px; }
-  .noosh-app > header img { width: 36px; height: 36px; }
-  .noosh-app > header button { width: 42px; height: 42px; min-width: 42px; min-height: 42px; display: grid; place-items: center; padding: 0; border-radius: 13px; }
-  .noosh-app > main { padding-top: 64px; padding-bottom: 100px !important; min-height: 0; }
-  .noosh-app > div.fixed.bottom-0 > div { height: 64px; padding: 3px 5px max(5px, env(safe-area-inset-bottom)); }
-  .noosh-app > div.fixed.bottom-0 > div > button { min-width: 0; min-height: 52px; gap: 2px; font-size: 11px; }
+  .noosh-app > header img { width: 32px; height: 32px; }
+  .noosh-app > header button { width: 40px; height: 40px; min-width: 40px; min-height: 40px; display: grid; place-items: center; padding: 0; border-radius: 13px; }
+  .noosh-app > main { padding-top: 56px; padding-bottom: calc(56px + env(safe-area-inset-bottom)) !important; min-height: 0; }
+  .noosh-app > div.fixed.bottom-0 { padding-bottom: env(safe-area-inset-bottom); }
+  .noosh-app > div.fixed.bottom-0 > div { height: 56px; padding: 2px 5px; }
+  .noosh-app > div.fixed.bottom-0 > div > button { min-width: 0; min-height: 48px; gap: 1px; font-size: 11px; }
   .noosh-app > div.fixed.bottom-0 > div > button > div { padding: 4px; border-radius: 10px; }
   .noosh-app > div.fixed.bottom-0 > div > button > span { font-size: 10px; line-height: 1.2; white-space: nowrap; }
-  .mobile-site-credit { min-height: 24px; font-size: 10px; padding-bottom: 4px; }
+  .mobile-site-credit { display: none !important; }
   .noosh-app main input, .noosh-app main select, .noosh-app main textarea { font-size: 16px; }
 
   .pantry-mode-switch-wrap { padding: 10px 14px 0; }
-  .pantry-mode-switch { min-height: 76px; padding: 12px 13px; gap: 11px; }
+  .pantry-mode-switch { min-height: 60px; padding: 8px 11px; gap: 9px; border-radius: 15px; }
+  .pantry-mode-icon { width: 34px; height: 34px; flex-basis: 34px; border-radius: 11px; }
   .pantry-mode-copy strong { font-size: 14px; line-height: 1.5; }
-  .pantry-mode-copy small { font-size: 11px; line-height: 1.65; }
-  .pantry-mode-status { font-size: 11px; }
-  .pantry-hero { width: calc(100% - 28px); min-height: 218px; margin-top: 12px; border-radius: 20px; }
-  .pantry-hero-copy { padding: 20px 18px 57px; }
-  .pantry-hero-copy h1 { font-size: clamp(24px, 7vw, 30px); line-height: 1.5; white-space: normal; max-width: 100%; margin: 8px 0; }
-  .pantry-hero-copy > p { max-width: 290px; font-size: 13px; line-height: 1.9; }
-  .pantry-hero-label { font-size: 12px; }
-  .pantry-hero-cta { min-height: 44px; font-size: 13px; padding: 10px 14px; }
-  .pantry-hero-photo { inset: 0 15% 40px 0; background-position: 58% center; opacity: .52; mask-image: linear-gradient(90deg, #000 5%, #0009 45%, transparent 100%); }
-  .pantry-hero-stats { min-height: 42px; padding: 7px 10px; gap: 5px; font-size: 10px; justify-content: space-around; }
+  .pantry-mode-copy small { font-size: 10px; line-height: 1.45; }
+  .pantry-mode-status { font-size: 10px; padding: 4px 8px; }
+  .pantry-mode-track { width: 40px; height: 24px; flex-basis: 40px; }
+  .pantry-hero { width: calc(100% - 24px); min-height: 0; margin-top: 8px; border-radius: 17px; }
+  .pantry-hero-copy { padding: 12px 15px 13px !important; width: 84%; }
+  .pantry-hero-copy h1 { font-size: clamp(22px, 6.6vw, 27px); line-height: 1.35; white-space: normal; max-width: 100%; margin: 5px 0; }
+  .pantry-hero-copy > p { max-width: 290px; font-size: 11px; line-height: 1.65; }
+  .pantry-hero-label { font-size: 11px; }
+  .pantry-hero-cta { min-height: 38px; font-size: 12px; padding: 7px 11px; margin-top: 7px; }
+  .pantry-hero-photo { inset: 0 12% 36px 0; background-position: 58% center; opacity: .42; mask-image: linear-gradient(90deg, #000 5%, #0009 45%, transparent 100%); }
+  .pantry-hero-stats { min-height: 36px; padding: 5px 8px; gap: 4px; font-size: 9px; justify-content: space-around; }
   .pantry-hero-stats span { gap: 4px; }
   .pantry-hero-stats span svg { width: 15px; height: 15px; }
   .pantry-hero-stats strong { font-size: 12px; }
   .pantry-page > .sticky { padding: 8px 12px !important; }
   .pantry-page > .sticky > div { padding: 10px !important; border-radius: 16px !important; }
   .pantry-page > .sticky > div > div > div:nth-child(2) > button { min-height: 46px !important; font-size: 13px !important; }
-  .pantry-page .flex-grow.overflow-y-auto { padding: 10px 12px calc(94px + env(safe-area-inset-bottom)) !important; }
+  .pantry-page .flex-grow.overflow-y-auto { padding: 8px 11px 18px !important; }
   .pantry-page .flex-grow.overflow-y-auto > .max-w-7xl { gap: 16px !important; }
   .pantry-page .grid.grid-cols-1.lg\:grid-cols-3 h3 { font-size: 15px !important; }
   .pantry-page .pantry-inventory-list { grid-template-columns: minmax(0, 1fr); padding: 10px; gap: 9px; }
@@ -65,6 +68,63 @@
   .pantry-food-combobox-subgroup > h5 { font-size: 12px; }
   .pantry-food-combobox-options { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
   .pantry-food-combobox-option { min-height: 44px; font-size: 13px; }
+
+  .pantry-page .pantry-result-filters { display: flex; flex-wrap: nowrap; width: calc(100% + 4px); max-width: none; margin-inline: -2px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; padding: 5px; gap: 6px; scroll-snap-type: x proximity; }
+  .pantry-page [class~="scroll-mt-24"] { scroll-margin-top: 8px; }
+  .pantry-page .pantry-result-filters::-webkit-scrollbar { display: none; }
+  .pantry-page .pantry-result-filters > button { flex: 0 0 auto; min-height: 42px; padding: 8px 10px; font-size: 12px !important; white-space: nowrap; scroll-snap-align: start; }
+  .pantry-page .pantry-results-grid { grid-template-columns: minmax(0, 1fr); gap: 13px; padding-bottom: 18px; }
+  .pantry-page .pantry-results-grid .meal-card { border-radius: 18px !important; }
+  .pantry-page .pantry-results-grid .meal-card .meal-image { height: clamp(190px, 58vw, 235px); }
+  .pantry-page .pantry-results-grid .meal-card > div:last-child { padding: 14px; }
+  .pantry-page .pantry-results-grid .meal-card h3 { font-size: 17px; line-height: 1.65; }
+  .pantry-page .pantry-results-grid .meal-card p { font-size: 13px; line-height: 1.85; }
+
+  .recipe-modal-dialog { width: 100vw; height: 100dvh; min-height: 100svh; max-height: 100dvh; border-radius: 0; }
+  .recipe-modal-header { flex: 0 0 auto; padding: 9px 13px 10px !important; box-shadow: 0 4px 15px #183d3b0b; }
+  .recipe-modal-header > button[aria-label="بستن دستور پخت"] { top: 9px; right: 10px; width: 42px; height: 42px; }
+  .recipe-modal-title-row { min-height: 42px; flex-direction: row; justify-content: center; margin: 0 43px 8px 0 !important; padding: 0 !important; gap: 8px; }
+  .recipe-modal-title-row > div[aria-label^="پرچم"] { width: 32px; height: 22px; flex: none; margin: 0; }
+  .recipe-modal-title-row h2 { font-size: 20px !important; line-height: 1.4; text-align: right; }
+  .recipe-modal-meta-row { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 7px; margin: 0 0 8px !important; }
+  .recipe-modal-meta-row > div { order: 0 !important; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px !important; }
+  .recipe-modal-meta-row > div > div { min-width: 0; min-height: 34px; justify-content: center; gap: 4px; padding: 5px 4px; border-radius: 10px; font-size: 10px; white-space: nowrap; }
+  .recipe-modal-meta-row > div > div svg { width: 13px; height: 13px; }
+  .recipe-modal-meta-row > button { order: 0 !important; min-height: 38px; justify-content: center; gap: 5px; padding: 7px 9px; border-radius: 11px; font-size: 11px; white-space: nowrap; }
+  .recipe-modal-meta-row > button svg { width: 16px; height: 16px; }
+  .recipe-modal-serving-row { display: flex !important; flex-direction: row; align-items: center; justify-content: space-between; gap: 7px; }
+  .recipe-modal-serving-row > div:first-child { min-width: 0; max-width: 54%; gap: 6px; padding: 6px 8px; border-width: 1px; border-radius: 10px; }
+  .recipe-modal-serving-row > div:first-child svg { width: 15px; height: 15px; flex: none; }
+  .recipe-modal-serving-row > div:first-child span { overflow: hidden; font-size: 10px !important; text-overflow: ellipsis; white-space: nowrap; }
+  .recipe-modal-serving-row > div:last-child { flex: none; gap: 8px; padding: 3px 7px; border-radius: 10px; }
+  .recipe-modal-serving-row > div:last-child > span { margin: 0; font-size: 10px; white-space: nowrap; }
+  .recipe-modal-serving-row > div:last-child button { width: 34px; height: 34px; }
+  .recipe-modal-serving-row > div:last-child button svg { width: 16px; height: 16px; }
+  .recipe-modal-serving-row > div:last-child strong { min-width: 24px; font-size: 16px; }
+  .recipe-modal-content { min-height: 0; padding: 12px 13px calc(22px + env(safe-area-inset-bottom)) !important; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  .recipe-modal-content > div { max-width: none; }
+  .recipe-modal-content .grid.grid-cols-1.lg\:grid-cols-12 { gap: 15px; }
+  .recipe-modal-content .lg\:col-span-5 { gap: 0; }
+  .recipe-modal-photo { width: 100%; height: clamp(145px, 43vw, 190px); max-width: none; aspect-ratio: auto; border-radius: 16px; }
+  .recipe-modal-content .lg\:col-span-7 { gap: 12px; }
+  .recipe-modal-content .lg\:col-span-7 > div:first-child { font-size: 19px; padding-right: 10px; border-right-width: 3px; }
+  .recipe-modal-content .lg\:col-span-7 > div:first-child svg { width: 20px; height: 20px; }
+  .recipe-modal-content .lg\:col-span-7 > p { font-size: 11px; line-height: 1.7; padding: 9px 11px; }
+  .recipe-modal-content .lg\:col-span-7 .grid.grid-cols-1.sm\:grid-cols-2 { gap: 7px; }
+  .recipe-modal-content .lg\:col-span-7 .grid.grid-cols-1.sm\:grid-cols-2 > div { min-height: 42px; padding: 9px 11px; border-radius: 11px; font-size: 13px; }
+  .recipe-modal-content .lg\:col-span-7 .grid.grid-cols-1.sm\:grid-cols-2 > div > span:last-child { padding: 4px 7px; border-radius: 8px; font-size: 12px; white-space: nowrap; }
+  .recipe-modal-content .lg\:col-span-7 > div.flex.flex-col { gap: 8px; margin-top: 8px; }
+  .recipe-modal-content .lg\:col-span-7 > div.flex.flex-col > button { min-height: 46px; padding: 9px 12px; border-radius: 12px; font-size: 13px; }
+  .recipe-modal-content .lg\:col-span-7 > div.flex.flex-col > button svg { width: 19px; height: 19px; }
+  .recipe-modal-content .lg\:col-span-12 { margin-top: 5px; padding-top: 14px; }
+  .recipe-modal-content .lg\:col-span-12 > div { gap: 12px; }
+  .recipe-modal-content .lg\:col-span-12 h3 { font-size: 19px; }
+  .recipe-modal-content .lg\:col-span-12 h3 svg { width: 21px; height: 21px; }
+  .recipe-modal-content .lg\:col-span-12 .grid { gap: 9px; }
+  .recipe-modal-content .lg\:col-span-12 .grid > div { gap: 10px; padding: 12px; border-radius: 14px; }
+  .recipe-modal-content .lg\:col-span-12 .grid > div > div:first-child { width: 34px; height: 34px; flex: none; border-radius: 10px; }
+  .recipe-modal-content .lg\:col-span-12 .grid > div p { font-size: 14px; line-height: 1.8; }
+  .recipe-modal-content .lg\:col-span-12 .grid > div > div:last-child svg { width: 19px; height: 19px; }
 
   .recipe-search > .sticky, .preferences-page > .sticky { padding: 9px 12px !important; }
   .recipe-search > .sticky > div, .preferences-page > .sticky > div { padding: 13px !important; border-radius: 18px !important; gap: 12px !important; }
@@ -125,7 +185,7 @@
   .shopping-banner strong { font-size: 13px; line-height: 1.7; }
   .shopping-banner small { font-size: 11px; line-height: 1.7; }
 
-  .preferences-page > .flex-grow.overflow-y-auto { padding: 8px 12px 96px !important; }
+  .preferences-page > .flex-grow.overflow-y-auto { padding: 8px 12px 18px !important; }
   .preferences-page h2 { line-height: 1.6; }
   .preferences-page p { font-size: 13px; line-height: 1.85; }
   .preferences-page button { min-height: 42px; }
