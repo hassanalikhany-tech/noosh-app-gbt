@@ -1,4 +1,4 @@
-import { Dish, NatureType, UserProfile } from '../types';
+import { Dish, NatureType, UserProfile, Ingredient, InventoryItem } from '../types';
 import { getIngredientCategoryId, getBaseIngredientName } from '../data/pantry';
 import PANTRY_UNIT_PREFERENCES from '../data/pantry_unit_preferences.json';
 
@@ -102,14 +102,12 @@ export const isInventoryIngredientMatch = (stockName: string, recipeName: string
   // Imported recipe labels occasionally contain multiple foods in one field.
   // Never let a partial pantry-name match consume stock for a compound item.
   if (/\s+(?:یا|و)\s+|[,،/|]/.test(stockName) || /\s+(?:یا|و)\s+|[,،/|]/.test(recipeName)) return false;
-  const stock = normalizeItemName(getBaseIngredientName(stockName));
-  const recipe = normalizeItemName(getBaseIngredientName(recipeName));
+  const stock = getIngredientIdentity(stockName);
+  const recipe = getIngredientIdentity(recipeName);
   if (!stock || !recipe) return false;
   if (stock === recipe) return true;
 
-  // Preserve the intentional whole-chicken ↔ chicken-cut equivalence only.
-  const chickenNames = ['مرغ', 'جوجه', 'سینهمرغ', 'رانمرغ', 'بالمرغ', 'کتفمرغ', 'گوشتسینهمرغ'].map(normalizeItemName);
-  return chickenNames.includes(stock) && chickenNames.includes(recipe);
+  return false;
 };
 
 export type QuantityType = 'weight' | 'volume' | 'count' | 'unknown';
@@ -127,7 +125,7 @@ export const UNIT_CONVERSIONS: Record<string, UnitDefinition> = {
   'قاشق غذاخوری': { factor: 15, type: 'volume', baseUnit: 'ml' }, 'قاشق چایخوری': { factor: 5, type: 'volume', baseUnit: 'ml' }, 'قاشق مرباخوری': { factor: 10, type: 'volume', baseUnit: 'ml' },
   'عدد': { factor: 1, type: 'count', baseUnit: 'count:piece' }, 'حلقه': { factor: 1, type: 'count', baseUnit: 'count:slice' },
   'بسته': { factor: 1, type: 'count', baseUnit: 'count:pack' }, 'قوطی': { factor: 1, type: 'count', baseUnit: 'count:can' }, 'حبه': { factor: 1, type: 'count', baseUnit: 'count:clove' },
-  'قطعه': { factor: 1, type: 'count', baseUnit: 'count:piece' }, 'تکه': { factor: 1, type: 'count', baseUnit: 'count:piece' }, 'ورق': { factor: 1, type: 'count', baseUnit: 'count:sheet' }, 'شاخه': { factor: 1, type: 'count', baseUnit: 'count:sprig' }, 'دانه': { factor: 1, type: 'count', baseUnit: 'count:piece' },
+  'قطعه': { factor: 1, type: 'count', baseUnit: 'count:portion' }, 'تکه': { factor: 1, type: 'count', baseUnit: 'count:portion' }, 'ورق': { factor: 1, type: 'count', baseUnit: 'count:sheet' }, 'شاخه': { factor: 1, type: 'count', baseUnit: 'count:sprig' }, 'دانه': { factor: 1, type: 'count', baseUnit: 'count:piece' },
 };
 
 const cleanUnitText = (unit: string): string => unit.trim().toLowerCase().replace(/ي/g, 'ی').replace(/ك/g, 'ک').replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g, ' ');
@@ -138,12 +136,13 @@ const UNIT_ALIASES: Record<string, string> = {
   // English recipe cups are US customary; keep their exact volume internally,
   // then render them as milliliters so the app never presents US measures.
   cup: 'پیمانه آمریکایی', cups: 'پیمانه آمریکایی', 'us cup': 'پیمانه آمریکایی', 'us cups': 'پیمانه آمریکایی', tbsp: 'قاشق غذاخوری', tablespoon: 'قاشق غذاخوری', tablespoons: 'قاشق غذاخوری', tsp: 'قاشق چایخوری', teaspoon: 'قاشق چایخوری', teaspoons: 'قاشق چایخوری',
-  piece: 'عدد', pieces: 'عدد', number: 'عدد', each: 'عدد', clove: 'حبه', cloves: 'حبه', pack: 'بسته', package: 'بسته', can: 'قوطی',
+  piece: 'عدد', pieces: 'عدد', number: 'عدد', each: 'عدد', 'واحد': 'عدد', clove: 'حبه', cloves: 'حبه', pack: 'بسته', package: 'بسته', can: 'قوطی',
 };
 
 export const normalizeUnit = (unit: string): string => {
   const u = cleanUnitText(unit);
   if (!u) return 'نامشخص';
+  if (/سرپر|سرخالی|نوک|مشت|پنس/.test(u) || /(?:لیوان|استکان|پیمانه|قاشق)\s*(?:بزرگ|کوچک)/.test(u)) return u;
   if (UNIT_ALIASES[u]) return UNIT_ALIASES[u];
   if (u.includes('به میزان لازم') || u.includes('به مقدار لازم') || u.includes('دلخواه')) return 'به میزان لازم';
   if (u === 'کیلو') return 'کیلوگرم';
@@ -153,6 +152,8 @@ export const normalizeUnit = (unit: string): string => {
   if (u === 'لیتر') return u;
   if (u.includes('قاشق چایخوری') || u.includes('قاشق مرباخوری کوچک')) return 'قاشق چایخوری';
   if (u.includes('قاشق مرباخوری')) return 'قاشق مرباخوری';
+  // In Iranian recipe writing, an unqualified spoon (قاشق) means a regular
+  // tablespoon. Keep this explicit in the shared app standard (15 ml).
   if (u.includes('قاشق غذاخوری') || u === 'قاشق' || u.includes('قاشق بزرگ')) return 'قاشق غذاخوری';
   if (u.includes('پیمانه')) return 'پیمانه';
   if (u.includes('استکان')) return 'استکان';
@@ -190,7 +191,7 @@ export const formatQuantityForDisplay = (amount: number, unit: string, itemName?
   const converted = convertToBase(amount, normalized, itemName);
   if (converted.type === 'weight') {
     const useKg = converted.value >= 1000;
-    const displayedAmount = useKg ? Math.round((converted.value / 1000) * 1000) / 1000 : Math.round(converted.value);
+    const displayedAmount = roundQuantity(useKg ? converted.value / 1000 : converted.value, 6);
     return { amount: displayedAmount, unit: useKg ? 'کیلوگرم' : 'گرم', estimated: Boolean(converted.estimated) };
   }
   if (converted.type === 'volume' && normalized === 'پیمانه آمریکایی') {
@@ -203,10 +204,8 @@ export const formatQuantityForDisplay = (amount: number, unit: string, itemName?
 
 /** Safely preserve the physical quantity when a user changes a pantry unit. */
 export const convertAmountBetweenUnits = (amount: number, fromUnit: string, toUnit: string, itemName?: string): { amount: number; estimated: boolean } | null => {
-  const from = convertToBase(1, fromUnit, itemName);
-  const to = convertToBase(1, toUnit, itemName);
-  if (!areUnitsComparable(from, to) || to.value <= 0) return null;
-  return { amount: Math.round((amount * from.value / to.value) * 1000) / 1000, estimated: Boolean(from.estimated || to.estimated) };
+  const conversion = convertIngredientQuantity(amount, fromUnit, toUnit, itemName || '');
+  return conversion ? { amount: conversion.amount, estimated: conversion.estimated } : null;
 };
 
 // USDA portions are quoted per US cup (236.588 ml). The table is deliberately
@@ -224,6 +223,13 @@ const VOLUME_MASS_REFERENCES: Array<{ aliases: string[]; gramsPerUsCup: number; 
   { aliases: ['گردو'], gramsPerUsCup: 117 },
 ];
 
+// Fallbacks cover common Iranian-market ingredients when the catalogue has no
+// item-specific density. A 250 ml Iranian پیمانه is used in the UI; these are
+// intentionally approximate and always surfaced as estimates in the ledger.
+const VOLUME_CATEGORY_GRAMS_PER_APP_CUP: Record<string, number> = {
+  grains: 190, vegetables: 150, proteins: 230, additives: 160,
+};
+
 // Count-to-mass conversions are intentionally limited to produce whose
 // reference-piece weights are documented in USDA FoodData Central. A recipe
 // that says only "1 onion" uses the medium reference piece. Natural produce
@@ -237,12 +243,30 @@ const PIECE_MASS_REFERENCES: Array<{ aliases: string[]; gramsPerPiece: number; u
   { aliases: ['فلفل دلمه ای'], gramsPerPiece: 119, unit: 'عدد' },
   { aliases: ['هویج'], gramsPerPiece: 61, unit: 'عدد' },
   { aliases: ['سیر'], gramsPerPiece: 3, unit: 'حبه' },
+  { aliases: ['مرغ', 'مرغ کامل', 'مرغ درسته', 'مرغ پاک شده'], gramsPerPiece: 2000, unit: 'عدد' },
+  { aliases: ['اردک', 'اردک متوسط'], gramsPerPiece: 2000, unit: 'عدد' },
+  { aliases: ['تخم مرغ', 'تخم مرغ درشت'], gramsPerPiece: 55, unit: 'عدد' },
+  { aliases: ['بادمجان'], gramsPerPiece: 250, unit: 'عدد' },
+  { aliases: ['خیار'], gramsPerPiece: 180, unit: 'عدد' },
+  { aliases: ['فلفل سبز', 'فلفل تند'], gramsPerPiece: 25, unit: 'عدد' },
+  { aliases: ['قارچ', 'قارچ دکمه ای'], gramsPerPiece: 20, unit: 'عدد' },
+  { aliases: ['کدو سبز'], gramsPerPiece: 200, unit: 'عدد' },
+  { aliases: ['لیمو', 'لیمو ترش'], gramsPerPiece: 60, unit: 'عدد' },
+  { aliases: ['سیب درختی', 'سیب'], gramsPerPiece: 180, unit: 'عدد' },
+  { aliases: ['به'], gramsPerPiece: 250, unit: 'عدد' },
+  { aliases: ['انار'], gramsPerPiece: 280, unit: 'عدد' },
+  { aliases: ['هویج'], gramsPerPiece: 70, unit: 'عدد' },
+  { aliases: ['سینه مرغ', 'گوشت سینه مرغ'], gramsPerPiece: 250, unit: 'عدد' },
+  { aliases: ['ران مرغ'], gramsPerPiece: 250, unit: 'عدد' },
+  { aliases: ['بال مرغ'], gramsPerPiece: 100, unit: 'عدد' },
+  { aliases: ['میگو'], gramsPerPiece: 15, unit: 'عدد' },
+  { aliases: ['زرده تخم مرغ', 'سفیده تخم مرغ'], gramsPerPiece: 18, unit: 'عدد' },
 ];
 
 const getPieceMassReference = (itemName: string | undefined, unit: string) => {
   if (!itemName) return undefined;
   const normalizedUnit = normalizeUnit(unit);
-  if (normalizedUnit !== 'عدد' && normalizedUnit !== 'حبه' && normalizedUnit !== 'قطعه' && normalizedUnit !== 'دانه' && normalizedUnit !== 'تکه') return undefined;
+  if (normalizedUnit !== 'عدد' && normalizedUnit !== 'حبه' && normalizedUnit !== 'دانه' && normalizedUnit !== 'قطعه' && normalizedUnit !== 'تکه' && normalizedUnit !== 'شاخه' && normalizedUnit !== 'ورق') return undefined;
   // The actual amount field is authoritative. Imported labels sometimes repeat
   // it ("پیاز ۲ عدد"); strip only a leading/trailing count, never a number in
   // the middle of a compound ingredient.
@@ -253,230 +277,282 @@ const getPieceMassReference = (itemName: string | undefined, unit: string) => {
   if (/[0-9۰-۹٠-٩]/.test(label)) return undefined;
   const normalized = normalizeItemName(label);
   const explicitSize = /بزرگ|درشت|کوچک|ریز/.test(normalized);
-  if (explicitSize) return undefined;
   const withoutDescriptors = normalized
-    .replace(/متوسط/g, '')
+    .replace(/متوسط|بزرگ|درشت|کوچک|ریز/g, '')
     .replace(/تازه|خام|خردشده|نگینی|حلقهشده|رندهشده|رنده|خلالیشده|خلالی|پوستگرفته|پوستکنده/g, '');
+  const sizedReferences: Record<string, Record<string, number>> = (PANTRY_UNIT_PREFERENCES as { weightEquivalences?: ReferenceOverrides }).weightEquivalences || {};
+  const key = getIngredientIdentity(label);
+  const sizeKey = /بزرگ|درشت/.test(normalized) ? 'عدد بزرگ' : /کوچک|ریز/.test(normalized) ? 'عدد کوچک' : 'عدد متوسط';
+  const adminReference = sizedReferences[key]?.[sizeKey] || (!explicitSize ? sizedReferences[key]?.[normalizedUnit] : undefined);
+  if (Number.isFinite(adminReference) && adminReference! > 0) return adminReference;
   const reference = PIECE_MASS_REFERENCES.find(entry => entry.unit === (normalizedUnit === 'حبه' ? 'حبه' : 'عدد') && entry.aliases.some(alias => normalizeItemName(alias) === withoutDescriptors));
   if (!reference) return undefined;
   // "قطعه" and similar are generic; use these only for the explicit whole
   // piece names above. Cloves are only meaningful as garlic cloves.
   if (normalizedUnit === 'حبه' && reference.unit !== 'حبه') return undefined;
   if (normalizedUnit !== 'حبه' && reference.unit === 'حبه') return undefined;
+  if (explicitSize) {
+    const modifier = /بزرگ|درشت/.test(normalized) ? 1.35 : 0.7;
+    return reference.gramsPerPiece * modifier;
+  }
   return reference.gramsPerPiece;
+};
+
+const getAverageCountGrams = (label: string, unit: string): number | undefined => {
+  const normalized = normalizeItemName(label);
+  const normalizedUnit = normalizeUnit(unit);
+  if (normalizedUnit === 'بسته') return 250;
+  if (normalizedUnit === 'قوطی') return 180;
+  if (normalizedUnit === 'ورق') return /خمیر|یوفکا|لازانیا|نوری|جلبک/.test(normalized) ? 20 : 15;
+  if (normalizedUnit === 'شاخه') return /کرفس|تره فرنگی/.test(normalized) ? 40 : 10;
+  if (normalizedUnit === 'حبه') return /سیر/.test(normalized) ? 3 : 5;
+  if (normalizedUnit !== 'عدد' && normalizedUnit !== 'دانه' && normalizedUnit !== 'قطعه' && normalizedUnit !== 'تکه') return undefined;
+  if (/مرغ|اردک|بوقلمون|غاز|بلدرچین/.test(normalized) && !/ران|سینه|بال|گردن|قطعه|تکه|چرخکرده/.test(normalized)) return /اردک/.test(normalized) ? 2000 : /بوقلمون/.test(normalized) ? 5000 : /غاز/.test(normalized) ? 3500 : /بلدرچین/.test(normalized) ? 200 : 2000;
+  if (/تخممرغ|زردهتخممرغ|سفیدهتخممرغ/.test(normalized)) return /درشت/.test(normalized) ? 60 : /زرده|سفیده/.test(normalized) ? 18 : 55;
+  if (/گوشت|ماهی|فیله|میگو|سوسیس|کالباس|توفو/.test(normalized)) return /میگو/.test(normalized) ? 15 : /سوسیس|کالباس/.test(normalized) ? 55 : /ماهی|فیله/.test(normalized) ? 180 : 150;
+  if (/نان|برگر/.test(normalized)) return 70;
+  if (/سبزی|جعفری|گشنیز|شوید|ریحان|نعنا/.test(normalized)) return 100;
+  const category = getIngredientCategoryId(label);
+  if (category === 'vegetables') return /سیر/.test(normalized) ? 3 : /برگ|حلقه/.test(normalized) ? 15 : /فلفل/.test(normalized) ? 100 : 150;
+  if (category === 'proteins') return 150;
+  if (category === 'grains') return 70;
+  if (category === 'additives') return /زعفران|هل|میخک|بادیان/.test(normalized) ? 1 : 10;
+  return undefined;
 };
 const getIngredientDensity = (itemName?: string): number | undefined => {
   if (!itemName) return undefined;
   // Mixed/alternative ingredients have no single defensible bulk density.
   if (/\s+(?:یا|و)\s+|[,،/|]/.test(itemName)) return undefined;
   const item = normalizeItemName(itemName);
-  const canonicalItem = normalizeItemName(getBaseIngredientName(itemName));
+  const canonicalItem = getIngredientIdentity(itemName);
   const cooked = /پخته|پخت|آبپز|آبکش|پز/.test(item);
-  const match = VOLUME_MASS_REFERENCES.find(entry => entry.aliases.some(alias => canonicalItem === normalizeItemName(getBaseIngredientName(alias))) &&
+  const match = VOLUME_MASS_REFERENCES.find(entry => entry.aliases.some(alias => canonicalItem === getIngredientIdentity(alias)) &&
     (!entry.state || (entry.state === 'cooked' ? cooked : !cooked))) ||
-    VOLUME_MASS_REFERENCES.find(entry => !entry.state && entry.aliases.some(alias => canonicalItem === normalizeItemName(getBaseIngredientName(alias))));
-  return match ? match.gramsPerUsCup / US_CUP_ML : undefined;
+    VOLUME_MASS_REFERENCES.find(entry => !entry.state && entry.aliases.some(alias => canonicalItem === getIngredientIdentity(alias)));
+  if (match) return match.gramsPerUsCup / US_CUP_ML;
+  const category = getIngredientCategoryId(itemName);
+  const fallback = category ? VOLUME_CATEGORY_GRAMS_PER_APP_CUP[category] : undefined;
+  return fallback ? fallback / 250 : undefined;
 };
 
 const getIngredientForm = (itemName?: string): BaseQuantity['form'] => {
   if (!itemName) return undefined;
   const item = normalizeItemName(itemName);
-  if (/پخته|آبپز|آبکش|سرخ|کباب|بخارپز|تنوری|داغ|کاراملی/.test(item)) return 'prepared';
-  if (/خام|خشک/.test(item)) return 'raw';
-  return undefined;
+  if (/پخته|آبپز|آبکش|سرخ|کباب|بخارپز|تنوری|کاراملی/.test(item)) return 'prepared';
+  return 'raw';
 };
 
-const getAdminWeightEquivalence = (itemName: string | undefined, unit: string): number | undefined => {
-  if (!itemName || /\s+(?:یا|و)\s+|[,،/|]/.test(itemName)) return undefined;
-  const normalizedItem = normalizeItemName(itemName);
-  if (/بزرگ|درشت|کوچک|ریز/.test(normalizedItem)) return undefined;
-  const canonical = normalizeItemName(getBaseIngredientName(itemName));
-  const raw = (PANTRY_UNIT_PREFERENCES as { weightEquivalences?: Record<string, Record<string, number>> }).weightEquivalences || {};
-  const reference = raw[canonical]?.[normalizeUnit(unit)];
-  return Number.isFinite(reference) && reference > 0 ? reference : undefined;
+/** A reference is ingredient/form specific; generic portions never become whole birds. */
+export const getWeightPerUnit = (unit: string, label: string, references?: ReferenceOverrides): number | undefined => {
+  const normalized = normalizeUnit(unit);
+  const definition = UNIT_CONVERSIONS[normalized];
+  if (definition?.type === 'weight') return definition.factor;
+  if (!definition || /\s+(?:یا|و)\s+|[,،/|]/.test(label)) return undefined;
+  const size = /بزرگ|درشت/.test(label + unit) ? 'بزرگ' : /کوچک|ریز/.test(label + unit) ? 'کوچک' : /متوسط/.test(label + unit) ? 'متوسط' : '';
+  const key = getIngredientIdentity(label);
+  const source = references ?? (PANTRY_UNIT_PREFERENCES as { weightEquivalences?: ReferenceOverrides }).weightEquivalences ?? {};
+  const referenceKey = size && normalized === 'عدد' ? `عدد ${size}` : normalized;
+  const direct = source[key]?.[referenceKey] ?? (size === 'متوسط' ? source[key]?.[normalized] : undefined);
+  if (Number.isFinite(direct) && direct > 0) return direct;
+  if (definition.type === 'volume') {
+    const known = Object.entries(source[key] || {}).find(([knownUnit, grams]) => UNIT_CONVERSIONS[normalizeUnit(knownUnit)]?.type === 'volume' && Number.isFinite(grams) && grams > 0);
+    if (known) return known[1] / UNIT_CONVERSIONS[normalizeUnit(known[0])].factor * definition.factor;
+    const density = getIngredientDensity(label);
+    return density === undefined ? undefined : density * definition.factor;
+  }
+  const directPiece = getPieceMassReference(label, normalized);
+  if (directPiece !== undefined) return directPiece;
+  return getAverageCountGrams(label, normalized);
 };
-
-export const convertToBase = (amount: number, unit: string, itemName?: string): BaseQuantity => {
+export const convertToBase = (amount: number, unit: string, itemName?: string, references?: ReferenceOverrides): BaseQuantity => {
   const normalizedUnit = normalizeUnit(unit);
   const definition = UNIT_CONVERSIONS[normalizedUnit];
   const form = getIngredientForm(itemName);
-  if (!definition) return { value: amount, type: 'unknown', baseUnit: normalizedUnit, form };
-  const adminGramsPerUnit = getAdminWeightEquivalence(itemName, normalizedUnit);
-  if (adminGramsPerUnit !== undefined && definition.type !== 'weight') {
-    return { value: amount * adminGramsPerUnit, type: 'weight', baseUnit: 'g', form, estimated: true };
-  }
-  if (definition.type === 'count' && form !== 'prepared') {
-    const gramsPerPiece = getPieceMassReference(itemName, normalizedUnit);
-    if (gramsPerPiece !== undefined) return { value: amount * gramsPerPiece, type: 'weight', baseUnit: 'g', form, estimated: true };
-  }
-  const baseValue = amount * definition.factor;
-  if (definition.type === 'volume') {
-    const density = getIngredientDensity(itemName);
-    if (density !== undefined) return { value: baseValue * density, type: 'weight', baseUnit: 'g', form };
-  }
-  return { value: baseValue, type: definition.type, baseUnit: definition.baseUnit, form };
+  if (!definition || !Number.isFinite(amount) || amount < 0) return { value: Number.isFinite(amount) ? amount : 0, type: 'unknown', baseUnit: normalizedUnit, form };
+  const grams = itemName ? getWeightPerUnit(unit, itemName, references) : undefined;
+  if (grams !== undefined && definition.type !== 'weight') return { value: amount * grams, type: 'weight', baseUnit: 'g', form, estimated: true };
+  return { value: amount * definition.factor, type: definition.type, baseUnit: definition.baseUnit, form };
 };
 
 export const areUnitsComparable = (left: BaseQuantity, right: BaseQuantity): boolean =>
   left.type === right.type && left.baseUnit === right.baseUnit && left.type !== 'unknown' &&
   (!left.form && !right.form || left.form === right.form);
 
-const EXCLUDED_INVENTORY_ITEMS = ['آب', 'آب جوش', 'آب ولرم', 'آب سرد', 'آب گرم', 'نمک', 'فلفل', 'زردچوبه', 'روغن', 'ادویه'];
+/** Arithmetic keeps nine decimal places; rounding for display never feeds stock. */
+export const roundQuantity = (value: number, digits = 9) => Number(value.toFixed(digits));
+export const parseQuantity = (value: unknown): number => {
+  if (typeof value === 'number') return Number.isFinite(value) && value >= 0 ? value : NaN;
+  let text = String(value ?? '').trim().replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/٫/g, '.');
+  const fractions: Record<string, string> = { '½': '1/2', '¼': '1/4', '¾': '3/4', '⅓': '1/3', '⅔': '2/3' };
+  text = text.replace(/[½¼¾⅓⅔]/g, fraction => ` ${fractions[fraction]}`).trim();
+  const fraction = text.match(/^(?:(\d+)\s+)?(\d+)\/(\d+)$/);
+  if (fraction) return Number(fraction[3]) > 0 ? Number(fraction[1] || 0) + Number(fraction[2]) / Number(fraction[3]) : NaN;
+  const numeric = /^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(text) ? Number(text) : NaN;
+  return Number.isFinite(numeric) && numeric >= 0 ? numeric : NaN;
+};
 
-const asPurchaseQuantity = (value: number, type: QuantityType, fallbackUnit: string) => {
-  let amount = value;
-  let unit = fallbackUnit;
-  if (type === 'weight') {
-    unit = value >= 1000 ? 'کیلوگرم' : 'گرم';
-    amount = value >= 1000 ? value / 1000 : value;
-  } else if (type === 'volume') {
-    unit = value >= 1000 ? 'لیتر' : 'میلی‌لیتر';
-    amount = value >= 1000 ? value / 1000 : value;
+export const getIngredientIdentity = (name: string) => {
+  if (/\s+(?:یا|و)\s+|[,،/|]/.test(name)) return normalizeItemName(name);
+  let label = name.replace(/[\u200B-\u200D]/g, ' ').trim()
+    .replace(/^\s*[0-9۰-۹٠-٩]+\s*(?:عدد|دانه|حبه)?\s*/, '')
+    .replace(/\s*[0-9۰-۹٠-٩]+(?:[.,٫][0-9۰-۹٠-٩]+)?\s*(?:عدد|دانه|حبه)?\s*$/, '');
+  const descriptors = /(?:^|\s)(?:کوچک|متوسط|بزرگ|درشت|ریز|تازه|خام|خشک|پخته|آبپز|آبکش|پوست گرفته|پوست کنده|خرد شده|خردشده|رنده شده|رندهشده|رنده|نگینی|خلالی|حلقه شده)(?=\s|$)/g;
+  // Keep dried/powdered/broth identities: these are different foods, not measurements.
+  label = label.replace(descriptors, match => /خشک/.test(match) ? match : ' ').replace(/(?:سرخ|کباب|آبپز|آبکش|پخته)\s*شده/g, ' ').replace(/\s+/g, ' ').trim();
+  const aliases: Record<string,string> = { 'گوجه': 'گوجه فرنگی', 'سینه مرغ': 'مرغ', 'گوشت سینه مرغ': 'مرغ', 'ران مرغ': 'مرغ', 'بال مرغ': 'مرغ', 'کتف مرغ': 'مرغ', 'گردن مرغ': 'مرغ', 'مرغ کامل': 'مرغ', 'مرغ درسته': 'مرغ', 'مرغ پاک شده': 'مرغ', 'جوجه': 'مرغ', 'برنج ایرانی': 'برنج', 'برنج باسماتی': 'برنج', 'برنج دانه بلند': 'برنج', 'عدس خشک': 'عدس', 'نخود خشک': 'نخود', 'لوبیا قرمز خشک': 'لوبیا قرمز', 'لوبیا چیتی خشک': 'لوبیا چیتی', 'لوبیا سفید خشک': 'لوبیا سفید' };
+  return normalizeItemName(aliases[label] || label);
+};
+export const getPhysicalForm = getIngredientForm;
+export const getIngredientMeasurementName = (ingredient: Ingredient) => {
+  if (!ingredient.ingredientId && !ingredient.state) return ingredient.item;
+  const size = /بزرگ|درشت/.test(ingredient.item + ingredient.unit) ? 'بزرگ' : /کوچک|ریز/.test(ingredient.item + ingredient.unit) ? 'کوچک' : /متوسط/.test(ingredient.item + ingredient.unit) ? 'متوسط' : '';
+  return `${ingredient.ingredientId || getIngredientIdentity(ingredient.item)} ${size} ${(ingredient.state || getIngredientForm(ingredient.item)) === 'prepared' ? 'پخته' : ''}`.trim();
+};
+export type ReferenceOverrides = Record<string, Record<string, number>>;
+export interface QuantityConversion { amount: number; estimated: boolean; reason: string }
+
+const rawYieldFromPrepared = (itemName: string) => {
+  const item = getIngredientIdentity(itemName);
+  if (/برنج|عدس|لوبیا|نخود|لپه|ماش|پاستا|ماکارونی|بلغور/.test(item)) return 0.35;
+  if (/مرغ|گوشت|ماهی|میگو/.test(item)) return 0.75;
+  if (getIngredientCategoryId(itemName) === 'vegetables') return 0.9;
+  return 1;
+};
+
+/** Direct dimensional conversions take precedence; preparation changes use an average yield when needed. */
+export const convertIngredientQuantity = (
+  amount: number, fromUnit: string, toUnit: string, itemName: string,
+  stockName = itemName, references?: ReferenceOverrides
+): QuantityConversion | null => {
+  if (!Number.isFinite(amount) || amount < 0) return null;
+  const from = UNIT_CONVERSIONS[normalizeUnit(fromUnit)];
+  const to = UNIT_CONVERSIONS[normalizeUnit(toUnit)];
+  if (!from || !to) return null;
+  if (from.type === to.type && from.baseUnit === to.baseUnit) {
+    if (from.type === 'count') {
+      const size = (label: string) => /بزرگ|درشت/.test(label) ? 'large' : /کوچک|ریز/.test(label) ? 'small' : /متوسط/.test(label) ? 'medium' : '';
+      if (size(itemName + fromUnit) !== size(stockName + toUnit)) return null;
+    }
+    let stateRatio = 1;
+    const sourceForm = getIngredientForm(itemName), targetForm = getIngredientForm(stockName);
+    if (from.type === 'weight' && sourceForm && targetForm && sourceForm !== targetForm) stateRatio = sourceForm === 'prepared' ? rawYieldFromPrepared(itemName) : 1 / rawYieldFromPrepared(stockName);
+    return { amount: roundQuantity(amount * from.factor / to.factor * stateRatio), estimated: stateRatio !== 1, reason: stateRatio === 1 ? 'تبدیل مستقیم در یک خانوادهٔ واحد' : `معادل خام/پخته با بازده میانگین ${roundQuantity(stateRatio,3)} (تخمینی)` };
   }
-  return { amount: Math.round(amount * 1000) / 1000, unit };
+  const sourceMass = getWeightPerUnit(fromUnit, itemName, references);
+  const targetMass = getWeightPerUnit(toUnit, stockName, references);
+  if (sourceMass === undefined || targetMass === undefined || targetMass <= 0) return null;
+  const sourceForm = getIngredientForm(itemName), targetForm = getIngredientForm(stockName);
+  const stateRatio = sourceForm && targetForm && sourceForm !== targetForm
+    ? sourceForm === 'prepared' ? rawYieldFromPrepared(itemName) : 1 / rawYieldFromPrepared(stockName)
+    : 1;
+  const adjustedSourceMass = sourceMass * stateRatio;
+  return { amount: roundQuantity(amount * adjustedSourceMass / targetMass), estimated: true, reason: `هر ۱ ${fromUnit} ${itemName} ≈ ${roundQuantity(adjustedSourceMass,6)} گرم؛ هر ۱ ${toUnit} موجودی ≈ ${roundQuantity(targetMass,6)} گرم (میانگین تقریبی)` };
 };
 
-export const getInventoryUpdate = (
-  inventory: any[],
-  ingredients: any[],
-  servings: number,
-  baseServings: number = 4
-) => {
-  const scale = servings / baseServings;
-  const newInventory = inventory.map(item => ({ ...item }));
-  let updatedCount = 0;
-  const missingItems: any[] = [];
-  const unconvertibleItems: Array<{ item: string; inventoryUnit: string; recipeUnit: string }> = [];
-  const estimatedConversions: Array<{ item: string; amount: number; unit: string; grams: number }> = [];
+export interface InventoryEvaluationLine {
+  index: number; item: string; recipeAmount: number; recipeUnit: string;
+  status: 'ready' | 'shortage' | 'blocked' | 'unmeasured';
+  reason: string; estimated: boolean;
+  allocations: Array<{ inventoryId: string; name: string; unit: string; before: number; after: number; consumed: number; estimated: boolean; reason: string }>;
+  shortage?: { item: string; amount: number; unit: string; category: string; estimated?: boolean; unresolved?: boolean };
+}
+export interface InventoryEvaluation { lines: InventoryEvaluationLine[]; newInventory: InventoryItem[] }
 
-  ingredients.forEach(ing => {
-    const requiredAmount = (ing.amount || 0) * scale;
-    if (requiredAmount <= 0) return;
-    const categoryId = getIngredientCategoryId(ing.item);
-    const allowedCategories = ['proteins', 'grains', 'vegetables'];
-    const isExcluded = EXCLUDED_INVENTORY_ITEMS.some(ex => isIngredientMatch(ex, ing.item));
-    if (!categoryId || !allowedCategories.includes(categoryId) || isExcluded) return;
-
-    const itemName = getBaseIngredientName(ing.item);
-    const ingredientUnit = ing.unit?.trim() || 'نامشخص';
-    if (normalizeUnit(ingredientUnit) === 'به میزان لازم') return;
-    const need = convertToBase(requiredAmount, ingredientUnit, ing.item);
-    if (need.estimated) estimatedConversions.push({ item: itemName, amount: requiredAmount, unit: ingredientUnit, grams: need.value });
-    const matchingRows = newInventory.filter(row => isInventoryIngredientMatch(row.name, ing.item) && Number(row.amount) > 0);
-    let remaining = need.value;
-    let comparableRows = 0;
-
-    if (need.type !== 'unknown') {
-      // Consume compatible stock rows in order; never let an unrelated count
-      // unit (e.g. packs vs pieces) or unknown density consume pantry stock.
-      for (const row of matchingRows) {
-        const stock = convertToBase(Number(row.amount), row.unit || '', row.name);
-        if (!areUnitsComparable(stock, need) || stock.value <= 0) continue;
-        if (stock.estimated && !need.estimated) estimatedConversions.push({ item: itemName, amount: Number(row.amount), unit: row.unit || '', grams: stock.value });
-        comparableRows++;
-        const consumedBase = Math.min(remaining, stock.value);
-        const amountPerStoredUnit = stock.value / Number(row.amount);
-        row.amount = Math.max(0, Number(row.amount) - consumedBase / amountPerStoredUnit);
-        row.lastUpdated = Date.now();
-        remaining -= consumedBase;
-        updatedCount++;
-        if (remaining <= 1e-8) break;
-      }
-    } else {
-      const sameUnitRows = normalizeUnit(ingredientUnit) === 'نامشخص' ? [] : matchingRows.filter(row => normalizeUnit(row.unit || '') === normalizeUnit(ingredientUnit));
-      if (sameUnitRows.length) {
-        comparableRows = sameUnitRows.length;
-        let left = requiredAmount;
-        for (const row of sameUnitRows) {
-          const consumed = Math.min(left, Number(row.amount) || 0);
-          row.amount = Math.max(0, Number(row.amount) - consumed);
-          row.lastUpdated = Date.now();
-          left -= consumed;
-          updatedCount++;
-          if (left <= 1e-8) break;
-        }
-        remaining = left;
-      }
+const WATER_ITEMS = new Set(['اب', 'ابجوش', 'ابولرم', 'ابسرد', 'ابگرم']);
+export const evaluateInventory = (inventory: InventoryItem[], ingredients: Ingredient[], servings: number, baseServings = 4): InventoryEvaluation => {
+  if (!Number.isFinite(servings) || servings <= 0 || !Number.isFinite(baseServings) || baseServings <= 0) throw new Error('تعداد نفرات دستور و پخت باید مثبت و معتبر باشد.');
+  const stock = inventory.map(row => {
+    const definition = UNIT_CONVERSIONS[normalizeUnit(row.unit || '')];
+    const amount = row.measurement && definition && row.measurement.baseUnit === definition.baseUnit && Number.isFinite(row.measurement.value) && row.measurement.value >= 0 && row.measurement.enteredAmount === row.amount && row.measurement.enteredUnit === row.unit ? row.measurement.value / definition.factor : row.amount;
+    return { ...row, amount };
+  });
+  const lines: InventoryEvaluationLine[] = [];
+  ingredients.forEach((ingredient, index) => {
+    const item = ingredient.item || '';
+    if (WATER_ITEMS.has(normalizeItemName(item))) return;
+    const parsed = parseQuantity(ingredient.amount);
+    const required = parsed * servings / baseServings;
+    const unit = ingredient.unit || '';
+    const measurementName = getIngredientMeasurementName(ingredient);
+    const line: InventoryEvaluationLine = { index, item, recipeAmount: required, recipeUnit: unit, status: 'ready', reason: '', estimated: false, allocations: [] };
+    lines.push(line);
+    if (!item.trim() || !Number.isFinite(required) || required <= 0 || normalizeUnit(unit) === 'به میزان لازم') {
+      line.status = 'unmeasured'; line.reason = 'مقدار مصرف مشخص نیست؛ بدون ورود مصرف واقعی از انبار کم نمی‌شود.';
+      if (item.trim() && !inventory.some(row => row.amount > 0 && isInventoryIngredientMatch(row.name,item))) line.shortage = { item, amount: 0, unit, category: getIngredientCategoryId(item) || 'other', unresolved: true };
+      return;
     }
-
-    if (!matchingRows.length) {
-      const display = asPurchaseQuantity(need.value, need.type, ingredientUnit);
-      newInventory.push({
-        id: `inv-${Date.now()}-${Math.random()}`,
-        name: itemName,
-        amount: 0,
-        unit: display.unit,
-        minThreshold: 0.5,
-        lastUpdated: Date.now()
-      });
-      updatedCount++;
-    } else if (!comparableRows) {
-      const incompatible = matchingRows[0];
-      unconvertibleItems.push({ item: itemName, inventoryUnit: incompatible.unit || '', recipeUnit: ingredientUnit });
+    const candidates = stock.filter(row => (ingredient.ingredientId && row.ingredientId ? ingredient.ingredientId === row.ingredientId : isInventoryIngredientMatch(row.name, item)) && Number.isFinite(row.amount) && row.amount > 0);
+    let remaining = required;
+    let compatible = 0;
+    let shortageReferences: ReferenceOverrides | undefined;
+    for (const row of candidates) {
+      const references = row.unitWeightGrams ? { ...((PANTRY_UNIT_PREFERENCES as { weightEquivalences?: ReferenceOverrides }).weightEquivalences || {}), [getIngredientIdentity(measurementName)]: { ...((PANTRY_UNIT_PREFERENCES as { weightEquivalences?: ReferenceOverrides }).weightEquivalences || {})[getIngredientIdentity(measurementName)], ...row.unitWeightGrams } } : undefined;
+      const conversion = convertIngredientQuantity(1, unit, row.unit, measurementName, getIngredientMeasurementName({ item: row.name, amount: row.amount, unit: row.unit, state: row.state, ingredientId: row.ingredientId }), references);
+      if (!conversion || conversion.amount <= 0) continue;
+      compatible++;
+      shortageReferences = references;
+      const consumed = Math.min(row.amount, remaining * conversion.amount);
+      if (consumed <= 0) continue;
+      const before = row.amount;
+      row.amount = roundQuantity(Math.max(0, before - consumed));
+      remaining = Math.max(0, remaining - consumed / conversion.amount);
+      line.estimated ||= conversion.estimated;
+      line.allocations.push({ inventoryId: row.id, name: row.name, unit: row.unit, before, after: row.amount, consumed: roundQuantity(consumed), estimated: conversion.estimated, reason: conversion.reason });
+      if (remaining <= 1e-9) break;
     }
-
-    if (remaining > 1e-8) {
-      const display = need.type === 'unknown'
-        ? { amount: Math.round(remaining * 1000) / 1000, unit: ingredientUnit }
-        : asPurchaseQuantity(remaining, need.type, ingredientUnit);
-      missingItems.push({ item: itemName, amount: display.amount, unit: display.unit, category: categoryId });
+    if (remaining > 1e-9) {
+      line.status = candidates.length && !compatible ? 'blocked' : 'shortage';
+      line.reason = line.status === 'blocked' ? 'واحد، اندازه یا حالت ماده سازگار نیست؛ مقدار مصرف واقعی را در واحد انبار وارد کن.' : 'موجودی کافی ثبت نشده است؛ مقدار مصرف از انبار هرگز بیشتر از موجودی نمی‌شود.';
+      const normalized = convertToBase(remaining, unit, measurementName, shortageReferences);
+      // Unknown conversions keep the original amount/unit and an unresolved flag.
+      const value = line.status === 'blocked' ? remaining : normalized.value;
+      const type = line.status === 'blocked' ? 'unknown' : normalized.type;
+      const purchaseUnit = type === 'weight' ? (value >= 1000 ? 'کیلوگرم' : 'گرم') : type === 'volume' ? (value >= 1000 ? 'لیتر' : 'میلی‌لیتر') : unit;
+      const purchaseAmount = (type === 'weight' || type === 'volume') && value >= 1000 ? value / 1000 : value;
+      line.shortage = { item: /\s+(?:یا|و)\s+|[,،/|]/.test(item) ? item : getBaseIngredientName(item), amount: roundQuantity(purchaseAmount), unit: purchaseUnit, category: getIngredientCategoryId(item) || 'other', estimated: Boolean(normalized.estimated), unresolved: line.status === 'blocked' || normalized.type === 'unknown' };
     }
   });
-
-  return { newInventory, updatedCount, missingItems, unconvertibleItems, estimatedConversions };
+  return { lines, newInventory: stock };
 };
 
-/** Calculate shopping deficits for a plan without consuming or changing pantry stock. */
-export const getShoppingShortages = (
-  inventory: any[],
-  ingredients: any[],
-  servings: number,
-  baseServings: number = 4
-) => {
-  const needs: Array<{ item: string; amount: number; unit: string; type: QuantityType; baseUnit: string; form?: BaseQuantity['form']; category: string }> = [];
-  const scale = servings / baseServings;
-
-  ingredients.forEach(ingredient => {
-    const amount = (Number(ingredient.amount) || 0) * scale;
-    if (amount <= 0 || normalizeUnit(ingredient.unit || '') === 'به میزان لازم' || EXCLUDED_INVENTORY_ITEMS.some(excluded => isIngredientMatch(excluded, ingredient.item))) return;
-
-    const item = getBaseIngredientName(ingredient.item);
-    const unit = ingredient.unit?.trim() || 'نامشخص';
-    const converted = convertToBase(amount, unit, ingredient.item);
-    const matchingNeed = needs.find(need =>
-      isInventoryIngredientMatch(need.item, item) && need.type === converted.type && need.baseUnit === converted.baseUnit && need.form === converted.form &&
-      (converted.type !== 'unknown' || normalizeUnit(need.unit) === normalizeUnit(unit))
-    );
-
-    if (matchingNeed) matchingNeed.amount += converted.value;
-    else needs.push({ item, amount: converted.value, unit, type: converted.type, baseUnit: converted.baseUnit, form: converted.form, category: getIngredientCategoryId(item) || 'other' });
-  });
-
-  return needs.flatMap(need => {
-    const available = inventory.reduce((sum, stock) => {
-      if (!stock || stock.amount <= 0 || !isInventoryIngredientMatch(stock.name, need.item)) return sum;
-      const converted = convertToBase(stock.amount, stock.unit || '', stock.name);
-      if (areUnitsComparable(converted, { value: need.amount, type: need.type, baseUnit: need.baseUnit, form: need.form })) return sum + converted.value;
-      if (need.type === 'unknown' && converted.type === 'unknown' && normalizeUnit(stock.unit || '') === normalizeUnit(need.unit)) return sum + converted.value;
-      return sum;
-    }, 0);
-
-    const deficit = Math.max(0, need.amount - available);
-    if (deficit <= 0) return [];
-    let amount = deficit;
-    let unit = need.unit;
-    if (need.type === 'weight') {
-      unit = deficit >= 1000 ? 'کیلوگرم' : 'گرم';
-      amount = deficit >= 1000 ? deficit / 1000 : deficit;
-    } else if (need.type === 'volume') {
-      unit = deficit >= 1000 ? 'لیتر' : 'میلی‌لیتر';
-      amount = deficit >= 1000 ? deficit / 1000 : deficit;
-    } else if (need.type === 'count') {
-      unit = need.unit;
-    }
-    return [{ item: need.item, amount: Math.round(amount * 1000) / 1000, unit, category: need.category }];
-  });
+/** All consumers use the same allocator, including repeated rows and multiple stock lots. */
+export const getInventoryUpdate = (inventory: any[], ingredients: Ingredient[], servings: number, baseServings = 4) => {
+  const evaluation = evaluateInventory(inventory, ingredients, servings, baseServings);
+  return {
+    ...evaluation,
+    updatedCount: evaluation.lines.reduce((sum, line) => sum + line.allocations.length, 0),
+    missingItems: evaluation.lines.flatMap(line => line.shortage ? [line.shortage] : []),
+    unconvertibleItems: evaluation.lines.filter(line => line.status === 'blocked').map(line => ({ item: line.item, inventoryUnit: inventory.find(row => isInventoryIngredientMatch(row.name, line.item))?.unit || '', recipeUnit: line.recipeUnit })),
+    estimatedConversions: evaluation.lines.filter(line => line.estimated).map(line => ({ item: line.item, amount: line.recipeAmount, unit: line.recipeUnit, grams: convertToBase(line.recipeAmount, line.recipeUnit, line.item).value })),
+  };
 };
+
+export const getShoppingShortages = (inventory: any[], ingredients: Ingredient[], servings: number, baseServings = 4) => {
+  const deficits = evaluateInventory(inventory, ingredients, servings, baseServings).lines.flatMap(line => line.shortage ? [line.shortage] : []);
+  const combined: typeof deficits = [];
+  for (const need of deficits) {
+    const existing = combined.find(row => {
+      if (!isInventoryIngredientMatch(row.item, need.item) || row.unresolved !== need.unresolved) return false;
+      const conversion = convertIngredientQuantity(need.amount,need.unit,row.unit,need.item);
+      return conversion && !conversion.estimated;
+    });
+    if (existing) {
+      existing.amount = roundQuantity(existing.amount + convertIngredientQuantity(need.amount,need.unit,existing.unit,need.item)!.amount);
+      existing.estimated ||= need.estimated;
+    } else combined.push({ ...need });
+  }
+  return combined;
+};
+
+/** Published recipes may be bulk-converted only with exact physical equivalence. */
+export const standardizeRecipeIngredients = (ingredients: Ingredient[], selections: Record<string,string>) => ingredients.map(ingredient => {
+  const entry = Object.entries(selections).find(([name]) => isInventoryIngredientMatch(name,ingredient.item));
+  if (!entry || normalizeUnit(entry[1]) === normalizeUnit(ingredient.unit)) return ingredient;
+  if (normalizeUnit(ingredient.unit) === 'به میزان لازم' || parseQuantity(ingredient.amount) === 0) return ingredient;
+  const conversion = convertIngredientQuantity(parseQuantity(ingredient.amount),ingredient.unit,entry[1],ingredient.item);
+  if (!conversion || conversion.estimated) throw new Error(`تبدیل ${ingredient.item} از ${ingredient.unit} به ${entry[1]} قطعی نیست؛ واحد و مقدار رسپی حفظ شد. مرجع تقریبی را در واحد انبار تنظیم کن.`);
+  return { ...ingredient, amount: conversion.amount, unit: entry[1] };
+});
 
 export interface UnitDiscrepancy {
   item: string;

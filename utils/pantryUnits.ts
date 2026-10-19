@@ -1,6 +1,6 @@
 import PANTRY_UNIT_PREFERENCES from '../data/pantry_unit_preferences.json';
 import { getBaseIngredientName, getIngredientCategoryId } from '../data/pantry';
-import { normalizeItemName, normalizeUnit } from './recipeHelpers';
+import { normalizeItemName, normalizeUnit, getIngredientIdentity } from './recipeHelpers';
 
 export const PANTRY_UNIT_OPTIONS = [
   'کیلوگرم', 'گرم', 'عدد', 'بسته', 'قوطی', 'لیتر', 'میلی‌لیتر', 'پیمانه', 'استکان', 'لیوان',
@@ -8,8 +8,7 @@ export const PANTRY_UNIT_OPTIONS = [
 ];
 
 export const getPantryUnitKey = (name: string) => {
-  const compound = /[,،/|]|\s+(?:یا|و)\s+/.test(name);
-  return normalizeItemName(compound ? name : getBaseIngredientName(name));
+  return getIngredientIdentity(name);
 };
 
 export const getPantryUnitPreference = (name: string): string | undefined => {

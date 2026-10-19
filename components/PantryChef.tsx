@@ -6,10 +6,11 @@ import { ChefHat, Sparkles, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2,
 import { PANTRY_ITEMS, getIngredientCategoryId } from '../data/pantry';
 import { RecipeService } from '../services/recipeService';
 import { Dish, KitchenMode, UserProfile, InventoryItem } from '../types';
-import { isIngredientMatch, isInventoryIngredientMatch, getStandardUnit, convertToBase, convertAmountBetweenUnits, areUnitsComparable, isDishProhibited } from '../utils/recipeHelpers';
+import { isIngredientMatch, isInventoryIngredientMatch, getStandardUnit, convertToBase, convertAmountBetweenUnits, areUnitsComparable, isDishProhibited, evaluateInventory, roundQuantity, getIngredientIdentity, getPhysicalForm } from '../utils/recipeHelpers';
 import { UserService } from '../services/userService';
 import { getPantryUnitPreference, suggestPantryUnit } from '../utils/pantryUnits';
 import RecipeModal from './RecipeModal';
+import InventoryHistory from './InventoryHistory';
 import MealCard from './MealCard';
 
 interface PantryChefProps {
@@ -153,7 +154,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
   const [activeFilter, setActiveFilter] = useState<ResultFilter>('all');
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  
+
   const resultsAreaRef = useRef<HTMLDivElement>(null);
   const newItemNameRef = useRef<HTMLInputElement>(null);
 
@@ -162,7 +163,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     const merged: InventoryItem[] = [];
     const indexes = new Map<string, number>();
     rawInventory.forEach(item => {
-      const key = normalizePersian(item.name).trim().replace(/\s+/g, ' ');
+      const key = `${getIngredientIdentity(item.name)}:${item.state || getPhysicalForm(item.name)}:${JSON.stringify(item.unitWeightGrams || {})}`;
       const index = indexes.get(key);
       if (index === undefined) {
         indexes.set(key, merged.length);
@@ -179,7 +180,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
         merged.push({ ...item });
         return;
       }
-      existing.amount = Math.round((existing.amount + convertedAmount.amount) * 1000) / 1000;
+      existing.amount = roundQuantity(existing.amount + convertedAmount.amount);
+      existing.previousIds = [...new Set([...(existing.previousIds || []), item.id, ...(item.previousIds || [])])];
       existing.lastUpdated = Math.max(existing.lastUpdated, item.lastUpdated);
       const incomingThreshold = convertAmountBetweenUnits(
         item.minThreshold,
@@ -188,7 +190,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
         existing.name
       );
       if (incomingThreshold && !incomingThreshold.estimated) {
-        existing.minThreshold = Math.round((existing.minThreshold + incomingThreshold.amount) * 1000) / 1000;
+        existing.minThreshold = Math.max(existing.minThreshold, incomingThreshold.amount);
       }
     });
     return merged;
@@ -230,23 +232,10 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     setTimeout(() => {
       const all = RecipeService.getAllDishes().filter(dish => !isDishProhibited(dish, user));
       const processed: ProcessedResult[] = all.map(dish => {
-        const available = dish.ingredients.filter(ing => items.some(item => isIngredientMatch(item, ing.item)));
-        const matched = available.map(ingredient => ingredient.item);
-        const missing = dish.ingredients.filter(ingredient => {
-              if (getIngredientCategoryId(ingredient.item) === 'additives') return false;
-              const stock = inventory.find(item => item.amount > 0 && isInventoryIngredientMatch(item.name, ingredient.item));
-              if (!stock) return true;
-              const stockBase = convertToBase(stock.amount, stock.unit, stock.name);
-              const neededBase = convertToBase((ingredient.amount || 0) * ((user.familySize || 4) / (dish.servings || 4)), ingredient.unit || '', ingredient.item);
-              return areUnitsComparable(stockBase, neededBase) ? stockBase.value < neededBase.value : true;
-            }).map(ingredient => ingredient.item);
-        
-        // Filter out additives from missing count as per user request
-        const essentialMissing = missing.filter(item => {
-          const catId = getIngredientCategoryId(item);
-          return catId !== 'additives';
-        });
-
+        const evaluation = evaluateInventory(inventory, dish.ingredients, user.familySize || 4, dish.servings || 4);
+        const matched = evaluation.lines.filter(line => line.allocations.length > 0).map(line => line.item);
+        const missing = evaluation.lines.filter(line => line.status === 'shortage' || line.status === 'blocked').map(line => line.item);
+        const essentialMissing = [...new Set(missing)];
         // Calculate priority score based on matched categories
         // Proteins (1) > Grains (2) > Vegetables (3)
         let priorityScore = 0;
@@ -260,11 +249,11 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
         // Protein specific logic for prioritization
         const recipeProteins = dish.ingredients.filter(ing => getIngredientCategoryId(ing.item) === 'proteins').map(i => i.item);
         const selectedProteins = items.filter(item => getIngredientCategoryId(item) === 'proteins');
-        
-        const matchedProteins = recipeProteins.filter(rp => 
+
+        const matchedProteins = recipeProteins.filter(rp =>
           selectedProteins.some(sp => isIngredientMatch(sp, rp))
         );
-        const unmatchedProteins = recipeProteins.filter(rp => 
+        const unmatchedProteins = recipeProteins.filter(rp =>
           !matchedProteins.includes(rp)
         );
 
@@ -274,28 +263,13 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
         let proteinMatchScore = (matchedProteins.length * 1000) - (unmatchedProteins.length * 5000);
 
         // Check if fully cookable based on inventory amounts
-        let isFullyCookable = essentialMissing.length === 0;
-        isFullyCookable = dish.ingredients.every(ing => {
-            const catId = getIngredientCategoryId(ing.item);
-            if (catId === 'additives') return true;
-            
-            const invItem = inventory.find(i => isInventoryIngredientMatch(i.name, ing.item));
-            if (!invItem || invItem.amount <= 0) return false;
-            
-            const invBase = convertToBase(invItem.amount, invItem.unit, invItem.name);
-            const ingBase = convertToBase(ing.amount || 0, ing.unit || '', ing.item);
-            
-            if (areUnitsComparable(invBase, ingBase)) {
-              return invBase.value >= ingBase.value;
-            }
-            return false; // Incompatible units are never treated as sufficient stock.
-          });
+        const isFullyCookable = evaluation.lines.every(line => line.status === 'ready');
 
-        return { 
-          dish, 
-          matchedItems: matched, 
-          missingItems: missing, 
-          isPerfect: essentialMissing.length === 0, 
+        return {
+          dish,
+          matchedItems: matched,
+          missingItems: missing,
+          isPerfect: isFullyCookable,
           isFullyCookable,
           missingCount: essentialMissing.length,
           priorityScore, // Higher is better
@@ -325,6 +299,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
   };
 
   const updateInventoryItem = (itemId: string, updates: Partial<InventoryItem>) => {
+    if (updates.amount !== undefined && (!Number.isFinite(updates.amount) || updates.amount < 0)) { setAddMessage('مقدار موجودی باید عددی معتبر و صفر یا بیشتر باشد.'); return; }
+    if (updates.minThreshold !== undefined && (!Number.isFinite(updates.minThreshold) || updates.minThreshold < 0)) { setAddMessage('آستانهٔ هشدار باید عددی معتبر و صفر یا بیشتر باشد.'); return; }
     const newInventory = inventory.map(item => item.id === itemId ? { ...item, ...updates, lastUpdated: Date.now() } : item);
     // Optimistic update for immediate UI feedback
     onUpdateUser({ ...user, inventory: newInventory });
@@ -338,7 +314,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
   const changeInventoryUnit = (item: InventoryItem, nextUnit: string) => {
     if (nextUnit === item.unit) return;
     const converted = convertAmountBetweenUnits(item.amount, item.unit, nextUnit, item.name);
-    if (!converted) {
+    if (!converted || converted.estimated) {
       setPendingUnitCorrection({ id: item.id, name: item.name, oldAmount: item.amount, oldUnit: item.unit, nextUnit, oldThreshold: item.minThreshold, oldThresholdUnit: item.minThresholdUnit || item.unit, amount: '', threshold: '' });
       return;
     }
@@ -354,69 +330,33 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
       setNewItemAmount('1');
       if (focusNext) window.requestAnimationFrame(() => newItemNameRef.current?.focus());
     };
-    const existingItem = inventory.find(item => isInventoryIngredientMatch(item.name, cleanName));
+    const existingItem = inventory.find(item => isInventoryIngredientMatch(item.name, cleanName) && (item.state || getPhysicalForm(item.name)) === getPhysicalForm(cleanName));
     if (existingItem) {
-      const targetUnit = getPantryUnitPreference(cleanName) || unit || existingItem.unit;
-      const convertedStock = targetUnit === existingItem.unit
-        ? { amount: existingItem.amount, estimated: false }
-        : convertAmountBetweenUnits(existingItem.amount, existingItem.unit, targetUnit, existingItem.name);
-      if (!convertedStock) {
-        setAddMessage(`موجودی قبلی ${existingItem.name} با واحد ${existingItem.unit} به ${targetUnit} تبدیل مطمئنی ندارد؛ واحد قبلی حفظ شد و چیزی اضافه نشد.`);
+      const inputUnit = unit || suggestPantryUnit(cleanName);
+      const incoming = convertAmountBetweenUnits(amount, inputUnit, existingItem.unit, existingItem.name);
+      if (!incoming || incoming.estimated) {
+        setAddMessage(`واحد ورودی ${inputUnit} با موجودی ${existingItem.unit} تبدیل دقیق ندارد. ابتدا واحد و مقدار واقعی موجودی قبلی را از بخش ویرایش اصلاح کن؛ موجودی دست‌نخورده ماند.`);
         return;
       }
-      const convertedThreshold = (existingItem.minThresholdUnit || existingItem.unit) === targetUnit
-        ? { amount: existingItem.minThreshold, estimated: false }
-        : convertAmountBetweenUnits(existingItem.minThreshold, existingItem.minThresholdUnit || existingItem.unit, targetUnit, existingItem.name);
-      const updatedStock = Math.round((convertedStock.amount + amount) * 1000) / 1000;
-      updateInventoryItem(existingItem.id, {
-        amount: updatedStock,
-        unit: targetUnit,
-        ...(convertedThreshold ? { minThreshold: convertedThreshold.amount, minThresholdUnit: targetUnit } : {}),
-      });
-      const wasEstimated = convertedStock.estimated || Boolean(convertedThreshold?.estimated);
-      setAddMessage(wasEstimated
-        ? `${cleanName} با واحد ${targetUnit} اضافه شد؛ تبدیل موجودی قبلی تقریبی بود، مقدار را بررسی کن.`
-        : `${cleanName} با واحد ${targetUnit} به موجودی اضافه شد.`);
+      updateInventoryItem(existingItem.id, { amount: roundQuantity(existingItem.amount + incoming.amount) });
+      setAddMessage(`${cleanName} به موجودی اضافه شد؛ واحد قبلی ${existingItem.unit} حفظ شد.`);
       prepareNextEntry();
       return;
     }
-    
-    // Get all dishes to find preferred unit
-    const allDishes = await RecipeService.getAllDishes();
-    const preferredUnit = getStandardUnit(itemName, allDishes);
-    
-    // Guess base unit based on common usage or category
-    let defaultUnit = preferredUnit;
-    let defaultAmount = 1;
-    let defaultThreshold = 0.5;
 
-    const category = PANTRY_ITEMS.find(c => c.items.includes(itemName));
-    if (category && (category.id === 'proteins' || category.id === 'grains' || category.id === 'vegetables')) {
-      // Pantry staples default to weight, even when recipes mostly use cups.
-      defaultUnit = 'کیلوگرم';
-      defaultAmount = 1; // 1kg
-      defaultThreshold = 0.2; // 200g
-    }
-    
-    // Special cases
-    if (itemName === 'تخم مرغ') {
-      defaultUnit = 'عدد';
-      defaultAmount = 6;
-      defaultThreshold = 2;
-    }
-
-    const selectedUnit = getPantryUnitPreference(cleanName) || unit || defaultUnit;
+    const defaultThreshold = 0;
+    const selectedUnit = unit || suggestPantryUnit(cleanName);
     const newItem: InventoryItem = {
       id: crypto.randomUUID?.() || Math.random().toString(36).slice(2, 11),
       name: cleanName,
       amount,
       unit: selectedUnit,
-      minThreshold: Math.max(0.01, Math.min(defaultThreshold, amount * 0.3)),
+      minThreshold: defaultThreshold,
       minThresholdUnit: selectedUnit,
       lastUpdated: Date.now()
     };
     const newInventory = [...inventory, newItem];
-    
+
     // Optimistic update
     onUpdateUser({ ...user, inventory: newInventory });
     // Sync in background
@@ -454,7 +394,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     }
   }, [rawResults, activeFilter, user.favoriteDishIds]);
 
-  const toPersian = (n: number) => n.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+  const toPersian = (n: number) => n.toLocaleString('fa-IR', { maximumFractionDigits: 6 });
 
   const getResultCount = (filter: ResultFilter) => {
     if (!rawResults) return 0;
@@ -473,7 +413,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     <div className="flex items-center gap-1 rounded-xl border border-emerald-100 bg-emerald-50 p-1" onClick={event => event.stopPropagation()}>
       <button type="button" aria-label={`کم کردن ${item.name}`} onClick={() => {
         const step = item.unit === 'کیلوگرم' ? 0.1 : 1;
-        updateInventoryItem(item.id, { amount: Math.max(0, Math.round((item.amount - step) * 1000) / 1000) });
+        updateInventoryItem(item.id, { amount: Math.max(0, roundQuantity(item.amount - step)) });
       }} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-rose-600"><Minus size={15} /></button>
       <input type="number" min="0" step="any" value={item.amount} aria-label={`مقدار ${item.name}`} onChange={event => updateInventoryItem(item.id, { amount: Math.max(0, Number(event.target.value) || 0) })} className="w-20 rounded-lg bg-white px-2 py-2 text-center text-sm font-black text-emerald-900 outline-none focus:ring-2 focus:ring-emerald-200" />
       <select aria-label={`واحد ${item.name}`} value={item.unit} onChange={event => changeInventoryUnit(item, event.target.value)} className="max-w-28 rounded-lg bg-white px-2 py-2 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-200">
@@ -481,13 +421,13 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
       </select>
       <button type="button" aria-label={`زیاد کردن ${item.name}`} onClick={() => {
         const step = item.unit === 'کیلوگرم' ? 0.1 : 1;
-        updateInventoryItem(item.id, { amount: Math.round((item.amount + step) * 1000) / 1000 });
+        updateInventoryItem(item.id, { amount: roundQuantity(item.amount + step) });
       }} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-emerald-700"><Plus size={15} /></button>
     </div>
   ) : <span className="whitespace-nowrap font-black text-emerald-800">{toPersian(item.amount)} <small className="font-semibold text-slate-500">{item.unit}</small></span>;
 
   const renderInlineInventoryForm = (compact = false) => <form onSubmit={event => { event.preventDefault(); void addToInventory(newItemName, Number(newItemAmount)); }} className={`grid gap-2 ${compact ? 'grid-cols-1 sm:grid-cols-[minmax(160px,1fr)_90px_auto_auto_auto]' : 'grid-cols-1 md:grid-cols-[minmax(220px,1fr)_110px_auto_auto_auto]'}`}>
-    <FoodIngredientCombobox id={`inline-pantry-name-${compact ? 'modal' : 'list'}`} value={newItemName} onChange={setNewItemName} placeholder="نام ماده را جست‌وجو یا وارد کن…" />
+    <FoodIngredientCombobox id={`inline-pantry-name-${compact ? 'modal' : 'list'}`} inputRef={newItemNameRef} value={newItemName} onChange={setNewItemName} placeholder="نام ماده را جست‌وجو یا وارد کن…" />
     <input aria-label="مقدار قلم تازه" type="number" min="0" step="any" value={newItemAmount} onChange={event => setNewItemAmount(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-center text-sm font-black outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" />
     <span className="flex min-h-11 items-center justify-center rounded-xl bg-emerald-50 px-3 text-xs font-black text-emerald-800">{newItemName.trim() ? `واحد: ${suggestPantryUnit(newItemName)}` : 'واحد پس از انتخاب ماده'}</span>
     <button type="submit" disabled={!newItemName.trim() || Number(newItemAmount) <= 0} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17} /> افزودن</button>
@@ -531,9 +471,9 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                 <div><strong>انبار مواد غذایی آشپزخانه</strong><span>{toPersian(inventory.length)} قلم ثبت‌شده · {user.kitchenMode === 'with-inventory' ? 'در پیشنهادها و محاسبهٔ خرید استفاده می‌شود.' : 'فعلاً در پیشنهادها و خرید دخالت ندارد.'}</span></div>
               </div>
               <div className="flex w-full flex-col sm:w-auto sm:flex-row">
-                {user.kitchenMode !== 'without-inventory' && <button 
-                  onClick={() => suggestFromInventory()} 
-                  className="w-full sm:w-auto px-6 py-2.5 sm:px-10 sm:py-4 bg-teal-500 hover:bg-teal-400 text-white rounded-xl sm:rounded-2xl font-black shadow-lg flex items-center justify-center gap-2 sm:gap-3 transition-all active:scale-95 disabled:opacity-40 text-xs sm:text-sm" 
+                {user.kitchenMode !== 'without-inventory' && <button
+                  onClick={() => suggestFromInventory()}
+                  className="w-full sm:w-auto px-6 py-2.5 sm:px-10 sm:py-4 bg-teal-500 hover:bg-teal-400 text-white rounded-xl sm:rounded-2xl font-black shadow-lg flex items-center justify-center gap-2 sm:gap-3 transition-all active:scale-95 disabled:opacity-40 text-xs sm:text-sm"
                   disabled={inventory.length === 0 || isSearching}
                 >
                   {isSearching ? <RefreshCw className="animate-spin" size={18} /> : <Sparkles size={18} />}
@@ -560,7 +500,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                               {item.name} ({toPersian(item.amount)} {item.unit})
                                 <button onClick={() => {
                                   const currentList = [...(user.customShoppingList || [])];
-                                  
+
                                   // Strictly allow only 3 categories: proteins, grains, vegetables
                                   const categoryId = getIngredientCategoryId(item.name);
                                   const allowedCategories = ['proteins', 'grains', 'vegetables'];
@@ -569,7 +509,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                                   const existingIdx = currentList.findIndex(i => i.name === item.name);
                                   let amountToAdd = item.minThreshold * 2;
                                   const amountUnit = item.minThresholdUnit || item.unit;
-                                  
+
                                   if (existingIdx !== -1) {
                                     const existingUnit = currentList[existingIdx].unit || amountUnit;
                                     if (existingUnit !== amountUnit) {
@@ -586,15 +526,15 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                                       amount: (currentList[existingIdx].amount || 0) + amountToAdd
                                     };
                                   } else {
-                                    currentList.push({ 
-                                      id: Math.random().toString(), 
-                                      name: item.name, 
-                                      checked: false, 
-                                      amount: amountToAdd, 
-                                      unit: amountUnit 
+                                    currentList.push({
+                                      id: Math.random().toString(),
+                                      name: item.name,
+                                      checked: false,
+                                      amount: amountToAdd,
+                                      unit: amountUnit
                                     });
                                   }
-                                  
+
                                   onUpdateUser({ ...user, customShoppingList: currentList });
                                   UserService.updateShoppingList(user.username, currentList);
                                 }} className="text-teal-600 hover:text-teal-700"><ShoppingCart size={14} /></button>
@@ -605,22 +545,25 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                     </div>
                   )}
 
+                  {user.inventoryNeedsReview && <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs leading-6 text-amber-900"><p>موجودی‌های قبلی حفظ شده‌اند. اگر قبلاً مقدار اشتباه کم شده، مقدار واقعی اقلام را یک‌بار اصلاح کن؛ از روی سوابق قدیمی نمی‌توان مصرف واقعی را بازسازی کرد.</p><button type="button" onClick={() => { const updated = { ...user, inventoryNeedsReview: false }; onUpdateUser(updated); void UserService.updateProfile(user.username, { inventoryNeedsReview: false }); }} className="rounded-xl bg-white px-4 py-2 font-bold">مقدارها را بررسی کردم</button></div>}
+                  {addMessage && <p role="status" className="rounded-xl bg-emerald-50 p-3 text-xs leading-6 text-emerald-900">{addMessage}</p>}
                   <div className="grid grid-cols-1 gap-6 pantry-workspace">
                     {/* لیست موجودی فعلی */}
                     <div className="order-1 space-y-4 pantry-inventory-panel">
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
                         <h3 className="text-slate-800 font-black text-sm sm:text-base flex items-center gap-2">
                           <Package className="text-teal-500" size={20} />
                           موجودی انبار شما
                         </h3>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="text-[10px] text-slate-400 font-black">{toPersian(inventory.length)} قلم در انبار</span>
+                          <InventoryHistory user={user} onUpdateUser={onUpdateUser}/>
                           <button type="button" onClick={() => setIsInventoryOverviewOpen(true)} className="inline-flex items-center gap-2 rounded-xl bg-emerald-800 px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-emerald-900 focus:outline-none focus:ring-4 focus:ring-emerald-100" aria-haspopup="dialog">
                             <Plus size={16} /> افزودن / مدیریت موجودی
                           </button>
                         </div>
                       </div>
-                      
+
                       <div className="bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm">
                         {inventory.length > 0 ? (
                           <div className="pantry-inventory-list">
@@ -642,10 +585,10 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                                         <div className="flex items-center gap-1">
                                           <button onClick={() => {
                                             const step = item.unit === 'کیلوگرم' ? 0.1 : 1;
-                                            updateInventoryItem(item.id, { amount: Math.max(0, Math.round((item.amount - step) * 10) / 10) });
+                                            updateInventoryItem(item.id, { amount: Math.max(0, roundQuantity(item.amount - step)) });
                                           }} className="p-1 hover:bg-white rounded-md text-slate-500 transition-all"><Minus size={14} /></button>
                                           <div className="px-2 min-w-[100px] flex items-center justify-center gap-1">
-                                            <input 
+                                            <input
                                               type="number" min="0"
                                               step="any"
                                               value={item.amount}
@@ -653,8 +596,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                                               onChange={(e) => updateInventoryItem(item.id, { amount: parseFloat(e.target.value) || 0 })}
                                               className={`w-14 bg-white/50 rounded px-1 py-0.5 text-xs font-black outline-none text-center border border-transparent focus:border-teal-300 transition-all ${isBelowThreshold(item) ? 'text-rose-600' : 'text-slate-700'}`}
                                             />
-                                            <select 
-                                              value={item.unit} 
+                                            <select
+                                              value={item.unit}
                                               onChange={(e) => changeInventoryUnit(item, e.target.value)}
                                               className="text-[9px] text-slate-400 bg-transparent outline-none cursor-pointer hover:text-teal-500"
                                             >
@@ -668,15 +611,15 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                                           </div>
                                           <button onClick={() => {
                                             const step = item.unit === 'کیلوگرم' ? 0.1 : 1;
-                                            updateInventoryItem(item.id, { amount: Math.round((item.amount + step) * 10) / 10 });
+                                            updateInventoryItem(item.id, { amount: roundQuantity(item.amount + step) });
                                           }} className="p-1 hover:bg-white rounded-md text-slate-500 transition-all"><Plus size={14} /></button>
                                         </div>
                                       </div> : <span className="px-2 py-2 text-xs font-black text-emerald-800">{toPersian(item.amount)} {item.unit}</span>}
                                       <label className="pantry-threshold-control">
                                         <span>هشدار در</span>
-                                        <input 
+                                        <input
                                           type="number" min="0" step="any"
-                                          value={item.minThreshold} 
+                                          value={item.minThreshold}
                                           onBlur={e => updateInventoryItem(item.id, { minThreshold: Math.max(0, Number(e.target.value) || 0) })}
                                           onChange={(e) => updateInventoryItem(item.id, { minThreshold: parseFloat(e.target.value) || 0 })}
                                           aria-label={`مقدار هشدار برای ${item.name}`}
@@ -745,7 +688,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                      ].map(filter => {
                        const count = getResultCount(filter.id as ResultFilter);
                        return (
-                         <button 
+                         <button
                           key={filter.id}
                           onClick={() => setActiveFilter(filter.id as ResultFilter)}
                           className={`flex-grow px-3 py-2.5 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl text-[9px] sm:text-xs font-black flex items-center justify-center gap-1.5 sm:gap-2 transition-all border-2 ${activeFilter === filter.id ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white border-transparent text-slate-500 hover:border-slate-200'}`}

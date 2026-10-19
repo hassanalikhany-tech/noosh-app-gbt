@@ -3,6 +3,8 @@ export interface Ingredient {
   item: string;
   amount: number;
   unit: string;
+  ingredientId?: string;
+  state?: 'raw' | 'prepared';
 }
 
 export type DishCategory =
@@ -79,6 +81,9 @@ export const CATEGORY_LABELS: Record<DishCategory, string> = {
 };
 
 export interface ShoppingItem {
+  sourceKey?: string;
+  estimated?: boolean;
+  unresolved?: boolean;
   id: string;
   name: string;
   amount?: number;
@@ -243,6 +248,24 @@ export interface InventoryItem {
   minThreshold: number;
   minThresholdUnit?: string;
   lastUpdated: number;
+  ingredientId?: string;
+  state?: 'raw' | 'prepared';
+  previousIds?: string[];
+  measurement?: { value: number; baseUnit: string; enteredAmount: number; enteredUnit: string };
+  unitWeightGrams?: Record<string, number>;
+}
+
+export interface CookingTransaction {
+  id: string;
+  dishId: string;
+  dishName: string;
+  servings: number;
+  engineVersion?: number;
+  referenceVersion?: string;
+  createdAt: number;
+  reversedAt?: number;
+  notes?: string[];
+  changes: Array<{ inventoryId: string; name: string; unit: string; consumed: number; before: number; after: number; estimated: boolean; reason: string; stockSnapshot?: InventoryItem }>;
 }
 
 export interface UserProfile {
@@ -271,6 +294,9 @@ export interface UserProfile {
   activeChallengeId?: string | null; 
   customShoppingList?: ShoppingItem[]; 
   inventory?: InventoryItem[];
+  cookingTransactions?: CookingTransaction[];
+  inventorySchemaVersion?: number;
+  inventoryNeedsReview?: boolean;
   kitchenMode?: KitchenMode;
   hasCompletedSetup?: boolean;
   onlyFavoritesMode?: boolean;

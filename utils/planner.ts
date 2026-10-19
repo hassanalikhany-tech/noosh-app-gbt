@@ -3,7 +3,7 @@ import { CHALLENGES } from '../data/challenges';
 import { Dish, DayPlan, UserProfile } from '../types';
 import { RecipeService } from '../services/recipeService';
 import { UserService } from '../services/userService';
-import { normalizeItemName, isDishProhibited, estimateCookTime, getDishNature, getShoppingShortages } from './recipeHelpers';
+import { normalizeItemName, isDishProhibited, estimateCookTime, getDishNature, getShoppingShortages, evaluateInventory } from './recipeHelpers';
 import { getRelevantInventory, usesInventory } from './kitchenMode';
 
 const shuffleArray = <T>(array: T[]): T[] => {
@@ -94,10 +94,9 @@ export const getPlanningPool = (user: UserProfile): Dish[] => {
   if (!usesInventory(user) || !inventory.some(item => item.amount > 0)) return pool;
 
   const scored = pool.map((dish, order) => {
-    const measurableIngredients = dish.ingredients.filter(ingredient => Number(ingredient.amount) > 0);
-    const shortages = getShoppingShortages(inventory, dish.ingredients, user.familySize || 4, dish.servings || 4);
-    const coverage = measurableIngredients.length ? (measurableIngredients.length - shortages.length) / measurableIngredients.length : 0;
-    return { dish, order, shortages: shortages.length, coverage };
+    const evaluation = evaluateInventory(inventory, dish.ingredients, user.familySize || 4, dish.servings || 4);
+    const coverage = evaluation.lines.length ? evaluation.lines.filter(line => line.status === 'ready').length / evaluation.lines.length : 0;
+    return { dish, order, shortages: evaluation.lines.filter(line => line.status !== 'ready').length, coverage };
   });
 
   scored.sort((a, b) => b.coverage - a.coverage || a.shortages - b.shortages || a.order - b.order);

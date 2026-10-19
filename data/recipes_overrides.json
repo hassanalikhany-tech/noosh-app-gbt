@@ -644,7 +644,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766799342395",
@@ -702,7 +703,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766876956936",
@@ -769,7 +771,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766877137844",
@@ -845,7 +848,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766881812357",
@@ -926,7 +930,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766883317766",
@@ -1010,7 +1015,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766883592583",
@@ -1088,7 +1094,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766883843657",
@@ -1164,7 +1171,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766884212692",
@@ -1235,7 +1243,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766956020736",
@@ -1301,7 +1310,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766956416037",
@@ -1382,7 +1392,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766956905813",
@@ -1453,7 +1464,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766958808660",
@@ -1551,7 +1563,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/aloo-paratha-review.jpg"
+      "imageUrl": "/images/recipes/aloo-paratha-review.jpg",
+      "servings": 4
     },
     {
       "id": "dish-0-1766959134379",
@@ -1645,7 +1658,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766961078329",
@@ -1728,7 +1742,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766961391028",
@@ -1815,7 +1830,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766963128330",
@@ -1902,7 +1918,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766972486974",
@@ -1987,7 +2004,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766973887872",
@@ -2058,7 +2076,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1766974127134",
@@ -2141,7 +2160,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1769808192408",
@@ -2224,7 +2244,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1769901425087",
@@ -2292,7 +2313,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1769902135930",
@@ -2352,7 +2374,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1769902867207",
@@ -2424,7 +2447,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1769975411817",
@@ -2490,7 +2514,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1769975438099",
@@ -2552,7 +2577,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770080337713",
@@ -2619,7 +2645,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770080380305",
@@ -2691,7 +2718,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770085451264",
@@ -2760,7 +2788,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770086289960",
@@ -2820,7 +2849,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770148225170",
@@ -2897,7 +2927,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/chicken-paprikash-review.jpg"
+      "imageUrl": "/images/recipes/chicken-paprikash-review.jpg",
+      "servings": 4
     },
     {
       "id": "dish-0-1770148243186",
@@ -2957,7 +2988,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770148261442",
@@ -3039,7 +3071,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770148283123",
@@ -3117,7 +3150,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770148305992",
@@ -3205,7 +3239,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770148326913",
@@ -3289,7 +3324,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770148347603",
@@ -3357,7 +3393,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770148364578",
@@ -3433,7 +3470,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770148381705",
@@ -3494,7 +3532,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-0-1770148403307",
@@ -3572,7 +3611,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/pizza-margherita-review.jpg"
+      "imageUrl": "/images/recipes/pizza-margherita-review.jpg",
+      "servings": 4
     },
     {
       "id": "dish-0-1770853484001",
@@ -3633,7 +3673,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/buffalo-wings-review.jpg"
+      "imageUrl": "/images/recipes/buffalo-wings-review.jpg",
+      "servings": 4
     },
     {
       "id": "dish-0-1770853534565",
@@ -3695,7 +3736,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/saffron-grilled-wings-review.jpg"
+      "imageUrl": "/images/recipes/saffron-grilled-wings-review.jpg",
+      "servings": 4
     },
     {
       "id": "dish-0-1770853689129",
@@ -3751,7 +3793,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/morgh-longi-review.jpg"
+      "imageUrl": "/images/recipes/morgh-longi-review.jpg",
+      "servings": 4
     },
     {
       "id": "dish-0-1770856639426",
@@ -3841,7 +3884,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/bibimbap-beef-review.jpg"
+      "imageUrl": "/images/recipes/bibimbap-beef-review.jpg",
+      "servings": 4
     },
     {
       "id": "dish-0-1771343394089",
@@ -3882,7 +3926,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/fried-eggs-review.jpg"
+      "imageUrl": "/images/recipes/fried-eggs-review.jpg",
+      "servings": 4
     },
     {
       "id": "dish-0-1771724051452",
@@ -3939,7 +3984,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/akbar-joojeh-review.jpg"
+      "imageUrl": "/images/recipes/akbar-joojeh-review.jpg",
+      "servings": 4
     },
     {
       "id": "dish-0-1775503642242",
@@ -4010,7 +4056,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/turkish-ufo-kebab-review.jpg"
+      "imageUrl": "/images/recipes/turkish-ufo-kebab-review.jpg",
+      "servings": 4
     },
     {
       "id": "dish-0-1776124802762",
@@ -4078,7 +4125,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/stuffed-duck-review.jpg"
+      "imageUrl": "/images/recipes/stuffed-duck-review.jpg",
+      "servings": 4
     },
     {
       "id": "dish-0-1776124850907",
@@ -4160,7 +4208,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/turkish-iskembe-corbasi-review.jpg"
+      "imageUrl": "/images/recipes/turkish-iskembe-corbasi-review.jpg",
+      "servings": 4
     },
     {
       "id": "dish-0-1776124877276",
@@ -4226,7 +4275,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-0-1776124877276.webp"
+      "imageUrl": "/images/recipes/dish-0-1776124877276.webp",
+      "servings": 4
     },
     {
       "id": "dish-0-1776124903557",
@@ -4293,7 +4343,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-0-1776124903557.webp"
+      "imageUrl": "/images/recipes/dish-0-1776124903557.webp",
+      "servings": 4
     },
     {
       "id": "dish-0-1776124930573",
@@ -4356,7 +4407,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-0-1776124930573.webp"
+      "imageUrl": "/images/recipes/dish-0-1776124930573.webp",
+      "servings": 4
     },
     {
       "id": "dish-0-1776124950506",
@@ -4422,7 +4474,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-0-1776124950506.webp"
+      "imageUrl": "/images/recipes/dish-0-1776124950506.webp",
+      "servings": 4
     },
     {
       "id": "dish-0-1776124974346",
@@ -4490,7 +4543,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-0-1776124974346.webp"
+      "imageUrl": "/images/recipes/dish-0-1776124974346.webp",
+      "servings": 4
     },
     {
       "id": "dish-0-1776125418831",
@@ -4557,7 +4611,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-0-1776125418831.webp"
+      "imageUrl": "/images/recipes/dish-0-1776125418831.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1766794336335",
@@ -4634,7 +4689,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766799342395",
@@ -4696,7 +4752,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766876956936",
@@ -4789,7 +4846,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766877137845",
@@ -4854,7 +4912,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766881812358",
@@ -4921,7 +4980,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766883317766",
@@ -4994,7 +5054,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766883592583",
@@ -5065,7 +5126,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766883843657",
@@ -5150,7 +5212,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766884212692",
@@ -5237,7 +5300,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766956020736",
@@ -5323,7 +5387,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766956416037",
@@ -5390,7 +5455,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766956905813",
@@ -5452,7 +5518,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1766956905813.webp"
+      "imageUrl": "/images/recipes/dish-1-1766956905813.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1766958808660",
@@ -5508,7 +5575,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766959134379",
@@ -5579,7 +5647,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766961078329",
@@ -5675,7 +5744,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766961391029",
@@ -5778,7 +5848,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766963128330",
@@ -5853,7 +5924,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1766972486974",
@@ -5933,7 +6005,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1766972486974.webp"
+      "imageUrl": "/images/recipes/dish-1-1766972486974.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1766973887873",
@@ -6005,7 +6078,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1769808192408",
@@ -6077,7 +6151,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1769901425087",
@@ -6144,7 +6219,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1769902135931",
@@ -6200,7 +6276,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1769902867207",
@@ -6276,7 +6353,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1769975411817",
@@ -6359,7 +6437,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1769975438099",
@@ -6429,7 +6508,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1770080337713",
@@ -6487,7 +6567,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770080337713.webp"
+      "imageUrl": "/images/recipes/dish-1-1770080337713.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1770080380305",
@@ -6558,7 +6639,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1770085451265",
@@ -6619,7 +6701,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1770086289960",
@@ -6701,7 +6784,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1770148184121",
@@ -6757,7 +6841,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1770148225170",
@@ -6823,7 +6908,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1770148243186",
@@ -6879,7 +6965,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1770148261442",
@@ -6960,7 +7047,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770148261442.webp"
+      "imageUrl": "/images/recipes/dish-1-1770148261442.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1770148283123",
@@ -7047,7 +7135,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-1-1770148305992",
@@ -7113,7 +7202,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770148305992.webp"
+      "imageUrl": "/images/recipes/dish-1-1770148305992.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1770148326913",
@@ -7180,7 +7270,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770148326913.webp"
+      "imageUrl": "/images/recipes/dish-1-1770148326913.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1770148347603",
@@ -7223,7 +7314,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770148347603.webp"
+      "imageUrl": "/images/recipes/dish-1-1770148347603.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1770148364578",
@@ -7294,7 +7386,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770148364578.webp"
+      "imageUrl": "/images/recipes/dish-1-1770148364578.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1770148381705",
@@ -7368,7 +7461,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770148381705.webp"
+      "imageUrl": "/images/recipes/dish-1-1770148381705.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1770148403307",
@@ -7431,7 +7525,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770148403307.webp"
+      "imageUrl": "/images/recipes/dish-1-1770148403307.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1770148427755",
@@ -7508,7 +7603,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770148427755.webp"
+      "imageUrl": "/images/recipes/dish-1-1770148427755.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1770853484001",
@@ -7577,7 +7673,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770853484001.webp"
+      "imageUrl": "/images/recipes/dish-1-1770853484001.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1770853534566",
@@ -7645,7 +7742,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770853534566.webp"
+      "imageUrl": "/images/recipes/dish-1-1770853534566.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1770853689129",
@@ -7712,7 +7810,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770853689129.webp"
+      "imageUrl": "/images/recipes/dish-1-1770853689129.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1770856639426",
@@ -7796,7 +7895,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1770856639426.webp"
+      "imageUrl": "/images/recipes/dish-1-1770856639426.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1771343394090",
@@ -7842,7 +7942,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1771343394090.webp"
+      "imageUrl": "/images/recipes/dish-1-1771343394090.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1771724051453",
@@ -7913,7 +8014,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1771724051453.webp"
+      "imageUrl": "/images/recipes/dish-1-1771724051453.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1775503642243",
@@ -7981,7 +8083,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1775503642243.webp"
+      "imageUrl": "/images/recipes/dish-1-1775503642243.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1776124802763",
@@ -8043,7 +8146,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1776124802763.webp"
+      "imageUrl": "/images/recipes/dish-1-1776124802763.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1776124850907",
@@ -8114,7 +8218,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1776124850907.webp"
+      "imageUrl": "/images/recipes/dish-1-1776124850907.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1776124877276",
@@ -8176,7 +8281,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1776124877276.webp"
+      "imageUrl": "/images/recipes/dish-1-1776124877276.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1776124903557",
@@ -8245,7 +8351,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1776124903557.webp"
+      "imageUrl": "/images/recipes/dish-1-1776124903557.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1776124930573",
@@ -8308,7 +8415,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1776124930573.webp"
+      "imageUrl": "/images/recipes/dish-1-1776124930573.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1776124950506",
@@ -8374,7 +8482,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1776124950506.webp"
+      "imageUrl": "/images/recipes/dish-1-1776124950506.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1776124974346",
@@ -8451,7 +8560,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1776124974346.webp"
+      "imageUrl": "/images/recipes/dish-1-1776124974346.webp",
+      "servings": 4
     },
     {
       "id": "dish-1-1776125418831",
@@ -8519,7 +8629,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-1-1776125418831.webp"
+      "imageUrl": "/images/recipes/dish-1-1776125418831.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766794336336",
@@ -8584,7 +8695,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-10-1766799342396",
@@ -8627,7 +8739,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-10-1766876956936",
@@ -8704,7 +8817,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-10-1766877137846",
@@ -8765,7 +8879,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-10-1766881812358",
@@ -8831,7 +8946,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-10-1766883317767",
@@ -8909,7 +9025,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766883317767.webp"
+      "imageUrl": "/images/recipes/dish-10-1766883317767.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766883592583",
@@ -8986,7 +9103,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766883592583.webp"
+      "imageUrl": "/images/recipes/dish-10-1766883592583.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766883843657",
@@ -9054,7 +9172,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766883843657.webp"
+      "imageUrl": "/images/recipes/dish-10-1766883843657.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766884212693",
@@ -9122,7 +9241,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766884212693.webp"
+      "imageUrl": "/images/recipes/dish-10-1766884212693.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766956020736",
@@ -9196,7 +9316,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766956020736.webp"
+      "imageUrl": "/images/recipes/dish-10-1766956020736.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766956416038",
@@ -9271,7 +9392,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766956416038.webp"
+      "imageUrl": "/images/recipes/dish-10-1766956416038.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766956905814",
@@ -9337,7 +9459,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766956905814.webp"
+      "imageUrl": "/images/recipes/dish-10-1766956905814.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766958808663",
@@ -9404,7 +9527,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766958808663.webp"
+      "imageUrl": "/images/recipes/dish-10-1766958808663.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766959134380",
@@ -9461,7 +9585,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766959134380.webp"
+      "imageUrl": "/images/recipes/dish-10-1766959134380.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766961078330",
@@ -9532,7 +9657,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766961078330.webp"
+      "imageUrl": "/images/recipes/dish-10-1766961078330.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766961391030",
@@ -9631,7 +9757,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766961391030.webp"
+      "imageUrl": "/images/recipes/dish-10-1766961391030.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766963128331",
@@ -9727,7 +9854,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766963128331.webp"
+      "imageUrl": "/images/recipes/dish-10-1766963128331.webp",
+      "servings": 4
     },
     {
       "id": "dish-10-1766972486976",
@@ -9805,7 +9933,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-10-1766972486976.webp"
+      "imageUrl": "/images/recipes/dish-10-1766972486976.webp",
+      "servings": 4
     },
     {
       "id": "dish-11-1766794336336",
@@ -9865,7 +9994,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-11-1766799342396",
@@ -9908,7 +10038,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-11-1766876956936",
@@ -9974,7 +10105,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-11-1766877137846",
@@ -10057,7 +10189,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-11-1766881812358",
@@ -10104,7 +10237,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-11-1766883317767",
@@ -10166,7 +10300,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-11-1766883317767.webp"
+      "imageUrl": "/images/recipes/dish-11-1766883317767.webp",
+      "servings": 4
     },
     {
       "id": "dish-11-1766883592583",
@@ -10233,7 +10368,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-11-1766883592583.webp"
+      "imageUrl": "/images/recipes/dish-11-1766883592583.webp",
+      "servings": 4
     },
     {
       "id": "dish-11-1766883843657",
@@ -10295,7 +10431,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-11-1766883843657.webp"
+      "imageUrl": "/images/recipes/dish-11-1766883843657.webp",
+      "servings": 4
     },
     {
       "id": "dish-11-1766884212693",
@@ -10368,7 +10505,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-11-1766884212693.webp"
+      "imageUrl": "/images/recipes/dish-11-1766884212693.webp",
+      "servings": 4
     },
     {
       "id": "dish-11-1766956020736",
@@ -10451,7 +10589,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-11-1766956020736.webp"
+      "imageUrl": "/images/recipes/dish-11-1766956020736.webp",
+      "servings": 4
     },
     {
       "id": "dish-11-1766956416038",
@@ -10533,7 +10672,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-11-1766956416038.webp"
+      "imageUrl": "/images/recipes/dish-11-1766956416038.webp",
+      "servings": 4
     },
     {
       "id": "dish-11-1766956905814",
@@ -10588,7 +10728,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "approved",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-11-1766958808663",
@@ -10685,7 +10826,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-11-1766958808663.webp"
+      "imageUrl": "/images/recipes/dish-11-1766958808663.webp",
+      "servings": 4
     },
     {
       "id": "dish-11-1766959134380",
@@ -10769,7 +10911,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-11-1766959134380.webp"
+      "imageUrl": "/images/recipes/dish-11-1766959134380.webp",
+      "servings": 4
     },
     {
       "id": "dish-11-1766961078330",
@@ -10842,7 +10985,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-11-1766961078330.webp"
+      "imageUrl": "/images/recipes/dish-11-1766961078330.webp",
+      "servings": 4
     },
     {
       "id": "dish-11-1766961391030",
@@ -10920,7 +11064,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-11-1766961391030.webp"
+      "imageUrl": "/images/recipes/dish-11-1766961391030.webp",
+      "servings": 4
     },
     {
       "id": "dish-11-1766963128331",
@@ -10987,7 +11132,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-11-1766963128331.webp"
+      "imageUrl": "/images/recipes/dish-11-1766963128331.webp",
+      "servings": 4
     },
     {
       "id": "dish-11-1766972486976",
@@ -11064,7 +11210,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-11-1766972486976.webp"
+      "imageUrl": "/images/recipes/dish-11-1766972486976.webp",
+      "servings": 4
     },
     {
       "id": "dish-12-1766794336336",
@@ -11132,7 +11279,8 @@
         "گشنیز و اسفناج خرد شده را به همراه نمک به آش اضافه کرده و حرارت را ملایم کنید.",
         "اجازه دهید آش با حرارت کم کاملاً جا افتاده و غلیظ شود، سپس آن را به صورت گرم میل نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-12-1766799342396",
@@ -11173,7 +11321,8 @@
         "برنج را آبکش کنید.",
         "لایه لایه برنج، مایه گوشت و پودر دارچین بریزید و دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-12-1766876956936",
@@ -11245,7 +11394,8 @@
         "کشک را با کمی آب رقیق کرده، به تابه اضافه کنید و خوب هم بزنید. اجازه دهید ۱۰ دقیقه روی حرارت بماند تا آب اضافی آن کشیده شود.",
         "گردوی خرد شده را اضافه کرده و پس از چند دقیقه حرارت را خاموش کنید. کشک بادمجان را در ظرف ریخته و با پیاز داغ، نعنا داغ، سیر داغ و گردو تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-12-1766877137847",
@@ -11315,7 +11465,8 @@
         "به اندازه یک پرتقال متوسط از مایه کوفته برداشته، در دست گرد کنید و وسط آن را با مقداری کشمش و گردو پر کنید. کوفته را دوباره ببندید و به آرامی در سس در حال جوش قرار دهید.",
         "پس از قرار دادن تمام کوفته‌ها، حرارت را کم کرده و اجازه دهید به مدت ۹۰ تا ۱۲۰ دقیقه با درِ نیمه‌باز قابلمه مغزپخت شوند تا سس غلیظ شده و کوفته‌ها روغن بیندازند."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-12-1766881812358",
@@ -11405,7 +11556,8 @@
         "کشک را با مقداری آب رقیق کرده و به مخلوط اضافه کنید. قابلمه را ۱۰ تا ۱۵ دقیقه روی حرارت ملایم قرار داده و مدام هم بزنید تا طعم‌ها ترکیب شده و غذا جا بیفتد.",
         "در انتها حلیم بادمجان را در ظرف مناسب کشیده و با نعنا داغ، پیاز داغ، گردوی خرد شده و کمی پودر دارچین تزیین و سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-12-1766883317767",
@@ -11477,7 +11629,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-12-1766883317767.webp"
+      "imageUrl": "/images/recipes/dish-12-1766883317767.webp",
+      "servings": 4
     },
     {
       "id": "dish-12-1766883592583",
@@ -11549,7 +11702,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-12-1766883592583.webp"
+      "imageUrl": "/images/recipes/dish-12-1766883592583.webp",
+      "servings": 4
     },
     {
       "id": "dish-12-1766883843657",
@@ -11622,7 +11776,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-12-1766883843657.webp"
+      "imageUrl": "/images/recipes/dish-12-1766883843657.webp",
+      "servings": 4
     },
     {
       "id": "dish-12-1766884212693",
@@ -11689,7 +11844,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-12-1766884212693.webp"
+      "imageUrl": "/images/recipes/dish-12-1766884212693.webp",
+      "servings": 4
     },
     {
       "id": "dish-12-1766956905814",
@@ -11744,7 +11900,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-12-1766956905814.webp"
+      "imageUrl": "/images/recipes/dish-12-1766956905814.webp",
+      "servings": 4
     },
     {
       "id": "dish-12-1766958808663",
@@ -11832,7 +11989,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-12-1766958808663.webp"
+      "imageUrl": "/images/recipes/dish-12-1766958808663.webp",
+      "servings": 4
     },
     {
       "id": "dish-12-1766959134380",
@@ -11905,7 +12063,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-12-1766959134380.webp"
+      "imageUrl": "/images/recipes/dish-12-1766959134380.webp",
+      "servings": 4
     },
     {
       "id": "dish-12-1766961078330",
@@ -11983,7 +12142,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-12-1766961078330.webp"
+      "imageUrl": "/images/recipes/dish-12-1766961078330.webp",
+      "servings": 4
     },
     {
       "id": "dish-12-1766961391030",
@@ -12064,7 +12224,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-12-1766961391030.webp"
+      "imageUrl": "/images/recipes/dish-12-1766961391030.webp",
+      "servings": 4
     },
     {
       "id": "dish-12-1766963128331",
@@ -12127,7 +12288,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-12-1766963128331.webp"
+      "imageUrl": "/images/recipes/dish-12-1766963128331.webp",
+      "servings": 4
     },
     {
       "id": "dish-12-1766972486976",
@@ -12195,7 +12357,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-12-1766972486976.webp"
+      "imageUrl": "/images/recipes/dish-12-1766972486976.webp",
+      "servings": 4
     },
     {
       "id": "dish-13-1766794336336",
@@ -12286,7 +12449,8 @@
         "نیمی از پیاز داغ را به همراه نمک، فلفل سیاه و زردچوبه به آش اضافه کرده و مواد را با گوشت‌کوب یا قاشق بزرگ مدام هم بزنید.",
         "اجازه دهید آش با حرارت بسیار ملایم به مدت یک ساعت جا بیفتد و با هم زدن مداوم بافت آن کشدار شود، سپس در ظرف سرو ریخته و با باقی‌مانده پیاز داغ تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-13-1766876956936",
@@ -12354,7 +12518,8 @@
         "در مرکز تابه پیازها، رب گوجه‌فرنگی را همراه با زردچوبه و فلفل قرمز تفت دهید تا بوی خامی رب گرفته شده و رنگ آن باز شود.",
         "سوسیس و سیب‌زمینی سرخ شده را به پیاز و رب اضافه کرده، نمک و فلفل سیاه بزنید و با افزودن مقدار بسیار کمی آب جوش، اجازه دهید ۱۰ دقیقه با حرارت ملایم طعم‌ها به خورد هم بروند."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-13-1766877137847",
@@ -12429,7 +12594,8 @@
         "کوفته‌های سرخ شده را به آرامی درون سس در حال جوش قرار داده و حرارت را ملایم کنید تا به مدت ۴۰ دقیقه مغزپخت شوند.",
         "در ۲۰ دقیقه پایانی پخت، سرکه و شیره انگور را با هم مخلوط کرده و به عنوان چاشنی به قابلمه اضافه کنید تا طعم ملس نهایی به خورد کوفته‌ها برود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-13-1766881812358",
@@ -12494,7 +12660,8 @@
         "سینی را در فر که از قبل با دمای ۱۸۰ درجه سانتی‌گراد گرم شده است، به مدت ۴۵ تا ۶۰ دقیقه قرار دهید تا ماهی کاملاً مغزپخت و پوست آن طلایی شود.",
         "ماهی آماده شده را در ظرف مورد نظر قرار داده، نخ را به آرامی جدا کنید و همراه با کته شمالی و نارنج تازه سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-13-1766883317767",
@@ -12571,7 +12738,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-13-1766883317767.webp"
+      "imageUrl": "/images/recipes/dish-13-1766883317767.webp",
+      "servings": 4
     },
     {
       "id": "dish-13-1766883592583",
@@ -12642,7 +12810,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-13-1766883592583.webp"
+      "imageUrl": "/images/recipes/dish-13-1766883592583.webp",
+      "servings": 4
     },
     {
       "id": "dish-13-1766883843657",
@@ -12726,7 +12895,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-13-1766883843657.webp"
+      "imageUrl": "/images/recipes/dish-13-1766883843657.webp",
+      "servings": 4
     },
     {
       "id": "dish-13-1766884212693",
@@ -12831,7 +13001,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-13-1766884212693.webp"
+      "imageUrl": "/images/recipes/dish-13-1766884212693.webp",
+      "servings": 4
     },
     {
       "id": "dish-13-1766956905814",
@@ -12898,7 +13069,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-13-1766956905814.webp"
+      "imageUrl": "/images/recipes/dish-13-1766956905814.webp",
+      "servings": 4
     },
     {
       "id": "dish-13-1766958808663",
@@ -12960,7 +13132,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-13-1766958808663.webp"
+      "imageUrl": "/images/recipes/dish-13-1766958808663.webp",
+      "servings": 4
     },
     {
       "id": "dish-13-1766959134380",
@@ -13027,7 +13200,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-13-1766959134380.webp"
+      "imageUrl": "/images/recipes/dish-13-1766959134380.webp",
+      "servings": 4
     },
     {
       "id": "dish-13-1766961078330",
@@ -13129,7 +13303,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-13-1766961078330.webp"
+      "imageUrl": "/images/recipes/dish-13-1766961078330.webp",
+      "servings": 4
     },
     {
       "id": "dish-13-1766961391030",
@@ -13218,7 +13393,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-13-1766961391030.webp"
+      "imageUrl": "/images/recipes/dish-13-1766961391030.webp",
+      "servings": 4
     },
     {
       "id": "dish-13-1766963128331",
@@ -13306,7 +13482,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-13-1766963128331.webp"
+      "imageUrl": "/images/recipes/dish-13-1766963128331.webp",
+      "servings": 4
     },
     {
       "id": "dish-14-1766794336336",
@@ -13375,7 +13552,8 @@
         "آش را به طور مرتب هم بزنید تا برنج و کدو باعث غلظت یافتن آش شوند و اصطلاحاً آش جا بیفتد.",
         "در مرحله آخر، دارچین و نمک را اضافه کنید و پس از چند دقیقه حرارت دادن، آش را در ظرف مورد نظر کشیده و با باقی‌مانده پیاز داغ تزیین و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-14-1766799342396",
@@ -13411,7 +13589,8 @@
         "برنج و ماش را آبکش کرده و دم کنید.",
         "موقع سرو با کره و زعفران تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-14-1766876956936",
@@ -13479,7 +13658,8 @@
         "سیب‌زمینی‌های سرخ شده را به تابه برگردانید و نمک، فلفل، زردچوبه، پودر سیر و آویشن را روی مواد بپاشید و به خوبی هم بزنید تا طعم ادویه‌ها به خورد تمامی مواد برود.",
         "در مرحله نهایی، پنیر پیتزا را به طور یکنواخت روی سطح خوراک پخش کنید. درب تابه را ببندید و اجازه دهید با حرارت ملایم به مدت ۲ دقیقه بماند تا پنیر کاملاً ذوب شود؛ سپس گرم سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-14-1766877137847",
@@ -13574,7 +13754,8 @@
         "کوفته‌ها را به آرامی و یکی‌یکی در سس در حال جوش قرار دهید. حرارت را ملایم کنید و اجازه دهید کوفته‌ها به مدت ۴۵ تا ۶۰ دقیقه کاملاً پخته و مغزپخت شوند.",
         "در ۱۰ دقیقه پایانی پخت، مخلوط شکر، آبلیمو (یا سرکه) و زعفران دم‌کرده را به سس اضافه کنید تا طعم ملس و عطر عالی به غذا بدهد. پس از جا افتادن سس، غذا آماده سرو است."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-14-1766881812358",
@@ -13639,7 +13820,8 @@
         "روغن را در یک تابه نچسب داغ کنید و مایه کوکو را به صورت قاشقی (دانه دانه) یا به صورت یکجا در تابه بریزید.",
         "حرارت را روی حالت متوسط قرار دهید تا کوکوها مغزپخت شده و دو طرف آن‌ها کاملاً طلایی و سرخ شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-14-1766883317767",
@@ -13722,7 +13904,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-14-1766883317767.webp"
+      "imageUrl": "/images/recipes/dish-14-1766883317767.webp",
+      "servings": 4
     },
     {
       "id": "dish-14-1766883592583",
@@ -13794,7 +13977,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-14-1766883592583.webp"
+      "imageUrl": "/images/recipes/dish-14-1766883592583.webp",
+      "servings": 4
     },
     {
       "id": "dish-14-1766883843657",
@@ -13866,7 +14050,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-14-1766883843657.webp"
+      "imageUrl": "/images/recipes/dish-14-1766883843657.webp",
+      "servings": 4
     },
     {
       "id": "dish-14-1766956905814",
@@ -13934,7 +14119,8 @@
       "hasRealData": true,
       "imageReviewStatus": "completed",
       "localEdited": true,
-      "imageUrl": "/images/recipes/dish-14-1766956905814.webp"
+      "imageUrl": "/images/recipes/dish-14-1766956905814.webp",
+      "servings": 4
     },
     {
       "id": "dish-14-1766958808663",
@@ -14005,7 +14191,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-14-1766959134380",
@@ -14083,7 +14270,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-15-1766794336336",
@@ -14136,7 +14324,8 @@
         "سبزی آش و پیاز داغ را به قابلمه اضافه کرده و نمک و زردچوبه را برای طعم‌دهی و رنگ‌دهی به آش بیفزایید.",
         "حرارت را بسیار ملایم کرده و اجازه دهید آش به مدت ۶۰ دقیقه به آرامی بجوشد تا کاملاً جا بیفتد و غلیظ شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-15-1766799342396",
@@ -14177,7 +14366,8 @@
         "برنج را آبکش کرده و لایه لایه با حبوبات، گوشت و ادویه‌ها دم کنید.",
         "روغن حیوانی داغ روی پلو بدهید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-15-1766876956936",
@@ -14238,7 +14428,8 @@
         "در ۳۰ دقیقه پایانی پخت، نمک و پودر دارچین را به خوراک اضافه کنید تا طعم نهایی شکل بگیرد و آب غذا غلیظ شود.",
         "خوراک آماده شده را در ظرف مورد نظر بکشید و در کنار آب لیمو ترش تازه یا سرکه سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-15-1766877137847",
@@ -14329,7 +14520,8 @@
         "پس از جوش آمدن سس، کوفته‌ها را یکی‌یکی و به آرامی درون قابلمه قرار دهید. حرارت را ملایم کرده و درب قابلمه را نیمه‌باز بگذارید.",
         "اجازه دهید کوفته‌ها به مدت ۶۰ دقیقه با حرارت ملایم بپزند تا سس غلیظ شود و غذا کاملاً جا بیفتد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-15-1766881812358",
@@ -14411,7 +14603,8 @@
         "در ۳۰ دقیقه پایانی پخت، نمک را اضافه کرده و میزان چاشنی را تست کنید.",
         "هنگام سرو، چوب دارچین و پیازهای پخته را خارج کرده، چربی روی آب (روغن غذا) را جدا نموده، با کمی دارچین تفت دهید و دوباره روی غذا بریزید. کله پاچه را همراه با آب لیمو یا نارنج تازه و نان سنگک میل کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-15-1766883317767",
@@ -14492,7 +14685,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-15-1766883592583",
@@ -14569,7 +14763,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-15-1766883843657",
@@ -14650,7 +14845,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-15-1766956905814",
@@ -14712,7 +14908,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-15-1766958808663",
@@ -14768,7 +14965,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-15-1766959134380",
@@ -14849,7 +15047,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-16-1766794336336",
@@ -14923,7 +15122,8 @@
         "اجازه دهید آش با حرارت بسیار کم کاملاً جا بیفتد و به غلظت مناسب برسد؛ در این مرحله نمک را اندازه کنید.",
         "پس از جا افتادن، آش را در ظرف سرو ریخته و روی آن را با کشک، نعنا داغ (تفت داده شده در روغن) و باقی‌مانده پیاز داغ و سیر داغ تزیین نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-16-1766799342396",
@@ -14959,7 +15159,8 @@
         "آن‌ها را با زعفران و نمک مخلوط کنید.",
         "کف قابلمه روغن داغ ریخته و سیب‌زمینی را فشرده کنید و برنج را روی آن دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-16-1766876956936",
@@ -15024,7 +15225,8 @@
         "در یک ساعت پایانی پخت، چوب دارچین را خارج کرده و نمک و فلفل سیاه را به میزان لازم به غذا اضافه کنید.",
         "پس از پخت کامل و غلیظ شدن آب غذا، سیرابی را در ظرف مورد نظر کشیده و همراه با آب لیمو یا سرکه و نان سنگک تازه سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-16-1766877137847",
@@ -15088,7 +15290,8 @@
         "در یک ماهیتابه روغن ریخته و پس از داغ شدن، شامی‌ها را با حرارت ملایم سرخ کنید تا دو طرف آن‌ها طلایی و پخته شود.",
         "رب انار را با مقداری آب رقیق کرده و در ۱۰ دقیقه آخر پخت روی شامی‌ها بریزید تا سس غلیظ شده و به خورد شامی برود، یا سس را به صورت جداگانه در کنار دیس شامی سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-16-1766881812358",
@@ -15168,7 +15371,8 @@
         "مقداری از مایه گوشت را به اندازه کف دست برداشته و در کفگیر یا تابه پهن کنید. اجازه دهید با حرارت ملایم زیر آن سرخ و برشته شود.",
         "کمی از آب گوشت غلیظ و چرب را روی نان سنگک بریزید تا نان نرم شود. بریانی سرخ شده را روی نان برگردانید، جگر سفید تفت داده شده را کنار آن قرار دهید و با گردو و خلال بادام تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-16-1766883317767",
@@ -15236,7 +15440,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-16-1766883592583",
@@ -15312,7 +15517,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-16-1766883843658",
@@ -15388,7 +15594,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-16-1766956905814",
@@ -15454,7 +15661,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-16-1766958808663",
@@ -15564,7 +15772,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-16-1766959134380",
@@ -15629,7 +15838,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-17-1766794336336",
@@ -15708,7 +15918,8 @@
         "نمک و فلفل سیاه را برای طعم‌دار کردن بیفزایید و اجازه دهید آش با حرارت ملایم کاملاً جا بیفتد و غلیظ شود.",
         "در ۱۰ دقیقه پایانی پخت، آبغوره را اضافه کرده و میزان چاشنی را طبق ذائقه خود تنظیم کنید. پس از غلیظ شدن نهایی، آش را در ظرف مورد نظر سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-17-1766799342396",
@@ -15743,7 +15954,8 @@
         "کدوها را حلقه‌ای بریده و نمک و زردچوبه بزنید.",
         "کف قابلمه روغن ریخته و کدوها را بچینید و برنج آبکش را روی آن دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-17-1766876956937",
@@ -15804,7 +16016,8 @@
         "تخم‌مرغ‌ها را در ظرفی جداگانه بشکنید، هم بزنید و به تابه اضافه کنید (یا می‌توانید آن‌ها را گوشه‌ای از تابه بشکنید و پس از سفت شدن با بقیه مواد مخلوط کنید).",
         "نمک و فلفل سیاه را اندازه کنید و پس از چند دقیقه تفت دادن نهایی، غذا را در ظرف مورد نظر کشیده و با نان تازه یا کته سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-17-1766877137847",
@@ -15863,7 +16076,8 @@
         "تخم‌مرغ‌ها، زعفران و ادویه‌ها را اضافه کرده و مایه را خوب ورز دهید.",
         "از مواد برداشته، فرم دهید و وسط آن را سوراخ کنید، سپس در روغن داغ سرخ کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-17-1766881812358",
@@ -15927,7 +16141,8 @@
         "زیره سیاه و مغز گردوی خرد شده را همراه با فلفل سیاه به مواد اضافه کرده و اجازه دهید غذا برای حدود ۱۰ دقیقه روی حرارت بسیار ملایم بماند تا کاملاً جا بیفتد و غلیظ شود.",
         "غذا را در ظرف مورد نظر کشیده و با پیاز داغ، نعنا داغ و چند عدد گردو تزیین و همراه با نان تازه سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-17-1766883317767",
@@ -16010,7 +16225,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-17-1766883592583",
@@ -16083,7 +16299,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-17-1766883843658",
@@ -16155,7 +16372,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-17-1766958808663",
@@ -16215,7 +16433,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-17-1766959134380",
@@ -16281,7 +16500,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-18-1766794336336",
@@ -16346,7 +16566,8 @@
         "نیمی از پیازداغ، نعناداغ و کوفته‌ریزه‌ها را داخل آش بریزید و اجازه دهید آش با حرارت ملایم به مدت ۲۰ دقیقه بجوشد تا کاملاً جا بیفتد.",
         "در پایان آش را در ظرف مورد نظر کشیده و با باقی‌مانده پیازداغ، نعناداغ و کوفته‌ریزه‌ها تزیین و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-18-1766799342396",
@@ -16381,7 +16602,8 @@
         "ماش را بپزید. گوشت را با پیاز و ادویه سرخ کنید.",
         "برنج را آبکش کرده و لایه لایه با مایه گوشتی و ماش دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-18-1766876956937",
@@ -16460,7 +16682,8 @@
         "درب تابه را بگذارید تا گوجه‌ها نرم شوند. در صورت نیاز برای پخت بهتر، نصف استکان آب اضافه کنید و اجازه دهید غذا با حرارت ملایم جا بیفتد.",
         "در مرحله آخر، نمک و آب‌لیمو یا آب‌غوره را اضافه کرده و پس از چند دقیقه از روی حرارت بردارید. این غذا را می‌توانید با برنج یا نان سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-18-1766877137847",
@@ -16523,7 +16746,8 @@
         "آرد سوخاری را کم‌کم اضافه کنید تا مایه منسجم شود (اگر مایه شل بود بیشتر بریزید).",
         "مواد را ورز دهید و سپس به اشکال دلخواه درآورده و در روغن با حرارت ملایم سرخ کنید تا مغزپخت شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-18-1766881812358",
@@ -16583,7 +16807,8 @@
         "اجازه دهید اشکنه با حرارت کم بجوشد و جا بیفتد؛ توجه داشته باشید که این غذا نباید بیش از حد قل بزند تا روغن طبیعی بنه به خوبی روی سطح غذا جمع شود.",
         "در پایان اشکنه بنه را در ظرف مناسب کشیده و به همراه نان سنگک یا نان محلی سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-18-1766883317767",
@@ -16660,7 +16885,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-18-1766883592583",
@@ -16753,7 +16979,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-18-1766883843658",
@@ -16824,7 +17051,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-18-1766958808663",
@@ -16901,7 +17129,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-18-1766959134380",
@@ -16967,7 +17196,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-19-1766794336336",
@@ -17030,7 +17260,8 @@
         "نمک و فلفل سیاه را مطابق با ذائقه خود اضافه کرده و حرارت را ملایم کنید تا آش به آرامی بجوشد و کاملاً لعاب بیندازد.",
         "پس از اینکه آش جا افتاد، آن را در ظرف مناسب سرو کشیده و با باقی‌مانده پیاز داغ تزئین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-19-1766799342396",
@@ -17070,7 +17301,8 @@
         "لپه و گوشت را بپزید. برنج را با رشته و لپه بجوشانید و آبکش کنید.",
         "پلو را با زیره دم کنید و با زرشک و گوشت تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-19-1766876956937",
@@ -17139,7 +17371,8 @@
         "تخم‌مرغ‌ها را در ظرفی جداگانه کمی هم بزنید و به صورت نواری به اشکنه اضافه کنید یا در صورت تمایل آن‌ها را به صورت درسته در قابلمه بشکنید تا بسته شوند.",
         "گردوی خرد شده، نمک و فلفل را اضافه کنید و پس از ۵ دقیقه که غذا جا افتاد، آن را در ظرف ریخته و همراه با نان خشک یزدی سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-19-1766877137847",
@@ -17203,7 +17436,8 @@
         "در ماهیتابه روغن ریخته و وقتی داغ شد، مایه کوکو را یکجا بریزید و سطح آن را صاف کنید.",
         "درب تابه را بگذارید تا یک طرف سرخ شود، سپس برگردانید تا طرف دیگر نیز طلایی شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-19-1766883317767",
@@ -17280,7 +17514,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-19-1766883592583",
@@ -17352,7 +17587,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-19-1766883843658",
@@ -17418,7 +17654,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-19-1766958808663",
@@ -17516,7 +17753,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-19-1766959134380",
@@ -17594,7 +17832,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766794336336",
@@ -17669,7 +17908,8 @@
         "نیمی از مخلوط پیاز داغ، سیر داغ و نعناع داغ را به همراه نمک و فلفل سیاه به آش اضافه کنید.",
         "اجازه دهید آش با حرارت بسیار ملایم به مدت ۳۰ دقیقه دیگر بجوشد تا کاملاً غلیظ و جا افتاده شود، سپس در ظرف سرو کشیده و با باقی‌مانده پیاز داغ تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766799342395",
@@ -17722,7 +17962,8 @@
         "برنج و باقالی را لایه لایه با شوید خشک داخل قابلمه بریزید.",
         "برنج را دم کنید و در آخر با کره و زعفران تزیین کرده و با مرغ سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766876956936",
@@ -17801,7 +18042,8 @@
         "غوره تازه را در ۲۰ دقیقه آخر پخت به همراه نمک و شنبلیله خشک به آبگوشت اضافه کنید تا طعم‌ها با هم ترکیب شوند.",
         "پس از اینکه آبگوشت کاملاً جا افتاد، آب آن را در ظرف جداگانه ریخته و مواد جامد (گوشت، حبوبات و سیب‌زمینی) را با گوشت‌کوب کاملاً بکوبید و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766877137846",
@@ -17862,7 +18104,8 @@
         "اجازه دهید مواد حدود ۵ تا ۱۰ دقیقه روی حرارت ملایم با هم تفت بخورند تا طعم‌ها به خورد هم بروند.",
         "در پایان پخت، آبلیموی تازه را اضافه کرده، مواد را یک بار دیگر مخلوط کنید و سپس در ظرف مناسب به همراه نان سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766881812358",
@@ -17936,7 +18179,8 @@
         "پس از پخت کامل گوشت و سبزیجات، رشته فرنگی را اضافه کرده و حدود ۱۰ دقیقه صبر کنید تا رشته‌ها پخته و حجیم شوند.",
         "در ۵ دقیقه پایانی پخت، نمک و جعفری خرد شده را اضافه کرده و سپس شوربا را همراه با چاشنی آبغوره یا سماق سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766883317766",
@@ -18009,7 +18253,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766883592583",
@@ -18096,7 +18341,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766883843657",
@@ -18162,7 +18408,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766884212692",
@@ -18238,7 +18485,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766956020736",
@@ -18325,7 +18573,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766956416038",
@@ -18397,7 +18646,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766956905814",
@@ -18458,7 +18708,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766958808662",
@@ -18545,7 +18796,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766961078329",
@@ -18658,7 +18910,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766961391029",
@@ -18761,7 +19014,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766963128331",
@@ -18847,7 +19101,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1766972486974",
@@ -18924,7 +19179,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1769808192408",
@@ -19008,7 +19264,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1769901425087",
@@ -19074,7 +19331,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1769902135931",
@@ -19134,7 +19392,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1769902867207",
@@ -19211,7 +19470,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1769975411817",
@@ -19274,7 +19534,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1769975438100",
@@ -19332,7 +19593,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770080337713",
@@ -19399,7 +19661,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770080380305",
@@ -19454,7 +19717,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770085451265",
@@ -19526,7 +19790,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770086289960",
@@ -19592,7 +19857,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770148184121",
@@ -19674,7 +19940,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770148225170",
@@ -19740,7 +20007,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770148243186",
@@ -19806,7 +20074,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770148261442",
@@ -19877,7 +20146,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770148283123",
@@ -19954,7 +20224,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770148305992",
@@ -20016,7 +20287,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770148326913",
@@ -20098,7 +20370,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770148347603",
@@ -20150,7 +20423,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770148364578",
@@ -20218,7 +20492,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770148381705",
@@ -20284,7 +20559,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770148403307",
@@ -20376,7 +20652,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770148427755",
@@ -20428,7 +20705,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770853484001",
@@ -20494,7 +20772,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770853534566",
@@ -20562,7 +20841,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770853689130",
@@ -20633,7 +20913,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1770856639426",
@@ -20705,7 +20986,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1771343394090",
@@ -20782,7 +21064,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1771724051453",
@@ -20838,7 +21121,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1775503642243",
@@ -20898,7 +21182,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1776124802763",
@@ -20958,7 +21243,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1776124850907",
@@ -21028,7 +21314,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1776124877277",
@@ -21088,7 +21375,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1776124903557",
@@ -21153,7 +21441,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1776124930573",
@@ -21208,7 +21497,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1776124950506",
@@ -21273,7 +21563,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1776124974346",
@@ -21333,7 +21624,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-2-1776125418831",
@@ -21395,7 +21687,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-20-1766794336336",
@@ -21484,7 +21777,8 @@
         "در ۱۰ دقیقه پایانی پخت، رشته آش را اضافه کنید تا نرم شود. سپس نمک، فلفل و زردچوبه را برای تنظیم طعم نهایی بیفزایید.",
         "پس از اینکه آش به غلظت مناسب رسید، آن را در ظرف سرو کشیده و با پیاز داغ و سیر داغ فراوان تزیین و سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-20-1766799342396",
@@ -21524,7 +21818,8 @@
         "مرغ را بپزید و ریش کنید. خلال‌ها و زرشک را در کره تفت دهید.",
         "برنج را دم کنید و در دیس با لایه‌های رنگین تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-20-1766876956937",
@@ -21604,7 +21899,8 @@
         "نمک و فلفل را اندازه کنید. سپس تخم‌مرغ‌ها را دانه دانه داخل اشکنه بشکنید؛ می‌توانید آن‌ها را هم بزنید تا در آب پخش شوند یا بگذارید به صورت درسته پخته شوند.",
         "پس از ۱۰ دقیقه که تخم‌مرغ‌ها کاملاً پختند و غذا جا افتاد، آن را در ظرف ریخته و با نان سنگک یا نان خشک سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-20-1766877137847",
@@ -21658,7 +21954,8 @@
         "اسفناج‌ها را در سطح تابه کاملاً صاف کنید. با پشت قاشق چند حفره کوچک ایجاد کرده و تخم‌مرغ‌ها را دانه دانه درون حفره‌ها یا روی سطح اسفناج بشکنید.",
         "بدون آنکه تخم‌مرغ‌ها را هم بزنید، درب تابه را بگذارید و حرارت را ملایم کنید تا سفیده تخم‌مرغ‌ها کاملاً بسته شود و زرده‌ها به میزان دلخواه شما بپزند."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-20-1766958808663",
@@ -21750,7 +22047,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-20-1766959134380",
@@ -21811,7 +22109,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-21-1766794336336",
@@ -21881,7 +22180,8 @@
         "مهم‌ترین مرحله (چمبه زدن): شعله را بسیار ملایم کرده و برای چندین ساعت مواد را به صورت مداوم و دورانی هم بزنید تا بافت غذا کشسان و یکدست شود.",
         "پس از غلیظ شدن و جا افتادن، شله را در ظرف کشیده و روی آن را با خورش قیمه تزیین و سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-21-1766799342396",
@@ -21921,7 +22221,8 @@
         "پیاز و سبزی را سرخ کنید. میگو و ادویه را اضافه کرده و تفت کوتاهی دهید.",
         "عصاره تمبر هندی را اضافه کنید. برنج را آبکش کرده و با مایه دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-21-1766876956937",
@@ -21980,7 +22281,8 @@
         "نمک غذا را اندازه کنید. در این مدل اصیل معمولاً تخم‌مرغ اضافه نمی‌شود، اما در صورت تمایل می‌توانید در دقایق پایانی ۱ عدد تخم‌مرغ در آن بشکنید.",
         "اشکنه را در کاسه‌های سنتی سرو کنید و نان خشک محلی را در آن تلیت کرده و همراه با ترشی یا سبزی خوردن میل نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-21-1766877137847",
@@ -22039,7 +22341,8 @@
         "یک ساعت آخر پخت، شلغم‌ها را به قابلمه اضافه کنید تا نرم شوند اما له نشوند",
         "نمک و چاشنی دلخواه را اضافه کرده و گرم میل کنید"
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-21-1766958808663",
@@ -22112,7 +22415,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-21-1766959134380",
@@ -22178,7 +22482,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-22-1766794336336",
@@ -22262,7 +22567,8 @@
         "ترکیب سرکه و شیره انگور را برای ایجاد طعم ملس به آش اضافه کرده و نمک آن را اندازه کنید.",
         "در مرحله آخر رشته آش را اضافه کنید. پس از اینکه رشته‌ها نرم شدند و آش کاملاً جا افتاد، آن را در ظرف مورد نظر سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-22-1766799342396",
@@ -22302,7 +22608,8 @@
         "مرغ را قیمه‌ای خرد کرده و با پیاز و زعفران بپزید.",
         "نخود را پخته و با برنج آبکش کنید و با شوید لایه لایه دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-22-1766876956937",
@@ -22372,7 +22679,8 @@
         "اجازه دهید اشکنه به مدت ۱۵ دقیقه با حرارت ملایم جا بیفتد و غلیظ شود. در صورت تمایل در ۵ دقیقه آخر می‌توانید یک عدد تخم‌مرغ در آن بشکنید.",
         "اشکنه آماده شده را در ظرف مناسب ریخته و به همراه نان خشک سنتی و سبزی خوردن سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-22-1766877137847",
@@ -22442,7 +22750,8 @@
         "چاشنی (گرد لیمو یا آبغوره) و نمک را در ده دقیقه آخر پخت اضافه کنید تا طعم‌ها با هم ترکیب شوند.",
         "پس از جا افتادن و غلیظ شدن خورشت، آن را در ظرف مناسب کشیده و با نان ترید شده سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-22-1766958808663",
@@ -22520,7 +22829,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-22-1766959134380",
@@ -22619,7 +22929,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-23-1766794336337",
@@ -22683,7 +22994,8 @@
         "در پایان، نعنا را در کمی روغن تفت داده (نعنا داغ) و برای تزیین و عطر بیشتر روی آش بریزید.",
         "این آش به دلیل عدم استفاده از رشته، سبک و رژیمی است."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-23-1766876956937",
@@ -22748,7 +23060,8 @@
         "به محض اینکه اولین حباب‌های جوش مشاهده شد و مخلوط کمی غلیظ گشت، نمک و فلفل را اندازه کرده و شعله را خاموش کنید؛ دقت کنید که این غذا نباید زیاد بجوشد زیرا باعث جدا شدن بافت ماست می‌شود.",
         "اشکنه ماست را در ظرف مورد نظر ریخته و بلافاصله همراه با نان خشک یا نان تلیت شده و سبزی خوردن سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-23-1766877137848",
@@ -22813,7 +23126,8 @@
         "در اواسط پخت، نمک و فلفل سیاه را اندازه می‌کنیم و در پایان پخت چوب‌های دارچین را از قابلمه خارج می‌کنیم.",
         "غذا را در کاسه کشیده و موقع سرو حتماً با آب لیموی تازه یا سرکه و در صورت تمایل مقداری پودر دارچین میل می‌کنیم."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-23-1766958808663",
@@ -22879,7 +23193,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-23-1766959134380",
@@ -22962,7 +23277,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-24-1766876956937",
@@ -23042,7 +23358,8 @@
         "درب قابلمه را گذاشته و آن را روی حرارت بسیار ملایم قرار دهید تا غذا با آب خودش و بخار به مدت ۲ تا ۳ ساعت پخته و کاملاً جا بیفتد.",
         "در ۳۰ دقیقه پایانی پخت، آبلیمو یا آبغوره را اضافه کنید تا طعم‌ها با هم ترکیب شوند. پس از اتمام پخت و غلیظ شدن سس، غذا را در ظرف مورد نظر سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-24-1766877137848",
@@ -23102,7 +23419,8 @@
         "حرارت را ملایم نگه دارید و درب تابه را بگذارید تا کوکو مغزپخت شود و لایه زیرین آن برشته شود.",
         "بعد از اینکه یک طرف کوکو سرخ شد، آن را به ۴ یا ۸ قسمت برش زده و قطعات را برگردانید. در این مرحله درب تابه را باز بگذارید تا طرف دیگر نیز کاملاً برشته و ترد شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-24-1766958808663",
@@ -23173,7 +23491,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-24-1766959134380",
@@ -23250,7 +23569,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-25-1766877137848",
@@ -23311,7 +23631,8 @@
         "در ۱۰ دقیقه پایانی پخت، نمک، فلفل سیاه و مقدار نسبتاً زیادی گلپر را اضافه کنید تا عطر آن حفظ شود و طعم‌ها به خورد هم بروند.",
         "عدسی را در ظرف مورد نظر بکشید و روی آن را با روغن زیتون و مقداری گلپر تزیین کرده و به همراه نان تازه و لیمو ترش سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-25-1766958808663",
@@ -23402,7 +23723,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-25-1766959134380",
@@ -23470,7 +23792,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-26-1766799342396",
@@ -23510,7 +23833,8 @@
         "گوشت را بپزید. مایه ته‌چین (ماست، زرده، زعفران و برنج) را آماده کنید.",
         "گوشت‌ها را ته قابلمه چیده، مایه ته‌چین و سپس هویج و برنج سفید را روی آن دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-26-1766876956937",
@@ -23591,7 +23915,8 @@
         "گوجه‌فرنگی‌ها را به صورت حلقه‌ای برش زده و به زیبایی روی سطح مواد در تابه بچینید.",
         "نصف لیوان آب جوش را به همراه نمک و فلفل سیاه به تابه اضافه کنید. درب ظرف را گذاشته و اجازه دهید خوراک با حرارت ملایم به مدت ۲۰ الی ۳۰ دقیقه بپزد تا کاملاً جا بیفتد و سس آن غلیظ شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-26-1766877137848",
@@ -23651,7 +23976,8 @@
         "از مایه به اندازه نارنگی برداشته، در دست شکل دهید (گرد یا بیضی) و در روغن داغ با حرارت ملایم سرخ کنید.",
         "پس از طلایی شدن دو طرف، روی دستمال روغن‌گیر قرار دهید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-26-1766958808663",
@@ -23759,7 +24085,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-26-1766959134380",
@@ -23854,7 +24181,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-27-1766876956937",
@@ -23943,7 +24271,8 @@
         "رب گوجه‌فرنگی را در مقداری روغن تفت داده تا خوش‌رنگ شود، سپس با آب، نمک و چوب دارچین مخلوط کرده و روی مواد داخل قابلمه بریزید.",
         "درب قابلمه را بگذارید و اجازه دهید خوراک با حرارت بسیار ملایم به مدت ۳ تا ۴ ساعت بپزد تا گوشت کاملاً نرم شده، آب آن غلیظ شود و به روغن بیفتد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-27-1766877137848",
@@ -24007,7 +24336,8 @@
         "شکم بادمجان‌های سرخ شده را با مخلوط آماده شده پر کنید و آن‌ها را به آرامی در یک تابه تمیز بچینید.",
         "مقدار بسیار کمی آب (حدود ۵۰ میلی‌لیتر) را با کمی رب انار رقیق کرده و در کنار بادمجان‌ها بریزید؛ درب تابه را بگذارید و اجازه دهید با حرارت ملایم به مدت ۲۰ تا ۳۰ دقیقه دم کشیده و سس غلیظ شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-27-1766958808663",
@@ -24099,7 +24429,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-28-1766799342396",
@@ -24139,7 +24470,8 @@
         "سبزیجات را بخارپز کنید. برنج را آبکش کنید.",
         "لایه لایه برنج و سبزیجات را با زعفران و فلفل سیاه دم کنید و با روغن زیتون سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-28-1766876956937",
@@ -24194,7 +24526,8 @@
         "رب گوجه فرنگی را به همراه نمک، فلفل سیاه، زردچوبه و پودر لیمو عمانی اضافه کرده و چند دقیقه تفت دهید تا بوی خامی رب گرفته شده و رنگ آن باز شود.",
         "نصف استکان (حدود ۶۰ میلی‌لیتر) آب جوش به تابه اضافه کنید، درب ظرف را ببندید و اجازه دهید به مدت ۵ تا ۱۰ دقیقه با حرارت ملایم طعم‌ها با هم ترکیب شده و خوراک جا بیفتد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-28-1766877137848",
@@ -24262,7 +24595,8 @@
         "از مایه آماده شده به اندازه یک نارنگی کوچک برداشته، در دست به شکل دلخواه فرم دهید و سپس آن را کاملاً در آرد سوخاری نارنجی بغلتانید.",
         "در یک تابه مناسب روغن مایع را داغ کرده و کتلت‌ها را با حرارت ملایم سرخ کنید تا هر دو طرف آن‌ها طلایی، مغزپخت و ترد شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-28-1766958808663",
@@ -24311,7 +24645,8 @@
         "زمانی که تخم‌مرغ‌ها شروع به سفت شدن کردند اما سطح رویی آن‌ها هنوز مرطوب و ابریشمی است، جعفری یا پیازچه خرد شده و پنیر را در صورت تمایل روی آن پخش کنید.",
         "تابه را کمی کج کرده و با استفاده از لیسک، املت را به آرامی رول کنید تا به شکل استوانه‌ای درآید و سپس آن را در بشقاب گرم سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-28-1766959134383",
@@ -24408,7 +24743,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-29-0-1766799766083",
@@ -24462,7 +24798,8 @@
         "کف قابلمه روغن ریخته و لایه لایه برنج، مرغ و لبوهای خرد شده را بریزید. مقداری از آب غلیظ لبو را روی برنج بدهید تا رنگ بگیرد.",
         "اجازه دهید پلو حدود ۴۰ تا ۵۰ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-1-1766799766084",
@@ -24511,7 +24848,8 @@
         "برنج را آبکش کنید و دم بگذارید.",
         "هنگام سرو، پلو را در دیس کشیده و مرغ و سس آلو بخارا را کنار یا روی آن قرار دهید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-10-1766799766084",
@@ -24558,7 +24896,8 @@
         "لایه لایه برنج، بادمجان و گوشت را در قابلمه چیده و فشرده کنید.",
         "با حرارت ملایم دم کنید تا ته‌دیگ طلایی شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-11-1766799766084",
@@ -24605,7 +24944,8 @@
         "برنج زعفرانی را ریخته، لایه میانی را با قارچ و بادمجان پر کنید و لایه آخر برنج را بریزید.",
         "در فر یا روی گاز دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-12-1766799766084",
@@ -24652,7 +24992,8 @@
         "لایه لایه برنج و فیله ماهی را بچینید و سبزی معطر بپاشید.",
         "یک ساعت با حرارت ملایم دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-13-1766799766084",
@@ -24699,7 +25040,8 @@
         "گوشت ماهیچه را لای برنج زعفرانی قرار داده و فشرده کنید.",
         "یک ساعت دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-14-1766799766084",
@@ -24746,7 +25088,8 @@
         "نیمی از برنج را ریخته، مرغ را وسط بگذارید و بقیه برنج را اضافه کرده و فشرده کنید.",
         "حدود یک تا یک و نیم ساعت دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-15-1766799766084",
@@ -24793,7 +25136,8 @@
         "لایه لایه برنج، مرغ زعفرانی، زرشک و خلال‌ها را در قابلمه فشرده کنید.",
         "در فر یا روی گاز بپزید تا کاملاً طلایی شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-16-1766799766084",
@@ -24840,7 +25184,8 @@
         "برنج را در قابلمه ریخته، لایه بادمجان و مرغ را بچینید و بقیه برنج را روی آن فشرده کنید.",
         "یک ساعت دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-17-1766799766084",
@@ -24888,7 +25233,8 @@
         "گوجه‌ها را کنار کباب سرخ کنید.",
         "با کته زعفرانی و سماق سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-1766799342396",
@@ -24928,7 +25274,8 @@
         "سبزیجات را گریل کنید. برنج را با ادویه پلویی دم کنید.",
         "هنگام سرو سبزیجات گریل شده را روی پلو بچینید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-1766876956937",
@@ -25023,7 +25370,8 @@
         "ادویه‌ها شامل نمک، فلفل قرمز فراوان، پاپریکا و آویشن را همراه با آب‌لیمو اضافه کنید. درب تابه را ببندید و اجازه دهید ۱۵ دقیقه با حرارت ملایم پخته شوند.",
         "در پایان، خوراک را در ظرف مورد نظر ریخته و با گشنیز تازه خرد شده تزیین و همراه با نان سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-1766877137848",
@@ -25082,7 +25430,8 @@
         "سیرابی‌های پخته شده را به تابه پیاز داغ اضافه کنید. نمک و فلفل سیاه را اندازه کرده و مواد را چند دقیقه با هم تفت دهید تا طعم‌ها به خورد هم بروند.",
         "در انتها خوراک را در ظرف مورد نظر کشیده و در صورت تمایل با کمی کشک رقیق شده سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-1766958808663",
@@ -25168,7 +25517,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-29-18-1766799766084",
@@ -25216,7 +25566,8 @@
         "مرغ را برشته کرده و روی برنج قرار دهید تا دم بکشد.",
         "با پیاز داغ و خلال تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-19-1766799766084",
@@ -25263,7 +25614,8 @@
         "اجازه دهید غذا نرم و غلیظ شود و سپس دم کنید.",
         "با ترشی یا شیره خرما میل کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-2-1766799766084",
@@ -25312,7 +25664,8 @@
         "در ۱۰ دقیقه آخر زعفران و کمی کره روی آن بدهید.",
         "پلو را در دیس کشیده و مرغ‌های سرخ شده را کنار آن سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-20-1766799766084",
@@ -25381,7 +25734,8 @@
         "هنگامی که آب برنج کاملاً کشیده شد، زیره سیاه، پودر لیمو عمانی و جزغاله‌هایی که در مرحله اول کنار گذاشته بودید را روی سطح برنج پخش کنید.",
         "درب قابلمه را با دم‌کنی بپوشانید و اجازه دهید پلو به مدت ۴۵ دقیقه با حرارت بسیار ملایم دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-21-1766799766084",
@@ -25462,7 +25816,8 @@
         "مایه گوشت و سیب‌زمینی آماده شده را میان قابلمه بریزید و سپس باقی‌مانده برنج را روی مایه بدهید.",
         "درب قابلمه را با دم‌کنی بپوشانید و اجازه دهید پلو به مدت ۴۵ دقیقه با حرارت ملایم کاملاً دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-22-1766799766084",
@@ -25509,7 +25864,8 @@
         "برنج و مرغ را لایه لایه دم کنید.",
         "پس از ۴۵ دقیقه آماده سرو است."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-23-1766799766084",
@@ -25556,7 +25912,8 @@
         "مواد را لایه لایه بین برنج دم کنید.",
         "۴۵ دقیقه زمان لازم است تا عطر قیسی به خورد برنج برود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-24-1766799766084",
@@ -25622,7 +25979,8 @@
         "در اواخر پخت پلو، تخم‌مرغ‌ها را در تابه به صورت نیمرو آماده کنید.",
         "پلو را در دیس مورد نظر کشیده و نیمروها را برای تزیین و سرو روی پلو قرار دهید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-25-1766799766084",
@@ -25669,7 +26027,8 @@
         "فیله‌ها را در کره سرخ کنید تا طلایی شوند.",
         "در دیس کشیده و تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-26-1766799766084",
@@ -25716,7 +26075,8 @@
         "برنج را دم کنید.",
         "موقع سرو دانه‌های انار را روی گوشت بریزید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-27-1766799766084",
@@ -25791,7 +26151,8 @@
         "نصف پیمانه آب به خوراک اضافه کرده و اجازه دهید با حرارت ملایم به مدت ۱۵ دقیقه جا بیفتد و سس غلیظ شود.",
         "پس از آماده شدن برنج، خوراک قارچ را در کنار پلو یا روی آن کشیده و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-28-1766799766084",
@@ -25858,7 +26219,8 @@
         "برنج را در آب جوش ریخته و پس از نیم‌پز شدن، آبکش کنید. برنج را با روغن حیوانی دم بگذارید.",
         "پس از پخت کامل گوشت و غلیظ شدن سس پیاز، چوب دارچین را خارج کرده و گوشت را در کنار چلو زعفرانی سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-3-1766799766084",
@@ -25906,7 +26268,8 @@
         "مرغ پخته و هویج را لایه لایه بین برنج قرار دهید و دارچین بپاشید.",
         "پس از پخت، روغن زیتون و زعفران را اضافه کرده و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-4-1766799766084",
@@ -25954,7 +26317,8 @@
         "برنج را آبکش کرده و مواد میگو را لایه لایه دم کنید.",
         "زعفران ریخته و ۴۵ دقیقه صبر کنید تا دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-5-1766799766084",
@@ -26002,7 +26366,8 @@
         "برنج را آبکش کرده و با مایه میگو دم کنید.",
         "پس از ۴۵ دقیقه غذا آماده سرو است."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-6-1766799766084",
@@ -26050,7 +26415,8 @@
         "مواد را لایه لایه بین برنج ریخته و دارچین بپاشید.",
         "اجازه دهید ۴۵ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-7-1766799766084",
@@ -26122,7 +26488,8 @@
         "در هر لایه مقداری از زعفران دم‌کرده را ریخته و چوب دارچین را در میان پلو قرار دهید.",
         "باقی‌مانده روغن حیوانی را داغ کرده و روی برنج بدهید، سپس اجازه دهید پلوچه به مدت ۶۰ دقیقه روی حرارت بسیار ملایم دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-8-1766799766084",
@@ -26170,7 +26537,8 @@
         "برنج را آبکش کنید و با مایه گوشت لایه لایه دم کنید.",
         "زیره سیاه را روی برنج بپاشید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-29-9-1766799766084",
@@ -26218,7 +26586,8 @@
         "کف قابلمه برنج زعفرانی، سپس اسفناج و مرغ و در آخر برنج سفید بریزید و فشرده کنید.",
         "حدود یک ساعت دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766794336336",
@@ -26299,7 +26668,8 @@
         "سیر داغ و نعناع داغ را با روغن کمی تفت دهید و نیمی از آن را داخل آش ریخته و مابقی را برای تزئین نگه دارید.",
         "در مرحله نهایی نمک را اندازه کنید و اجازه دهید آش برای ۱ ساعت دیگر با حرارت بسیار کم دم بکشد تا به غلظت و بافت مطلوب رستورانی برسد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766799342396",
@@ -26351,7 +26721,8 @@
         "برنج را آبکش کرده و لایه لایه با مرغ و نیمی از خلال‌ها بریزید.",
         "اجازه دهید دم بکشد و موقع سرو با باقی خلال‌ها تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766876956936",
@@ -26426,7 +26797,8 @@
         "رب گوجه‌فرنگی را در یک تابه کوچک با کمی روغن تفت دهید تا رنگ باز کند و در یک ساعت پایانی پخت به همراه نمک و پودر لیمو عمانی به آبگوشت اضافه کنید.",
         "اجازه دهید غذا با حرارت ملایم کاملاً جا بیفتد، آب آن غلیظ شود و کلم‌ها و حبوبات کاملاً نرم شوند."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766877137846",
@@ -26507,7 +26879,8 @@
         "درب تابه را بگذارید و اجازه دهید با حرارت ملایم به مدت ۱۵ الی ۲۰ دقیقه بپزد و آب گوجه‌فرنگی کشیده شده و غذا جا بیفتد.",
         "در ۵ دقیقه پایانی پخت، نمک و آب لیموی تازه را اضافه کرده، طعم را چشیده و سپس واویشکا را در ظرف مورد نظر سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766881812358",
@@ -26581,7 +26954,8 @@
         "حرارت را ملایم کرده و اجازه دهید سوپ به مدت ۴۵ تا ۶۰ دقیقه بپزد تا سیب‌زمینی‌ها کاملاً نرم شده و سوپ جا بیفتد و غلیظ شود.",
         "در اواخر پخت، نمک، فلفل و مقدار کافی گلپر را به عنوان چاشنی اصلی اضافه کرده، چند قل که زد از روی حرارت برداشته و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766883317766",
@@ -26658,7 +27032,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766883592583",
@@ -26740,7 +27115,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766883843657",
@@ -26827,7 +27203,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766884212692",
@@ -26893,7 +27270,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766956020736",
@@ -26978,7 +27356,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766956416038",
@@ -27054,7 +27433,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766956905814",
@@ -27105,7 +27485,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766958808663",
@@ -27177,7 +27558,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766959134379",
@@ -27243,7 +27625,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766961078329",
@@ -27315,7 +27698,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766961391029",
@@ -27399,7 +27783,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766963128331",
@@ -27472,7 +27857,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1766972486975",
@@ -27530,7 +27916,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1769808192409",
@@ -27595,7 +27982,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1769901425087",
@@ -27652,7 +28040,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1769902135931",
@@ -27724,7 +28113,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1769902867207",
@@ -27796,7 +28186,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1769975411817",
@@ -27866,7 +28257,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1769975438100",
@@ -27931,7 +28323,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770080337713",
@@ -27991,7 +28384,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770080380305",
@@ -28062,7 +28456,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770085451265",
@@ -28127,7 +28522,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770086289960",
@@ -28201,7 +28597,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770148184121",
@@ -28272,7 +28669,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770148225170",
@@ -28339,7 +28737,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770148243186",
@@ -28405,7 +28804,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770148261442",
@@ -28468,7 +28868,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770148283123",
@@ -28553,7 +28954,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770148326913",
@@ -28619,7 +29021,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770148347603",
@@ -28661,7 +29064,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770148364578",
@@ -28716,7 +29120,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770148381705",
@@ -28768,7 +29173,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770148403307",
@@ -28825,7 +29231,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770148427755",
@@ -28896,7 +29303,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770853484001",
@@ -28953,7 +29361,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770853534566",
@@ -29029,7 +29438,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770853689130",
@@ -29090,7 +29500,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1770856639426",
@@ -29169,7 +29580,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1771343394090",
@@ -29220,7 +29632,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1771724051453",
@@ -29281,7 +29694,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1775503642243",
@@ -29340,7 +29754,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1776124802763",
@@ -29400,7 +29815,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1776124850907",
@@ -29465,7 +29881,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1776124877277",
@@ -29526,7 +29943,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1776124903557",
@@ -29591,7 +30009,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1776124930573",
@@ -29646,7 +30065,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1776124950506",
@@ -29707,7 +30127,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1776124974346",
@@ -29762,7 +30183,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-3-1776125418831",
@@ -29826,7 +30248,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-30-1766799342396",
@@ -29861,7 +30284,8 @@
         "کوفته‌های ریز را سرخ کنید. سس گوجه غلیظ درست کرده و کوفته‌ها را در آن بپزید.",
         "مخلوط را لایه لایه با برنج دم کنید یا روی آن سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-30-1766876956937",
@@ -29927,7 +30351,8 @@
         "کوفته‌ریزه‌های تفت داده شده را به آرامی درون سس در حال جوش قرار دهید. حرارت را ملایم کنید و درب قابلمه را بگذارید تا خوراک به مدت ۴۵ دقیقه بپزد و جا بیفتد.",
         "در ۱۰ دقیقه پایانی پخت، مرزه یا نعنا خشک را به همراه کمی نمک و فلفل (در صورت نیاز) به غذا اضافه کنید تا عطر سبزی حفظ شود و سس به غلظت مطلوب برسد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-30-1766877137848",
@@ -29982,7 +30407,8 @@
         "اجازه دهید پیازها همراه با گوشت در روغن سرخ و طلایی شوند.",
         "در انتها نمک را اضافه کرده و سرو کنید (این غذا به طور سنتی بدون رب گوجه‌فرنگی است)."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-31-1766799342396",
@@ -30017,7 +30443,8 @@
         "مرغ را با زعفران و آبلیمو مزه‌دار کرده و در فر یا قابلمه بریان کنید.",
         "برنج را دم کرده و مرغ بریان را کنار آن سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-31-1766876956937",
@@ -30091,7 +30518,8 @@
         "شوید خشک را در اواسط زمان پخت به خوراک بیفزایید تا عطر آن در تمام غذا پخش شود.",
         "اجازه دهید خوراک با حرارت ملایم کاملاً جا بیفتد و غلیظ شود. در مرحله نهایی پخت، نمک و فلفل را اندازه کرده و سپس در ظرف مناسب سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-31-1766877137848",
@@ -30175,7 +30603,8 @@
         "در مرحله آخر، نمک، فلفل سیاه و پودر جوز هندی را به سس اضافه کرده و پس از یک دقیقه از روی حرارت بردارید.",
         "حلقه‌های زبان پخته شده را در ظرف مورد نظر بچینید، سس بشامل داغ را روی تمام سطح آن بریزید و بلافاصله سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-32-1766799342396",
@@ -30210,7 +30639,8 @@
         "برنج را آبکش کرده و با ته‌دیگ دم کنید.",
         "در آخر زعفران و کره آب شده را روی برنج بدهید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-32-1766876956937",
@@ -30285,7 +30715,8 @@
         "سس پیاز و رب تهیه شده را به قابلمه اضافه کنید و اجازه دهید خوراک با حرارت ملایم جا بیفتد و غلیظ شود.",
         "در ۱۰ دقیقه پایانی پخت، نمک، گلپر و آبلیموی تازه را اضافه کرده و پس از چند قل زدن، خوراک را در ظرف مورد نظر سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-32-1766877137848",
@@ -30354,7 +30785,8 @@
         "نمک، فلفل و زعفران را افزوده و اجازه دهید سس کمی غلیظ شود.",
         "تکه‌های زبان را درون سس قرار دهید تا طعم سس به خورد گوشت برود یا سس را روی زبان‌ها ریخته و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-33-1766799342396",
@@ -30389,7 +30821,8 @@
         "گوشت را قلقلی و سرخ کنید. گشنیز را تفت دهید.",
         "برنج را آبکش کرده و با مخلوط گشنیز و کوفته‌ها دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-33-1766876956937",
@@ -30453,7 +30886,8 @@
         "حرارت را ملایم کنید و اجازه دهید خوراک به مدت ۳۰ تا ۴۰ دقیقه به خوبی بجوشد تا لعاب بیندازد و غلیظ شود.",
         "در ۱۰ دقیقه پایانی پخت، نمک را اضافه کرده و میزان تندی آن را تنظیم کنید؛ سپس در ظرف مناسب به همراه آبلیمو یا نارنج سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-33-1766877137848",
@@ -30522,7 +30956,8 @@
         "برش‌های زبان را در سس قرار دهید تا گرم شوند و طعم بگیرند.",
         "با جعفری و لیموترش سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-34-1766799342396",
@@ -30557,7 +30992,8 @@
         "پیاز و گوشت را تفت دهید. گل‌کلم را جداگانه تفت داده و به گوشت اضافه کنید.",
         "برنج را با مواد و دارچین لایه لایه دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-34-1766876956937",
@@ -30637,7 +31073,8 @@
         "اجازه دهید خوراک روی حرارت ملایم بماند تا کاملاً غلیظ شود. در ۵ دقیقه پایانی، گلپر، روغن زیتون و آبلیموی تازه را اضافه کنید.",
         "خوراک لوبیا را در ظرف مورد نظر کشیده و با پیاز داغ عسلی که کنار گذاشته بودید تزیین و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-34-1766877137848",
@@ -30711,7 +31148,8 @@
         "به اندازه یک نارنگی از مایه سیب‌زمینی برداشته، در کف دست پهن کنید و یک قاشق از مواد گوشتی را در مرکز آن قرار دهید. لبه‌ها را جمع کرده و به شکل گرد یا بیضی حالت دهید.",
         "کوکوهای آماده را در آرد سوخاری بغلتانید تا تمام سطح آن‌ها پوشش داده شود. سپس در تابه با روغن داغ و حرارت ملایم سرخ کنید تا هر دو طرف آن‌ها برشته و طلایی شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766794336336",
@@ -30790,7 +31228,8 @@
         "باقیمانده پیازها را خلالی خرد کرده و در روغن سرخ کنید تا طلایی شوند؛ سپس باقی سیرها را له کرده و به همراه فلفل سیاه فراوان به پیازداغ اضافه کنید و این ترکیب را درون آش بریزید.",
         "اجازه دهید آش با حرارت بسیار کم به مدت ۱ ساعت دیگر بپزد تا کاملاً جا افتاده و غلیظ شود؛ در پایان نمک را اندازه کرده و آش را سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766799342396",
@@ -30837,7 +31276,8 @@
         "برنج را آبکش کنید و لایه لایه با عدس و دارچین دم کنید.",
         "موقع سرو کوفته ریزه‌ها و کشمش تفت داده شده را روی پلو بدهید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766876956936",
@@ -30912,7 +31352,8 @@
         "کشک غلیظ را با کمی آب گرم رقیق کرده و به قابلمه اضافه کنید و اجازه دهید حدود ۲۰ دقیقه بجوشد تا غذا جا بیفتد.",
         "در نهایت نیمی از مخلوط نعناع داغ و پیاز داغ را داخل آبگوشت ریخته و مابقی را برای تزیین روی آن استفاده و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766877137846",
@@ -30977,7 +31418,8 @@
         "درب ظرف را بگذارید و اجازه دهید با حرارت ملایم و آب گوجه‌فرنگی‌ها غذا پخته شود.",
         "در انتها کره، نمک و فلفل را اضافه کنید و پس از جا افتادن سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766881812358",
@@ -31041,7 +31483,8 @@
         "رب گوجه‌فرنگی را در تابه جداگانه‌ای با کمی روغن تفت دهید تا خوش‌رنگ شود و سپس آن را به سوپ اضافه کنید.",
         "در نیم ساعت پایانی پخت، سبزیجات معطر (گشنیز و جعفری) را به همراه نمک و آب لیموی تازه به سوپ اضافه کرده و اجازه دهید سوپ کاملاً جا افتاده و غلیظ شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766883317766",
@@ -31103,7 +31546,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766883592583",
@@ -31189,7 +31633,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766883843657",
@@ -31266,7 +31711,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766884212693",
@@ -31332,7 +31778,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766956020736",
@@ -31404,7 +31851,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766956416038",
@@ -31476,7 +31924,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766956905814",
@@ -31532,7 +31981,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766958808663",
@@ -31628,7 +32078,8 @@
         "در ۳۰ دقیقه پایانی پخت، قارچ‌ها را اضافه کنید. بوکه گارنی را از خورش خارج کنید. مزه را تنظیم کنید.",
         "بیف بورگینیون را داغ با پوره سیب‌زمینی، نودل یا نان ترد سرو کنید و با کمی جعفری تازه تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766959134379",
@@ -31716,7 +32167,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766961078329",
@@ -31792,7 +32244,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766961391029",
@@ -31874,7 +32327,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766963128331",
@@ -31957,7 +32411,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1766972486975",
@@ -32040,7 +32495,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1769808192409",
@@ -32111,7 +32567,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1769901425087",
@@ -32168,7 +32625,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1769902135931",
@@ -32223,7 +32681,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1769902867207",
@@ -32299,7 +32758,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1769975411817",
@@ -32362,7 +32822,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1769975438100",
@@ -32424,7 +32885,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770080337713",
@@ -32480,7 +32942,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770080380305",
@@ -32542,7 +33005,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770085451265",
@@ -32619,7 +33083,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770086289960",
@@ -32675,7 +33140,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770148184121",
@@ -32745,7 +33211,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770148243186",
@@ -32801,7 +33268,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770148261442",
@@ -32858,7 +33326,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770148283123",
@@ -32951,7 +33420,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770148305992",
@@ -33012,7 +33482,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770148326913",
@@ -33084,7 +33555,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770148347603",
@@ -33151,7 +33623,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770148403307",
@@ -33222,7 +33695,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770148427755",
@@ -33298,7 +33772,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770853484001",
@@ -33373,7 +33848,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770853689130",
@@ -33429,7 +33905,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1770856639426",
@@ -33507,7 +33984,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1771343394090",
@@ -33568,7 +34046,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1771724051453",
@@ -33634,7 +34113,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1775503642243",
@@ -33694,7 +34174,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1776124802763",
@@ -33755,7 +34236,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1776124850907",
@@ -33820,7 +34302,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1776124877277",
@@ -33881,7 +34364,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1776124903557",
@@ -33948,7 +34432,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1776124930574",
@@ -34004,7 +34489,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1776124950506",
@@ -34069,7 +34555,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1776124974346",
@@ -34135,7 +34622,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-4-1776125418831",
@@ -34197,7 +34685,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766794336336",
@@ -34282,7 +34771,8 @@
         "گوشت‌های ریش‌ریش شده و نیمی از پیاز داغ را به قابلمه اضافه کرده، نمک و فلفل را اندازه کنید و اجازه دهید آش با حرارت ملایم حدود یک ساعت جا بیفتد.",
         "آش آماده شده را در ظرف مورد نظر کشیده و روی آن را با باقی‌مانده پیاز داغ فراوان تزیین و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766799342396",
@@ -34324,7 +34814,8 @@
         "عدس را بپزید و برنج را آبکش کرده و دم کنید.",
         "مرغ‌های حلزونی را دور تا دور دیس پلو بچینید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766876956936",
@@ -34400,7 +34891,8 @@
         "رب گوجه‌فرنگی را در یک تابه کوچک با کمی روغن تفت دهید تا رنگ باز کند و سپس به آبگوشت بیفزایید.",
         "در ۱۰ دقیقه پایانی، نمک و زعفران دم‌کرده را اضافه کرده و اجازه دهید غذا با حرارت بسیار ملایم جا بیفتد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766877137846",
@@ -34459,7 +34951,8 @@
         "شامی‌ها را در روغن داغ قرار داده و دو طرف آن‌ها را با حرارت ملایم سرخ کنید تا طلایی و مغزپخت شوند.",
         "در صورت تمایل، مخلوط سرکه و شیره انگور را در یک قابلمه کوچک کمی بجوشانید تا غلیظ شود. پس از سرخ شدن تمام شامی‌ها، سس را روی آن‌ها بریزید و اجازه دهید چند دقیقه روی حرارت ملایم بماند تا سس جذب شامی‌ها شود."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766881812358",
@@ -34529,7 +35022,8 @@
         "در ۱۰ دقیقه پایانی، عصاره تمر هندی یا آبلیمو را اضافه کنید. نمک غذا را چشیده و اندازه کنید.",
         "شوربا را در ظرف مورد نظر کشیده و با گشنیز تازه تزیین و به صورت گرم سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766883317766",
@@ -34595,7 +35089,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766883592583",
@@ -34671,7 +35166,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766883843657",
@@ -34737,7 +35233,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766884212693",
@@ -34818,7 +35315,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766956020736",
@@ -34902,7 +35400,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766956416038",
@@ -34964,7 +35463,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766956905814",
@@ -35029,7 +35529,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766958808663",
@@ -35116,7 +35617,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766959134380",
@@ -35203,7 +35705,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766961078330",
@@ -35291,7 +35794,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766961391029",
@@ -35362,7 +35866,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766963128331",
@@ -35431,7 +35936,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-5-1766972486975",
@@ -35534,7 +36040,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766794336336",
@@ -35593,7 +36100,8 @@
         "اجازه دهید آش با حرارت ملایم به مدت ۴۵ دقیقه بپزد تا برنج کاملاً مغزپخت شده و آش به غلظت مناسب برسد و جا بیفتد.",
         "در ۱۰ دقیقه پایانی پخت، نمک را اندازه کنید (با توجه به نمک خود دوغ) و در نهایت آش را در ظرف مورد نظر کشیده و با سیر داغ تزیین و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766799342396",
@@ -35635,7 +36143,8 @@
         "مخلوط برنج و عدس را با دارچین دم کنید.",
         "در انتها با مخلوط خرما و کشمش تزیین و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766876956936",
@@ -35724,7 +36233,8 @@
         "در تابه ای جداگانه رب گوجه فرنگی را با کمی روغن تفت دهید تا بوی خامی آن گرفته شود، سپس آن را همراه با نمک و فلفل به قابلمه اصلی اضافه کنید.",
         "اجازه دهید غذا با حرارت ملایم کاملاً جا بیفتد و سیب‌زمینی‌ها پخته شوند. در اواخر پخت چوب دارچین را از قابلمه خارج کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766877137846",
@@ -35782,7 +36292,8 @@
         "تخم‌مرغ‌ها را اضافه کرده و مایه شامی را به خوبی ورز دهید تا چسبندگی لازم را پیدا کند.",
         "از مواد گلوله‌هایی برداشته، پهن کنید و وسط آن را سوراخ کنید و در روغن داغ شناور سرخ نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766881812358",
@@ -35851,7 +36362,8 @@
         "حرارت را ملایم نگه دارید و اجازه دهید تمام مواد با هم پخته شده و شوربا به غلظت مناسب برسد و اصطلاحاً جا بیفتد.",
         "در ۱۰ دقیقه پایانی پخت، نمک، فلفل و آبغوره را برای تنظیم طعم و چاشنی اضافه کرده و سپس شوربای داغ را سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766883317766",
@@ -35918,7 +36430,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766883592583",
@@ -35990,7 +36503,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766883843657",
@@ -36062,7 +36576,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766884212693",
@@ -36129,7 +36644,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766956020736",
@@ -36211,7 +36727,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766956416038",
@@ -36278,7 +36795,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766956905814",
@@ -36343,7 +36861,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766958808663",
@@ -36425,7 +36944,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766959134380",
@@ -36491,7 +37011,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766961078330",
@@ -36572,7 +37093,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766961391029",
@@ -36637,7 +37159,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766963128331",
@@ -36704,7 +37227,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-6-1766972486975",
@@ -36791,7 +37315,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766794336336",
@@ -36871,7 +37396,8 @@
         "نیمی از پیاز داغ، سیر داغ و ادویه‌ها (نمک، فلفل و زردچوبه) را برای طعم‌دهی داخل آش بریزید. حرارت را بسیار کم کنید و اجازه دهید آش حدود ۲۰ دقیقه دیگر بماند تا کاملاً جا بیفتد.",
         "در مرحله آخر، نعناع خشک را در کمی روغن برای چند ثانیه تفت دهید تا نعناع داغ آماده شود. آش را در ظرف کشیده و با باقی‌مانده پیاز داغ، سیر داغ و نعناع داغ تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766799342396",
@@ -36918,7 +37444,8 @@
         "خرما و کشمش را در کره تفت دهید.",
         "پلو را با گوشت‌های قلقلی و مخلوط کشمش تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766876956936",
@@ -36997,7 +37524,8 @@
         "لیمو عمانی‌ها را سوراخ کرده و در نیم ساعت آخر پخت به همراه نمک به غذا اضافه کنید. اجازه دهید غذا با شعله بسیار کم کاملاً جا بیفتد.",
         "در نهایت آب غذا را در ظرفی جداگانه ریخته و مواد جامد شامل گوشت، حبوبات و سیب‌زمینی را پس از جدا کردن استخوان‌ها، کاملاً بکوبید و به عنوان گوشت کوبیده سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766877137846",
@@ -37055,7 +37583,8 @@
         "مایه کتلت را به مدت ۱۰ دقیقه به خوبی ورز دهید تا منسجم شود",
         "مقداری از مایه را برداشته و در کف دست فرم دهید و در روغن داغ با حرارت ملایم سرخ کنید"
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766881812358",
@@ -37131,7 +37660,8 @@
         "پیاز دوم را به صورت خلالی خرد کرده و در تابه سرخ کنید تا طلایی شود؛ نیمی از آن را برای داخل شوربا و نیم دیگر را برای تزیین کنار بگذارید.",
         "در مرحله آخر، نیمی از پیاز داغ را به شوربا اضافه کرده و پس از چند دقیقه در ظرف مورد نظر سرو کنید و با بقیه پیاز داغ و نعنا داغ تزیین نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766883317767",
@@ -37207,7 +37737,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766883592583",
@@ -37287,7 +37818,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766883843657",
@@ -37369,7 +37901,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766884212693",
@@ -37446,7 +37979,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766956020736",
@@ -37528,7 +38062,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766956416038",
@@ -37594,7 +38129,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766956905814",
@@ -37657,7 +38193,8 @@
         "مواد را حداقل ۵ ساعت تا یک شب در یخچال استراحت دهید.",
         "مرغ‌ها را به سیخ بکشید و روی ذغال کباب کنید؛ در اواسط پخت مخلوط کره ذوب شده و کمی زعفران را با قلم‌مو روی کباب‌ها بمالید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766958808663",
@@ -37738,7 +38275,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766959134380",
@@ -37831,7 +38369,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766961078330",
@@ -37897,7 +38436,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766961391029",
@@ -37955,7 +38495,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766963128331",
@@ -38048,7 +38589,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-7-1766972486975",
@@ -38127,7 +38669,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766794336336",
@@ -38218,7 +38761,8 @@
         "در مرحله آخر میزان نمک را تست کنید (با توجه به شور بودن رشته و کشک) و در صورت نیاز مقداری نمک اضافه نمایید.",
         "آش را در ظرف مورد نظر کشیده و با پیاز داغ، سیر داغ، نعنا داغ و کشک باقی‌مانده تزیین و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766799342396",
@@ -38264,7 +38808,8 @@
         "پیاز، گردو و کشمش را تفت داده و رب انار رقیق شده را اضافه کنید تا سس غلیظ شود.",
         "برنج را آبکش کرده و لایه لایه با سس گوشت و گردو دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766876956936",
@@ -38338,7 +38883,8 @@
         "اجازه دهید غذا با حرارت بسیار ملایم به مدت یک ساعت دیگر کاملاً جا بیفتد تا طعم میوه‌ها در آبگوشت آزاد شده و غذا لعاب‌دار شود.",
         "در پایان، چوب دارچین را خارج کرده، آب آبگوشت را در کاسه جداگانه ریخته و مواد گوشتی و میوه‌ها را می‌توانید به صورت کوبیده یا نکوبیده در کنار نان سنگک و سبزی خوردن سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766877137846",
@@ -38407,7 +38953,8 @@
         "در یک تابه مناسب روغن مایع ریخته و روی حرارت ملایم قرار دهید؛ پس از داغ شدن روغن، کتلت‌ها را با احتیاط داخل تابه چیده و سرخ کنید تا هر دو طرف آن‌ها طلایی و برشته شود.",
         "کتلت‌های آماده شده را روی دستمال حوله‌ای مخصوص قرار دهید تا روغن اضافی آن‌ها جذب شود و سپس در کنار دورچین دلخواه با نان یا برنج سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766881812358",
@@ -38488,7 +39035,8 @@
         "در یک تابه کوچک، باقی‌مانده روغن را داغ کرده، نعنا خشک و فلفل قرمز را به آن اضافه کنید و تنها چند ثانیه تفت دهید تا نعنا نسوزد؛ نیمی از این نعنا داغ را داخل شوربا بریزید.",
         "در انتهای پخت، نمک غذا را اندازه کنید و پس از اینکه شوربا کاملاً جا افتاد و غلیظ شد، آن را در ظرف مورد نظر کشیده و با باقی‌مانده نعنا داغ تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766883317767",
@@ -38564,7 +39112,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766883592583",
@@ -38640,7 +39189,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766883843657",
@@ -38722,7 +39272,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766884212693",
@@ -38782,7 +39333,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766956020736",
@@ -38868,7 +39420,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766956416038",
@@ -38949,7 +39502,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766956905814",
@@ -39010,7 +39564,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766958808663",
@@ -39113,7 +39668,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766959134380",
@@ -39197,7 +39753,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766961078330",
@@ -39259,7 +39816,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766961391029",
@@ -39327,7 +39885,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766963128331",
@@ -39404,7 +39963,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-8-1766972486976",
@@ -39455,7 +40015,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766794336336",
@@ -39530,7 +40091,8 @@
         "اجازه دهید آش با حرارت بسیار ملایم کاملاً جا بیفتد. در صورت تمایل برای ترشی بیشتر، کمی آب‌غوره در دقایق پایانی اضافه کنید.",
         "آش را در ظرف مورد نظر کشیده و با باقیمانده زرشک تفت داده شده، نعنا داغ، سیر داغ و پیاز داغ تزیین و سرو نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766799342396",
@@ -39572,7 +40134,8 @@
         "در آخر باقی زعفران و آبلیمو را اضافه کنید.",
         "برنج را کته پخته و مرغ‌های کره‌ای را روی آن سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766876956936",
@@ -39642,7 +40205,8 @@
         "اجازه دهید آبگوشت با حرارت ملایم کاملاً جا بیفتد و لعاب بیندازد تا طعم سبزی و گوشت به خورد هم برود.",
         "در پایان پخت، آب غذا را در کاسه جداگانه سرو کرده و بقیه مواد را پس از جدا کردن استخوان‌ها، کاملاً بکوبید و به صورت گوشت کوبیده سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766877137846",
@@ -39700,7 +40264,8 @@
         "تخم‌مرغ، ادویه و پنیر پارمزان را بیفزایید و مخلوط کنید",
         "مایه را به صورت دایره‌ای در تابه سرخ کنید"
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766881812358",
@@ -39770,7 +40335,8 @@
         "اجازه دهید تخم‌مرغ‌ها با حرارت ملایم بسته شوند (در املت شاپوری اصیل، تخم‌مرغ‌ها نباید خیلی خشک شوند و باید کمی نرم بمانند).",
         "املت آماده شده را در تابه یا ظرف مورد نظر سرو کرده و با نان بربری و پیاز میل کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766883317767",
@@ -39847,7 +40413,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766883592583",
@@ -39928,7 +40495,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766883843657",
@@ -40005,7 +40573,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766884212693",
@@ -40082,7 +40651,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766956020736",
@@ -40165,7 +40735,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766956416038",
@@ -40232,7 +40803,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766956905814",
@@ -40293,7 +40865,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766958808663",
@@ -40391,7 +40964,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766959134380",
@@ -40472,7 +41046,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766961078330",
@@ -40555,7 +41130,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766961391030",
@@ -40602,7 +41178,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766963128331",
@@ -40673,7 +41250,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-9-1766972486976",
@@ -40750,7 +41328,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-1",
@@ -40804,7 +41383,8 @@
         "کشک را با کمی آب رقیق کرده و به مواد اضافه کنید و اجازه دهید ۱۰ دقیقه با حرارت ملایم جا بیفتد.",
         "در آخر گردوی خرد شده را اضافه کرده و با پیاز داغ تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-11",
@@ -40850,7 +41430,8 @@
         "پیاز دیگر را تفت داده و رب را اضافه کنید، سپس سیب‌زمینی‌های مکعبی را بریزید.",
         "آب اضافه کنید و پس از جوش آمدن، کوفته‌ها را داخل سس بریزیید تا بپزند."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-12",
@@ -40897,7 +41478,8 @@
         "جگر را اضافه کنید و با حرارت بالا تفت دهید تا سفت نشود.",
         "گوجه و ادویه‌ها را اضافه کرده و درب تایه را ۵ دقیقه بگذارید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-13",
@@ -40944,7 +41526,8 @@
         "پیاز داغ و رب تفت داده شده را اضافه کنید و اجازه دهید خوراک غلیظ شود.",
         "موقع سرو گلپر و آبلیمو بزنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-14",
@@ -40992,7 +41575,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-15",
@@ -41040,7 +41624,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-16",
@@ -41088,7 +41673,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-18",
@@ -41136,7 +41722,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-19",
@@ -41184,7 +41771,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-2",
@@ -41237,7 +41825,8 @@
         "در ظرف گود روغن فراوان ریخته و بگذارید کاملاً داغ شود.",
         "با قالب فلافل از مایه برداشته و در روغن شناور سرخ کنید تا طلایی و مغزپخت شوند."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-20",
@@ -41323,7 +41912,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-3",
@@ -41371,7 +41961,8 @@
         "نان لواش را به صورت نوارهای مستطیلی برش زده و مقداری از مایه را لای آن قرار داده و مثلثی بپیچید.",
         "سمبوسه‌ها را در روغن داغ سرخ کنید تا برشته شوند."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-4",
@@ -41424,7 +42015,8 @@
         "دلمه‌ها را در قابلمه چیده و چاشنی سرکه شیره را روی آن‌ها بریزید.",
         "اجازه دهید با حرارت ملایم ۱.۵ ساعت بپزد و جا بیفتد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-5",
@@ -41472,7 +42064,8 @@
         "سس غلیظی با رب گوجه و آبلیمو درست کرده و دلمه‌ها را درون آن بچینید.",
         "یک ساعت زمان دهید تا با درب بسته بپزند."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-6",
@@ -41519,7 +42112,8 @@
         "تخم‌مرغ‌ها و زعفران را اضافه کرده و ۱۰ دقیقه ورز دهید.",
         "از مایه برداشته، گرد کرده، وسط آن را سوراخ کنید و در روغن سرخ کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-7",
@@ -41566,7 +42160,8 @@
         "سیر و پیازچه را با روغن زیتون تفت دهید، سپس کدو را اضافه کنید.",
         "در آخر قارچ‌ها و ادویه را اضافه کرده و پس از ۵ دقیقه سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-8",
@@ -41612,7 +42207,8 @@
         "مقداری از مایه را لای خمیر قرار داده و لبه‌های آن را ببندید.",
         "روی پیراشکی‌ها زرده تخم‌مرغ بزنید و در فر ۱۸۰ درجه قرار دهید تا طلایی شوند."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-khorak-s3-p2-9",
@@ -41658,7 +42254,8 @@
         "مایه باید حالت چسبنده و منسجم پیدا کند.",
         "شامی‌ها را به شکل گرد و سوراخ‌دار در روغن داغ سرخ کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-0",
@@ -41731,7 +42328,8 @@
         "به میزان لازم برای پخت برنج به صورت کته (حدود ۷۰۰ میلی‌لیتر) آب جوش به سس اضافه کرده و نمک آن را تست کنید، سپس برنج شسته شده را درون قابلمه بریزید.",
         "زمانی که آب برنج کشیده شد، تکه‌های ماهی نیم‌پز را روی برنج بچینید و درب قابلمه را با دم‌کنی ببندید تا غذا به مدت ۴۵ دقیقه با حرارت ملایم دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-1",
@@ -41791,7 +42389,8 @@
         "برنج را به صورت کته (دمی) با مخلوط سس و مقداری آب بپزید یا آبکش کنید.",
         "اجازه دهید پلو به مدت ۴۵ دقیقه با حرارت ملایم دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-10",
@@ -41839,7 +42438,8 @@
         "پس از کشیده شدن آب، روغن بدهید و ۴۰ دقیقه دم بکشد.",
         "این غذا را سنتاً با نیمرو سرو می‌کنند."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-11",
@@ -41887,7 +42487,8 @@
         "زمانی که آب برنج نزدیک به تمام شدن بود، اسفناج و کوفته‌ها را اضافه کنید.",
         "زعفران بریزید و ۴۵ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-12",
@@ -41930,7 +42531,8 @@
         "آب بریزید و اجازه دهید آب آن جذب شود.",
         "دم‌کنی بگذارید و ۴۰ دقیقه با حرارت ملایم دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-13",
@@ -42003,7 +42605,8 @@
         "آب را به قابلمه اضافه کرده و حرارت را زیاد کنید تا آب به جوش آید و سپس صبر کنید تا اکثر آب آن تبخیر شود.",
         "هنگامی که آب تبخیر شد، درب قابلمه را با دم‌کنی بپوشانید و اجازه دهید غذا به مدت ۴۵ دقیقه روی حرارت ملایم دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-14",
@@ -42051,7 +42654,8 @@
         "حرارت را متوسط کنید تا آب غذا کشیده شود.",
         "دم‌کنی بگذارید تا ۳۰ الی ۴۰ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-15",
@@ -42116,7 +42720,8 @@
         "در ۱۰ دقیقه پایانی پخت، زعفران دم‌کرده را روی بخشی از برنج بریزید تا معطر و رنگین شود.",
         "هنگام سرو، دمی عدس را در ظرف مورد نظر کشیده و تمام سطح آن را با پیازداغ فراوان تزیین و میل کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-16",
@@ -42163,7 +42768,8 @@
         "برنج و عدس پخته را به مخلوط اضافه کرده و کته کنید.",
         "دمی را بگذارید تا ۴۵ دقیقه با حرارت ملایم بپزد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-17",
@@ -42210,7 +42816,8 @@
         "سیب‌زمینی و برنج را اضافه کرده و به صورت کته بپزید.",
         "دم‌کنی بگذارید و ۴۵ دقیقه صبر کنید تا دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-18",
@@ -42257,7 +42864,8 @@
         "برنج را با مایه مخلوط کرده و دم کنید.",
         "اجازه دهید ۴۵ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-19",
@@ -42304,7 +42912,8 @@
         "بادمجان‌های سرخ شده و برنج را اضافه کنید و کته کنید.",
         "۴۵ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-2",
@@ -42358,7 +42967,8 @@
         "وقتی آب برنج کشیده شد، کره یا روغن حیوانی را روی آن بدهید.",
         "درب قابلمه را بگذارید و ۴۰ دقیقه با حرارت ملایم دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-20",
@@ -42406,7 +43016,8 @@
         "برنج مخلوط را دم کنید.",
         "لابلای آن دارچین بپاشید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-21",
@@ -42454,7 +43065,8 @@
         "لایه لایه برنج و مایه لوبیا را بریزید و دارچین و گل سرخ بپاشید.",
         "۱ ساعت دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-22",
@@ -42496,7 +43108,8 @@
         "برنج و شوید را اضافه کرده و کته کنید.",
         "وقتی آب برنج کشیده شد، کره بگذارید و ۴۵ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-23",
@@ -42543,7 +43156,8 @@
         "برنج، ماش و مخلوط کدو را با آب کته بپزید.",
         "زعفران و دارچین بریزید و ۴۰ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-24",
@@ -42591,7 +43205,8 @@
         "برنج و ماش را اضافه کرده و کته کنید.",
         "اجازه دهید برنج دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-25",
@@ -42634,7 +43249,8 @@
         "برنج را کته کنید و قبل از کشیده شدن آب، مخلوط کلم و ماش را اضافه کنید.",
         "۴۵ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-26",
@@ -42682,7 +43298,8 @@
         "حرارت را ملایم کنید تا آب آن کشیده شود.",
         "۳۰ تا ۴۰ دقیقه با شعله بسیار ملایم دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-27",
@@ -42729,7 +43346,8 @@
         "مخلوط برنج و رشته را دم کنید.",
         "پس از دم کشیدن، مخلوط خرما را لابلای آن یا روی آن بریزید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-28",
@@ -42776,7 +43394,8 @@
         "فیله‌ها را در کره تفت دهید تا طلایی شوند.",
         "پلو را در دیس کشیده و فیله‌ها را روی آن بچینید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-29",
@@ -42823,7 +43442,8 @@
         "کشمش‌ها را با کره تفت دهید.",
         "پس از دم کشیدن، با کشمش و زعفران تزیین نمایید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-3",
@@ -42882,7 +43502,8 @@
         "برنج را آبکش کنید و مایه گوشتی را لایه به لایه بین برنج بریزید.",
         "غذا را به مدت ۴۵ دقیقه تا یک ساعت دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-30",
@@ -42929,7 +43550,8 @@
         "هنگام دم کردن، مواد قیسی را لابه‌لای پلو بدهید.",
         "اجازه دهید دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-31",
@@ -42976,7 +43598,8 @@
         "برنج و رشته را آبکش کنید.",
         "مایه مرغ را لابلای برنج هنگام دم کردن بریزید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-32",
@@ -43023,7 +43646,8 @@
         "برنج را آبکش کرده و دم کنید.",
         "برنج را با مخلوط زرشک و زعفران تزیین کرده و با مرغ سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-33",
@@ -43065,7 +43689,8 @@
         "برنج و زیره را به صورت لایه لایه در قابلمه بریزید.",
         "زعفران بدهید و اجازه دهید ۴۵ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-34",
@@ -43112,7 +43737,8 @@
         "لابلای برنج سیر تازه بگذارید و دم کنید.",
         "ماهی را در کنار پلوی داغ سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-4",
@@ -43186,7 +43812,8 @@
         "ته قابلمه ته‌دیگ مورد نظر را قرار دهید. سپس برنج و مایه انار و مرغ را به صورت لایه لایه داخل قابلمه بریزید. روی هر لایه مقداری زعفران دم‌کرده بدهید.",
         "درب قابلمه را گذاشته و اجازه دهید پلو به مدت ۴۵ دقیقه با حرارت ملایم دم بکشد. در انتها غذا را در دیس کشیده و با خلال پسته تزیین کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-5",
@@ -43240,7 +43867,8 @@
         "کف قابلمه ته‌دیگ بگذارید، یک لایه برنج ریخته، آلبالو و کمی شربت و مرغ را لایه لایه اضافه کنید.",
         "در آخر زعفران و روغن داغ روی برنج بدهید و ۴۰ دقیقه دم کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-6",
@@ -43283,7 +43911,8 @@
         "برنج را به صورت هرمی داخل قابلمه ریخته و دم‌کنی بگذارید.",
         "پس از ۴۵ دقیقه، روغن داغ و زعفران را روی برنج داده و سرو کنید."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-7",
@@ -43336,7 +43965,8 @@
         "برنج را کته کنید و قبل از دم کشیدن، مایه گوشتی را لایه‌لایه بریزید.",
         "برنج را دم بگذارید و ۴۵ دقیقه با حرارت ملایم بپزد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-8",
@@ -43389,7 +44019,8 @@
         "آب تمرهندی صاف شده را به مواد اضافه کنید.",
         "برنج را به صورت کته با مواد مخلوط کرده و ۴۵ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-polo-9",
@@ -43437,7 +44068,8 @@
         "وقتی آب برنج در حال تمام شدن بود، باقالی‌ها را اضافه کنید.",
         "کمی دارچین روی برنج بپاشید و ۴۰ دقیقه دم بکشد."
       ],
-      "hasRealData": true
+      "hasRealData": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-0",
@@ -43503,7 +44135,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-1",
@@ -43573,7 +44206,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-10",
@@ -43651,7 +44285,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-11",
@@ -43718,7 +44353,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-12",
@@ -43801,7 +44437,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-13",
@@ -43866,7 +44503,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-14",
@@ -43933,7 +44571,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-15",
@@ -43999,7 +44638,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-16",
@@ -44064,7 +44704,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-17",
@@ -44124,7 +44765,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-18",
@@ -44184,7 +44826,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-19",
@@ -44250,7 +44893,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-2",
@@ -44310,7 +44954,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-3",
@@ -44375,7 +45020,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-4",
@@ -44440,7 +45086,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-5",
@@ -44522,7 +45169,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-6",
@@ -44588,7 +45236,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-7",
@@ -44653,7 +45302,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-8",
@@ -44733,7 +45383,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "id": "dish-stew-9",
@@ -44804,7 +45455,8 @@
       ],
       "hasRealData": true,
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "name": "آرایس کفته کلاسیک لبنانی",
@@ -44872,7 +45524,8 @@
       "hasRealData": true,
       "nationality": "لبنانی",
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "name": "آرایس کفته با پنیر و گردو",
@@ -44939,7 +45592,8 @@
       "hasRealData": true,
       "nationality": "خاورمیانه",
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "name": "آرایس کفته تند با سس تاتار",
@@ -45006,7 +45660,8 @@
       "hasRealData": true,
       "nationality": "سوریه",
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "name": "آرایس کفته مرغ و سبزیجات",
@@ -45073,7 +45728,8 @@
       "hasRealData": true,
       "nationality": "اردنی",
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     },
     {
       "name": "آرایس کفته با ارده ",
@@ -45140,7 +45796,8 @@
       "hasRealData": true,
       "nationality": "فلسطینی",
       "imageReviewStatus": "create",
-      "localEdited": true
+      "localEdited": true,
+      "servings": 4
     }
   ],
   "hiddenDishIds": [

@@ -1,5 +1,6 @@
 import { KitchenMode, UserProfile } from '../types';
 import { DB } from '../utils/db';
+import { normalizeInventoryStorage } from '../utils/inventoryLedger';
 
 const PROFILE_KEY = 'noosh_guest_profile_v1';
 const ACTIVE_KEY = 'noosh_guest_active';
@@ -39,7 +40,7 @@ export const GuestService = {
   get: (): UserProfile => {
     try {
       const saved = JSON.parse(localStorage.getItem(PROFILE_KEY) || 'null');
-      if (saved?.uid === 'local-guest') return { ...saved, kitchenMode: saved.kitchenMode || GuestService.getStartMode() || 'with-inventory' };
+      if (saved?.uid === 'local-guest') return { ...saved, inventory: normalizeInventoryStorage(saved.inventory || []), inventoryNeedsReview: saved.inventoryNeedsReview ?? (saved.inventorySchemaVersion !== 2 && Boolean(saved.inventory?.length)), kitchenMode: saved.kitchenMode || GuestService.getStartMode() || 'with-inventory' };
     } catch { /* Recover a damaged local profile with safe defaults. */ }
     return {
       uid: 'local-guest', username: 'guest', fullName: 'مهمان عزیز', passwordCode: '',
@@ -57,7 +58,12 @@ export const GuestService = {
   },
   stop: () => localStorage.removeItem(ACTIVE_KEY),
   save: (updates: Partial<UserProfile>) => {
-    const profile = { ...GuestService.get(), ...updates, uid: 'local-guest', role: 'user' as const, isAdmin: false };
+    if (updates.inventory?.some(row => !Number.isFinite(row.amount) || row.amount < 0)) throw new Error('مقدار نامعتبر یا منفی در انبار وجود دارد؛ مقدار واقعی را اصلاح کن.');
+    const previous = GuestService.get();
+    if (previous.inventory?.length && previous.inventorySchemaVersion !== 2 && !localStorage.getItem('noosh_inventory_before_v2')) localStorage.setItem('noosh_inventory_before_v2', JSON.stringify(previous.inventory));
+    const profile = { ...previous, ...updates, uid: 'local-guest', role: 'user' as const, isAdmin: false };
+    profile.inventory = normalizeInventoryStorage(profile.inventory || []);
+    profile.inventorySchemaVersion = 2;
     localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
     window.dispatchEvent(new CustomEvent('user-data-updated'));
     return profile;

@@ -2,6 +2,9 @@
 import React, { useState } from 'react';
 import { X, Save, Plus, Trash2, Clock, Flame, Info, Utensils, ChefHat, Globe, Activity, ShieldCheck, Sun, Snowflake, Scale, AlertTriangle } from 'lucide-react';
 import { Dish, DishCategory, CATEGORY_LABELS, Ingredient, NatureType } from '../../types';
+import { PANTRY_ITEMS } from '../../data/pantry';
+import { PANTRY_UNIT_OPTIONS } from '../../utils/pantryUnits';
+import { convertIngredientQuantity, getIngredientIdentity, getPhysicalForm, parseQuantity } from '../../utils/recipeHelpers';
 import { RecipeService } from '../../services/recipeService';
 
 interface DishEditorProps {
@@ -13,6 +16,8 @@ interface DishEditorProps {
 const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
   const [formData, setFormData] = useState<Dish>({ ...dish });
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [pendingUnits, setPendingUnits] = useState<number[]>([]);
 
   if (!formData || !formData.id) {
     return (
@@ -33,7 +38,16 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
 
   const handleIngredientChange = (index: number, field: keyof Ingredient, value: string | number) => {
     const newIngredients = [...(formData.ingredients || [])];
-    newIngredients[index] = { ...newIngredients[index], [field]: value };
+    const previous = newIngredients[index];
+    newIngredients[index] = { ...previous, [field]: value };
+    if (field === 'item') newIngredients[index].ingredientId = undefined;
+    if (field === 'amount') setPendingUnits(current => current.filter(i => i !== index));
+    if (field === 'unit') {
+      const converted = convertIngredientQuantity(previous.amount, previous.unit, String(value), previous.item);
+      if (converted && !converted.estimated) { newIngredients[index].amount = converted.amount; setPendingUnits(current => current.filter(i => i !== index)); }
+      else setPendingUnits(current => [...new Set([...current,index])]);
+    }
+
     setFormData(prev => ({ ...prev, ingredients: newIngredients }));
   };
 
@@ -45,6 +59,7 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
   };
 
   const removeIngredient = (index: number) => {
+    setPendingUnits(current => current.filter(i => i !== index).map(i => i > index ? i-1 : i));
     setFormData(prev => ({
       ...prev,
       ingredients: prev.ingredients.filter((_, i) => i !== index)
@@ -72,6 +87,9 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
   };
 
   const handleSave = async () => {
+    setError('');
+    if (pendingUnits.length) { setError('برای واحدهای تغییرکردهٔ بدون تبدیل قطعی، مقدار واقعی جدید را هم وارد کن.'); return; }
+    if (!Number.isFinite(Number(formData.servings)) || Number(formData.servings) <= 0 || formData.ingredients.some(ingredient => !ingredient.item.trim() || !Number.isFinite(parseQuantity(ingredient.amount)))) { setError('نام مواد، مقدارهای غیرمنفی و تعداد نفرات پایه را بررسی کن.'); return; }
     setIsSaving(true);
     try {
       const success = await RecipeService.updateDish(formData.id, formData);
@@ -79,10 +97,10 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
         onSave();
         onClose();
       } else {
-        alert("تغییر در GitHub ثبت نشد و برای دیگر کاربران منتشر نشد. اتصال امن Netlify را بررسی کن؛ ویرایش این دستگاه همچنان باقی است.");
+        setError("تغییر در GitHub ثبت نشد؛ پیش‌نویس این دستگاه باقی است. اتصال انتشار را بررسی کن.");
       }
     } catch (error) {
-      alert("ذخیرهٔ محلی این غذا با خطا روبه‌رو شد.");
+      setError("ذخیرهٔ این غذا با خطا روبه‌رو شد.");
     } finally {
       setIsSaving(false);
     }
@@ -195,10 +213,12 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
           </section>
 
           {/* Ingredients */}
+          {error && <p role="alert" className="rounded-xl bg-rose-50 p-4 text-sm leading-6 text-rose-800">{error}</p>}
+          <label className="block text-xs font-bold text-slate-700">تعداد نفرات پایهٔ همین رسپی<input type="number" min="1" step="1" value={formData.servings || 4} onChange={e => setFormData(current => ({ ...current, servings: Number(e.target.value) }))} className="mx-3 w-24 rounded-xl border border-slate-200 p-3"/></label>
           <section className="space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
-                <Utensils size={18} className="text-teal-600" /> مواد اولیه (۴ نفره)
+                <Utensils size={18} className="text-teal-600" /> مواد اولیه ({formData.servings || 4} نفره)
               </h3>
               <button onClick={addIngredient} className="flex items-center gap-2 text-teal-600 bg-teal-50 px-4 py-2 rounded-xl text-xs font-black hover:bg-teal-100 transition-all">
                 <Plus size={16} /> افزودن ردیف
@@ -206,10 +226,13 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
             </div>
             <div className="space-y-3">
               {(formData.ingredients || []).map((ing, idx) => (
-                <div key={idx} className="flex flex-wrap sm:flex-nowrap gap-2 items-center">
+                <div key={idx} className="flex flex-wrap gap-2 items-center rounded-xl border border-slate-100 p-3">
                   <input placeholder="نام ماده" value={ing.item} onChange={e => handleIngredientChange(idx, 'item', e.target.value)} className="flex-grow min-w-[150px] px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm" />
-                  <input type="number" placeholder="مقدار" value={ing.amount} onChange={e => handleIngredientChange(idx, 'amount', parseFloat(e.target.value) || 0)} className="w-20 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm text-center" />
-                  <input placeholder="واحد" value={ing.unit} onChange={e => handleIngredientChange(idx, 'unit', e.target.value)} className="w-24 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm text-center" />
+                  <input type="number" min="0" step="any" aria-label={`مقدار ${ing.item}`} placeholder="مقدار" value={ing.amount} onChange={e => handleIngredientChange(idx, 'amount', parseFloat(e.target.value) || 0)} className="w-20 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm text-center" />
+                  <select aria-label={`واحد ${ing.item}`} value={ing.unit} onChange={e => handleIngredientChange(idx, 'unit', e.target.value)} className="w-36 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold">{!PANTRY_UNIT_OPTIONS.includes(ing.unit) && ing.unit !== 'به میزان لازم' && <option value={ing.unit}>{ing.unit || 'بدون واحد'}</option>}{[...PANTRY_UNIT_OPTIONS,'به میزان لازم'].map(unit => <option key={unit} value={unit}>{unit}</option>)}</select>
+                  <select aria-label={`هویت انباری ${ing.item}`} value={ing.ingredientId || ''} onChange={e => handleIngredientChange(idx,'ingredientId',e.target.value)} className="max-w-52 rounded-xl border border-slate-200 bg-white p-2 text-xs"><option value="">تطبیق بر اساس نام ماده</option>{PANTRY_ITEMS.map(category => <optgroup key={category.id} label={category.title}>{[...new Set(category.items)].map(name => <option key={name} value={getIngredientIdentity(name)}>{name}</option>)}</optgroup>)}</select>
+                  <select aria-label={`حالت ${ing.item}`} value={ing.state || getPhysicalForm(ing.item) || 'raw'} onChange={e => handleIngredientChange(idx,'state',e.target.value)} className="rounded-xl border border-slate-200 bg-white p-2 text-xs"><option value="raw">مادهٔ خام / پیش از پخت</option><option value="prepared">پخته / آماده‌شده</option></select>
+                  {pendingUnits.includes(idx) && <p className="w-full rounded-lg bg-amber-50 p-2 text-xs text-amber-900">تبدیل قطعی نبود؛ مقدار صحیح برای واحد جدید را وارد کن.</p>}
                   <button onClick={() => removeIngredient(idx)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all"><Trash2 size={18}/></button>
                 </div>
               ))}
@@ -253,7 +276,7 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
             className="px-12 py-3.5 bg-emerald-600 text-white rounded-2xl font-black shadow-xl shadow-emerald-100 flex items-center gap-2 hover:bg-emerald-700 active:scale-95 transition-all disabled:opacity-50"
           >
             {isSaving ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> : <Save size={20} />}
-            ذخیرهٔ تغییرات روی همین دستگاه
+            ذخیره و انتشار تغییرات
           </button>
         </div>
       </div>

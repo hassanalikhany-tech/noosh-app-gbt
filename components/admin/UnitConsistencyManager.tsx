@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { AlertTriangle, CheckCircle2, RefreshCw, Search, BookOpen, Scale, Edit3, Filter, ChevronLeft } from 'lucide-react';
 import { RecipeService } from '../../services/recipeService';
-import { checkUnitConsistency, UnitDiscrepancy, normalizeUnit, isIngredientMatch, normalizeItemName } from '../../utils/recipeHelpers';
+import { checkUnitConsistency, UnitDiscrepancy, normalizeUnit, isIngredientMatch, normalizeItemName, standardizeRecipeIngredients } from '../../utils/recipeHelpers';
 import { Dish } from '../../types';
 import DishEditor from './DishEditor';
 
@@ -15,6 +15,7 @@ const UnitConsistencyManager: React.FC = () => {
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [isUpdating, setIsUpdating] = useState(false);
+  const [message, setMessage] = useState('');
 
   const loadData = async (forceSync = false) => {
     setIsLoading(true);
@@ -72,48 +73,28 @@ const UnitConsistencyManager: React.FC = () => {
 
   const handleBulkStandardize = async () => {
     if (Object.keys(selections).length === 0) {
-      alert('لطفاً حداقل یک واحد استاندارد انتخاب کنید.');
+      setMessage('لطفاً حداقل یک واحد استاندارد انتخاب کنید.');
       return;
     }
     
     setIsUpdating(true);
     try {
-      const dishUpdates: Record<string, Dish> = {};
-      
-      for (const [itemName, targetUnit] of Object.entries(selections)) {
-        const affectedDishes = allDishes.filter(dish => 
-          dish.ingredients.some(ing => isIngredientMatch(itemName, ing.item))
-        );
-        
-        affectedDishes.forEach(dish => {
-          const currentDish = dishUpdates[dish.id] || JSON.parse(JSON.stringify(dish));
-          const newIngredients = currentDish.ingredients.map((ing: any) => {
-            if (isIngredientMatch(itemName, ing.item)) {
-              return { ...ing, unit: targetUnit };
-            }
-            return ing;
-          });
-          dishUpdates[dish.id] = { ...currentDish, ingredients: newIngredients };
-        });
-      }
-
-      const updates = Object.values(dishUpdates).map(dish => ({
-        id: dish.id,
-        data: { ingredients: dish.ingredients }
-      }));
-
-      const batchSize = 400;
-      for (let i = 0; i < updates.length; i += batchSize) {
-        const chunk = updates.slice(i, i + batchSize);
-        await RecipeService.updateDishesBatch(chunk);
-      }
-
+      setMessage('');
+      // Validate the complete batch before writing any recipe.
+      const updates = allDishes.flatMap(dish => {
+        const ingredients = standardizeRecipeIngredients(dish.ingredients,selections);
+        return ingredients.some((ingredient,index) => ingredient !== dish.ingredients[index]) ? [{ id: dish.id, data: { ingredients } }] : [];
+      });
+      if (!updates.length) { setMessage('تبدیل قطعی تازه‌ای لازم نبود؛ رسپی‌ها تغییر نکردند.'); return; }
+      const published = await RecipeService.updateDishesBatch(updates);
+      if (!published) throw new Error('انتشار تبدیل‌ها انجام نشد؛ پیش‌نویس را بررسی و دوباره منتشر کن.');
+      setMessage('واحد و مقدار با حفظ کمیت تبدیل و برای انتشار ثبت شدند.');
       await loadData();
       setIsBulkMode(false);
       setSelections({});
     } catch (error) {
       console.error('Error bulk standardizing:', error);
-      alert('خطا در استانداردسازی دسته‌جمعی');
+      setMessage(error instanceof Error ? error.message : 'خطا در استانداردسازی دسته‌جمعی؛ چیزی تأیید نشد.');
     } finally {
       setIsUpdating(false);
     }
@@ -121,6 +102,8 @@ const UnitConsistencyManager: React.FC = () => {
 
   return (
     <div className="space-y-6 font-sans dir-rtl text-right">
+      {message && <p role="status" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-900">{message}</p>}
+      <p className="rounded-2xl bg-emerald-50 p-4 text-xs leading-6 text-emerald-900">تبدیل دسته‌جمعی فقط با حفظ مقدار واقعی و تبدیل قطعی انجام می‌شود. وزن‌های تقریبی برای محاسبهٔ مصرف هستند و واحد اصلی رسپی را بازنویسی نمی‌کنند.</p>
       <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
         <div className="p-8 bg-amber-500 text-white flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-4">

@@ -176,7 +176,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ user, weeklyPlan, onUpdateU
     }
     const amount = normalizedAmount ? Number(normalizedAmount) : undefined;
     const unit = amount === undefined ? undefined : draftUnit.trim() || undefined;
-    updateCustomItems(customItems.map(item => item.id === id ? { ...item, amount, unit } : item));
+    updateCustomItems(customItems.map(item => item.id === id ? { ...item, amount, unit, estimated: false, unresolved: false } : item));
     cancelEditingQuantity();
   };
 
@@ -238,8 +238,8 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ user, weeklyPlan, onUpdateU
         text += `🔹 *${categoryTitles[catId]}*\n`;
         items.forEach((item, index) => {
           const source = item.fromRecipe ? ` [بابت: ${item.fromRecipe}]` : '';
-          const quantity = item.amount && item.unit ? ` — ${new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 3 }).format(item.amount)} ${item.unit}` : '';
-          text += `  ${toPersianDigits(index + 1)}. ${item.name}${quantity}${source}\n`;
+          const quantity = item.amount && item.unit ? ` — ${new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 6 }).format(item.amount)} ${item.unit}` : '';
+          text += `  ${toPersianDigits(index + 1)}. ${item.name}${quantity}${source}${item.unresolved ? ' (نیازمند بررسی مقدار)' : item.estimated ? ' (تقریبی)' : ''}\n`;
         });
         text += `\n`;
       }
@@ -365,9 +365,10 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ user, weeklyPlan, onUpdateU
                                 </span>
                                 {item.amount !== undefined && item.amount > 0 && item.unit && (
                                   <span className="mt-1 inline-flex w-fit items-center gap-1 text-[10px] font-bold text-emerald-800" dir="auto">
-                                    <Ruler size={12} /> {new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 3 }).format(item.amount)} {item.unit}
+                                    <Ruler size={12} /> {new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 6 }).format(item.amount)} {item.unit}
                                   </span>
                                 )}
+                                {(item.estimated || item.unresolved) && <span className="mt-1 text-[10px] font-bold text-amber-800">{item.unresolved ? 'مقدار نیاز دستور؛ تبدیل موجودی نیازمند بررسی است' : 'مقدار خرید بر پایهٔ تبدیل تقریبی'}</span>}
                                 {item.fromRecipe && (
                                   <div className="flex flex-wrap gap-2 items-center mt-1">
                                     <span className="text-[9px] text-slate-400 font-bold truncate max-w-[230px]">برای: {item.fromRecipe}</span>

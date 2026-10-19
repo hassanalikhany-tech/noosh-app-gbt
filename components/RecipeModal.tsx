@@ -5,9 +5,10 @@ import { createPortal } from 'react-dom';
 import { Dish, ShoppingItem, UserProfile } from '../types';
 import DishVisual from './DishVisual';
 import { UserService } from '../services/userService';
-import { estimateCalories, estimateCookTime, getDifficulty, getDishNature, getInventoryUpdate, getShoppingShortages, isIngredientMatch, getCountryCodes, formatQuantityForDisplay } from '../utils/recipeHelpers';
-import { getIngredientCategoryId, getBaseIngredientName } from '../data/pantry';
+import { estimateCalories, estimateCookTime, getDifficulty, getDishNature, getShoppingShortages, parseQuantity, normalizeUnit, getCountryCodes, formatQuantityForDisplay } from '../utils/recipeHelpers';
 import { getRelevantInventory } from '../utils/kitchenMode';
+import { CookingDraft, prepareCooking } from '../utils/inventoryLedger';
+import { mergeShoppingNeeds } from '../utils/shoppingQuantities';
 
 interface RecipeModalProps {
   dish: Dish;
@@ -17,17 +18,11 @@ interface RecipeModalProps {
   onUpdateUser?: (user: UserProfile) => void;
 }
 
-interface InventoryNotice {
-  title: string;
-  description: string;
-  sections: Array<{ title: string; items: string[]; tone: 'amber' | 'rose' | 'teal' }>;
-}
-
-const EXCLUDED_SHOPPING_ITEMS = ['آب', 'آب جوش', 'آب ولرم', 'آب سرد', 'آب گرم', 'نمک', 'فلفل', 'زردچوبه', 'روغن', 'ادویه'];
-
 const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, onUpdateUser }) => {
   const [addedToCart, setAddedToCart] = useState(false);
   const [cooked, setCooked] = useState(false);
+  const [cookingBusy, setCookingBusy] = useState(false);
+  const [cookingMessage, setCookingMessage] = useState('');
   const [servings, setServings] = useState(user?.familySize || 4);
   const [checkedSteps, setCheckedSteps] = useState<number[]>([]);
   const [isTimerOverlayOpen, setIsTimerOverlayOpen] = useState(false);
@@ -35,7 +30,6 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timerInput, setTimerInput] = useState(10); // Default 10 mins
   const [isAlarmPlaying, setIsAlarmPlaying] = useState(false);
-  const [inventoryNotice, setInventoryNotice] = useState<InventoryNotice | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const hasRecipe = dish.recipeSteps && dish.recipeSteps.length > 0;
@@ -49,9 +43,11 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
   useEffect(() => {
     if (isOpen) {
       setAddedToCart(false);
+      setCooked(false);
+      setCookingBusy(false);
+      setCookingMessage('');
       setServings(user?.familySize || 4);
       setCheckedSteps([]);
-      setInventoryNotice(null);
       setTimerSeconds(0);
       setIsTimerRunning(false);
       document.body.style.overflow = 'hidden';
@@ -61,7 +57,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
     return () => { 
       document.body.style.overflow = 'unset'; 
     };
-  }, [isOpen, user?.familySize]);
+  }, [isOpen, user?.familySize, dish.id]);
 
   // Keyboard listener for spacebar
   useEffect(() => {
@@ -69,12 +65,6 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (inventoryNotice) {
-          e.preventDefault();
-          e.stopPropagation();
-          setInventoryNotice(null);
-          return;
-        }
         onClose();
         return;
       }
@@ -91,7 +81,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, checkedSteps, dish.recipeSteps, inventoryNotice, onClose]);
+  }, [isOpen, checkedSteps, dish.recipeSteps, onClose]);
 
   // Timer logic
   useEffect(() => {
@@ -163,54 +153,22 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
 
   const toPersianDigits = (num: number | string) => {
     if (num === undefined || num === null) return '';
-    const val = typeof num === 'number' ? Math.round(num * 10) / 10 : num;
+    const val = typeof num === 'number' ? Number(num.toFixed(6)) : num;
     return val.toString().replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'['0123456789'.indexOf(d)]);
   };
 
   const getScaledAmount = (baseAmount: number | undefined) => {
-    if (!baseAmount) return 0;
+    const parsed = parseQuantity(baseAmount);
+    if (!Number.isFinite(parsed)) return 0;
     const baseServings = dish.servings || 4;
-    return Math.round((baseAmount / baseServings) * servings * 10) / 10;
+    return (parsed / baseServings) * servings;
   };
 
   const handleAddAllToCart = () => {
     if (!user || !dish.ingredients) return;
     setAddedToCart(true);
-    const currentList = [...(user.customShoppingList || [])];
-    const shoppingNeeds = getShoppingShortages(
-      getRelevantInventory(user),
-      dish.ingredients,
-      servings,
-      dish.servings || 4
-    );
-
-    shoppingNeeds.forEach(need => {
-      const baseName = getBaseIngredientName(need.item);
-      const existingIdx = currentList.findIndex(item => isIngredientMatch(item.name, baseName));
-
-      if (existingIdx !== -1) {
-        const existing = currentList[existingIdx];
-        currentList[existingIdx] = {
-          ...existing,
-          amount: existing.amount !== undefined && existing.unit === need.unit ? existing.amount + need.amount : need.amount,
-          unit: need.unit,
-          checked: false,
-          category: need.category || existing.category,
-          fromRecipe: [existing.fromRecipe, dish.name].filter(Boolean).join(', ')
-        };
-      } else {
-        currentList.push({
-          id: `ing-${Date.now()}-${Math.random()}`,
-          name: baseName,
-          amount: need.amount,
-          unit: need.unit,
-          checked: false,
-          category: need.category,
-          fromRecipe: `${dish.name} (${toPersianDigits(servings)} نفر)`
-        });
-      }
-    });
-
+    const shoppingNeeds = getShoppingShortages(getRelevantInventory(user), dish.ingredients, servings, dish.servings || 4);
+    const currentList = mergeShoppingNeeds(user.customShoppingList || [], shoppingNeeds, `رسپی:${dish.id}`, `${dish.name} (${servings} نفر)`);
     if (onUpdateUser) onUpdateUser({ ...user, customShoppingList: currentList });
     UserService.updateShoppingList(user.username, currentList);
     setTimeout(() => setAddedToCart(false), 2000);
@@ -218,116 +176,25 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
 
   const handleCookDish = async () => {
     if (!user || !dish.ingredients) return;
-    if (user.kitchenMode === 'without-inventory') {
+    if (user.kitchenMode === 'without-inventory') { setCooked(true); return; }
+    if (cookingBusy) return;
+    setCookingBusy(true);
+    setCookingMessage('');
+    try {
+      const draft: CookingDraft = prepareCooking(user.inventory || [], dish, servings);
+      const updatedUser = await UserService.commitCooking(draft);
+      onUpdateUser?.(updatedUser);
       setCooked(true);
-      setTimeout(() => setCooked(false), 3000);
-      return;
-    }
-    
-    const { newInventory, updatedCount, missingItems, unconvertibleItems, estimatedConversions } = getInventoryUpdate(
-      user.inventory || [],
-      dish.ingredients,
-      servings,
-      dish.servings || 4
-    );
-
-    const noticeSections: InventoryNotice['sections'] = [];
-
-    if (unconvertibleItems.length) {
-      const details = unconvertibleItems.map(item => `${item.item} · واحد انبار: ${item.inventoryUnit} · واحد دستور: ${item.recipeUnit}`);
-      noticeSections.push({
-        title: 'از این اقلام چیزی کم نشد',
-        items: details,
-        tone: 'rose'
-      });
-    }
-    if (estimatedConversions.length) {
-      const details = [...new Set(estimatedConversions.map(item => `${item.item}: ${toPersianDigits(item.amount)} ${item.unit} ≈ ${toPersianDigits(Math.round(item.grams))} گرم`))];
-      noticeSections.push({
-        title: 'تبدیل تقریبی اقلام شمارشی',
-        items: details,
-        tone: 'amber'
-      });
-    }
-
-    if (updatedCount > 0 || hasIngredients) {
-      setCooked(true);
-      
-      if (updatedCount > 0) {
-        let updatedUser = { ...user, inventory: newInventory };
-        
-        // Handle missing items -> add to shopping list
-        if (missingItems && missingItems.length > 0) {
-          const currentList = [...(user.customShoppingList || [])];
-          
-          missingItems.forEach(mi => {
-            // Strictly allow only 3 categories: proteins, grains, vegetables
-            const categoryId = getIngredientCategoryId(mi.item);
-            const allowedCategories = ['proteins', 'grains', 'vegetables'];
-            const isAllowedCategory = categoryId && allowedCategories.includes(categoryId);
-            
-            // Exclude specific items like water
-            const isExcluded = EXCLUDED_SHOPPING_ITEMS.some(ex => isIngredientMatch(ex, mi.item));
-            
-            if (!isAllowedCategory || isExcluded) return;
-
-            const amount = Math.round(mi.amount * 1000) / 1000;
-            const existingIdx = currentList.findIndex(item => isIngredientMatch(item.name, mi.item));
-
-            if (existingIdx !== -1) {
-              const existing = currentList[existingIdx];
-              currentList[existingIdx] = {
-                ...existing,
-                amount: existing.amount !== undefined && existing.unit === mi.unit ? existing.amount + amount : amount,
-                unit: mi.unit,
-                checked: false,
-                category: categoryId || existing.category,
-                fromRecipe: [existing.fromRecipe, `کسری ${dish.name}`].filter(Boolean).join('، ')
-              };
-            } else {
-              // Add new
-              currentList.push({
-                id: `ing-deficit-${Date.now()}-${Math.random()}`,
-                name: mi.item,
-                amount,
-                unit: mi.unit,
-                checked: false,
-                category: categoryId,
-                fromRecipe: `کسری برای: ${dish.name} (${toPersianDigits(servings)} نفر)`
-              });
-            }
-          });
-          
-          updatedUser.customShoppingList = currentList;
-        }
-
-        // Optimistic update
-        if (onUpdateUser) onUpdateUser(updatedUser);
-        
-        // Sync in background with consolidated update
-        UserService.updateProfile(user.username, {
-          inventory: newInventory,
-          customShoppingList: updatedUser.customShoppingList
-        }).catch(err => {
-          console.error("Failed to sync user data after cooking:", err);
-        });
-      }
-      
-      setTimeout(() => setCooked(false), 3000);
-    } else {
-      setInventoryNotice({
-        title: 'کسر از انبار انجام نشد',
-        description: 'در محاسبهٔ موجودی مشکلی پیش آمد. دوباره تلاش کن.',
-        sections: []
-      });
-      return;
-    }
-    if (noticeSections.length) {
-      setInventoryNotice({
-        title: 'گزارش کسر از انبار',
-        description: 'موجودی فقط در تبدیل‌های قابل‌اعتماد کم می‌شود. وزن اقلام شمارشی تقریبی است و ممکن است با اندازهٔ واقعی تفاوت داشته باشد.',
-        sections: noticeSections
-      });
+      const estimated = draft.rows.filter(row => row.enabled && row.estimated).length;
+      const skipped = draft.notices.length;
+      const parts = ['مصرف این پخت خودکار از انبار ثبت شد.'];
+      if (estimated) parts.push(`${estimated.toLocaleString('fa-IR')} مقدار با میانگین تقریبی محاسبه شد.`);
+      if (skipped) parts.push(`برای ${Math.min(skipped, 3).toLocaleString('fa-IR')} قلم، مقدار یا موجودی قابل‌محاسبه نبود؛ در سابقه ثبت شد و چیزی از قلم دیگری کم نشد.`);
+      setCookingMessage(parts.join(' '));
+    } catch (error) {
+      setCookingMessage(error instanceof Error ? error.message : 'ثبت مصرف انبار انجام نشد.');
+    } finally {
+      setCookingBusy(false);
     }
   };
 
@@ -335,33 +202,6 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center [@media(orientation:landscape)_and_(max-height:500px)]:items-start p-0 [@media(orientation:landscape)_and_(max-height:500px)]:p-4 bg-black/80 backdrop-blur-md overflow-hidden [@media(orientation:landscape)_and_(max-height:500px)]:overflow-y-auto" onClick={onClose}>
-      {inventoryNotice && (
-        <div className="absolute inset-0 z-[300] flex items-center justify-center bg-slate-950/55 backdrop-blur-sm p-4 animate-enter" onClick={() => setInventoryNotice(null)}>
-          <section role="alertdialog" aria-modal="true" aria-labelledby="inventory-notice-title" className="w-full max-w-lg max-h-[85dvh] overflow-y-auto rounded-[2rem] border border-emerald-100 bg-white p-5 sm:p-7 text-right shadow-2xl shadow-emerald-950/20" onClick={event => event.stopPropagation()}>
-            <div className="mb-4 flex items-start gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700"><Scale size={22} /></div>
-              <div className="min-w-0 flex-1 pt-0.5">
-                <h3 id="inventory-notice-title" className="text-lg font-black text-slate-900">{inventoryNotice.title}</h3>
-                <p className="mt-1 text-sm leading-6 text-slate-600">{inventoryNotice.description}</p>
-              </div>
-              <button type="button" aria-label="بستن گزارش" onClick={() => setInventoryNotice(null)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-emerald-100 hover:text-emerald-800"><X size={18} /></button>
-            </div>
-            <div className="space-y-3">
-              {inventoryNotice.sections.map(section => (
-                <div key={section.title} className={`rounded-2xl border p-4 ${section.tone === 'rose' ? 'border-rose-100 bg-rose-50/70' : section.tone === 'amber' ? 'border-amber-100 bg-amber-50/70' : 'border-emerald-100 bg-emerald-50/70'}`}>
-                  <h4 className={`mb-2 text-sm font-black ${section.tone === 'rose' ? 'text-rose-800' : section.tone === 'amber' ? 'text-amber-900' : 'text-emerald-800'}`}>{section.title}</h4>
-                  <ul className="space-y-1.5">
-                    {section.items.map((item, index) => <li key={`${item}-${index}`} className="text-sm leading-6 text-slate-700">{item}</li>)}
-                  </ul>
-                  {section.tone === 'rose' && <p className="mt-2 text-xs leading-5 text-rose-700">برای کسر دقیق، واحد موجودی را به واحد وزنی یا حجمی سازگار تغییر بده.</p>}
-                  {section.tone === 'amber' && <p className="mt-2 text-xs leading-5 text-amber-800">اگر وزن دقیق‌تری داری، موجودی را با گرم یا کیلوگرم ثبت کن.</p>}
-                </div>
-              ))}
-            </div>
-            <button type="button" autoFocus onClick={() => setInventoryNotice(null)} className="mt-5 w-full rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-900/15 transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-200">متوجه شدم</button>
-          </section>
-        </div>
-      )}
       <div role="dialog" aria-modal="true" aria-label={`دستور پخت ${dish.name}`} className="relative w-full h-[100dvh] sm:w-[95vw] sm:h-[95vh] [@media(orientation:landscape)_and_(max-height:500px)]:h-auto rounded-none sm:rounded-[3rem] bg-white flex flex-col animate-enter shadow-2xl overflow-hidden [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible" onClick={e => e.stopPropagation()}>
         
         {/* Glassmorphism Header */}
@@ -435,9 +275,9 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
             <div className="flex items-center gap-4 bg-white/80 px-4 py-2 rounded-2xl shadow-inner border border-slate-100 order-1 sm:order-2 [@media(orientation:landscape)_and_(max-height:500px)]:order-2 [@media(orientation:landscape)_and_(max-height:500px)]:py-1 [@media(orientation:landscape)_and_(max-height:500px)]:px-3">
                 <span className="text-xs font-black text-slate-400 ml-2">تعداد نفرات:</span>
                 <div className="flex items-center gap-3">
-                    <button onClick={() => setServings(Math.max(1, servings - 1))} className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-all"><Minus size={18} /></button>
+                    <button aria-label="کاهش تعداد نفرات" onClick={() => setServings(Math.max(1, servings - 1))} className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-rose-100 text-slate-500 hover:text-rose-600 transition-all"><Minus size={18} /></button>
                     <span className="text-xl font-black text-slate-900 min-w-[30px] text-center [@media(orientation:landscape)_and_(max-height:500px)]:text-lg">{toPersianDigits(servings)}</span>
-                    <button onClick={() => setServings(Math.min(20, servings + 1))} className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-emerald-100 text-slate-500 hover:text-emerald-600 transition-all"><Plus size={18} /></button>
+                    <button aria-label="افزایش تعداد نفرات" onClick={() => setServings(Math.min(20, servings + 1))} className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-emerald-100 text-slate-500 hover:text-emerald-600 transition-all"><Plus size={18} /></button>
                 </div>
             </div>
           </div>
@@ -471,7 +311,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {dish.ingredients.map((ing, idx) => {
                       const scaled = getScaledAmount(ing.amount);
-                      const localQuantity = scaled > 0 ? formatQuantityForDisplay(scaled, ing.unit, ing.item) : null;
+                      const localQuantity = scaled > 0 && normalizeUnit(ing.unit) !== 'به میزان لازم' ? formatQuantityForDisplay(scaled, ing.unit, ing.item) : null;
                       return (
                         <div key={idx} className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-teal-200 hover:bg-white transition-all group shadow-sm">
                           <span className="font-bold text-slate-700">{ing.item}</span>
@@ -489,13 +329,16 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
                 {user && hasIngredients && (
                   <div className="flex flex-col gap-3 mt-4">
                     <button 
+                      disabled={cooked || cookingBusy}
                       onClick={handleCookDish} 
                       className={`w-full py-5 rounded-[2rem] font-black text-lg transition-all flex items-center justify-center gap-3 shadow-xl ${cooked ? 'bg-teal-500 text-white scale-95' : 'bg-teal-600 text-white hover:bg-teal-700'}`}
                     >
                       {cooked ? <CheckCircle2 size={24} /> : <ChefHat size={24} />}
-                      {cooked ? (user.kitchenMode === 'without-inventory' ? 'نوش جان!' : 'موجودی انبار کسر شد') : (user.kitchenMode === 'without-inventory' ? 'این غذا را پختم (بدون تغییر انبار)' : 'این غذا را پختم (کسر از انبار)')}
+                      {cookingBusy ? 'در حال ثبت پخت…' : cooked ? (user.kitchenMode === 'without-inventory' ? 'نوش جان!' : 'پخت و کسر خودکار ثبت شد') : (user.kitchenMode === 'without-inventory' ? 'این غذا را پختم (بدون تغییر انبار)' : 'پختم؛ کسر خودکار از انبار')}
                     </button>
+                    {cookingMessage && <p role="status" className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs font-bold leading-6 text-emerald-900">{cookingMessage}</p>}
                     
+                    {cooked && <button type="button" onClick={() => { setCooked(false); setCookingMessage(''); void handleCookDish(); }} className="py-2 text-xs font-bold text-emerald-800">ثبت پخت دیگری از همین غذا</button>}
                     <button 
                       onClick={handleAddAllToCart} 
                       className={`w-full py-5 rounded-[2rem] font-black text-lg transition-all flex items-center justify-center gap-3 shadow-xl ${addedToCart ? 'bg-emerald-500 text-white scale-95' : 'bg-slate-900 text-white hover:bg-teal-600'}`}

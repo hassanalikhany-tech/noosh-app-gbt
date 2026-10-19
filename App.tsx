@@ -16,7 +16,7 @@ import { UserService } from './services/userService';
 import { NotificationService } from './services/notificationService';
 import { DayPlan, KitchenMode, UserProfile, CATEGORY_LABELS, DishCategory, Notification } from './types';
 import { filterDishes, generateDailyPlan, generateWeeklyPlan, generateMonthlyPlan, generateSingleReplacement } from './utils/planner';
-import { getShoppingShortages } from './utils/recipeHelpers';
+import { getShoppingShortages, parseQuantity } from './utils/recipeHelpers';
 import { CHALLENGES } from './data/challenges';
 import { getBaseIngredientName } from './data/pantry';
 import { getRelevantInventory } from './utils/kitchenMode';
@@ -189,9 +189,11 @@ const AppContent: React.FC = () => {
     };
 
     window.addEventListener('user-data-updated', handleUserUpdate);
+    window.addEventListener('storage', handleUserUpdate);
 
     return () => {
       window.removeEventListener('user-data-updated', handleUserUpdate);
+      window.removeEventListener('storage', handleUserUpdate);
     };
   }, []);
 
@@ -359,7 +361,7 @@ const AppContent: React.FC = () => {
         [plan.dish, plan.sideDish].forEach(dish => {
           if (!dish?.ingredients) return;
           const scale = targetServings / (dish.servings || 4);
-          allIngredients.push(...dish.ingredients.map(ingredient => ({ ...ingredient, amount: (Number(ingredient.amount) || 0) * scale })));
+          allIngredients.push(...dish.ingredients.map(ingredient => ({ ...ingredient, amount: parseQuantity(ingredient.amount) * scale })));
         });
       });
 
@@ -393,7 +395,8 @@ const AppContent: React.FC = () => {
             amount: missing.amount,
             unit: missing.unit,
             fromRecipe: 'برنامه غذایی',
-            category: missing.category
+            category: missing.category,
+            estimated: missing.estimated, unresolved: missing.unresolved
           });
         }
       });
@@ -596,8 +599,8 @@ const AppContent: React.FC = () => {
                 <article key={item.id} className="shopping-print-item">
                   <span className="shopping-print-number">{toPersian(index + 1)}</span>
                   <strong>{item.name}</strong>
-                  <span className="shopping-print-quantity">{item.amount !== undefined && item.amount > 0 ? `${new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 3 }).format(item.amount)} ${item.unit || ''}` : '□'}</span>
-                  {item.fromRecipe && <small>{item.fromRecipe}</small>}
+                  <span className="shopping-print-quantity">{item.amount !== undefined && item.amount > 0 ? `${new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 6 }).format(item.amount)} ${item.unit || ''}` : '□'}</span>
+                  {(item.fromRecipe || item.unresolved || item.estimated) && <small>{[item.fromRecipe, item.unresolved ? 'نیاز دستور؛ مقدار خرید نیازمند بررسی' : item.estimated ? 'تبدیل تقریبی' : ''].filter(Boolean).join(' · ')}</small>}
                 </article>
               ))}
             </div> : <p className="shopping-print-empty">سبد خرید شما خالی است.</p>}
