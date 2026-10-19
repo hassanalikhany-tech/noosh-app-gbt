@@ -15,6 +15,7 @@ import { getPantryUnitKey, suggestPantryUnit } from '../utils/pantryUnits';
 import { UserService as ActualUsers } from '../services/./userService';
 import { prepareCooking } from '../utils/inventoryLedger';
 import { GuestService } from '../services/guestService';
+import { PANTRY_ITEMS, SPICES_AND_ADDITIVES, getIngredientCategoryId } from '../data/pantry';
 import { DEFAULT_DISHES } from '../data/recipes';
 import recipeCatalog from '../data/recipes_catalog.json';
 const storage = new Map();
@@ -24,6 +25,16 @@ const base: any = { username: 'test', excludedCategories: [], preferredNatures: 
 assert.equal(recipeCatalog.length, 652, 'The offline catalog contains the 652 dishes from the published recipe backup');
 assert.equal(new Set(recipeCatalog.map(dish => dish.id)).size, recipeCatalog.length, 'Offline recipe IDs are unique');
 assert.ok(DEFAULT_DISHES.length >= 10, 'Curated built-in recipes are retained alongside the imported catalog');
+for (const ingredient of ['شیر', 'ماست', 'پنیر', 'پنیر فتا', 'پنیر پیتزا', 'کره محلی', 'خامه', 'دوغ', 'کشک']) {
+  assert.equal(getIngredientCategoryId(ingredient), 'dairy', `${ingredient} belongs to the standalone dairy pantry category`);
+}
+assert.equal(getIngredientCategoryId('تخم مرغ'), 'proteins', 'Eggs remain in the protein category rather than dairy');
+assert.ok(!SPICES_AND_ADDITIVES.some(ingredient => ['شیر', 'ماست', 'پنیر', 'پنیر فتا', 'پنیر پیتزا', 'کره محلی', 'خامه', 'دوغ', 'کشک'].includes(ingredient)), 'Dairy products are not duplicated under spices and additives');
+const pantryItemOwners = new Map<string, string>();
+for (const category of PANTRY_ITEMS) for (const ingredient of category.items) {
+  assert.equal(pantryItemOwners.has(ingredient), false, `${ingredient} appears in only one top-level pantry category`);
+  pantryItemOwners.set(ingredient, category.id);
+}
 RecipeService.dishes = [
  { id: 'veg', name: 'خوراک سبزیجات', category: 'khorak', cookTime: 20, nature: 'گرم', ingredients: [{item:'هویج', amount:1, unit:'کیلوگرم'}] },
  { id: 'meat', name: 'خورش گوشت', category: 'stew', cookTime: 120, nature: 'cold', ingredients: [{item:'گوشت', amount:1, unit:'کیلوگرم'}] },
