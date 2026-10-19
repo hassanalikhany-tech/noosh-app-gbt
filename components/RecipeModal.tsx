@@ -1,5 +1,5 @@
 
-import { X, ChefHat, Clock, Activity, Flame, PlusCircle, Check, Sun, Snowflake, Scale, ShieldCheck, Utensils, AlertCircle, Users, Minus, Plus, Play, Pause, RotateCcw, Trophy, AlarmClock, CheckCircle2 } from 'lucide-react';
+import { X, ChefHat, Clock, Activity, Flame, PlusCircle, Check, Sun, Snowflake, Scale, ShieldCheck, Utensils, AlertCircle, Users, Minus, Plus, Play, Pause, RotateCcw, Trophy, AlarmClock, CheckCircle2, ArrowRight } from 'lucide-react';
 import React, { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Dish, ShoppingItem, UserProfile } from '../types';
@@ -31,6 +31,8 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
   const [timerInput, setTimerInput] = useState(10); // Default 10 mins
   const [isAlarmPlaying, setIsAlarmPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const closeModalRef = useRef(onClose);
+  closeModalRef.current = onClose;
 
   const hasRecipe = dish.recipeSteps && dish.recipeSteps.length > 0;
   const hasIngredients = dish.ingredients && dish.ingredients.length > 0;
@@ -58,6 +60,19 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
       document.body.style.overflow = 'unset'; 
     };
   }, [isOpen, user?.familySize, dish.id]);
+
+  // Keep the phone's browser/system Back action inside the app while a recipe is open.
+  useEffect(() => {
+    if (!isOpen) return;
+    const state = window.history.state && typeof window.history.state === 'object' ? window.history.state : {};
+    window.history.pushState({ ...state, nooshRecipeModal: true }, '', window.location.href);
+    const handleBack = () => closeModalRef.current();
+    window.addEventListener('popstate', handleBack);
+    return () => {
+      window.removeEventListener('popstate', handleBack);
+      if (window.history.state?.nooshRecipeModal) window.history.back();
+    };
+  }, [isOpen, dish.id]);
 
   // Keyboard listener for spacebar
   useEffect(() => {
@@ -205,13 +220,19 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
       <div role="dialog" aria-modal="true" aria-label={`دستور پخت ${dish.name}`} className="recipe-modal-dialog relative w-full h-[100dvh] sm:w-[95vw] sm:h-[95vh] [@media(orientation:landscape)_and_(max-height:500px)]:h-auto rounded-none sm:rounded-[3rem] bg-white flex flex-col animate-enter shadow-2xl overflow-hidden [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible" onClick={e => e.stopPropagation()}>
         
         {/* Glassmorphism Header */}
-        <div className="recipe-modal-header sticky top-0 [@media(orientation:landscape)_and_(max-height:500px)]:relative z-[100] bg-white/40 backdrop-blur-2xl border-b border-white/30 p-6 sm:p-8 [@media(orientation:landscape)_and_(max-height:500px)]:p-4 shadow-xl flex-shrink-0">
-          <button 
-            aria-label="بستن دستور پخت" onClick={onClose} 
-            className="absolute top-4 right-4 z-[110] w-10 h-10 bg-white/80 hover:bg-rose-500 hover:text-white backdrop-blur-md rounded-full text-slate-900 flex items-center justify-center transition-all shadow-lg active:scale-90 border border-white/20"
-          >
-            <X size={24} />
-          </button>
+        <div className="recipe-modal-header sticky top-0 [@media(orientation:landscape)_and_(max-height:500px)]:relative z-[100] bg-white/90 backdrop-blur-2xl border-b border-white/50 p-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-8 [@media(orientation:landscape)_and_(max-height:500px)]:p-4 shadow-xl flex-shrink-0">
+          <div className="mb-2 flex items-center justify-between [@media(orientation:landscape)_and_(max-height:500px)]:mb-1">
+            <button
+              type="button"
+              aria-label="بازگشت به صفحهٔ قبل"
+              onClick={onClose}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#276556] px-4 py-2 text-sm font-black text-white shadow-md shadow-emerald-950/15 transition hover:bg-[#347866] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-800 active:scale-95"
+            >
+              <ArrowRight size={18} aria-hidden="true" />
+              <span>بازگشت</span>
+            </button>
+            <span className="text-xs font-bold text-slate-500">دستور پخت</span>
+          </div>
 
           {/* Row 1: Dish Name */}
           <div className="recipe-modal-title-row text-center mb-8 pt-2 [@media(orientation:landscape)_and_(max-height:500px)]:mb-2 [@media(orientation:landscape)_and_(max-height:500px)]:pt-0 flex flex-col items-center gap-2">
