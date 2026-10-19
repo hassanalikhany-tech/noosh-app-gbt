@@ -3,7 +3,7 @@ import BackupManager from './admin/BackupManager';
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { UserProfile, DishCategory, CATEGORY_LABELS, NatureType, VisitorProfile } from '../types';
 import { UserService } from '../services/userService';
-import { LogOut, User, Sun, Snowflake, Scale, Heart, Plus, ThumbsDown, RotateCcw, ShieldCheck, Award, Info, Layers, Minus, FilterX, X, Check, CheckCircle, AlertTriangle, UserX, Search, MessageSquare, Camera, BookOpen, ChevronLeft, Leaf, Zap, Trophy, ChefHat, Sparkles } from 'lucide-react';
+import { LogOut, User, Sun, Snowflake, Scale, Heart, Plus, ThumbsDown, RotateCcw, ShieldCheck, Award, Info, Layers, Minus, FilterX, X, Check, CheckCircle, AlertTriangle, UserX, Search, MessageSquare, Camera, BookOpen, ChevronLeft, Leaf, Zap, Trophy, ChefHat, Sparkles, Smartphone, Share, Download, ExternalLink } from 'lucide-react';
 import { RecipeService } from '../services/recipeService';
 import { PANTRY_ITEMS } from '../data/pantry';
 import { CHALLENGES } from '../data/challenges';
@@ -17,6 +17,9 @@ interface PreferencesProps {
   onLogout: () => void;
   onNotify?: (title: string, message: string, icon: any, color: string) => void;
   onToggleFilter?: (filter: 'onlyFavoritesMode' | 'quickMealsMode' | 'meatlessMode') => void;
+  installPrompt?: { prompt: () => Promise<void>; userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }> } | null;
+  isAppInstalled?: boolean;
+  onInstallPromptConsumed?: () => void;
 }
 
 const ToggleSwitch = ({ isActive, onChange }: { isActive: boolean; onChange: () => void }) => {
@@ -37,14 +40,25 @@ const ToggleSwitch = ({ isActive, onChange }: { isActive: boolean; onChange: () 
   );
 };
 
-const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout, onNotify, onToggleFilter }) => {
+const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout, onNotify, onToggleFilter, installPrompt, isAppInstalled, onInstallPromptConsumed }) => {
   const [ingredientSearch, setIngredientSearch] = useState('');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isUserGuideOpen, setIsUserGuideOpen] = useState(false);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const installApp = async () => {
+    if (installPrompt) {
+      await installPrompt.prompt();
+      await installPrompt.userChoice;
+      onInstallPromptConsumed?.();
+      return;
+    }
+    setShowInstallHelp(value => !value);
   };
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -275,6 +289,27 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
           <div className="max-w-4xl mx-auto py-4 sm:py-8 space-y-6 sm:space-y-10">
             <BackupManager personalOnly />
+              <section className="overflow-hidden rounded-[1.75rem] border border-emerald-100 bg-gradient-to-l from-[#eaf4ef] via-white to-white p-5 shadow-sm sm:rounded-[2rem] sm:p-7">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start gap-4">
+                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#276556] text-white shadow-md shadow-emerald-900/15"><Smartphone size={23}/></div>
+                    <div>
+                      <h2 className="text-base font-black text-slate-900 sm:text-lg">نوش را مثل اپ روی گوشی باز کن</h2>
+                      <p className="mt-1 max-w-2xl text-xs leading-6 text-slate-600">با افزودن نوش به صفحهٔ اصلی، هر بار تمام‌صفحه و بدون نوار آدرس مرورگر باز می‌شود.</p>
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => isAppInstalled ? setShowInstallHelp(value => !value) : void installApp()} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#276556] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-emerald-900/10 transition hover:bg-[#347866]">
+                    {isAppInstalled ? <CheckCircle size={17}/> : installPrompt ? <Download size={17}/> : <Share size={17}/>}
+                    {isAppInstalled ? 'نوش نصب شده است' : installPrompt ? 'نصب نوش' : 'راهنمای افزودن به صفحهٔ اصلی'}
+                  </button>
+                </div>
+                {showInstallHelp && !isAppInstalled && <div className="mt-5 grid gap-3 border-t border-emerald-100 pt-4 text-xs leading-6 text-slate-700 sm:grid-cols-2">
+                  <div className="rounded-2xl bg-white/80 p-4"><p className="flex items-center gap-2 font-black text-slate-900"><Share size={16} className="text-[#276556]"/> آیفون و آیپد</p><p className="mt-2">صفحهٔ نوش را در <strong>Safari</strong> باز کن، دکمهٔ اشتراک‌گذاری را بزن و <strong>Add to Home Screen / افزودن به صفحهٔ اصلی</strong> را انتخاب کن.</p></div>
+                  <div className="rounded-2xl bg-white/80 p-4"><p className="flex items-center gap-2 font-black text-slate-900"><Smartphone size={16} className="text-[#276556]"/> اندروید</p><p className="mt-2">منوی مرورگر <strong>Chrome</strong> را باز کن و <strong>Install app / نصب برنامه</strong> یا <strong>Add to Home screen / افزودن به صفحهٔ اصلی</strong> را بزن.</p></div>
+                  <p className="sm:col-span-2 text-[11px] text-slate-500">اگر گزینهٔ نصب نمایش داده نشد، سایت را مستقیم در مرورگر اصلی گوشی باز کن و دوباره منوی اشتراک‌گذاری یا مرورگر را بررسی کن.</p>
+                </div>}
+                {showInstallHelp && isAppInstalled && <p className="mt-4 border-t border-emerald-100 pt-4 text-xs leading-6 text-emerald-900">نوش از صفحهٔ اصلی گوشی به شکل مستقل اجرا می‌شود. برای حذف نوار مرورگر، آیکن نوش را از صفحهٔ اصلی باز کن.</p>}
+              </section>
               {/* بخش راهنمای اپلیکیشن */}
               <button 
                 onClick={() => setIsUserGuideOpen(true)}

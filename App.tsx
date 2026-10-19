@@ -24,6 +24,10 @@ import metadata from './metadata.json';
 
 type ViewMode = 'plan' | 'pantry' | 'search' | 'challenges' | 'settings';
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+}
 
 interface FilterNotif {
   show: boolean;
@@ -52,6 +56,34 @@ const AppContent: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [previousPlan, setPreviousPlan] = useState<DayPlan[] | null>(null);
   const [planError, setPlanError] = useState('');
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isAppInstalled, setIsAppInstalled] = useState(false);
+
+  useEffect(() => {
+    const updateInstalledState = () => {
+      const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+        Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
+      setIsAppInstalled(standalone);
+    };
+    const handleInstallAvailable = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as BeforeInstallPromptEvent);
+    };
+    const handleInstalled = () => {
+      setInstallPrompt(null);
+      setIsAppInstalled(true);
+    };
+    updateInstalledState();
+    window.addEventListener('beforeinstallprompt', handleInstallAvailable);
+    window.addEventListener('appinstalled', handleInstalled);
+    const displayMode = window.matchMedia('(display-mode: standalone)');
+    displayMode.addEventListener?.('change', updateInstalledState);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleInstallAvailable);
+      window.removeEventListener('appinstalled', handleInstalled);
+      displayMode.removeEventListener?.('change', updateInstalledState);
+    };
+  }, []);
 
   const enterFullscreen = () => {
     try {
@@ -688,6 +720,9 @@ const AppContent: React.FC = () => {
             onUpdateUser={setCurrentUser} 
             onLogout={handleLogout} 
             onToggleFilter={handleToggleFilter}
+            installPrompt={installPrompt}
+            isAppInstalled={isAppInstalled}
+            onInstallPromptConsumed={() => setInstallPrompt(null)}
           />
         )}
       </main></Suspense>

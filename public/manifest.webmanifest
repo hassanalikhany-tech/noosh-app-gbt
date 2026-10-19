@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "name": "نوش | برنامه‌ریز غذای خانه",
+  "short_name": "نوش",
+  "description": "پیشنهاد غذا، برنامه‌ریزی، دستور پخت و مدیریت آشپزخانه",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#f8fafc",
+  "theme_color": "#276556",
+  "icons": [
+    { "src": "/icons/noosh-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/noosh-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
