@@ -441,49 +441,59 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
           <h1>امروز چی بپزم؟</h1>
           <p>{user.kitchenMode === 'without-inventory' ? 'در حالت مستقل از انبار، پیشنهادها بدون توجه به موجودی ثبت‌شده چیده می‌شوند؛ هر زمان خواستی از کلید پایین حالت را عوض کن.' : 'موجودی ثبت‌شده‌ات را به‌روز کن تا پیشنهادها با مواد خانه جور باشند و کسری‌های خرید دقیق حساب شوند.'}</p>
         </div><div className="pantry-hero-photo" role="img" aria-label="زرشک پلو با مرغ زعفرانی خانگی" />
-        {isInventoryMode && <div className="pantry-hero-stats"><span><Package size={17}/><strong>{toPersian(inventory.length)}</strong> ماده در انبار</span><i/><span><ChefHat size={17}/><strong>{toPersian(dishCount)}</strong> دستور در کتابخانه</span><i/><span className={lowStockItems.length ? 'stock-alert' : ''}><AlertTriangle size={16}/><strong>{toPersian(lowStockItems.length)}</strong> نیازمند توجه</span></div>}
-      </section>
-      <div className="pantry-mode-switch-wrap">
-        <button
-          type="button"
-          role="switch"
-          aria-checked={user.kitchenMode !== 'without-inventory'}
-          aria-label="استفاده از موجودی انبار برای پیشنهاد غذا"
-          className={`pantry-mode-switch ${user.kitchenMode !== 'without-inventory' ? 'is-on' : 'is-off'}`}
-          onClick={() => void onKitchenModeChange(user.kitchenMode === 'without-inventory' ? 'with-inventory' : 'without-inventory')}
-        >
-          <span className="pantry-mode-icon"><Package size={21} /></span>
-          <span className="pantry-mode-copy">
-            <strong>استفاده از موجودی انبار</strong>
-            <small>{user.kitchenMode === 'without-inventory' ? 'خاموش · پیشنهادها مستقل از مواد ثبت‌شده‌اند' : 'روشن · پیشنهاد و فهرست خرید با مواد خانه هماهنگ است'}</small>
-          </span>
-          <span className="pantry-mode-status">{user.kitchenMode === 'without-inventory' ? 'خاموش' : 'روشن'}</span>
-          <span className="pantry-mode-track" aria-hidden="true"><i /></span>
-        </button>
-      </div>
-      {isInventoryMode ? <>
-      {/* هدر آشپزخانه و دسترسی‌های انبار */}
-      <div className="sticky top-0 [@media(orientation:landscape)_and_(max-height:500px)]:relative z-[900] bg-white/40 backdrop-blur-2xl px-4 py-3 sm:py-6 sm:px-10">
-          <div className="backdrop-blur-3xl bg-white/50 border border-white/60 rounded-[1.75rem] sm:rounded-[3.5rem] p-4 sm:p-8 shadow-xl shadow-slate-200/50 relative overflow-hidden max-w-7xl mx-auto">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-3 sm:gap-4 relative z-10">
+        <div className="pantry-hero-stats">
+          <div className="pantry-hero-controls">
+            <div className="pantry-mode-switch-wrap">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isInventoryMode}
+                aria-label="استفاده از موجودی انبار برای پیشنهاد غذا"
+                className={`pantry-mode-switch ${isInventoryMode ? 'is-on' : 'is-off'}`}
+                onClick={() => void onKitchenModeChange(isInventoryMode ? 'without-inventory' : 'with-inventory')}
+              >
+                <span className="pantry-mode-icon"><Package size={19} /></span>
+                <span className="pantry-mode-copy">
+                  <strong>استفاده از موجودی انبار</strong>
+                  <small>{isInventoryMode ? 'پیشنهادها با مواد خانه هماهنگ‌اند' : 'پیشنهادها مستقل از انبارند'}</small>
+                </span>
+                <span className="pantry-mode-status">{isInventoryMode ? 'روشن' : 'خاموش'}</span>
+                <span className="pantry-mode-track" aria-hidden="true"><i /></span>
+              </button>
+            </div>
+            <div className="pantry-hero-inventory">
               <div className="pantry-toolbar-title">
-                <div className="pantry-toolbar-icon"><Package size={20} /></div>
-                <div><strong>انبار مواد غذایی آشپزخانه</strong><span>{toPersian(inventory.length)} قلم ثبت‌شده · {user.kitchenMode === 'with-inventory' ? 'در پیشنهادها و محاسبهٔ خرید استفاده می‌شود.' : 'فعلاً در پیشنهادها و خرید دخالت ندارد.'}</span></div>
+                <div className="pantry-toolbar-icon"><Package size={18} /></div>
+                <div><strong>انبار مواد غذایی آشپزخانه</strong><span>{toPersian(inventory.length)} قلم ثبت‌شده</span></div>
               </div>
-              <div className="flex w-full flex-col sm:w-auto sm:flex-row">
-                {user.kitchenMode !== 'without-inventory' && <button
-                  onClick={() => suggestFromInventory()}
-                  className="w-full sm:w-auto px-6 py-2.5 sm:px-10 sm:py-4 bg-teal-500 hover:bg-teal-400 text-white rounded-xl sm:rounded-2xl font-black shadow-lg flex items-center justify-center gap-2 sm:gap-3 transition-all active:scale-95 disabled:opacity-40 text-xs sm:text-sm"
-                  disabled={inventory.length === 0 || isSearching}
-                >
-                  {isSearching ? <RefreshCw className="animate-spin" size={18} /> : <Sparkles size={18} />}
-                  <span>پیشنهاد غذا با موجودی</span>
-                </button>}
-              </div>
+              {isInventoryMode ? <button
+                type="button"
+                onClick={suggestFromInventory}
+                disabled={inventory.length === 0 || isSearching}
+                className="pantry-hero-stock-cta"
+              >
+                {isSearching ? <RefreshCw className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                <span>{isSearching ? 'در حال بررسی…' : 'پیشنهاد غذا با موجودی'}</span>
+              </button> : <button
+                type="button"
+                onClick={() => void onKitchenModeChange('with-inventory')}
+                className="pantry-hero-stock-cta"
+              >
+                <Package size={16} />
+                <span>روشن‌کردن انبار</span>
+              </button>}
             </div>
           </div>
-      </div>
-
+          {isInventoryMode && <div className="pantry-hero-metrics">
+            <span><Package size={15}/><strong>{toPersian(inventory.length)}</strong> ماده در انبار</span>
+            <i/>
+            <span><ChefHat size={15}/><strong>{toPersian(dishCount)}</strong> دستور در کتابخانه</span>
+            <i/>
+            <span className={lowStockItems.length ? 'stock-alert' : ''}><AlertTriangle size={14}/><strong>{toPersian(lowStockItems.length)}</strong> نیازمند توجه</span>
+          </div>}
+        </div>
+      </section>
+      {isInventoryMode ? <>
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
           <div className="max-w-7xl mx-auto py-4 sm:py-6 space-y-6 sm:space-y-10">
               <div className="space-y-6 animate-enter">
