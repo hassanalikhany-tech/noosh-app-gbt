@@ -27,6 +27,7 @@ try {
   assert.deepEqual(restoredCatalog.catalog.hiddenDishIds, [], 'deleted recipes can be restored');
   console.log('Community recipe checks passed: consent-ready recipe schema, category, ingredients, steps and safe image formats.');
   console.log('Catalog management checks passed: validated edits, preserved attribution, public removal and restore.');
+  await import('./startup.mjs');
 } catch (error) {
   console.error(`${error?.name || 'Error'}: ${error?.message || error}`);
   process.exitCode = 1;

@@ -12,7 +12,6 @@
   .noosh-app > div.fixed.bottom-0 > div > button { min-width: 0; min-height: 48px; gap: 1px; font-size: 11px; }
   .noosh-app > div.fixed.bottom-0 > div > button > div { padding: 4px; border-radius: 10px; }
   .noosh-app > div.fixed.bottom-0 > div > button > span { font-size: 10px; line-height: 1.2; white-space: nowrap; }
-  .mobile-site-credit { display: none !important; }
   .noosh-app main input, .noosh-app main select, .noosh-app main textarea { font-size: 16px; }
 
   .pantry-mode-switch-wrap { padding: 10px 14px 0; }

@@ -21,6 +21,7 @@ import { CHALLENGES } from './data/challenges';
 import { getBaseIngredientName } from './data/pantry';
 import { getRelevantInventory } from './utils/kitchenMode';
 import metadata from './metadata.json';
+import { markApplicationReady } from './utils/startup';
 
 type ViewMode = 'plan' | 'pantry' | 'search' | 'challenges' | 'settings';
 
@@ -59,6 +60,9 @@ const AppContent: React.FC = () => {
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  useEffect(() => {
+    if (!isInitializing && currentUser) markApplicationReady();
+  }, [isInitializing, currentUser]);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [appVersion, setAppVersion] = useState(metadata.name.split(' ').pop() || "V16.2");
   const [planLoading, setPlanLoading] = useState<'daily' | 'weekly' | 'monthly' | null>(null);
@@ -753,10 +757,6 @@ const AppContent: React.FC = () => {
            </button>
         </div>
 
-        <div className="mobile-site-credit md:hidden landscape:hidden" dir="rtl">
-          طراحی و توسعه توسط شرکت فنی‌مهندسی <strong>CYDEVIT</strong>
-        </div>
-
         <footer className="hidden md:flex landscape:flex backdrop-blur-3xl bg-white/50 border border-white/60 rounded-[2.5rem] h-[60px] px-6 md:px-12 items-center justify-between shadow-2xl mx-4 md:mx-12 mb-2 md:mb-4">
             <button onClick={() => setViewMode('settings')} className={`flex items-center gap-3 px-4 md:px-8 py-2 rounded-[1.75rem] transition-all flex-shrink-0 ${viewMode === 'settings' ? 'bg-slate-900 text-white shadow-2xl' : 'bg-white/80 border border-slate-200 text-slate-700 hover:bg-white'}`}>
                 <Settings size={24} />
@@ -764,7 +764,6 @@ const AppContent: React.FC = () => {
             </button>
             <div className="flex-grow flex flex-col items-center justify-center gap-0.5 text-slate-500">
                {footerMessage && <span className="flex items-center gap-2 md:gap-4 font-black"><Sparkles size={18} className="text-amber-400 md:w-5 md:h-5" /><span className="text-xs md:text-sm truncate">{footerMessage}</span></span>}
-               <span className="site-credit-desktop">طراحی و توسعه توسط شرکت فنی‌مهندسی <strong>CYDEVIT</strong></span>
             </div>
             <div className="flex items-center gap-3 md:gap-6">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-teal-500/10 text-teal-600 rounded-2xl flex items-center justify-center">

@@ -4,6 +4,9 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import './styles.css';
 import './mobile.css';
+import { startStartupScreen } from './utils/startup';
+
+startStartupScreen();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
