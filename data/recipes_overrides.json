@@ -45798,6 +45798,56 @@
       "imageReviewStatus": "create",
       "localEdited": true,
       "servings": 4
+    },
+    {
+      "name": "کوفته سبزی مخصوص مادر",
+      "category": "khorak",
+      "description": "یک کوفته متفاوت با طعمی بسیار دلپذیر که فقط پخت اش را در خانه مادرم دیده ام و تجربه کرده ام",
+      "ingredients": [
+        {
+          "item": "گوشت چرخ کرده",
+          "amount": 1,
+          "unit": "کیلوگرم"
+        },
+        {
+          "item": "لپه",
+          "amount": 2,
+          "unit": "پیمانه"
+        },
+        {
+          "item": "تره",
+          "amount": 100,
+          "unit": "گرم"
+        },
+        {
+          "item": "پیاز",
+          "amount": 1,
+          "unit": "عدد"
+        }
+      ],
+      "recipeSteps": [
+        "پیاز را تفت میدهیم",
+        "گوشت را اضافه میکنیم",
+        "لپه ها را که خیس کرده بودیم می پزیم",
+        "همه را مخلوط میکنیم",
+        "نمک و فلفل اضافه می کنیم",
+        "مثل کوفته گرد می کنیم",
+        "با سس مخصص یکساعت در قابلمه میذاریم و بعد آماده هست"
+      ],
+      "nationality": "ایران",
+      "servings": 4,
+      "cookTime": 30,
+      "calories": 100,
+      "difficulty": "متوسط",
+      "nature": "hot",
+      "natureLabel": "گرم",
+      "mosleh": "",
+      "id": "community-0433a56a-876d-4966-8b5a-7e40bf809bb5",
+      "isCommunityRecipe": true,
+      "creatorName": "حسن علیخانی",
+      "creatorTitle": "gentleman",
+      "hasRealData": true,
+      "imageUrl": "https://raw.githubusercontent.com/hassanalikhany-tech/noosh-app-gbt/main/public/community-recipes/0433a56a-876d-4966-8b5a-7e40bf809bb5.webp"
     }
   ],
   "hiddenDishIds": [
