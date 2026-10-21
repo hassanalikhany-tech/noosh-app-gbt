@@ -287,54 +287,54 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} user={user} />
       <UserGuide isOpen={isUserGuideOpen} onClose={() => setIsUserGuideOpen(false)} />
 
-      <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
-          <div className="max-w-4xl mx-auto py-4 sm:py-8 space-y-6 sm:space-y-10">
+      <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-3 sm:px-8 pb-16 no-scrollbar">
+          <div className="max-w-5xl mx-auto py-3 sm:py-5 space-y-4 sm:space-y-5">
             <BackupManager personalOnly />
             <PersonalRecipes user={user} onUpdateUser={nextUser => onUpdateUser(nextUser)} />
-              <section className="overflow-hidden rounded-[1.75rem] border border-emerald-100 bg-gradient-to-l from-[#eaf4ef] via-white to-white p-5 shadow-sm sm:rounded-[2rem] sm:p-7">
+              <div className="grid gap-3 md:grid-cols-2">
+              <section className="overflow-hidden rounded-2xl border border-emerald-100 bg-gradient-to-l from-[#eaf4ef] via-white to-white p-4 shadow-sm sm:p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-start gap-4">
-                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#276556] text-white shadow-md shadow-emerald-900/15"><Smartphone size={23}/></div>
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#276556] text-white shadow-sm"><Smartphone size={19}/></div>
                     <div>
-                      <h2 className="text-base font-black text-slate-900 sm:text-lg">نوش را مثل اپ روی گوشی باز کن</h2>
-                      <p className="mt-1 max-w-2xl text-xs leading-6 text-slate-600">با افزودن نوش به صفحهٔ اصلی، هر بار تمام‌صفحه و بدون نوار آدرس مرورگر باز می‌شود.</p>
+                      <h2 className="text-sm font-black text-slate-900">نوش را مثل اپ روی گوشی باز کن</h2>
+                      <p className="mt-1 text-[11px] leading-5 text-slate-600">با افزودن به صفحهٔ اصلی، بدون نوار آدرس باز می‌شود.</p>
                     </div>
                   </div>
-                  <button type="button" onClick={() => isAppInstalled ? setShowInstallHelp(value => !value) : void installApp()} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#276556] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-emerald-900/10 transition hover:bg-[#347866]">
+                  <button type="button" onClick={() => isAppInstalled ? setShowInstallHelp(value => !value) : void installApp()} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#276556] px-3.5 py-2 text-[11px] font-black text-white transition hover:bg-[#347866]">
                     {isAppInstalled ? <CheckCircle size={17}/> : installPrompt ? <Download size={17}/> : <Share size={17}/>}
                     {isAppInstalled ? 'نوش نصب شده است' : installPrompt ? 'نصب نوش' : 'راهنمای افزودن به صفحهٔ اصلی'}
                   </button>
                 </div>
-                {showInstallHelp && !isAppInstalled && <div className="mt-5 grid gap-3 border-t border-emerald-100 pt-4 text-xs leading-6 text-slate-700 sm:grid-cols-2">
+                {showInstallHelp && !isAppInstalled && <div className="mt-4 grid gap-2 border-t border-emerald-100 pt-3 text-[11px] leading-5 text-slate-700 sm:grid-cols-2">
                   <div className="rounded-2xl bg-white/80 p-4"><p className="flex items-center gap-2 font-black text-slate-900"><Share size={16} className="text-[#276556]"/> آیفون و آیپد</p><p className="mt-2">صفحهٔ نوش را در <strong>Safari</strong> باز کن، دکمهٔ اشتراک‌گذاری را بزن و <strong>Add to Home Screen / افزودن به صفحهٔ اصلی</strong> را انتخاب کن.</p></div>
                   <div className="rounded-2xl bg-white/80 p-4"><p className="flex items-center gap-2 font-black text-slate-900"><Smartphone size={16} className="text-[#276556]"/> اندروید</p><p className="mt-2">منوی مرورگر <strong>Chrome</strong> را باز کن و <strong>Install app / نصب برنامه</strong> یا <strong>Add to Home screen / افزودن به صفحهٔ اصلی</strong> را بزن.</p></div>
                   <p className="sm:col-span-2 text-[11px] text-slate-500">اگر گزینهٔ نصب نمایش داده نشد، سایت را مستقیم در مرورگر اصلی گوشی باز کن و دوباره منوی اشتراک‌گذاری یا مرورگر را بررسی کن.</p>
                 </div>}
-                {showInstallHelp && isAppInstalled && <p className="mt-4 border-t border-emerald-100 pt-4 text-xs leading-6 text-emerald-900">نوش از صفحهٔ اصلی گوشی به شکل مستقل اجرا می‌شود. برای حذف نوار مرورگر، آیکن نوش را از صفحهٔ اصلی باز کن.</p>}
+                {showInstallHelp && isAppInstalled && <p className="mt-3 border-t border-emerald-100 pt-3 text-[11px] leading-5 text-emerald-900">نوش از صفحهٔ اصلی گوشی به شکل مستقل اجرا می‌شود. برای حذف نوار مرورگر، آیکن نوش را از صفحهٔ اصلی باز کن.</p>}
               </section>
               {/* بخش راهنمای اپلیکیشن */}
               <button 
                 onClick={() => setIsUserGuideOpen(true)}
-                className="w-full bg-gradient-to-r from-teal-600 to-blue-600 rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-xl shadow-teal-100 border border-teal-500/20 group hover:scale-[1.02] transition-all active:scale-95 text-right"
+                className="w-full rounded-2xl border border-teal-700/10 bg-gradient-to-r from-teal-700 to-[#276556] p-4 text-right shadow-sm transition hover:brightness-105 active:scale-[.99] sm:p-5"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 sm:gap-6">
-                    <div className="p-4 sm:p-6 bg-white/20 backdrop-blur-md text-white rounded-2xl sm:rounded-[2rem] group-hover:rotate-12 transition-transform">
-                      <BookOpen size={28} className="sm:w-10 sm:h-10" />
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/15 text-white">
+                      <BookOpen size={20} />
                     </div>
                     <div>
-                      <h2 className="text-lg sm:text-3xl font-black text-white">راهنمای استفاده از اپلیکیشن</h2>
-                      <p className="text-[10px] sm:text-sm text-teal-50 font-bold mt-1 sm:mt-2 opacity-80">آموزش کامل تمام بخش‌ها و امکانات نـوش به زبان ساده</p>
+                      <h2 className="text-sm font-black text-white">راهنمای استفاده از نوش</h2>
+                      <p className="mt-1 text-[10px] font-semibold text-teal-50/85">آموزش کوتاه امکانات اپ</p>
                     </div>
                   </div>
-                  <div className="hidden sm:flex w-12 h-12 bg-white/10 rounded-full items-center justify-center text-white">
-                    <ChevronLeft size={24} />
-                  </div>
+                  <ChevronLeft size={20} className="shrink-0 text-white/80" />
                 </div>
               </button>
+              </div>
 
               {/* بخش تنظیمات هوشمند و فیلترهای سریع */}
-              <section className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-8 shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+              <section className="bg-white rounded-2xl p-4 shadow-sm ring-1 ring-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:p-5">
                 <div>
                   <h2 className="text-base sm:text-xl font-black text-slate-800">تعداد اعضای خانواده</h2>
                   <p className="text-xs text-slate-500 mt-1 leading-6">مقدار مواد رسپی‌ها، کسری خرید و محاسبهٔ انبار بر پایهٔ این تعداد تنظیم می‌شود. دستورهای اصلی برای ۴ نفر ثبت شده‌اند.</p>
@@ -346,22 +346,22 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                 </div>
               </section>
 
-              <div id="smart-filters-section" className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100 space-y-6 sm:space-y-8">
-                 <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="p-3 sm:p-4 bg-teal-50 text-teal-600 rounded-xl sm:rounded-[1.5rem]">
-                       <Layers size={22} className="sm:w-8" />
+              <div id="smart-filters-section" className="bg-white rounded-2xl p-4 shadow-sm ring-1 ring-slate-100 space-y-4 sm:p-5">
+                 <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-teal-50 text-teal-600 rounded-xl">
+                       <Layers size={19} />
                     </div>
                     <div>
-                       <h2 className="text-base sm:text-2xl font-black text-slate-800">تنظیمات هوشمند و فیلترهای سریع</h2>
-                       <p className="text-[9px] sm:text-xs text-slate-400 font-bold mt-1">مدیریت آسان رژیم‌های فعال، شخصی‌سازی برنامه‌ها و چالش‌ها با کلیدهای روشن/خاموش</p>
+                       <h2 className="text-sm sm:text-base font-black text-slate-800">تنظیمات هوشمند و فیلترهای سریع</h2>
+                       <p className="text-[10px] text-slate-500 font-medium mt-1">رژیم، پیشنهادهای شخصی و چالش‌ها را تنظیم کن.</p>
                     </div>
                  </div>
 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
                     {/* رژیم بدون گوشت */}
-                    <div className="flex items-center justify-between p-4 sm:p-6 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-2xl sm:rounded-[2rem] transition-all">
-                       <div className="flex items-center gap-3 sm:gap-4 text-right">
-                          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
+                    <div className="flex items-center justify-between gap-3 p-3 sm:p-4 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-xl transition-all">
+                       <div className="flex min-w-0 items-center gap-2.5 text-right">
+                          <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg shrink-0">
                              <Leaf size={20} className="sm:w-6 sm:h-6" />
                           </div>
                           <div>
@@ -376,9 +376,9 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                     </div>
 
                     {/* فیلتر فقط محبوب‌ها */}
-                    <div className="flex items-center justify-between p-4 sm:p-6 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-2xl sm:rounded-[2rem] transition-all">
-                       <div className="flex items-center gap-3 sm:gap-4 text-right">
-                          <div className="p-3 bg-rose-50 text-rose-600 rounded-xl shrink-0">
+                    <div className="flex items-center justify-between gap-3 p-3 sm:p-4 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-xl transition-all">
+                       <div className="flex min-w-0 items-center gap-2.5 text-right">
+                          <div className="p-2 bg-rose-50 text-rose-600 rounded-lg shrink-0">
                              <Heart size={20} className="sm:w-6 sm:h-6" fill={user.onlyFavoritesMode ? "currentColor" : "none"} />
                           </div>
                           <div>
@@ -393,9 +393,9 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                     </div>
 
                     {/* غذاهای سریع پشت */}
-                    <div className="flex items-center justify-between p-4 sm:p-6 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-2xl sm:rounded-[2rem] transition-all">
-                       <div className="flex items-center gap-3 sm:gap-4 text-right">
-                          <div className="p-3 bg-amber-50 text-amber-500 rounded-xl shrink-0">
+                    <div className="flex items-center justify-between gap-3 p-3 sm:p-4 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-xl transition-all">
+                       <div className="flex min-w-0 items-center gap-2.5 text-right">
+                          <div className="p-2 bg-amber-50 text-amber-500 rounded-lg shrink-0">
                              <Zap size={20} className="sm:w-6 sm:h-6" />
                           </div>
                           <div>
@@ -410,9 +410,9 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                     </div>
 
                     {/* چالش‌های هفتگی */}
-                    <div className="flex items-center justify-between p-4 sm:p-6 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-2xl sm:rounded-[2rem] transition-all">
-                       <div className="flex items-center gap-3 sm:gap-4 text-right">
-                          <div className="p-3 bg-violet-50 text-violet-600 rounded-xl shrink-0">
+                    <div className="flex items-center justify-between gap-3 p-3 sm:p-4 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-xl transition-all">
+                       <div className="flex min-w-0 items-center gap-2.5 text-right">
+                          <div className="p-2 bg-violet-50 text-violet-600 rounded-lg shrink-0">
                              <Trophy size={20} className="sm:w-6 sm:h-6" />
                           </div>
                           <div>
@@ -464,23 +464,24 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                  )}
               </div>
 
-              <div className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100 space-y-6 sm:space-y-8">
+              <div className="grid gap-3 lg:grid-cols-2">
+              <div className="bg-white rounded-2xl p-4 shadow-sm ring-1 ring-slate-100 space-y-4 sm:p-5">
                  <div className="flex items-center gap-3 sm:gap-4"><div className="p-3 sm:p-4 bg-orange-50 text-orange-600 rounded-xl sm:rounded-[1.5rem]"><ShieldCheck size={22} className="sm:w-8" /></div><div><h2 className="text-base sm:text-2xl font-black text-slate-800">فیلتر طبع غذاها</h2><p className="text-[9px] sm:text-xs text-slate-400 font-bold mt-1">انتخاب مزاج برای پیشنهادات دقیق‌تر</p></div></div>
-                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5">
+                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {[
                       { id: 'hot', label: 'طبع گرم', icon: Sun, color: 'orange' },
                       { id: 'cold', label: 'طبع سرد', icon: Snowflake, color: 'blue' },
                       { id: 'balanced', label: 'طبع معتدل', icon: Scale, color: 'emerald' }
                     ].map(n => (
-                      <button key={n.id} onClick={() => toggleNature(n.id as NatureType)} className={`flex items-center justify-between p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border-2 transition-all active:scale-95 ${(user.preferredNatures || []).includes(n.id as NatureType) ? `bg-${n.color === 'blue' ? 'blue-600' : n.color + '-500'} border-${n.color === 'blue' ? 'blue-700' : n.color + '-600'} text-white shadow-xl` : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}`}>
-                         <div className="flex items-center gap-3 sm:gap-4"><n.icon size={22} className="sm:w-7" /><span className="font-black text-xs sm:text-base">{n.label}</span></div>
-                         {(user.preferredNatures || []).includes(n.id as NatureType) ? <CheckCircle size={18} className="sm:w-6" /> : <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-slate-100"></div>}
+                      <button key={n.id} onClick={() => toggleNature(n.id as NatureType)} className={`flex items-center justify-between p-3 rounded-xl border transition-all active:scale-95 ${(user.preferredNatures || []).includes(n.id as NatureType) ? `bg-${n.color === 'blue' ? 'blue-600' : n.color + '-500'} border-${n.color === 'blue' ? 'blue-700' : n.color + '-600'} text-white shadow-sm` : 'bg-white border-slate-100 text-slate-400 hover:border-slate-200'}`}>
+                         <div className="flex items-center gap-2"><n.icon size={19} /><span className="font-black text-xs">{n.label}</span></div>
+                         {(user.preferredNatures || []).includes(n.id as NatureType) ? <CheckCircle size={17} /> : <div className="w-4 h-4 rounded-full border-2 border-slate-100"></div>}
                       </button>
                     ))}
                  </div>
               </div>
 
-              <div className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100 space-y-6 sm:space-y-8">
+              <div className="bg-white rounded-2xl p-4 shadow-sm ring-1 ring-slate-100 space-y-3 sm:p-5">
                 <div className="flex items-center gap-3 sm:gap-4"><div className="p-3 sm:p-4 bg-rose-50 text-rose-600 rounded-xl sm:rounded-[1.5rem]"><UserX size={22} className="sm:w-8" /></div><div><h2 className="text-base sm:text-2xl font-black text-slate-800">مواد غذایی ممنوعه</h2><p className="text-[10px] sm:text-xs text-slate-500 font-medium mt-1 leading-5">مواد حساسیت‌زا یا خوراکی‌هایی را که نمی‌خورید اضافه کنید؛ غذاهای دارای این مواد از پیشنهادها حذف می‌شوند.</p></div></div>
                 <div className="relative">
                   <input 
@@ -494,7 +495,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                             setIngredientSearch('');
                         }
                     }}
-                    className="w-full px-12 py-3 sm:px-16 sm:py-5 bg-slate-50 border-2 border-slate-100 rounded-xl sm:rounded-[2rem] outline-none focus:border-rose-400 font-bold text-sm sm:text-lg transition-all" 
+                    className="w-full px-11 py-3 sm:px-12 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:border-rose-400 font-bold text-sm transition-all"
                   />
                   <Search className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 text-slate-300 sm:w-6" size={18} />
                   {ingredientSearch && (
@@ -509,7 +510,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
 
                 {/* نمایش نتایج جستجو */}
                 {ingredientSearch && (
-                  <div className="flex flex-wrap gap-2 animate-enter bg-rose-50/30 p-4 rounded-2xl border border-rose-100/50">
+                  <div className="flex flex-wrap gap-2 animate-enter bg-rose-50/30 p-3 rounded-xl border border-rose-100/50">
                     {commonIngredients.filter(i => !(user.dislikedIngredients || []).includes(i)).map(ing => (
                       <button 
                         key={ing} 
@@ -525,7 +526,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                   </div>
                 )}
 
-                <div className="flex flex-wrap gap-2 sm:gap-3">
+                <div className="flex max-h-28 flex-wrap gap-2 overflow-y-auto">
                   {(user.dislikedIngredients || []).map(ing => (
                     <button key={ing} onClick={() => toggleIngredient(ing)} className="px-4 py-2 sm:px-6 sm:py-3 bg-rose-600 text-white rounded-lg sm:rounded-2xl text-[10px] sm:text-sm font-black flex items-center gap-2 sm:gap-3 shadow-lg">
                       {ing} <X size={14} className="sm:w-4" />
@@ -533,9 +534,10 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                   ))}
                 </div>
               </div>
+              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-                  <div className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100 space-y-6 sm:space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="bg-white rounded-2xl p-4 shadow-sm ring-1 ring-slate-100 space-y-4 sm:p-5">
                     <div className="flex items-center gap-3 sm:gap-4">
                       <div className="p-3 bg-rose-50 text-rose-600 rounded-xl sm:rounded-[1.5rem]"><Heart size={22} fill="currentColor"/></div>
                       <h2 className="text-sm sm:text-xl font-black text-slate-800">غذاهای محبوب من</h2>
@@ -557,7 +559,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                         )}
                     </div>
                   </div>
-                  <div className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100 space-y-6 sm:space-y-8">
+                  <div className="bg-white rounded-2xl p-4 shadow-sm ring-1 ring-slate-100 space-y-4 sm:p-5">
                     <div className="flex items-center gap-3 sm:gap-4">
                       <div className="p-3 bg-slate-100 text-slate-600 rounded-xl sm:rounded-[1.5rem]"><ThumbsDown size={22}/></div>
                       <h2 className="text-sm sm:text-xl font-black text-slate-800">لیست سیاه غذاها</h2>
@@ -581,17 +583,17 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                   </div>
               </div>
 
-              <div className="bg-white rounded-[1.75rem] sm:rounded-[3rem] p-6 sm:p-10 shadow-sm border border-slate-100">
-                <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-10"><div className="p-3 sm:p-4 bg-indigo-50 text-indigo-600 rounded-xl sm:rounded-[1.5rem]"><FilterX size={22} className="sm:w-8" /></div><div><h2 className="text-base sm:text-2xl font-black text-slate-800">فیلتر هوشمند دسته‌ها</h2><p className="text-[10px] sm:text-xs text-slate-500 font-medium mt-1 leading-5">با خاموش‌کردن هر دسته، غذاهای آن از پیشنهادهای خودکار و برنامهٔ غذایی کنار گذاشته می‌شوند.</p></div></div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+              <div className="bg-white rounded-2xl p-4 shadow-sm ring-1 ring-slate-100 sm:p-5">
+                <div className="flex items-center gap-3 mb-4"><div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl"><FilterX size={19} /></div><div><h2 className="text-sm sm:text-base font-black text-slate-800">فیلتر هوشمند دسته‌ها</h2><p className="text-[10px] text-slate-500 font-medium mt-1 leading-5">با خاموش‌کردن هر دسته، غذاهای آن از پیشنهادها و برنامه کنار گذاشته می‌شوند.</p></div></div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                     {(Object.keys(CATEGORY_LABELS) as DishCategory[]).map(cat => (
                       <button 
                         key={cat} 
                         onClick={() => toggleCategory(cat)} 
-                        className={`px-3 py-3 sm:px-6 sm:py-6 rounded-xl sm:rounded-[2rem] text-[10px] sm:text-sm font-black transition-all border-2 flex flex-col items-center gap-2 sm:gap-3 ${
+                        className={`px-3 py-2.5 rounded-xl text-[11px] font-black transition-all border flex flex-row items-center justify-center gap-2 ${
                           user.excludedCategories?.includes(cat) 
                             ? 'bg-slate-50 border-slate-100 text-slate-400 opacity-60' 
-                            : 'bg-white border-teal-500 text-teal-700 shadow-lg ring-2 sm:ring-8 ring-teal-50'
+                            : 'bg-white border-teal-500 text-teal-700 shadow-sm ring-1 ring-teal-50'
                         }`}
                       >
                           {CATEGORY_LABELS[cat]}

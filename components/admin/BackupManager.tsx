@@ -43,11 +43,16 @@ const BackupManager: React.FC<{personalOnly?: boolean}> = ({personalOnly = false
     } catch (error) { setMessage(error instanceof Error ? error.message : 'بازیابی انجام نشد؛ فضای ذخیره‌سازی مرورگر را بررسی کنید.'); }
     finally { setBusy(false); if (input.current) input.current.value = ''; }
   };
-  return <section className="rounded-2xl bg-white p-5 ring-1 ring-slate-200 text-right" dir="rtl">
-    <h2 className="font-black text-slate-800">{personalOnly ? 'تنظیمات شما روی همین دستگاه' : 'پشتیبان کامل و بازیابی'}</h2>
-    <p className="mt-2 text-sm leading-7 text-slate-600">تعداد اعضای خانواده، علاقه‌مندی‌ها، مواد ممنوع و حساسیت‌ها، فهرست سیاه، طبع غذا، انبار، برنامه، لیست خرید و رسپی‌های شخصی به‌طور عادی فقط در همین مرورگر و دستگاه ذخیره می‌شوند. با اقدام جداگانه و رضایت شما، یک نسخه از رسپی برای بررسی مدیر به صف خصوصی می‌رود؛ فقط پس از تأیید شما و مدیر، نسخهٔ عمومی در کتابخانه قرار می‌گیرد. با پاک کردن داده‌های سایت یا پاک‌سازی مرورگر که شامل اطلاعات سایت باشد، باید تنظیمات را دوباره انجام دهید. پاک کردن صرفاً فایل‌های کش معمولاً تنظیمات را حذف نمی‌کند. برای انتقال به دستگاه دیگر یا جلوگیری از ازدست‌رفتن اطلاعات، فایل پشتیبان بگیرید؛ عکس رسپی‌های شخصی نیز در پشتیبان قرار می‌گیرند.</p>
-    {!personalOnly && <p className="mt-2 text-sm text-slate-500">این پشتیبان شامل ویرایش غذاها و علامت‌های تصاویر نیز هست.</p>}
-    <div className="mt-4 flex flex-wrap gap-3"><button onClick={download} className="rounded-xl bg-emerald-900 px-4 py-3 text-sm font-bold text-white">دریافت پشتیبان</button><button disabled={busy} onClick={() => input.current?.click()} className="rounded-xl bg-slate-100 px-4 py-3 text-sm font-bold disabled:opacity-40">بازیابی پشتیبان</button></div>
+  return <section className="rounded-2xl bg-white p-4 text-right ring-1 ring-slate-200 sm:p-5" dir="rtl">
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div><h2 className="font-black text-slate-800">{personalOnly ? 'پشتیبان و تنظیمات دستگاه' : 'پشتیبان کامل و بازیابی'}</h2>{personalOnly && <p className="mt-1 text-xs text-slate-500">اطلاعات شخصی فقط روی همین دستگاه ذخیره می‌شود.</p>}</div>
+      <div className="flex flex-wrap gap-2"><button onClick={download} className="rounded-xl bg-emerald-900 px-3.5 py-2.5 text-xs font-bold text-white">دریافت پشتیبان</button><button disabled={busy} onClick={() => input.current?.click()} className="rounded-xl bg-slate-100 px-3.5 py-2.5 text-xs font-bold disabled:opacity-40">بازیابی پشتیبان</button></div>
+    </div>
+    <details className="mt-3 border-t border-slate-100 pt-2">
+      <summary className="cursor-pointer text-xs font-bold text-emerald-800">اطلاعات بیشتر دربارهٔ ذخیره‌سازی</summary>
+      <p className="mt-2 text-xs leading-6 text-slate-600">تعداد اعضای خانواده، علاقه‌مندی‌ها، مواد ممنوع و حساسیت‌ها، فهرست سیاه، طبع غذا، انبار، برنامه، لیست خرید و رسپی‌های شخصی به‌طور عادی فقط در همین مرورگر و دستگاه ذخیره می‌شوند. با اقدام جداگانه و رضایت شما، یک نسخه از رسپی برای بررسی مدیر به صف خصوصی می‌رود؛ فقط پس از تأیید شما و مدیر، نسخهٔ عمومی در کتابخانه قرار می‌گیرد. با پاک کردن داده‌های سایت یا پاک‌سازی مرورگر که شامل اطلاعات سایت باشد، باید تنظیمات را دوباره انجام دهید. پاک کردن صرفاً فایل‌های کش معمولاً تنظیمات را حذف نمی‌کند. برای انتقال به دستگاه دیگر یا جلوگیری از ازدست‌رفتن اطلاعات، فایل پشتیبان بگیرید؛ عکس رسپی‌های شخصی نیز در پشتیبان قرار می‌گیرند.</p>
+      {!personalOnly && <p className="mt-2 text-xs text-slate-500">این پشتیبان شامل ویرایش غذاها و علامت‌های تصاویر نیز هست.</p>}
+    </details>
     <input ref={input} type="file" accept=".json,application/json" className="hidden" onChange={e => void restore(e.target.files?.[0])} />
     {message && <p role="alert" className="mt-3 text-sm text-rose-700">{message}</p>}
   </section>;
