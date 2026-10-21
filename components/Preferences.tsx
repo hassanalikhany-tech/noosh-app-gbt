@@ -43,6 +43,7 @@ const ToggleSwitch = ({ isActive, onChange }: { isActive: boolean; onChange: () 
 
 const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout, onNotify, onToggleFilter, installPrompt, isAppInstalled, onInstallPromptConsumed }) => {
   const [ingredientSearch, setIngredientSearch] = useState('');
+  const [settingsTab, setSettingsTab] = useState<'planning' | 'taste' | 'recipes' | 'device'>('planning');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isUserGuideOpen, setIsUserGuideOpen] = useState(false);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
@@ -231,6 +232,23 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
     }
   };
 
+  const settingsTabs = [
+    { id: 'planning', label: 'برنامه و فیلترها', icon: Sparkles },
+    { id: 'taste', label: 'سلیقه و پرهیزها', icon: Heart },
+    { id: 'recipes', label: 'رسپی‌های من', icon: ChefHat },
+    { id: 'device', label: 'دستگاه و پشتیبان', icon: Smartphone },
+  ] as const;
+
+  const handleSettingsTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const currentIndex = settingsTabs.findIndex(tab => tab.id === settingsTab);
+    const nextIndex = event.key === 'Home' ? 0 : event.key === 'End' ? settingsTabs.length - 1
+      : (currentIndex + (event.key === 'ArrowLeft' ? 1 : -1) + settingsTabs.length) % settingsTabs.length;
+    setSettingsTab(settingsTabs[nextIndex].id);
+    document.getElementById(`settings-tab-${settingsTabs[nextIndex].id}`)?.focus();
+  };
+
   return (
     <div className="preferences-page flex flex-col h-full [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter">
       {/* هدر شیشه‌ای دقیق با فونت استاندارد */}
@@ -289,8 +307,17 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
 
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-3 sm:px-8 pb-16 no-scrollbar">
           <div className="max-w-5xl mx-auto py-3 sm:py-5 space-y-4 sm:space-y-5">
-            <BackupManager personalOnly />
-            <PersonalRecipes user={user} onUpdateUser={nextUser => onUpdateUser(nextUser)} />
+            <div role="tablist" aria-label="بخش‌های تنظیمات" className="sticky top-0 z-30 -mx-3 flex gap-2 overflow-x-auto border-b border-slate-200/80 bg-[#f5f7f2]/95 px-3 py-2 backdrop-blur-md sm:-mx-8 sm:px-8">
+              {settingsTabs.map(tab => {
+                const TabIcon = tab.icon;
+                const selected = settingsTab === tab.id;
+                return <button key={tab.id} id={`settings-tab-${tab.id}`} type="button" role="tab" aria-selected={selected} aria-controls={`settings-panel-${tab.id}`} tabIndex={selected ? 0 : -1} onClick={() => setSettingsTab(tab.id)} onKeyDown={handleSettingsTabKeyDown} className={`inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-3.5 text-xs font-black transition sm:flex-1 sm:px-4 sm:text-sm ${selected ? 'bg-[#276556] text-white shadow-sm' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-emerald-50 hover:text-[#276556]'}`}>
+                  <TabIcon size={16} />{tab.label}
+                </button>;
+              })}
+            </div>
+            {settingsTab === 'recipes' && <div id="settings-panel-recipes" role="tabpanel" aria-labelledby="settings-tab-recipes"><PersonalRecipes user={user} onUpdateUser={nextUser => onUpdateUser(nextUser)} /></div>}
+            {settingsTab === 'device' && <div id="settings-panel-device" role="tabpanel" aria-labelledby="settings-tab-device" className="space-y-3"><BackupManager personalOnly />
               <div className="grid gap-3 md:grid-cols-2">
               <section className="overflow-hidden rounded-2xl border border-emerald-100 bg-gradient-to-l from-[#eaf4ef] via-white to-white p-4 shadow-sm sm:p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -332,7 +359,9 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                 </div>
               </button>
               </div>
+            </div>}
 
+            {settingsTab === 'planning' && <div id="settings-panel-planning" role="tabpanel" aria-labelledby="settings-tab-planning" className="space-y-4">
               {/* بخش تنظیمات هوشمند و فیلترهای سریع */}
               <section className="bg-white rounded-2xl p-4 shadow-sm ring-1 ring-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:p-5">
                 <div>
@@ -463,7 +492,9 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                     </div>
                  )}
               </div>
+            </div>}
 
+            {settingsTab === 'taste' && <div id="settings-panel-taste" role="tabpanel" aria-labelledby="settings-tab-taste" className="space-y-4">
               <div className="grid gap-3 lg:grid-cols-2">
               <div className="bg-white rounded-2xl p-4 shadow-sm ring-1 ring-slate-100 space-y-4 sm:p-5">
                  <div className="flex items-center gap-3 sm:gap-4"><div className="p-3 sm:p-4 bg-orange-50 text-orange-600 rounded-xl sm:rounded-[1.5rem]"><ShieldCheck size={22} className="sm:w-8" /></div><div><h2 className="text-base sm:text-2xl font-black text-slate-800">فیلتر طبع غذاها</h2><p className="text-[9px] sm:text-xs text-slate-400 font-bold mt-1">انتخاب مزاج برای پیشنهادات دقیق‌تر</p></div></div>
@@ -602,6 +633,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                     ))}
                 </div>
               </div>
+            </div>}
           </div>
       </div>
     </div>
