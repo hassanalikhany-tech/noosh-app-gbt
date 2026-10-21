@@ -5,7 +5,7 @@ export const handler = async (event) => {
   const id = event.queryStringParameters?.id;
   if (typeof id !== 'string' || !/^[0-9a-f-]{36}$/iu.test(id)) return json(400, { error: 'شناسهٔ درخواست معتبر نیست.' });
   try {
-    const blobs = store();
+    const blobs = store(event);
     const decision = await blobs.get(decisionKey(id), { consistency: 'strong' });
     if (decision) return json(200, JSON.parse(decision));
     const pending = await blobs.get(requestKey(id), { consistency: 'strong' });

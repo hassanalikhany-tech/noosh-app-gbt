@@ -11,7 +11,7 @@ export const handler = async (event) => {
   if (!['GET','POST'].includes(event.httpMethod)) return json(405, { error: 'روش درخواست پشتیبانی نمی‌شود.' });
   if (!checkRequest(event)) return json(401, { error: 'نشست مدیریت معتبر نیست؛ دوباره وارد شو.' });
   try {
-    const blobs = store();
+    const blobs = store(event);
     if (event.httpMethod === 'GET') {
       const cursor = event.queryStringParameters?.cursor;
       const page = await blobs.list({ prefix: 'pending:', limit: 30, ...(cursor ? { cursor } : {}) });

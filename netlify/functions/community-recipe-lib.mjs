@@ -1,8 +1,13 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { getStore } from '@netlify/blobs';
+import { connectLambda, getStore } from '@netlify/blobs';
 
 export const STORE_NAME = 'noosh-community-recipes';
-export const store = () => getStore({ name: STORE_NAME, consistency: 'strong' });
+// These endpoints use Netlify's Lambda-compatible handler format. Blobs needs
+// the Lambda event's signed context to discover the site and access token.
+export const store = (event) => {
+  connectLambda(event);
+  return getStore({ name: STORE_NAME, consistency: 'strong' });
+};
 export const json = (statusCode, body) => ({ statusCode, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify(body) });
 export const parseBody = (event) => JSON.parse(event.body || '{}');
 export const validText = (value, max) => typeof value === 'string' && value.trim().length > 0 && value.length <= max && !/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u.test(value);

@@ -14,7 +14,7 @@ export const handler = async (event) => {
     const image = payload.dish.imageUrl ? decodeRecipeImage(payload.dish.imageUrl) : null;
     if (image && image.bytes.length > 1_200_000) return json(413, { error: 'حجم عکس برای ارسال زیاد است؛ عکس کوچک‌تری انتخاب کن.' });
 
-    const blobs = store();
+    const blobs = store(event);
     const ip = event.headers?.['x-nf-client-connection-ip'] || event.headers?.['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
     const day = new Date().toISOString().slice(0, 10);
     const rateKey = dailyRateKey(ip, day);
