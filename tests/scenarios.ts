@@ -1,3 +1,4 @@
+import { creatorKey, getRecipeCreators, recipeCreatorKey } from '../utils/recipeCreators';
 import './inventoryScenarios';
 import { RecipeService as RealRecipes } from '../services/./recipeService';
 import { DB } from '../utils/db';
@@ -18,6 +19,7 @@ import { GuestService } from '../services/guestService';
 import { PANTRY_ITEMS, SPICES_AND_ADDITIVES, getIngredientCategoryId } from '../data/pantry';
 import { DEFAULT_DISHES } from '../data/recipes';
 import recipeCatalog from '../data/recipes_catalog.json';
+import recipeOverrides from '../data/recipes_overrides.json';
 const storage = new Map();
 globalThis.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) } as any;
 globalThis.window = { dispatchEvent: () => true } as any;
@@ -159,10 +161,11 @@ assert.deepEqual(getDishImageCandidates('dish-test', 'none'), [], 'Removed pictu
 DB.getAll = async () => [];
 DB.init = async () => { throw new Error('Test without IndexedDB'); };
 await RealRecipes.initialize();
-assert.equal(RealRecipes.getAllDishes().length, 666, 'Actual service exposes all visible recipes without storage or network; one intentionally hidden duplicate is excluded');
+assert.equal(RealRecipes.getAllDishes().length, RealRecipes.getRawDishes().filter(dish => !recipeOverrides.hiddenDishIds.includes(dish.id)).length, 'Actual service exposes every published recipe except explicitly hidden entries');
+for (const dish of recipeOverrides.dishes.filter(dish => dish.isCommunityRecipe && !recipeOverrides.hiddenDishIds.includes(dish.id))) assert.ok(RealRecipes.getAllDishes().some(visible => visible.id === dish.id), 'Every approved community recipe must reach the public search catalog');
 assert.ok(RealRecipes.getAllDishes().every(d => d.category in CATEGORY_LABELS), 'Every recipe belongs to a visible search category');
 assert.ok(RealRecipes.getAllDishes().filter(d => d.id.includes('1782263836159')).every(d => d.ingredients.some(i => i.amount > 0)), 'Supplemental recipes contain usable shopping quantities');
-console.log('Release checks passed: personal settings persistence, removed image fallback, 666 visible service recipes and valid categories.');
+console.log('Release checks passed: personal settings persistence, removed image fallback, all published service recipes and valid categories.');
 
 // Test the actual persistence boundary (not the mocked network/user service).
 GuestService.start('with-inventory');
@@ -183,3 +186,15 @@ localStorage.setItem=write;
 assert.equal(GuestService.get().inventory![0].amount,5,'Storage failure cannot leave a partial deduction');
 assert.equal(GuestService.get().cookingTransactions!.length,1,'Storage failure cannot create a phantom transaction');
 console.log('Persistence checks passed: reload, idempotent commit, undo and rejected localStorage writes.');
+
+const creatorDish = (id: string, name: string, extra = {}) => ({ ...DEFAULT_DISHES[0], id, creatorName: name, isCommunityRecipe: true, ...extra });
+const creatorFixtures = [creatorDish('c1', 'علي كريمي'), creatorDish('c2', 'علی کریمی'), creatorDish('c3', 'تبریزلی'), creatorDish('p1', 'علی کریمی', { isPersonal: true }), { ...DEFAULT_DISHES[0], id: 'library' }];
+const creators = getRecipeCreators(creatorFixtures);
+assert.equal(creators.length, 2, 'Persian and Arabic letter variants group as one creator; personal and library recipes do not create public creator groups');
+assert.equal(creators.find(item => item.key === `creator:${creatorKey('علی کریمی')}`)?.count, 2, 'Creator count includes all published recipes, excluding private copies');
+assert.equal(creatorKey('حسن علیخانی'), creatorKey('حسن‌علیخانی'), 'Spaces and half spaces should not split the same displayed creator');
+assert.equal(recipeCreatorKey(creatorFixtures[0]), recipeCreatorKey(creatorFixtures[1]), 'Creator filtering matches every normalized name variant');
+assert.notEqual(recipeCreatorKey(creatorFixtures[0]), recipeCreatorKey(creatorFixtures[2]), 'Different creators remain distinct');
+assert.equal(recipeCreatorKey(creatorFixtures[4]), 'library', 'Library recipes cannot appear as a user contribution');
+assert.equal(recipeCreatorKey(creatorFixtures[3]), 'personal', 'A private copy must not appear under a public creator');
+console.log('Creator filter checks passed: name normalization, public counts, private exclusion, and distinct contributor matching.');

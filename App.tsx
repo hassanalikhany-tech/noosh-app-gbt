@@ -44,6 +44,18 @@ const AppContent: React.FC = () => {
   const [displayPlan, setDisplayPlan] = useState<DayPlan[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('pantry');
   const [globalSearchTerm, setGlobalSearchTerm] = useState('');
+  const [creatorRequest, setCreatorRequest] = useState<{ name: string; token: number } | null>(null);
+  useEffect(() => {
+    const showCreator = (event: Event) => {
+      const name = (event as CustomEvent<{ name?: string }>).detail?.name;
+      if (typeof name !== 'string' || !name.trim()) return;
+      setGlobalSearchTerm('');
+      setCreatorRequest(current => ({ name: name.trim(), token: (current?.token || 0) + 1 }));
+      setViewMode('search');
+    };
+    window.addEventListener('show-creator-recipes', showCreator);
+    return () => window.removeEventListener('show-creator-recipes', showCreator);
+  }, []);
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -712,7 +724,7 @@ const AppContent: React.FC = () => {
           }}
         />}
         {viewMode === 'pantry' && <PantryChef user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} />}
-        {viewMode === 'search' && <RecipeSearch user={currentUser!} onUpdateUser={setCurrentUser} externalSearchTerm={globalSearchTerm} />}
+        {viewMode === 'search' && <RecipeSearch user={currentUser!} onUpdateUser={setCurrentUser} externalSearchTerm={globalSearchTerm} creatorRequest={creatorRequest} onCreatorRequestHandled={() => setCreatorRequest(null)} />}
         {viewMode === 'challenges' && <Challenges user={currentUser!} onUpdateUser={setCurrentUser} onNotify={handleChallengeNotify} />}
         {viewMode === 'settings' && (
           <Preferences 

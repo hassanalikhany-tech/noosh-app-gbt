@@ -6,11 +6,15 @@ import { Dish, DishCategory, CATEGORY_LABELS, UserProfile } from '../types';
 import { RecipeService } from '../services/recipeService';
 import { getCountryCode, getCountryCodes, isDishProhibited } from '../utils/recipeHelpers';
 import MealCard from './MealCard';
+import RecipeCreatorFilter from './RecipeCreatorFilter';
+import { creatorKey, getRecipeCreators, recipeCreatorKey } from '../utils/recipeCreators';
 
 interface RecipeSearchProps {
   user: UserProfile;
   onUpdateUser: (user: UserProfile) => void;
   externalSearchTerm?: string;
+  creatorRequest?: { name: string; token: number } | null;
+  onCreatorRequestHandled?: () => void;
 }
 
 const ITEMS_PER_PAGE = 24;
@@ -69,15 +73,29 @@ const CountryFlag: React.FC<{ country: { id: string; label: string } }> = ({ cou
   return <img src={sources[sourceIndex]} alt={country.label} className="w-full h-full object-cover" onError={() => setSourceIndex(index => index + 1)} loading="lazy" decoding="async" />;
 };
 
-const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externalSearchTerm = '' }) => {
+const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externalSearchTerm = '', creatorRequest, onCreatorRequestHandled }) => {
   const [selectedCategory, setSelectedCategory] = useState<DishCategory | 'all'>('all');
   const [selectedCountryId, setSelectedCountryId] = useState<string | 'all'>('all');
   const [allDishes, setAllDishes] = useState<Dish[]>([]);
+  const [selectedCreator, setSelectedCreator] = useState('all');
+  const creators = useMemo(() => getRecipeCreators(allDishes), [allDishes]);
+  const activeCreator = creators.find(creator => creator.key === selectedCreator);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState(externalSearchTerm);
   
   useEffect(() => { setSearchTerm(externalSearchTerm); setCurrentPage(1); }, [externalSearchTerm]);
   useEffect(() => { setCurrentPage(1); }, [allDishes, selectedCategory, selectedCountryId, user.dislikedIngredients]);
+
+  useEffect(() => {
+    if (!creatorRequest) return;
+    setSelectedCreator(`creator:${creatorKey(creatorRequest.name)}`);
+    setSearchTerm(''); setSelectedCategory('all'); setSelectedCountryId('all'); setCurrentPage(1);
+    onCreatorRequestHandled?.();
+  }, [creatorRequest, onCreatorRequestHandled]);
+
+  const resetFilters = () => {
+    setSearchTerm(''); setSelectedCreator('all'); setSelectedCategory('all'); setSelectedCountryId('all'); setCurrentPage(1);
+  };
 
   const flagsScrollRef = useRef<HTMLDivElement>(null);
 
@@ -122,6 +140,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
 
   const filteredDishes = useMemo(() => {
     return allDishes.filter(dish => {
+      if (selectedCreator !== 'all' && recipeCreatorKey(dish) !== selectedCreator) return false;
       const name = dish.name || "";
       const searchable = normalizePersian([name, dish.creatorName || '', dish.description, ...dish.ingredients.map(i => i.item)].join(' '));
       const matchesSearch = normalizePersian(searchTerm).split(' ').filter(Boolean).every(word => searchable.includes(word));
@@ -139,7 +158,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
 
       return true;
     });
-  }, [searchTerm, selectedCategory, selectedCountryId, allDishes, countryOptions, user.dislikedIngredients]);
+  }, [searchTerm, selectedCategory, selectedCountryId, allDishes, countryOptions, user.dislikedIngredients, selectedCreator]);
 
   const totalPages = Math.ceil(filteredDishes.length / ITEMS_PER_PAGE);
   const paginatedDishes = filteredDishes.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -196,9 +215,9 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
               </div>
             </div>
 
-            <div className="catalog-status" aria-live="polite">
-              <Database size={17} />
-              <span>{`${toPersian(allDishes.length)} غذا در کتابخانهٔ همین دستگاه آماده است.`}</span>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <RecipeCreatorFilter creators={creators} value={selectedCreator} onChange={key => { setSelectedCreator(key); setCurrentPage(1); }} />
+              <p role="status" className="text-xs leading-6 text-slate-600">{activeCreator ? <><strong className="text-[#276556]">{activeCreator.name}</strong> · {toPersian(activeCreator.count)} رسپی منتشرشده · {toPersian(filteredDishes.length)} نتیجه با فیلترهای فعلی</> : `${toPersian(filteredDishes.length)} غذا مطابق جست‌وجو و فیلترهای شما`}</p>
             </div>
             {selectedCategory === 'international' && (
               <div className="relative pt-2 sm:pt-4 border-t border-white/40 animate-enter flex items-center group/flags">
@@ -244,6 +263,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
 
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
           <div className="max-w-7xl mx-auto py-4 sm:py-6 space-y-6 sm:space-y-10">
+              {!filteredDishes.length && <div role="status" className="rounded-3xl bg-white p-6 text-center ring-1 ring-[#276556]/15 sm:p-10"><Search className="mx-auto mb-3 text-[#276556]" size={28}/><h2 className="text-lg font-black text-slate-800">رسپی‌ای با این ترکیب فیلترها پیدا نشد</h2><p className="mx-auto mt-2 max-w-lg text-sm leading-7 text-slate-500">نام غذا، دسته و کشور را بررسی کن. مواد ممنوع و حساسیت‌های ثبت‌شده در تنظیمات نیز در نتایج رعایت می‌شوند.</p><button type="button" onClick={resetFilters} className="mt-4 min-h-11 rounded-xl bg-[#276556] px-5 text-sm font-bold text-white">پاک کردن فیلترهای جست‌وجو</button></div>}
               <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {paginatedDishes.map(dish => <MealCard key={dish.id} plan={{ dayName: CATEGORY_LABELS[dish.category] || 'غذای برتر', dish }} user={user} onUpdateUser={onUpdateUser} />)}
               </div>
