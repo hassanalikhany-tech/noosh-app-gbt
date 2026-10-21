@@ -1,3 +1,4 @@
+import { filterRecipeSearchDishes } from '../utils/recipeSearch';
 import { creatorKey, getRecipeCreators, recipeCreatorKey } from '../utils/recipeCreators';
 import './inventoryScenarios';
 import { RecipeService as RealRecipes } from '../services/./recipeService';
@@ -198,3 +199,11 @@ assert.notEqual(recipeCreatorKey(creatorFixtures[0]), recipeCreatorKey(creatorFi
 assert.equal(recipeCreatorKey(creatorFixtures[4]), 'library', 'Library recipes cannot appear as a user contribution');
 assert.equal(recipeCreatorKey(creatorFixtures[3]), 'personal', 'A private copy must not appear under a public creator');
 console.log('Creator filter checks passed: name normalization, public counts, private exclusion, and distinct contributor matching.');
+
+const authorRecipe = creatorDish('author-test', 'تبریزلی', { ingredients: [{ item: 'تخم مرغ', amount: 3, unit: 'عدد' }] });
+const searchFilters = { searchTerm: '', selectedCreator: 'all', selectedCategory: 'all', selectedCountryId: 'all' };
+const restrictedReader = { ...base, dislikedIngredients: ['تخم مرغ'] };
+assert.equal(filterRecipeSearchDishes([authorRecipe], searchFilters, restrictedReader).length, 0, 'General search keeps the reader ingredient exclusions');
+assert.equal(filterRecipeSearchDishes([authorRecipe], { ...searchFilters, selectedCreator: recipeCreatorKey(authorRecipe) }, restrictedReader).length, 1, 'Opening the author collection must show its counted recipe even when the reader ingredient exclusions conflict; cards disclose the warning');
+assert.equal(filterRecipeSearchDishes([authorRecipe, creatorFixtures[0]], { ...searchFilters, selectedCreator: recipeCreatorKey(authorRecipe) }, restrictedReader).length, 1, 'The author collection never leaks another contributor recipes');
+console.log('Author collection regression checks passed: counted recipes remain visible, general ingredient restrictions stay active.');

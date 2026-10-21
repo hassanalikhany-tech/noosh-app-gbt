@@ -4,7 +4,7 @@ import { Utensils, ChevronLeft, Flame, Clock, Leaf, Heart, ThumbsDown, Lock, Ref
 import { DayPlan, UserProfile } from '../types';
 const RecipeModal = lazy(() => import('./RecipeModal'));
 import DishVisual from './DishVisual';
-import { estimateCalories, estimateCookTime, getDishNature } from '../utils/recipeHelpers';
+import { estimateCalories, estimateCookTime, getDishNature, isDishProhibited } from '../utils/recipeHelpers';
 import { UserService } from '../services/userService';
 import { RecipeService } from '../services/recipeService';
 import { showCreatorRecipes } from '../utils/recipeCreators';
@@ -135,6 +135,7 @@ const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh
         </div>
         
         <div className="p-3 flex flex-col flex-grow text-right bg-white relative">
+          {isDishProhibited(plan.dish, user) && <p role="note" className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold leading-6 text-amber-900">حاوی مواد ممنوع یا نامطلوب ثبت‌شده در تنظیمات شما؛ مناسب پیشنهاد و برنامهٔ غذایی شما نیست.</p>}
           <h3 className={`text-base font-bold transition-all duration-500 mb-1.5 ${isLocked ? 'text-slate-300' : 'text-slate-800 group-hover:text-teal-600'}`}>{plan.dish.name}</h3>
           {plan.dish.isCommunityRecipe && plan.dish.creatorName && <p className="-mt-1 mb-2 text-[10px] leading-5 font-bold text-[#276556]">{formatCommunityAttribution(plan.dish)} <button type="button" onClick={event => { event.stopPropagation(); showCreatorRecipes(plan.dish.creatorName!); }} className="mt-1 inline-flex min-h-9 items-center rounded-lg bg-[#edf4f0] px-2 text-xs font-black text-[#276556] hover:bg-[#dcebe3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#276556]" aria-label={`دیدن همهٔ رسپی‌های ${plan.dish.creatorName}`}>همهٔ رسپی‌های {plan.dish.creatorName} ←</button></p>}
           

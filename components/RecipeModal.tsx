@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { Dish, ShoppingItem, UserProfile } from '../types';
 import DishVisual from './DishVisual';
 import { UserService } from '../services/userService';
-import { estimateCalories, estimateCookTime, getDifficulty, getDishNature, getShoppingShortages, parseQuantity, normalizeUnit, getCountryCodes, formatQuantityForDisplay } from '../utils/recipeHelpers';
+import { isDishProhibited, estimateCalories, estimateCookTime, getDifficulty, getDishNature, getShoppingShortages, parseQuantity, normalizeUnit, getCountryCodes, formatQuantityForDisplay } from '../utils/recipeHelpers';
 import { getRelevantInventory } from '../utils/kitchenMode';
 import { CookingDraft, prepareCooking } from '../utils/inventoryLedger';
 import { mergeShoppingNeeds } from '../utils/shoppingQuantities';
@@ -256,6 +256,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
             <h2 className="text-3xl sm:text-5xl [@media(orientation:landscape)_and_(max-height:500px)]:text-2xl font-black text-slate-900 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] tracking-tight leading-tight">
               {dish.name}
             </h2>
+            {user && isDishProhibited(dish, user) && <p role="note" className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-6 text-amber-900">این دستور حاوی مواد ممنوع یا نامطلوب شماست. پیش از پخت، مواد لازم و حساسیت‌های خود را بررسی کنید؛ این غذا در پیشنهادها و برنامهٔ غذایی شما قرار نمی‌گیرد.</p>}
             {dish.isCommunityRecipe && dish.creatorName && <p className="mt-2 max-w-2xl rounded-xl border border-emerald-100 bg-emerald-50/80 px-3 py-2 text-xs leading-6 font-bold text-[#276556]">{formatCommunityAttribution(dish)} <button type="button" onClick={() => { onClose(); showCreatorRecipes(dish.creatorName!); }} className="mt-1 block min-h-10 rounded-lg px-2 text-xs font-black text-[#276556] underline underline-offset-4 hover:bg-emerald-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#276556]">همهٔ رسپی‌های {dish.creatorName} ←</button></p>}
           </div>
 

@@ -4,10 +4,11 @@ import { Search, Database, ChevronRight, ChevronLeft, LayoutList, MapPin, BarCha
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Dish, DishCategory, CATEGORY_LABELS, UserProfile } from '../types';
 import { RecipeService } from '../services/recipeService';
-import { getCountryCode, getCountryCodes, isDishProhibited } from '../utils/recipeHelpers';
+import { getCountryCode, getCountryCodes } from '../utils/recipeHelpers';
 import MealCard from './MealCard';
 import RecipeCreatorFilter from './RecipeCreatorFilter';
-import { creatorKey, getRecipeCreators, recipeCreatorKey } from '../utils/recipeCreators';
+import { filterRecipeSearchDishes } from '../utils/recipeSearch';
+import { creatorKey, getRecipeCreators } from '../utils/recipeCreators';
 
 interface RecipeSearchProps {
   user: UserProfile;
@@ -93,6 +94,10 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
     onCreatorRequestHandled?.();
   }, [creatorRequest, onCreatorRequestHandled]);
 
+  const selectCreator = (key: string) => {
+    setSelectedCreator(key); setSearchTerm(''); setSelectedCategory('all'); setSelectedCountryId('all'); setCurrentPage(1);
+  };
+
   const resetFilters = () => {
     setSearchTerm(''); setSelectedCreator('all'); setSelectedCategory('all'); setSelectedCountryId('all'); setCurrentPage(1);
   };
@@ -139,25 +144,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   }, [allDishes]);
 
   const filteredDishes = useMemo(() => {
-    return allDishes.filter(dish => {
-      if (selectedCreator !== 'all' && recipeCreatorKey(dish) !== selectedCreator) return false;
-      const name = dish.name || "";
-      const searchable = normalizePersian([name, dish.creatorName || '', dish.description, ...dish.ingredients.map(i => i.item)].join(' '));
-      const matchesSearch = normalizePersian(searchTerm).split(' ').filter(Boolean).every(word => searchable.includes(word));
-      if (!matchesSearch) return false;
-      
-      if (selectedCategory !== 'all' && dish.category !== selectedCategory) return false;
-      
-      if (selectedCategory === 'international' && selectedCountryId !== 'all') {
-        const country = countryOptions.find(c => c.id === selectedCountryId);
-        if (!getCountryCodes(dish.nationality || '').includes(selectedCountryId) && !country?.matches.some(match => normalizePersian(dish.nationality || '').includes(normalizePersian(match)))) return false;
-      }
-
-      // Filter prohibited ingredients
-      if (isDishProhibited(dish, user)) return false;
-
-      return true;
-    });
+    return filterRecipeSearchDishes(allDishes, { searchTerm, selectedCreator, selectedCategory, selectedCountryId }, user, countryOptions);
   }, [searchTerm, selectedCategory, selectedCountryId, allDishes, countryOptions, user.dislikedIngredients, selectedCreator]);
 
   const totalPages = Math.ceil(filteredDishes.length / ITEMS_PER_PAGE);
@@ -216,9 +203,10 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <RecipeCreatorFilter creators={creators} value={selectedCreator} onChange={key => { setSelectedCreator(key); setCurrentPage(1); }} />
+              <RecipeCreatorFilter creators={creators} value={selectedCreator} onChange={selectCreator} />
               <p role="status" className="text-xs leading-6 text-slate-600">{activeCreator ? <><strong className="text-[#276556]">{activeCreator.name}</strong> · {toPersian(activeCreator.count)} رسپی منتشرشده · {toPersian(filteredDishes.length)} نتیجه با فیلترهای فعلی</> : `${toPersian(filteredDishes.length)} غذا مطابق جست‌وجو و فیلترهای شما`}</p>
             </div>
+            {activeCreator && <p className="text-xs leading-6 text-slate-600">همهٔ دستورهای این آشپز قابل مشاهده‌اند؛ غذاهای دارای مواد ممنوع شما با هشدار مشخص می‌شوند و همچنان از پیشنهادها و برنامهٔ غذایی کنار گذاشته می‌شوند.</p>}
             {selectedCategory === 'international' && (
               <div className="relative pt-2 sm:pt-4 border-t border-white/40 animate-enter flex items-center group/flags">
                 <button 
