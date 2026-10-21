@@ -123,7 +123,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   const filteredDishes = useMemo(() => {
     return allDishes.filter(dish => {
       const name = dish.name || "";
-      const searchable = normalizePersian([name, dish.description, ...dish.ingredients.map(i => i.item)].join(' '));
+      const searchable = normalizePersian([name, dish.creatorName || '', dish.description, ...dish.ingredients.map(i => i.item)].join(' '));
       const matchesSearch = normalizePersian(searchTerm).split(' ').filter(Boolean).every(word => searchable.includes(word));
       if (!matchesSearch) return false;
       

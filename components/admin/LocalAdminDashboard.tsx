@@ -3,6 +3,7 @@ import { ArrowRight, Download, Edit3, Search, ShieldCheck, UsersRound, UtensilsC
 import { Dish, CATEGORY_LABELS } from '../../types';
 import { RecipeService } from '../../services/recipeService';
 import DishEditor from './DishEditor';
+import CommunityRecipeReview from './CommunityRecipeReview';
 
 const ImageGuide = lazy(() => import('./ImageGuide'));
 const DuplicateResolver = lazy(() => import('./DuplicateResolver'));
@@ -84,10 +85,12 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit, onLog
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-8 sm:py-9">
         <nav aria-label="بخش‌های مدیریت" className="flex flex-wrap gap-2">{[
           ['catalog','فهرست و ویرایش غذاها'], ['images','مدیریت عکس‌ها'], ['database','ورود و خروجی غذاها'],
-          ['duplicates','اصلاح غذاهای تکراری'], ['pantry-units','واحدهای انبار'], ['units','مغایرت واحد رسپی‌ها'], ['converter','مبدل اکسل'], ['backup','پشتیبان و بازیابی'], ['unavailable','بخش‌های وابسته به سرور']
+          ['duplicates','اصلاح غذاهای تکراری'], ['pantry-units','واحدهای انبار'], ['units','مغایرت واحد رسپی‌ها'], ['converter','مبدل اکسل'], ['backup','پشتیبان و بازیابی'], ['unavailable','بخش‌های وابسته به سرور'],
+          ['community','رسپی‌های ارسالی کاربران'],
         ].map(([id,label]) => <button key={id} onClick={() => setTab(id)} aria-pressed={tab === id} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === id ? 'bg-emerald-900 text-white' : 'bg-white text-slate-700'}`}>{label}</button>)}</nav>
         <p role="status" aria-live="polite" className={`rounded-xl p-3 text-sm leading-7 ${publishMessage.includes('انجام نشد') ? 'bg-rose-50 text-rose-800' : 'bg-emerald-50 text-emerald-900'}`}>{publishMessage || 'هر ذخیره، حذف، یا تغییر عکس پس از ثبت در GitHub به انتشار عمومی Netlify می‌رود.'}</p>
         <Suspense fallback={<p role="status">در حال آماده‌سازی ابزار…</p>}>
+          {tab === 'community' && <CommunityRecipeReview />}
           {tab === 'images' && <ImageGuide />}
           {tab === 'database' && <DatabaseManager />}
           {tab === 'duplicates' && <DuplicateResolver />}

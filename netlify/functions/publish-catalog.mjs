@@ -22,9 +22,28 @@ export const handler = async (event) => {
     const headers = { authorization: `Bearer ${process.env.GITHUB_TOKEN}`, accept: 'application/vnd.github+json', 'x-github-api-version': '2022-11-28', 'user-agent': 'Noosh-Admin' };
     const existing = await fetch(`${base}?ref=${encodeURIComponent(branch)}`, { headers });
     let sha;
-    if (existing.ok) sha = (await existing.json()).sha;
+    let existingCatalog = null;
+    if (existing.ok) {
+      const file = await existing.json();
+      sha = file.sha;
+      try {
+        let text;
+        if (file.encoding === 'base64' && file.content) text = Buffer.from(file.content, 'base64').toString('utf8');
+        else {
+          const blobResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/blobs/${file.sha}`, { headers });
+          if (!blobResponse.ok) throw new Error('Unable to retrieve catalog blob');
+          const blob = await blobResponse.json();
+          if (blob.encoding !== 'base64' || typeof blob.content !== 'string') throw new Error('Invalid catalog blob');
+          text = Buffer.from(blob.content, 'base64').toString('utf8');
+        }
+        existingCatalog = JSON.parse(text);
+      } catch { return response(409, { error: 'فهرست فعلی قابل خواندن نیست؛ چیزی نوشته نشد.' }); }
+    }
     else if (existing.status !== 404) return response(502, { error: 'خواندن نسخهٔ فعلی GitHub انجام نشد.' });
-    const content = JSON.stringify({ version: 1, dishes: payload.dishes, hiddenDishIds: [...new Set(payload.hiddenDishIds)] }, null, 2) + '\n';
+    const dishes = new Map(payload.dishes.map(dish => [dish.id, dish]));
+    // An older browser cache must not erase community recipes accepted by an admin.
+    for (const dish of existingCatalog?.dishes || []) if (dish?.isCommunityRecipe && !dishes.has(dish.id)) dishes.set(dish.id, dish);
+    const content = JSON.stringify({ version: 1, dishes: [...dishes.values()], hiddenDishIds: [...new Set(payload.hiddenDishIds)] }, null, 2) + '\n';
     const committed = await fetch(base, { method: 'PUT', headers: { ...headers, 'content-type': 'application/json' }, body: JSON.stringify({ message: 'Update Noosh recipes from admin panel', content: Buffer.from(content).toString('base64'), branch, ...(sha ? { sha } : {}) }) });
     const result = await committed.json().catch(() => ({}));
     if (!committed.ok) return response(502, { error: committed.status === 409 ? 'همزمان نسخهٔ دیگری تغییر کرده؛ صفحه را تازه کن و دوباره ذخیره کن.' : 'ثبت تغییرات در GitHub انجام نشد. دسترسی توکن و شاخهٔ main را بررسی کن.' });

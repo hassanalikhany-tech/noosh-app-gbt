@@ -40,6 +40,11 @@ export interface Dish {
   servings?: number;
   imageReviewStatus?: 'approved' | 'replace' | 'create' | 'removed' | 'completed';
   isPersonal?: boolean;
+  creatorName?: string;
+  isCommunityRecipe?: boolean;
+  communitySubmissionId?: string;
+  communityShareStatus?: 'pending' | 'approved' | 'rejected';
+  communityShareFeedback?: string;
 }
 
 export interface DayPlan {

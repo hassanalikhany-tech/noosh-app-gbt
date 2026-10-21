@@ -254,6 +254,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
             <h2 className="text-3xl sm:text-5xl [@media(orientation:landscape)_and_(max-height:500px)]:text-2xl font-black text-slate-900 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] tracking-tight leading-tight">
               {dish.name}
             </h2>
+            {dish.isCommunityRecipe && dish.creatorName && <p className="mt-1 text-xs font-bold text-[#276556]">رسپی هم‌رسانی‌شده · سازنده: {dish.creatorName}</p>}
           </div>
 
           {/* Row 2: Info & Timer */}

@@ -326,6 +326,30 @@ export const RecipeService = {
     return recipes.length;
   },
 
+  requestPublicRecipe: async (dishId: string, creatorName: string, imageData?: string): Promise<{ requestId: string }> => {
+    const dish = personalDishes.find(item => item.id === dishId);
+    if (!dish) throw new Error('رسپی شخصی پیدا نشد؛ فهرست را تازه کن.');
+    const response = await fetch('/.netlify/functions/community-recipe-submit', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ dish: imageData ? { ...dish, imageUrl: imageData } : dish, creatorName, website: '' })
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || 'ارسال رسپی برای بررسی انجام نشد.');
+    const next = personalDishes.map(item => item.id === dishId ? { ...item, communityShareStatus: 'pending' as const, communitySubmissionId: result.requestId } : item);
+    await DB.put('settings', { key: PERSONAL_DISHES_KEY, recipes: next });
+    personalDishes = next;
+    notifyRecipesUpdate(RecipeService.getAllDishes().length);
+    return { requestId: result.requestId };
+  },
+
+  updatePersonalShareStatus: async (dishId: string, status: 'pending' | 'approved' | 'rejected', feedback = ''): Promise<void> => {
+    const current = personalDishes.find(item => item.id === dishId);
+    if (!current || (current.communityShareStatus === status && (status !== 'rejected' || current.communityShareFeedback === feedback))) return;
+    personalDishes = personalDishes.map(item => item.id === dishId ? { ...item, communityShareStatus: status, ...(status === 'rejected' ? { communityShareFeedback: feedback } : {}) } : item);
+    await DB.put('settings', { key: PERSONAL_DISHES_KEY, recipes: personalDishes });
+    notifyRecipesUpdate(RecipeService.getAllDishes().length);
+  },
+
   publishCatalog: async (): Promise<{ success: boolean; commit?: string; error?: string }> => {
     try {
       const response = await fetch('/.netlify/functions/publish-catalog', {

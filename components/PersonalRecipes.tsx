@@ -1,6 +1,6 @@
 import React, { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, ChefHat, Clock3, Flame, ImagePlus, Pencil, Plus, Trash2, Utensils, X } from 'lucide-react';
+import { Camera, ChefHat, Clock3, Flame, ImagePlus, Pencil, Plus, Share2, Trash2, Utensils, X, ShieldCheck, LoaderCircle, Globe2 } from 'lucide-react';
 import { CATEGORY_LABELS, Dish, DishCategory, Ingredient, NatureType, UserProfile } from '../types';
 import { RecipeService } from '../services/recipeService';
 import RecipeModal from './RecipeModal';
@@ -37,10 +37,36 @@ const compressImage = async (file: File): Promise<string> => {
   return webp.startsWith('data:image/webp') ? webp : canvas.toDataURL('image/jpeg', 0.84);
 };
 
+const preparePublicImage = async (source: string | undefined): Promise<string | undefined> => {
+  if (!source) return undefined;
+  if (!source.startsWith('data:image/')) throw new Error('عکس رسپی باید از فایل یا دوربین همین دستگاه ثبت شده باشد.');
+  const image = new Image();
+  image.src = source;
+  await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error('خواندن عکس برای اشتراک‌گذاری ممکن نشد.')); });
+  const maxBytes = 1_100_000;
+  if (Math.ceil((source.split(',')[1]?.length || 0) * 0.75) <= maxBytes) return source;
+  for (const maxSide of [1200, 1000, 850, 720]) {
+    const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('فشرده‌سازی عکس در این دستگاه ممکن نشد.');
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    for (const quality of [0.78, 0.66, 0.54]) {
+      const webp = canvas.toDataURL('image/webp', quality);
+      const data = webp.startsWith('data:image/webp') ? webp : canvas.toDataURL('image/jpeg', quality);
+      if (Math.ceil((data.split(',')[1]?.length || 0) * 0.75) <= maxBytes) return data;
+    }
+  }
+  throw new Error('حجم عکس هنوز زیاد است. عکس کوچک‌تری انتخاب کن یا رسپی را بدون عکس بفرست.');
+};
+
 const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserProfile) => void }> = ({ user, onUpdateUser }) => {
   const [recipes, setRecipes] = useState<Dish[]>(() => RecipeService.getPersonalDishes());
   const [draftDish, setDraftDish] = useState<Dish | null | 'new'>(null);
   const [viewing, setViewing] = useState<Dish | null>(null);
+  const [sharing, setSharing] = useState<Dish | null>(null);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -48,6 +74,24 @@ const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserPr
     window.addEventListener('recipes-updated', refresh);
     return () => window.removeEventListener('recipes-updated', refresh);
   }, []);
+
+  useEffect(() => {
+    const pending = recipes.filter(recipe => recipe.communityShareStatus === 'pending' && recipe.communitySubmissionId);
+    if (!pending.length) return;
+    let active = true;
+    const syncStatus = async (recipe: Dish) => {
+      try {
+        const response = await fetch(`/.netlify/functions/community-recipe-status?id=${encodeURIComponent(recipe.communitySubmissionId!)}`);
+        const result = await response.json();
+        if (active && response.ok && (result.status === 'approved' || result.status === 'rejected')) await RecipeService.updatePersonalShareStatus(recipe.id, result.status, result.reason || '');
+      } catch { /* A temporary network issue should not change the local recipe. */ }
+    };
+    void Promise.all(pending.map(syncStatus));
+    const timer = window.setInterval(() => {
+      pending.forEach(recipe => void syncStatus(recipe));
+    }, 30_000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, [recipes]);
 
   const sortedRecipes = useMemo(() => [...recipes].sort((a, b) => a.name.localeCompare(b.name, 'fa')), [recipes]);
 
@@ -68,7 +112,7 @@ const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserPr
           <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-emerald-800"><ChefHat size={22}/></div>
           <div>
             <h2 className="text-base font-black text-slate-900 sm:text-lg">رسپی‌های مخصوص من</h2>
-            <p className="mt-1 max-w-2xl text-xs leading-6 text-slate-600">رسپی و عکس‌ها فقط روی همین دستگاه ذخیره می‌شوند و در جستجو، برنامه‌ریزی و پیشنهاد غذا در دسترس‌اند. برای جلوگیری از ازدست‌رفتنشان، هر از گاهی فایل پشتیبان بگیر.</p>
+            <p className="mt-1 max-w-2xl text-xs leading-6 text-slate-600">رسپی و عکس‌ها به‌طور عادی فقط روی همین دستگاه ذخیره می‌شوند و در جستجو، برنامه‌ریزی و پیشنهاد غذا در دسترس‌اند. با انتخاب اشتراک‌گذاری، یک نسخه فقط برای بررسی مدیر فرستاده می‌شود؛ انتشار عمومی نیاز به تأیید شما و مدیر دارد.</p>
           </div>
         </div>
         <button type="button" onClick={() => setDraftDish('new')} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#276556] px-4 py-2.5 text-sm font-black text-white shadow-sm hover:bg-[#347866]"><Plus size={18}/> افزودن رسپی شخصی</button>
@@ -78,13 +122,18 @@ const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserPr
 
       {message && <p role="status" className="mt-3 rounded-xl bg-emerald-50 p-3 text-xs leading-6 text-emerald-900">{message}</p>}
       {sortedRecipes.length ? <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        {sortedRecipes.map(dish => <article key={dish.id} className="flex min-w-0 items-center gap-3 rounded-2xl border border-slate-100 bg-[#fbfcfb] p-3">
+        {sortedRecipes.map(dish => <article key={dish.id} className="flex min-w-0 flex-wrap items-center gap-3 rounded-2xl border border-slate-100 bg-[#fbfcfb] p-3">
           <button type="button" onClick={() => setViewing(dish)} className="flex min-w-0 flex-1 items-center gap-3 text-right">
             <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-emerald-50 text-emerald-800">{dish.imageUrl ? <img src={dish.imageUrl} alt="" className="h-full w-full object-cover"/> : <Utensils size={23}/>}</span>
             <span className="min-w-0"><strong className="block truncate text-sm font-black text-slate-800">{dish.name}</strong><small className="mt-1 block text-[11px] text-slate-500">{CATEGORY_LABELS[dish.category]} · {dish.recipeSteps.length.toLocaleString('fa-IR')} مرحله</small></span>
           </button>
-          <button type="button" aria-label={`ویرایش ${dish.name}`} onClick={() => setDraftDish(dish)} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-emerald-800 ring-1 ring-slate-200 hover:bg-emerald-50"><Pencil size={16}/></button>
-          <button type="button" aria-label={`حذف ${dish.name}`} onClick={() => void remove(dish)} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-rose-600 ring-1 ring-slate-200 hover:bg-rose-50"><Trash2 size={16}/></button>
+          <div className="flex shrink-0 items-center gap-1.5">
+            {dish.communityShareStatus === 'pending' ? <span className="rounded-lg bg-amber-50 px-2 py-2 text-[10px] font-black text-amber-800">در صف بررسی</span> : dish.communityShareStatus === 'approved' ? <span className="rounded-lg bg-emerald-50 px-2 py-2 text-[10px] font-black text-emerald-800">تأییدشده · در حال انتشار</span> : dish.communityShareStatus === 'rejected' ? <span className="rounded-lg bg-rose-50 px-2 py-2 text-[10px] font-black text-rose-700">نیازمند اصلاح</span> : null}
+            <button type="button" aria-label={`اشتراک‌گذاری عمومی ${dish.name}`} title="درخواست انتشار عمومی" onClick={() => setSharing(dish)} disabled={dish.communityShareStatus === 'pending' || dish.communityShareStatus === 'approved'} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-emerald-800 ring-1 ring-slate-200 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-40"><Share2 size={16}/></button>
+            <button type="button" aria-label={`ویرایش ${dish.name}`} onClick={() => setDraftDish(dish)} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-emerald-800 ring-1 ring-slate-200 hover:bg-emerald-50"><Pencil size={16}/></button>
+            <button type="button" aria-label={`حذف ${dish.name}`} onClick={() => void remove(dish)} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-rose-600 ring-1 ring-slate-200 hover:bg-rose-50"><Trash2 size={16}/></button>
+          </div>
+          {dish.communityShareStatus === 'rejected' && dish.communityShareFeedback && <p className="mt-2 basis-full rounded-lg bg-rose-50 px-3 py-2 text-[10px] leading-5 text-rose-800">بازخورد مدیر: {dish.communityShareFeedback}</p>}
         </article>)}
       </div> : <p className="mt-4 rounded-2xl bg-slate-50 p-5 text-center text-xs leading-6 text-slate-500">هنوز رسپی شخصی نساخته‌ای. رسپی‌هایت را اضافه کن تا در جستجو و برنامه‌ریزی همراه بقیهٔ غذاها نمایش داده شوند.</p>}
     </section>
@@ -94,7 +143,43 @@ const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserPr
       catch (error) { throw error instanceof Error ? error : new Error('رسپی ذخیره نشد؛ فضای دستگاه را بررسی کن.'); }
     }}/>} 
     {viewing && <RecipeModal dish={viewing} isOpen onClose={() => setViewing(null)} user={user} onUpdateUser={onUpdateUser}/>}
+    {sharing && <ShareRecipeDialog dish={sharing} onClose={() => setSharing(null)} onSubmit={async name => {
+      const imageData = await preparePublicImage(sharing.imageUrl);
+      await RecipeService.requestPublicRecipe(sharing.id, name, imageData);
+      setSharing(null);
+      setMessage(`رسپی «${sharing.name}» برای بررسی مدیر فرستاده شد. بعد از تأیید، با نام «${name}» برای همه منتشر می‌شود.`);
+    }} />}
   </>;
+};
+
+const ShareRecipeDialog: React.FC<{ dish: Dish; onClose: () => void; onSubmit: (name: string) => Promise<void> }> = ({ dish, onClose, onSubmit }) => {
+  const [creatorName, setCreatorName] = useState('');
+  const [consent, setConsent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const dialogRef = useDialogFocus(onClose);
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!creatorName.trim()) { setError('نامی را که می‌خواهی کنار رسپی دیده شود بنویس.'); return; }
+    if (!consent) { setError('برای ارسال، تأیید انتشار عمومی رسپی و عکس لازم است.'); return; }
+    setBusy(true); setError('');
+    try { await onSubmit(creatorName.trim()); }
+    catch (submitError) { setError(submitError instanceof Error ? submitError.message : 'ارسال انجام نشد؛ دوباره تلاش کن.'); }
+    finally { setBusy(false); }
+  };
+  return createPortal(<div className="fixed inset-0 z-[17000] flex items-end justify-center bg-slate-950/60 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={onClose}>
+    <section ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="share-recipe-title" onClick={event => event.stopPropagation()} className="w-full max-w-lg rounded-t-[26px] bg-white p-5 text-right shadow-2xl outline-none sm:rounded-[26px] sm:p-7" dir="rtl">
+      <div className="flex items-start gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-[#276556]"><Globe2 size={22}/></div><div className="min-w-0 flex-1"><h2 id="share-recipe-title" className="text-lg font-black text-slate-900">اشتراک رسپی با همه</h2><p className="mt-1 text-sm leading-6 text-slate-600">«{dish.name}» ابتدا برای بررسی مدیر می‌رود. تا پیش از تأیید، خصوصی می‌ماند.</p></div><button type="button" aria-label="بستن" onClick={onClose} className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-500"><X size={18}/></button></div>
+      <form onSubmit={event => void submit(event)} className="mt-5 space-y-4">
+        <label className="block"><span className="mb-1.5 block text-xs font-black text-slate-700">نام نمایشی سازنده</span><input autoFocus maxLength={60} value={creatorName} onChange={event => setCreatorName(event.target.value)} placeholder="مثلاً: نرگس احمدی" className="min-h-12 w-full rounded-xl border border-slate-200 px-4 text-sm outline-none focus:border-[#276556] focus:ring-2 focus:ring-[#276556]/15"/><span className="mt-1 block text-[10px] leading-5 text-slate-500">همین نام کنار رسپی در کتابخانهٔ عمومی نمایش داده می‌شود؛ بدون حساب کاربری، هویت نام تأیید نمی‌شود.</span></label>
+        {dish.imageUrl && <div className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white p-2.5"><img src={dish.imageUrl} alt={`عکس رسپی ${dish.name} که برای بررسی فرستاده می‌شود`} className="h-14 w-14 rounded-lg object-cover"/><span className="text-[11px] leading-5 text-slate-600">این عکس همراه رسپی برای مدیر ارسال می‌شود و فقط بعد از تأیید عمومی خواهد شد.</span></div>}
+        <div className="rounded-xl bg-[#f5f8f4] p-3 text-xs leading-6 text-slate-700"><strong className="mb-1 flex items-center gap-1.5 text-[#276556]"><ShieldCheck size={15}/> چه چیزی عمومی می‌شود؟</strong>نام غذا، توضیح، مواد، مراحل، و عکس رسپی پس از تأیید مدیر برای همهٔ کاربران نوش‌اپ قابل مشاهده خواهد بود. اطلاعات انبار و تنظیمات دستگاه ارسال نمی‌شود.</div>
+        <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-slate-200 p-3"><input type="checkbox" checked={consent} onChange={event => setConsent(event.target.checked)} className="mt-1 h-4 w-4 accent-[#276556]"/><span className="text-xs leading-6 text-slate-700">مالک این رسپی و عکس هستم یا اجازهٔ انتشارشان را دارم و می‌خواهم پس از تأیید مدیر، با این نام در کتابخانهٔ عمومی نوش‌اپ منتشر شوند.</span></label>
+        {error && <p role="alert" className="rounded-xl bg-rose-50 p-3 text-xs leading-6 text-rose-800">{error}</p>}
+        <div className="flex gap-2"><button type="submit" disabled={busy} className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-[#276556] px-4 text-sm font-black text-white disabled:opacity-50">{busy ? <><LoaderCircle size={17} className="animate-spin"/> در حال ارسال…</> : <><Share2 size={17}/> ارسال برای بررسی مدیر</>}</button><button type="button" onClick={onClose} className="min-h-12 rounded-xl bg-slate-100 px-5 text-sm font-bold text-slate-600">انصراف</button></div>
+      </form>
+    </section>
+  </div>, document.body);
 };
 
 const RecipeEditor: React.FC<{ initial: Dish | null; onClose: () => void; onSave: (dish: Dish) => Promise<void> }> = ({ initial, onClose, onSave }) => {
