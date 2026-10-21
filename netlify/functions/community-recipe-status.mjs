@@ -6,11 +6,12 @@ export const handler = async (event) => {
   if (typeof id !== 'string' || !/^[0-9a-f-]{36}$/iu.test(id)) return json(400, { error: 'شناسهٔ درخواست معتبر نیست.' });
   try {
     const blobs = store(event);
-    const decision = await blobs.get(decisionKey(id), { consistency: 'strong' });
+    const decision = await blobs.get(decisionKey(id));
     if (decision) return json(200, JSON.parse(decision));
-    const pending = await blobs.get(requestKey(id), { consistency: 'strong' });
+    const pending = await blobs.get(requestKey(id));
     return json(200, { status: pending ? 'pending' : 'unknown' });
-  } catch {
+  } catch (error) {
+    console.error('Community recipe status lookup failed:', error);
     return json(503, { error: 'وضعیت درخواست فعلاً دریافت نشد.' });
   }
 };

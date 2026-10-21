@@ -16,7 +16,7 @@ export const handler = async (event) => {
       const cursor = event.queryStringParameters?.cursor;
       const page = await blobs.list({ prefix: 'pending:', limit: 30, ...(cursor ? { cursor } : {}) });
       const requests = await Promise.all(page.blobs.map(async item => {
-        const raw = await blobs.get(item.key, { consistency: 'strong' });
+        const raw = await blobs.get(item.key);
         return raw ? JSON.parse(raw) : null;
       }));
       return json(200, { requests: requests.filter(Boolean).sort((a,b) => b.submittedAt.localeCompare(a.submittedAt)), cursor: page.cursor || null });
@@ -27,7 +27,7 @@ export const handler = async (event) => {
     const { id, action } = payload;
     if (typeof id !== 'string' || !/^[0-9a-f-]{36}$/iu.test(id) || !['approve','reject'].includes(action)) return json(400, { error: 'درخواست مدیریت معتبر نیست.' });
     const key = requestKey(id);
-    const raw = await blobs.get(key, { consistency: 'strong' });
+    const raw = await blobs.get(key);
     if (!raw) return json(404, { error: 'این درخواست دیگر در صف بررسی نیست.' });
     const request = JSON.parse(raw);
     if (action === 'reject') {

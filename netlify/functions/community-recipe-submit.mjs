@@ -18,7 +18,7 @@ export const handler = async (event) => {
     const ip = event.headers?.['x-nf-client-connection-ip'] || event.headers?.['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
     const day = new Date().toISOString().slice(0, 10);
     const rateKey = dailyRateKey(ip, day);
-    const previous = Number(await blobs.get(rateKey, { consistency: 'strong' }) || 0);
+    const previous = Number(await blobs.get(rateKey) || 0);
     if (previous >= 5) return json(429, { error: 'برای جلوگیری از ارسال ناخواسته، امروز بیش از ۵ درخواست از این اتصال پذیرفته نمی‌شود.' });
     await blobs.set(rateKey, String(previous + 1));
 
