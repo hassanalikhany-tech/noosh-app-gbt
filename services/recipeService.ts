@@ -4,7 +4,7 @@ import { DB } from '../utils/db';
 import { DEFAULT_DISHES } from '../data/recipes';
 import RECIPE_CATALOG from '../data/recipes_catalog.json';
 import RECIPE_OVERRIDES from '../data/recipes_overrides.json';
-import { getHiddenDishIds, getRenamedDishes, hideDishIds } from '../utils/dishStorage';
+import { getHiddenDishIds, getRenamedDishes, getRestoredDishIds, hideDishIds, unhideDishIds } from '../utils/dishStorage';
 
 // غذاهای تکمیلیِ همراه اپ که در فایل فهرست اصلی نیستند.
 const EXTRA_CLOUD_DISHES: any[] = [
@@ -245,6 +245,22 @@ const notifyRecipesUpdate = (count: number, sync?: { syncing?: boolean; error?: 
   window.dispatchEvent(new CustomEvent('recipes-updated', { detail: { count, ...sync } }));
 };
 
+const publishSingleDishChange = async (payload: { action: 'edit' | 'delete' | 'restore'; dish?: Dish; dishId?: string }) => {
+  try {
+    const response = await fetch('/.netlify/functions/admin-manage-dish', {
+      method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || 'ثبت تغییر در فهرست عمومی انجام نشد.');
+    window.dispatchEvent(new CustomEvent('recipes-published', { detail: { commit: result.commit, name: result.name, action: payload.action } }));
+    return result as { success: boolean; changed: boolean; commit?: string; name?: string };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'ارتباط امن با GitHub برقرار نشد.';
+    window.dispatchEvent(new CustomEvent('recipes-publish-error', { detail: message }));
+    throw error;
+  }
+};
+
 export const RecipeService = {
   initialize: async (): Promise<{count: number}> => {
     try {
@@ -285,10 +301,17 @@ export const RecipeService = {
 
   getCatalogDishes: (): Dish[] => {
     const hiddenIds = getHiddenDishIds();
+    const restoredIds = getRestoredDishIds();
     const renamedMap = getRenamedDishes();
     return cachedDishes
-      .filter(d => !hiddenIds.includes(d.id) && !RECIPE_OVERRIDES.hiddenDishIds.includes(d.id))
+      .filter(d => !hiddenIds.includes(d.id) && (!RECIPE_OVERRIDES.hiddenDishIds.includes(d.id) || restoredIds.includes(d.id)))
       .map(d => renamedMap[d.id] ? { ...d, name: renamedMap[d.id] } : d);
+  },
+
+  getDeletedCatalogDishes: (): Dish[] => {
+    const hiddenIds = new Set([...getHiddenDishIds(), ...RECIPE_OVERRIDES.hiddenDishIds]);
+    const restoredIds = new Set(getRestoredDishIds());
+    return cachedDishes.filter(d => hiddenIds.has(d.id) && !restoredIds.has(d.id));
   },
 
   getAllDishes: (): Dish[] => [...RecipeService.getCatalogDishes(), ...personalDishes],
@@ -371,13 +394,14 @@ export const RecipeService = {
 
   updateDish: async (dishId: string, updates: Partial<Dish>): Promise<boolean> => {
     try {
-      cachedDishes = cachedDishes.map(d => d.id === dishId ? { ...d, ...updates, localEdited: true } : d);
-      const updatedDish = cachedDishes.find(d => d.id === dishId);
-      if (updatedDish) await DB.put('dishes', updatedDish);
+      const current = cachedDishes.find(d => d.id === dishId);
+      if (!current) throw new Error('غذا در فهرست این دستگاه پیدا نشد.');
+      const updatedDish = { ...current, ...updates, id: dishId, localEdited: true };
+      await publishSingleDishChange({ action: 'edit', dish: updatedDish });
+      cachedDishes = cachedDishes.map(d => d.id === dishId ? updatedDish : d);
+      await DB.put('dishes', updatedDish);
       notifyRecipesUpdate(cachedDishes.length);
-      const published = await RecipeService.publishCatalog();
-      if (!published.success) window.dispatchEvent(new CustomEvent('recipes-publish-error', { detail: published.error }));
-      return published.success;
+      return true;
     } catch (e) { return false; }
   },
 
@@ -410,13 +434,21 @@ export const RecipeService = {
 
   deleteDish: async (dishId: string): Promise<boolean> => {
     try {
+      await publishSingleDishChange({ action: 'delete', dishId });
       hideDishIds([dishId]);
       await DB.delete('dishes', dishId);
       notifyRecipesUpdate(cachedDishes.length);
-      const published = await RecipeService.publishCatalog();
-      if (!published.success) window.dispatchEvent(new CustomEvent('recipes-publish-error', { detail: published.error }));
-      return published.success;
     } catch (e) { return false; }
+    return true;
+  },
+
+  restoreDish: async (dishId: string): Promise<boolean> => {
+    try {
+      await publishSingleDishChange({ action: 'restore', dishId });
+      unhideDishIds([dishId]);
+      notifyRecipesUpdate(cachedDishes.length);
+      return true;
+    } catch { return false; }
   },
 
   clearAllCache: async () => {

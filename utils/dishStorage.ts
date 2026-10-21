@@ -2,6 +2,7 @@
 import { Dish } from '../types';
 
 const HIDDEN_DISHES_KEY = 'global_hidden_dish_ids_v1';
+const RESTORED_DISHES_KEY = 'global_restored_dish_ids_v1';
 const RENAMED_DISHES_KEY = 'renamed_dishes_map_v1';
 
 // متد کمکی برای اطلاع‌رسانی به کل اپلیکیشن
@@ -19,12 +20,20 @@ export const getHiddenDishIds = (): string[] => {
   }
 };
 
+export const getRestoredDishIds = (): string[] => {
+  try {
+    const stored = localStorage.getItem(RESTORED_DISHES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch { return []; }
+};
+
 export const hideDishIds = (ids: string[]) => {
   try {
     const current = getHiddenDishIds();
     const newSet = new Set([...current, ...ids]);
     const arr = Array.from(newSet);
     localStorage.setItem(HIDDEN_DISHES_KEY, JSON.stringify(arr));
+    localStorage.setItem(RESTORED_DISHES_KEY, JSON.stringify(getRestoredDishIds().filter(id => !newSet.has(id))));
     console.log(`Hidden ${ids.length} dishes. Total hidden: ${arr.length}`);
     notifyRecipesUpdate(); // اطلاع رسانی تغییر
   } catch (e) {
@@ -32,8 +41,21 @@ export const hideDishIds = (ids: string[]) => {
   }
 };
 
+export const unhideDishIds = (ids: string[]) => {
+  try {
+    const hidden = new Set(getHiddenDishIds());
+    ids.forEach(id => hidden.delete(id));
+    localStorage.setItem(HIDDEN_DISHES_KEY, JSON.stringify([...hidden]));
+    localStorage.setItem(RESTORED_DISHES_KEY, JSON.stringify([...new Set([...getRestoredDishIds(), ...ids])]));
+    notifyRecipesUpdate();
+  } catch (e) {
+    console.error('Error restoring hidden dishes', e);
+  }
+};
+
 export const unhideAllDishes = () => {
   localStorage.removeItem(HIDDEN_DISHES_KEY);
+  localStorage.removeItem(RESTORED_DISHES_KEY);
   console.log('Cleared all hidden dishes');
   notifyRecipesUpdate(); // اطلاع رسانی تغییر
 };

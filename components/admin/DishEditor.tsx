@@ -89,7 +89,8 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
   const handleSave = async () => {
     setError('');
     if (pendingUnits.length) { setError('برای واحدهای تغییرکردهٔ بدون تبدیل قطعی، مقدار واقعی جدید را هم وارد کن.'); return; }
-    if (!Number.isFinite(Number(formData.servings)) || Number(formData.servings) <= 0 || formData.ingredients.some(ingredient => !ingredient.item.trim() || !Number.isFinite(parseQuantity(ingredient.amount)))) { setError('نام مواد، مقدارهای غیرمنفی و تعداد نفرات پایه را بررسی کن.'); return; }
+    if (!formData.name.trim() || !formData.category || !Array.isArray(formData.recipeSteps) || formData.recipeSteps.length === 0 || formData.recipeSteps.some(step => !step.trim())) { setError('نام غذا و دست‌کم یک مرحلهٔ کامل برای دستور پخت لازم است.'); return; }
+    if (!Number.isFinite(Number(formData.servings)) || Number(formData.servings) <= 0 || formData.ingredients.some(ingredient => !ingredient.item.trim() || !Number.isFinite(parseQuantity(ingredient.amount)) || parseQuantity(ingredient.amount) < 0)) { setError('نام مواد، مقدارهای غیرمنفی و تعداد نفرات پایه را بررسی کن.'); return; }
     setIsSaving(true);
     try {
       const rawBasisDish = { ...formData, ingredients: formData.ingredients.map(ingredient => ({ ...ingredient, state: 'raw' as const })) };
@@ -167,7 +168,7 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-600 flex items-center gap-1"><Globe size={12}/> ملیت (کد)</label>
-                <input name="nationality" value={formData.nationality || 'ir'} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none focus:border-emerald-500" />
+                <input name="nationality" value={formData.nationality || ''} placeholder="مثلاً ایران" onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold outline-none focus:border-emerald-500" />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-600 flex items-center gap-1"><Activity size={12}/> سختی</label>
@@ -177,6 +178,11 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
                   <option value="سخت">سخت</option>
                 </select>
               </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-black text-slate-600 pr-2">عکس غذا · نشانی تصویر</label>
+              <div className="flex flex-wrap gap-2"><input name="imageUrl" value={formData.imageUrl || ''} onChange={handleInputChange} placeholder="https://… یا مسیر تصویر" className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none focus:border-emerald-500" />{formData.imageUrl && <button type="button" onClick={() => setFormData(current => ({ ...current, imageUrl: '' }))} className="rounded-xl bg-rose-50 px-4 py-3 text-xs font-black text-rose-700">حذف عکس</button>}</div>
+              {formData.imageUrl && <img src={formData.imageUrl} alt={`پیش‌نمایش ${formData.name}`} className="mt-2 h-36 w-full rounded-2xl bg-slate-100 object-cover sm:w-64" onError={event => { event.currentTarget.style.display = 'none'; }} />}
             </div>
           </section>
 
