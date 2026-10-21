@@ -7,6 +7,7 @@ import DishVisual from './DishVisual';
 import { estimateCalories, estimateCookTime, getDishNature } from '../utils/recipeHelpers';
 import { UserService } from '../services/userService';
 import { RecipeService } from '../services/recipeService';
+import { formatCommunityAttribution } from '../utils/communityAttribution';
 
 interface MealCardProps {
   plan: DayPlan;
@@ -134,7 +135,7 @@ const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh
         
         <div className="p-3 flex flex-col flex-grow text-right bg-white relative">
           <h3 className={`text-base font-bold transition-all duration-500 mb-1.5 ${isLocked ? 'text-slate-300' : 'text-slate-800 group-hover:text-teal-600'}`}>{plan.dish.name}</h3>
-          {plan.dish.isCommunityRecipe && plan.dish.creatorName && <p className="-mt-1 mb-2 text-[10px] font-bold text-[#276556]">رسپی جامعهٔ نوش‌اپ · به نام {plan.dish.creatorName}</p>}
+          {plan.dish.isCommunityRecipe && plan.dish.creatorName && <p className="-mt-1 mb-2 text-[10px] leading-5 font-bold text-[#276556]">{formatCommunityAttribution(plan.dish)}</p>}
           
           <div className="flex gap-1.5 mb-2">
              <div className="flex items-center gap-1 bg-rose-50 text-rose-600 px-1.5 py-0.5 rounded-md text-xs font-medium border border-rose-100/50"><Flame size={8} /> {toPersianDigits(calories)} کالری</div>

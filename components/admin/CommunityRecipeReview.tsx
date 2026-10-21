@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Check, ChefHat, ChevronDown, Clock3, Globe2, LoaderCircle, RefreshCw, ShieldCheck, Trash2, Users } from 'lucide-react';
 import { CATEGORY_LABELS, Dish } from '../../types';
+import { formatCommunityAttribution } from '../../utils/communityAttribution';
 
 interface CommunitySubmission {
   id: string;
   creatorName: string;
+  creatorTitle?: 'lady' | 'gentleman' | 'none';
   submittedAt: string;
   dish: Dish & { imageData?: string };
 }
@@ -71,7 +73,7 @@ const CommunityRecipeReview: React.FC = () => {
         <div className="grid sm:grid-cols-[190px_minmax(0,1fr)]">
           <div className="relative min-h-48 bg-[#eef4ef] sm:min-h-full">{dish.imageData ? <img src={dish.imageData} alt={`عکس ارسالی ${dish.name}`} className="absolute inset-0 h-full w-full object-cover"/> : <div className="absolute inset-0 grid place-items-center text-emerald-800"><ChefHat size={42}/></div>}<span className="absolute bottom-2 right-2 rounded-lg bg-white/95 px-2.5 py-1 text-[10px] font-black text-slate-700">{CATEGORY_LABELS[dish.category] || dish.category}</span></div>
           <div className="min-w-0 p-4 sm:p-5">
-            <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="text-lg font-black text-slate-900">{dish.name}</h3><p className="mt-1 text-xs font-bold text-[#276556]">به نام {request.creatorName}{dish.nationality ? ` · ${dish.nationality}` : ''}</p></div><span className="shrink-0 rounded-lg bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-900">در انتظار بررسی</span></div>
+            <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="text-lg font-black text-slate-900">{dish.name}</h3><p className="mt-1 text-xs leading-6 font-bold text-[#276556]">{formatCommunityAttribution(request)}{dish.nationality ? ` · ${dish.nationality}` : ''}</p><p className="mt-1 text-[10px] leading-5 text-slate-500">نام و عنوان نمایشی را خود فرستنده انتخاب کرده است و هویت او تأیید نشده است.</p></div><span className="shrink-0 rounded-lg bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-900">در انتظار بررسی</span></div>
             <p className="mt-3 line-clamp-3 text-xs leading-6 text-slate-600">{dish.description || 'توضیحی ثبت نشده است.'}</p>
             <div className="mt-3 flex flex-wrap gap-2 text-[10px] text-slate-600"><span className="inline-flex items-center gap-1 rounded-lg bg-slate-50 px-2 py-1"><Users size={13}/> {Number(dish.servings || 4).toLocaleString('fa-IR')} نفر</span><span className="inline-flex items-center gap-1 rounded-lg bg-slate-50 px-2 py-1"><Clock3 size={13}/> {Number(dish.cookTime || 0).toLocaleString('fa-IR')} دقیقه</span><span className="rounded-lg bg-slate-50 px-2 py-1">{dish.ingredients.length.toLocaleString('fa-IR')} قلم</span></div>
           </div>

@@ -9,6 +9,7 @@ import { estimateCalories, estimateCookTime, getDifficulty, getDishNature, getSh
 import { getRelevantInventory } from '../utils/kitchenMode';
 import { CookingDraft, prepareCooking } from '../utils/inventoryLedger';
 import { mergeShoppingNeeds } from '../utils/shoppingQuantities';
+import { formatCommunityAttribution } from '../utils/communityAttribution';
 
 interface RecipeModalProps {
   dish: Dish;
@@ -254,7 +255,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
             <h2 className="text-3xl sm:text-5xl [@media(orientation:landscape)_and_(max-height:500px)]:text-2xl font-black text-slate-900 drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] tracking-tight leading-tight">
               {dish.name}
             </h2>
-            {dish.isCommunityRecipe && dish.creatorName && <p className="mt-1 text-xs font-bold text-[#276556]">رسپی هم‌رسانی‌شده · سازنده: {dish.creatorName}</p>}
+            {dish.isCommunityRecipe && dish.creatorName && <p className="mt-2 max-w-2xl rounded-xl border border-emerald-100 bg-emerald-50/80 px-3 py-2 text-xs leading-6 font-bold text-[#276556]">{formatCommunityAttribution(dish)}</p>}
           </div>
 
           {/* Row 2: Info & Timer */}

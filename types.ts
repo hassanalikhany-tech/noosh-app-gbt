@@ -41,6 +41,7 @@ export interface Dish {
   imageReviewStatus?: 'approved' | 'replace' | 'create' | 'removed' | 'completed';
   isPersonal?: boolean;
   creatorName?: string;
+  creatorTitle?: 'lady' | 'gentleman' | 'none';
   isCommunityRecipe?: boolean;
   communitySubmissionId?: string;
   communityShareStatus?: 'pending' | 'approved' | 'rejected';

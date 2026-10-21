@@ -58,7 +58,7 @@ export const handler = async (event) => {
     const current = await readGithubJson(path);
     const catalog = current.value && typeof current.value === 'object' ? current.value : { version: 1, dishes: [], hiddenDishIds: [] };
     if (!Array.isArray(catalog.dishes)) catalog.dishes = [];
-    const publicDish = { ...request.dish, id: `community-${id}`, isCommunityRecipe: true, creatorName: request.creatorName, hasRealData: true, ...(imageUrl ? { imageUrl } : {}) };
+    const publicDish = { ...request.dish, id: `community-${id}`, isCommunityRecipe: true, creatorName: request.creatorName, creatorTitle: ['lady', 'gentleman', 'none'].includes(request.creatorTitle) ? request.creatorTitle : 'none', hasRealData: true, ...(imageUrl ? { imageUrl } : {}) };
     delete publicDish.imageData;
     delete publicDish.isPersonal;
     catalog.dishes = [...catalog.dishes.filter(item => item.id !== publicDish.id), publicDish];
