@@ -24,12 +24,12 @@ const UnitConsistencyManager: React.FC = () => {
         await RecipeService.syncFromCloud(true);
       }
       
-      let dishes = RecipeService.getAllDishes();
+      let dishes = RecipeService.getCatalogDishes();
       
       // If no dishes in cache and not already synced, try to sync once
       if (dishes.length === 0 && !forceSync) {
         await RecipeService.syncFromCloud(false);
-        dishes = RecipeService.getAllDishes();
+        dishes = RecipeService.getCatalogDishes();
       }
       
       // Review must never silently rewrite recipe quantities or units.

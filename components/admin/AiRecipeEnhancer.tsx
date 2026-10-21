@@ -22,10 +22,10 @@ const AiRecipeEnhancer: React.FC = () => {
         await RecipeService.syncFromCloud(true);
       }
       
-      let dishes = RecipeService.getAllDishes();
+      let dishes = RecipeService.getCatalogDishes();
       if (dishes.length === 0 && !forceSync) {
         await RecipeService.syncFromCloud(false);
-        dishes = RecipeService.getAllDishes();
+        dishes = RecipeService.getCatalogDishes();
       }
       
       setAllDishes(dishes);

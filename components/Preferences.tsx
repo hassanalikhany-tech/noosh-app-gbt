@@ -1,4 +1,5 @@
 import BackupManager from './admin/BackupManager';
+import PersonalRecipes from './PersonalRecipes';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { UserProfile, DishCategory, CATEGORY_LABELS, NatureType, VisitorProfile } from '../types';
@@ -161,8 +162,8 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
     } catch (err) {}
   };
 
-  const favoritesList = useMemo(() => RecipeService.getRawDishes().filter(d => (user.favoriteDishIds || []).includes(d.id)), [user.favoriteDishIds]);
-  const blacklistedList = useMemo(() => RecipeService.getRawDishes().filter(d => (user.blacklistedDishIds || []).includes(d.id)), [user.blacklistedDishIds]);
+  const favoritesList = useMemo(() => RecipeService.getAllDishes().filter(d => (user.favoriteDishIds || []).includes(d.id)), [user.favoriteDishIds]);
+  const blacklistedList = useMemo(() => RecipeService.getAllDishes().filter(d => (user.blacklistedDishIds || []).includes(d.id)), [user.blacklistedDishIds]);
   
   const commonIngredients = useMemo(() => {
     const all = PANTRY_ITEMS.flatMap(c => c.items);
@@ -289,6 +290,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
           <div className="max-w-4xl mx-auto py-4 sm:py-8 space-y-6 sm:space-y-10">
             <BackupManager personalOnly />
+            <PersonalRecipes user={user} onUpdateUser={nextUser => onUpdateUser(nextUser)} />
               <section className="overflow-hidden rounded-[1.75rem] border border-emerald-100 bg-gradient-to-l from-[#eaf4ef] via-white to-white p-5 shadow-sm sm:rounded-[2rem] sm:p-7">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-start gap-4">

@@ -1,5 +1,5 @@
 
-import { Dish, UserProfile } from '../types';
+import { CATEGORY_LABELS, Dish, UserProfile } from '../types';
 import { DB } from '../utils/db';
 import { DEFAULT_DISHES } from '../data/recipes';
 import RECIPE_CATALOG from '../data/recipes_catalog.json';
@@ -221,8 +221,25 @@ const mergeAllDishes = (sources: Dish[][], allowLocalOverrides = true): Dish[] =
 };
 
 let cachedDishes: Dish[] = [];
+let personalDishes: Dish[] = [];
 let isInitialized = false;
 let _isSyncing = false; 
+const PERSONAL_DISHES_KEY = 'noosh-personal-recipes-v1';
+
+const isValidPersonalDish = (dish: unknown): dish is Dish => {
+  if (!dish || typeof dish !== 'object') return false;
+  const candidate = dish as Dish;
+  return candidate.isPersonal === true && typeof candidate.id === 'string' && candidate.id.startsWith('personal-') &&
+    typeof candidate.name === 'string' && candidate.name.trim().length > 0 && candidate.name.length <= 120 &&
+    candidate.category in CATEGORY_LABELS &&
+    typeof candidate.description === 'string' && Array.isArray(candidate.ingredients) && candidate.ingredients.length <= 100 &&
+    candidate.ingredients.every(item => item && typeof item.item === 'string' && item.item.trim().length > 0 && Number.isFinite(item.amount) && item.amount >= 0 && typeof item.unit === 'string') &&
+    Array.isArray(candidate.recipeSteps) && candidate.recipeSteps.length <= 100 && candidate.recipeSteps.every(step => typeof step === 'string') &&
+    (!candidate.imageUrl || (typeof candidate.imageUrl === 'string' && candidate.imageUrl.length <= 8_000_000));
+};
+
+export const validPersonalRecipes = (value: unknown): value is Dish[] =>
+  Array.isArray(value) && value.length <= 2000 && value.every(isValidPersonalDish);
 
 const notifyRecipesUpdate = (count: number, sync?: { syncing?: boolean; error?: string }) => {
   window.dispatchEvent(new CustomEvent('recipes-updated', { detail: { count, ...sync } }));
@@ -233,6 +250,10 @@ export const RecipeService = {
     try {
       const localCache = await DB.getAll('dishes');
       cachedDishes = mergeAllDishes([localCache || []], false);
+      try {
+        const savedPersonal = await DB.get('settings', PERSONAL_DISHES_KEY);
+        personalDishes = Array.isArray(savedPersonal?.recipes) ? savedPersonal.recipes.filter(isValidPersonalDish) : [];
+      } catch { personalDishes = []; }
       isInitialized = true;
 
       // Refresh existing browser caches as well as first-time installs so
@@ -262,7 +283,7 @@ export const RecipeService = {
     return { count: cachedDishes.length };
   },
 
-  getAllDishes: (): Dish[] => {
+  getCatalogDishes: (): Dish[] => {
     const hiddenIds = getHiddenDishIds();
     const renamedMap = getRenamedDishes();
     return cachedDishes
@@ -270,7 +291,40 @@ export const RecipeService = {
       .map(d => renamedMap[d.id] ? { ...d, name: renamedMap[d.id] } : d);
   },
 
+  getAllDishes: (): Dish[] => [...RecipeService.getCatalogDishes(), ...personalDishes],
+
   getRawDishes: (): Dish[] => cachedDishes,
+
+  getPersonalDishes: (): Dish[] => personalDishes,
+
+  savePersonalDish: async (dish: Dish): Promise<void> => {
+    const saved = { ...dish, isPersonal: true };
+    if (!isValidPersonalDish(saved)) throw new Error('اطلاعات رسپی کامل یا معتبر نیست.');
+    const next = personalDishes.some(item => item.id === saved.id)
+      ? personalDishes.map(item => item.id === saved.id ? saved : item)
+      : [...personalDishes, saved];
+    await DB.put('settings', { key: PERSONAL_DISHES_KEY, recipes: next });
+    personalDishes = next;
+    notifyRecipesUpdate(RecipeService.getAllDishes().length);
+  },
+
+  deletePersonalDish: async (dishId: string): Promise<void> => {
+    const next = personalDishes.filter(dish => dish.id !== dishId);
+    await DB.put('settings', { key: PERSONAL_DISHES_KEY, recipes: next });
+    personalDishes = next;
+    notifyRecipesUpdate(RecipeService.getAllDishes().length);
+  },
+
+  restorePersonalDishes: async (recipes: Dish[]): Promise<number> => {
+    if (!Array.isArray(recipes) || !recipes.every(isValidPersonalDish)) throw new Error('فهرست رسپی‌های شخصی در فایل پشتیبان معتبر نیست.');
+    const byId = new Map(personalDishes.map(dish => [dish.id, dish]));
+    for (const recipe of recipes) byId.set(recipe.id, { ...recipe, isPersonal: true });
+    const next = [...byId.values()];
+    await DB.put('settings', { key: PERSONAL_DISHES_KEY, recipes: next });
+    personalDishes = next;
+    notifyRecipesUpdate(RecipeService.getAllDishes().length);
+    return recipes.length;
+  },
 
   publishCatalog: async (): Promise<{ success: boolean; commit?: string; error?: string }> => {
     try {

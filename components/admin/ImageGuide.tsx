@@ -75,7 +75,7 @@ const ImageGuide: React.FC = () => {
   const [isBulkSaving, setIsBulkSaving] = useState(false);
   const [message, setMessage] = useState('');
 
-  const allDishes = useMemo(() => RecipeService.getAllDishes(), [refreshKey]);
+  const allDishes = useMemo(() => RecipeService.getCatalogDishes(), [refreshKey]);
   const duplicateDishIds = useMemo(() => {
     const sourceGroups = new Map<string, string[]>();
     allDishes.forEach(dish => {

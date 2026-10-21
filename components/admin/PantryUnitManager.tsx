@@ -50,7 +50,7 @@ const PantryUnitManager: React.FC = () => {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    setDishes(RecipeService.getAllDishes());
+    setDishes(RecipeService.getCatalogDishes());
     setLoading(false);
   }, []);
 
@@ -139,7 +139,7 @@ const PantryUnitManager: React.FC = () => {
     </div>
 
     <RecipeQuantityAudit dishes={dishes} units={units} references={weightEquivalences} onEdit={id => setEditingDish(dishes.find(dish => dish.id === id) || null)}/>
-    {editingDish && <DishEditor key={editingDish.id} dish={editingDish} onClose={() => setEditingDish(null)} onSave={() => setDishes(RecipeService.getAllDishes())}/>}
+    {editingDish && <DishEditor key={editingDish.id} dish={editingDish} onClose={() => setEditingDish(null)} onSave={() => setDishes(RecipeService.getCatalogDishes())}/>}
     {message && <p role="status" className={`mx-5 mt-4 rounded-xl px-4 py-3 text-sm leading-7 ${message.includes('انجام نشد') || message.includes('منقضی') ? 'bg-rose-50 text-rose-800' : 'bg-emerald-50 text-emerald-900'}`}>{message}</p>}
     <div className="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
       <label className="relative flex w-full max-w-lg items-center"><Search className="absolute right-3 text-slate-400" size={17}/><input value={search} onChange={event => setSearch(event.target.value)} placeholder="جستجوی ماده یا دسته‌بندی…" className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pe-10 ps-3 text-sm outline-none focus:border-emerald-600" /></label>

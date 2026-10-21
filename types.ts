@@ -39,6 +39,7 @@ export interface Dish {
   natureLabel?: string;
   servings?: number;
   imageReviewStatus?: 'approved' | 'replace' | 'create' | 'removed' | 'completed';
+  isPersonal?: boolean;
 }
 
 export interface DayPlan {

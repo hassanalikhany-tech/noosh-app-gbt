@@ -20,7 +20,7 @@ interface LocalAdminDashboardProps {
 const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit, onLogout }) => {
   const [tab, setTab] = useState('catalog');
   const [page, setPage] = useState(1);
-  const [dishes, setDishes] = useState<Dish[]>(() => RecipeService.getAllDishes());
+  const [dishes, setDishes] = useState<Dish[]>(() => RecipeService.getCatalogDishes());
   const [searchTerm, setSearchTerm] = useState('');
   useEffect(() => setPage(1), [searchTerm]);
   const [showUsersInfo, setShowUsersInfo] = useState(false);
@@ -28,7 +28,7 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit, onLog
   const [savedAt, setSavedAt] = useState('');
   const [publishMessage, setPublishMessage] = useState('');
 
-  const refresh = () => setDishes(RecipeService.getAllDishes());
+  const refresh = () => setDishes(RecipeService.getCatalogDishes());
   useEffect(() => {
     window.addEventListener('recipes-updated', refresh);
     const published = (event: Event) => {
