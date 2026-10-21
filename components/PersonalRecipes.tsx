@@ -1,6 +1,6 @@
 import React, { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowDownToLine, Camera, ChefHat, Clock3, Flame, ImagePlus, Pencil, Plus, Trash2, Upload, Utensils, X } from 'lucide-react';
+import { Camera, ChefHat, Clock3, Flame, ImagePlus, Pencil, Plus, Trash2, Utensils, X } from 'lucide-react';
 import { CATEGORY_LABELS, Dish, DishCategory, Ingredient, NatureType, UserProfile } from '../types';
 import { RecipeService } from '../services/recipeService';
 import RecipeModal from './RecipeModal';
@@ -13,14 +13,6 @@ const EMPTY_DRAFT: RecipeDraft = {
   name: '', category: 'khorak', description: '', ingredients: [{ item: '', amount: 1, unit: 'عدد' }], recipeSteps: [''],
   servings: 4, cookTime: 30, calories: 0, difficulty: 'متوسط', nature: 'balanced', natureLabel: 'معتدل', mosleh: '', nationality: '', imageUrl: ''
 };
-
-const isRecipeArray = (value: unknown): value is Dish[] => Array.isArray(value) && value.length <= 2000 && value.every((dish: any) =>
-  dish && dish.isPersonal === true && typeof dish.id === 'string' && dish.id.startsWith('personal-') &&
-  typeof dish.name === 'string' && dish.name.trim() && dish.category in CATEGORY_LABELS && typeof dish.description === 'string' &&
-  Array.isArray(dish.ingredients) && dish.ingredients.length > 0 && dish.ingredients.every((item: any) => typeof item?.item === 'string' && item.item.trim() && Number.isFinite(item.amount) && item.amount >= 0 && typeof item.unit === 'string') &&
-  Array.isArray(dish.recipeSteps) && dish.recipeSteps.length > 0 && dish.recipeSteps.every((step: unknown) => typeof step === 'string') &&
-  (!dish.imageUrl || (typeof dish.imageUrl === 'string' && dish.imageUrl.length <= 8_000_000))
-);
 
 const readAsDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
   const reader = new FileReader();
@@ -50,8 +42,6 @@ const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserPr
   const [draftDish, setDraftDish] = useState<Dish | null | 'new'>(null);
   const [viewing, setViewing] = useState<Dish | null>(null);
   const [message, setMessage] = useState('');
-  const [busy, setBusy] = useState(false);
-  const backupInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const refresh = () => setRecipes(RecipeService.getPersonalDishes());
@@ -60,35 +50,6 @@ const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserPr
   }, []);
 
   const sortedRecipes = useMemo(() => [...recipes].sort((a, b) => a.name.localeCompare(b.name, 'fa')), [recipes]);
-
-  const downloadBackup = () => {
-    const payload = { format: 'noosh-personal-recipes', version: 1, savedAt: new Date().toISOString(), recipes: RecipeService.getPersonalDishes() };
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' }));
-    link.href = url;
-    link.download = 'noosh-personal-recipes-backup.json';
-    link.click();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setMessage('فایل پشتیبان رسپی‌ها در دستگاهت ذخیره شد. آن را در فضای امنی مثل فایل‌ها یا فضای ابری خودت نگه دار.');
-  };
-
-  const restoreBackup = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setMessage('');
-    try {
-      const payload = JSON.parse(await file.text());
-      if (payload.format !== 'noosh-personal-recipes' || payload.version !== 1 || !isRecipeArray(payload.recipes)) throw new Error('این فایل پشتیبان رسپی‌های نوش نیست یا ساختارش معتبر نیست.');
-      if (!window.confirm(`${payload.recipes.length.toLocaleString('fa-IR')} رسپی بازیابی می‌شود. رسپی‌های هم‌شناسه به‌روزرسانی و بقیه به فهرست اضافه می‌شوند. ادامه می‌دهی؟`)) return;
-      const count = await RecipeService.restorePersonalDishes(payload.recipes);
-      setRecipes(RecipeService.getPersonalDishes());
-      setMessage(`${count.toLocaleString('fa-IR')} رسپی از فایل پشتیبان بازیابی شد.`);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'بازیابی انجام نشد؛ دوباره فایل را بررسی کن.');
-    } finally {
-      event.target.value = '';
-    }
-  };
 
   const remove = async (dish: Dish) => {
     if (!window.confirm(`رسپی «${dish.name}» از این دستگاه حذف شود؟`)) return;
@@ -113,11 +74,7 @@ const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserPr
         <button type="button" onClick={() => setDraftDish('new')} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#276556] px-4 py-2.5 text-sm font-black text-white shadow-sm hover:bg-[#347866]"><Plus size={18}/> افزودن رسپی شخصی</button>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
-        <button type="button" onClick={downloadBackup} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-900"><ArrowDownToLine size={16}/> دریافت پشتیبان رسپی‌ها</button>
-        <button type="button" disabled={busy} onClick={() => backupInput.current?.click()} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 disabled:opacity-50"><Upload size={16}/> بازیابی از فایل پشتیبان</button>
-        <input ref={backupInput} type="file" accept=".json,application/json" className="hidden" onChange={event => void restoreBackup(event)}/>
-      </div>
+      <p className="mt-4 border-t border-slate-100 pt-3 text-[11px] leading-6 text-slate-500">پشتیبان رسپی‌ها و عکس‌هایشان از بخش «تنظیمات شما روی همین دستگاه» در بالای این صفحه گرفته و بازیابی می‌شود.</p>
 
       {message && <p role="status" className="mt-3 rounded-xl bg-emerald-50 p-3 text-xs leading-6 text-emerald-900">{message}</p>}
       {sortedRecipes.length ? <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -133,10 +90,8 @@ const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserPr
     </section>
 
     {draftDish !== null && <RecipeEditor key={draftDish === 'new' ? 'new-recipe' : draftDish.id} initial={draftDish === 'new' ? null : draftDish} onClose={() => setDraftDish(null)} onSave={async dish => {
-      setBusy(true);
       try { await RecipeService.savePersonalDish(dish); setDraftDish(null); setMessage(`رسپی «${dish.name}» روی همین دستگاه ذخیره شد و به فهرست غذاها اضافه شد.`); }
       catch (error) { throw error instanceof Error ? error : new Error('رسپی ذخیره نشد؛ فضای دستگاه را بررسی کن.'); }
-      finally { setBusy(false); }
     }}/>} 
     {viewing && <RecipeModal dish={viewing} isOpen onClose={() => setViewing(null)} user={user} onUpdateUser={onUpdateUser}/>}
   </>;

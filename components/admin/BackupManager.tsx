@@ -19,6 +19,12 @@ const BackupManager: React.FC<{personalOnly?: boolean}> = ({personalOnly = false
     setBusy(true); setMessage('');
     try {
       const data = JSON.parse(await file.text());
+      if (data.format === 'noosh-personal-recipes' && data.version === 1 && validPersonalRecipes(data.recipes)) {
+        if (!confirm('رسپی‌های شخصی این فایل روی همین دستگاه بازیابی شوند؟ رسپی‌های هم‌شناسه به‌روزرسانی و بقیه به فهرست افزوده می‌شوند.')) return;
+        const count = await RecipeService.restorePersonalDishes(data.recipes);
+        setMessage(`${count.toLocaleString('fa-IR')} رسپی شخصی بازیابی شد.`);
+        return;
+      }
       if (data.format !== 'noosh-device-backup' || ![1, 2].includes(data.version) || !data.profile || !Number.isInteger(data.profile.familySize) || data.profile.familySize < 1 || data.profile.familySize > 20) throw new Error('فایل پشتیبان معتبر نوش نیست.');
       for (const key of ['inventory', 'favoriteDishIds', 'blacklistedDishIds', 'dislikedIngredients', 'excludedCategories', 'preferredNatures', 'customShoppingList', 'history']) {
         if (!Array.isArray(data.profile[key])) throw new Error('ساختار تنظیمات در فایل پشتیبان معتبر نیست.');
