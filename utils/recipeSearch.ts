@@ -92,7 +92,12 @@ function searchableParts(dish: Dish): string[] {
   const nationality = normalizeSearch(dish.nationality || '');
   // People often search with a demonym (e.g. «پاکستانی») while the recipe record stores the country name.
   const nationalitySearchTerms = nationality ? [nationality, `${nationality}ی`, `${nationality}یی`] : [];
-  return [dish.name || '', dish.creatorName || '', dish.description || '', ...nationalitySearchTerms, ...dish.ingredients.map(ingredient => ingredient.item)];
+  return [
+    [dish.name || '', ...nationalitySearchTerms].join(' '),
+    dish.creatorName || '',
+    dish.description || '',
+    dish.ingredients.map(ingredient => ingredient.item).join(' '),
+  ].filter(Boolean);
 }
 
 /** Relevance score used for both live title suggestions and the full result list. */
@@ -122,9 +127,7 @@ export function filterRecipeSearchDishes(dishes: Dish[], filters: { searchTerm: 
     if (selectedCreator !== 'all' && recipeCreatorKey(dish) !== selectedCreator) return false;
     const name = normalizeSearch(dish.name || '');
     const parts = searchableParts(dish);
-    const queryWords = normalizedSearch.split(' ').filter(Boolean);
-    const matchesSearch = !normalizedSearch || parts.some(part => scoreAgainstText(normalizedSearch, part) > 0) ||
-      (queryWords.length > 1 && queryWords.every(word => parts.some(part => scoreAgainstText(word, part) > 0)));
+    const matchesSearch = !normalizedSearch || parts.some(part => scoreAgainstText(normalizedSearch, part) > 0);
     if (!matchesSearch) return false;
     const explicitlySearchedCustomRecipe = Boolean(normalizedSearch) &&
       (dish.isPersonal || dish.isCommunityRecipe) && scoreAgainstText(normalizedSearch, name) > 0;
