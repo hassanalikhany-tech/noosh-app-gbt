@@ -21,9 +21,9 @@
       .noosh-startup-center{display:flex;flex-direction:column;align-items:center;gap:24px}
       .noosh-startup-logo{display:block;width:clamp(150px,30vw,210px);height:auto;aspect-ratio:1;object-fit:contain;animation:noosh-startup-float 4.8s ease-in-out infinite;filter:drop-shadow(0 14px 22px #123e3024)}
       .noosh-startup-motto{margin:0;font-size:clamp(18px,4.6vw,27px);font-weight:600;line-height:1.9;color:#f3deac}
-      #noosh-startup-status{min-height:30px;max-width:340px;margin:0;font-size:15px;line-height:1.9;color:#e0ece5}
+      #noosh-startup-status{min-height:34px;max-width:340px;margin:0;font-size:17px;font-weight:700;line-height:1.9;color:#e8b95b}
       .noosh-startup-loading{display:inline-flex;align-items:baseline;gap:7px}
-      .noosh-loading-dots{display:inline-block;width:10ch;direction:rtl;text-align:right;font-family:monospace;font-size:17px}
+      .noosh-loading-dots{display:inline-block;width:10ch;direction:rtl;text-align:right;font-family:monospace;font-size:19px;font-weight:700}
       .noosh-loading-dots>span{display:block;width:1ch;margin-inline-end:auto;overflow:hidden;white-space:nowrap;animation:noosh-loading-dots 4s steps(9,end) infinite}
       @keyframes noosh-loading-dots{0%,100%{width:1ch}50%{width:10ch}}
       .noosh-startup-credit{position:absolute;inset-inline:20px;bottom:calc(24px + env(safe-area-inset-bottom));margin:0;color:#e8b95b;font-size:clamp(11px,2.9vw,14px);font-weight:500;line-height:2;text-wrap:balance}
@@ -209,7 +209,7 @@
       <div class="noosh-startup-center">
         <img class="noosh-startup-logo" src="/brand/noosh-logo.png" alt="لوگوی نوش‌اپ" width="210" height="210" fetchpriority="high" />
         <p class="noosh-startup-motto">همراه سلامتی و آسایش شما</p>
-        <p id="noosh-startup-status" role="status" aria-live="polite"><span class="noosh-startup-loading">بارگذاری<span class="noosh-loading-dots" aria-hidden="true"><span>..........</span></span></span></p>
+        <p id="noosh-startup-status" role="status" aria-live="polite"><span class="noosh-startup-loading">در حال بارگذاری<span class="noosh-loading-dots" aria-hidden="true"><span>..........</span></span></span></p>
         <button id="noosh-startup-retry" type="button" hidden>تلاش دوباره</button>
         <noscript><p style="color:#f3deac">برای بازکردن نوش‌اپ، جاوااسکریپت مرورگر را فعال کنید.</p></noscript>
       </div>

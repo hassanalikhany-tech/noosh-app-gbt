@@ -1,4 +1,4 @@
-const MINIMUM_STARTUP_MS = 10_000;
+const MINIMUM_STARTUP_MS = 8_000;
 const READY_EVENT = 'noosh-app-ready';
 
 export function markApplicationReady() {
@@ -50,16 +50,12 @@ export function startStartupScreen() {
     imageReady('/hero-chelo-kabab-barg.png'),
     document.fonts?.ready,
   ]);
-  // Optional remote fonts/images must not hold a ready local app indefinitely.
-  const optionalAssetsTimeout = window.setTimeout(() => { assetsReady = true; dismissIfReady(); }, 8_000);
   void warmup.finally(() => {
-    window.clearTimeout(optionalAssetsTimeout);
     assetsReady = true;
     dismissIfReady();
   });
   window.setTimeout(() => {
     minimumElapsed = true;
-    if (!appReady && status) status.textContent = 'در حال آماده‌سازی آشپزخانهٔ شما…';
     dismissIfReady();
   }, Math.max(0, MINIMUM_STARTUP_MS - (performance.now() - startedAt)));
   const slowTimer = window.setTimeout(() => {
