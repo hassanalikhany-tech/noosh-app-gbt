@@ -12,6 +12,7 @@ import { getPantryUnitPreference, suggestPantryUnit } from '../utils/pantryUnits
 import RecipeModal from './RecipeModal';
 import InventoryHistory from './InventoryHistory';
 import MealCard from './MealCard';
+import PantryFoodThumbnail from './PantryFoodThumbnail';
 
 interface PantryChefProps {
   user: UserProfile;
@@ -114,7 +115,7 @@ const FoodIngredientCombobox: React.FC<FoodIngredientComboboxProps> = ({ id, val
           <h5>{group.title}</h5>
           <div className="pantry-food-combobox-options">{group.items.map(item => {
             const optionIndex = flatOptions.findIndex(option => option.item === item && option.categoryId === category.id);
-            return <button key={`${category.id}-${group.title}-${item}`} type="button" role="option" aria-selected={value === item} data-active={optionIndex === activeIndex} onMouseEnter={() => setActiveIndex(optionIndex)} onClick={() => { onChange(item); onSelect?.(item, category.id); setIsOpen(false); }} className="pantry-food-combobox-option">{item}</button>;
+            return <button key={`${category.id}-${group.title}-${item}`} type="button" role="option" aria-selected={value === item} data-active={optionIndex === activeIndex} onMouseEnter={() => setActiveIndex(optionIndex)} onClick={() => { onChange(item); onSelect?.(item, category.id); setIsOpen(false); }} className="pantry-food-combobox-option"><PantryFoodThumbnail item={item} categoryId={category.id} subcategoryId={group.id} /><span>{item}</span></button>;
           })}</div>
         </div>)}
       </section>)}
@@ -581,9 +582,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                               <div key={item.id} className={`pantry-inventory-row p-4 flex items-center justify-between hover:bg-slate-50 transition-colors ${selectedInventoryItemId === item.id ? 'is-selected' : ''}`} role="group" aria-label={`قلم ${item.name}`} aria-current={selectedInventoryItemId === item.id ? 'true' : undefined}>
                                 <div className="flex items-center gap-3">
                                   <button type="button" onClick={() => setSelectedInventoryItemId(selectedInventoryItemId === item.id ? null : item.id)} aria-label={`${selectedInventoryItemId === item.id ? 'پایان ویرایش' : 'ویرایش'} ${item.name}`} aria-pressed={selectedInventoryItemId === item.id} className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${selectedInventoryItemId === item.id ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-500 hover:bg-emerald-100 hover:text-emerald-800'}`}><Pencil size={15} /></button>
-                                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isBelowThreshold(item) ? 'bg-rose-100 text-rose-500' : 'bg-teal-50 text-teal-500'}`}>
-                                    <UtensilsCrossed size={18} />
-                                  </div>
+                                  <PantryFoodThumbnail item={item.name} />
                                   <div>
                                     <h4 className="text-slate-800 font-black text-xs sm:text-sm">{item.name}</h4>
                                     <span className={`pantry-stock-state ${isBelowThreshold(item) ? 'is-low' : ''}`}>{isBelowThreshold(item) ? `کم · ${toPersian(item.amount)} ${item.unit}` : `موجود: ${toPersian(item.amount)} ${item.unit}`}</span>
@@ -665,7 +664,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                             <div><strong>انبارت را با چند قلم پرکاربرد شروع کن</strong><p>روی هر مورد بزن تا یک‌راست به انبار اضافه شود؛ بعد مقدار دقیقش را تنظیم کن.</p></div>
                             <div className="pantry-starter-grid">
                               {starterItemsToAdd.map(item => (
-                                <button type="button" key={item} onClick={() => addToInventory(item)}><Plus size={14}/>{item}</button>
+                                <button type="button" key={item} onClick={() => addToInventory(item)}><PantryFoodThumbnail item={item} /><span>{item}</span><Plus size={14}/></button>
                               ))}
                             </div>
                           </div>
@@ -675,7 +674,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                             <div><strong className="text-sm font-black text-slate-700">قلم‌های پرکاربرد بعدی</strong><p className="mt-1 text-xs leading-6 text-slate-500">مواردی را که هنوز در انبارت نیستند انتخاب کن؛ پیشنهادها بعد از هر افزودن باقی می‌مانند.</p></div>
                             <div className="pantry-starter-grid">
                               {starterItemsToAdd.map(item => (
-                                <button type="button" key={item} onClick={() => addToInventory(item)}><Plus size={14}/>{item}</button>
+                                <button type="button" key={item} onClick={() => addToInventory(item)}><PantryFoodThumbnail item={item} /><span>{item}</span><Plus size={14}/></button>
                               ))}
                             </div>
                           </div>
@@ -798,7 +797,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                       return <article key={item.id} className={`pantry-overview-row-card grid items-center gap-3 rounded-2xl border bg-white p-3 shadow-sm transition sm:grid-cols-[minmax(180px,1fr)_auto_auto] sm:gap-5 sm:p-4 ${selectedInventoryItemId === item.id ? 'is-selected' : 'border-slate-100 hover:border-emerald-200'}`}>
                         <div className="flex min-w-0 items-center gap-3">
                           <button type="button" onClick={() => setSelectedInventoryItemId(selectedInventoryItemId === item.id ? null : item.id)} aria-label={`ویرایش ${item.name}`} aria-pressed={selectedInventoryItemId === item.id} className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${selectedInventoryItemId === item.id ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-500 hover:bg-emerald-100 hover:text-emerald-800'}`}><Pencil size={15} /></button>
-                          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${isLow ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-700'}`}><UtensilsCrossed size={18} /></div>
+                          <PantryFoodThumbnail item={item.name} />
                           <div className="min-w-0"><h3 className="truncate font-black text-slate-800">{item.name}</h3><p className={`mt-1 text-xs font-bold ${isLow ? 'text-rose-700' : 'text-emerald-800'}`}>{isLow ? 'نیازمند خرید' : 'موجود'} · هشدار در {toPersian(item.minThreshold)} {item.minThresholdUnit || item.unit}</p></div>
                         </div>
                         <div className="flex items-center justify-between gap-3 sm:justify-end"><span className="text-xs font-semibold text-slate-500 sm:hidden">موجودی</span>{renderOverviewQuantity(item)}</div>

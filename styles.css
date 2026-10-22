@@ -125,3 +125,10 @@ button{cursor:pointer}button:disabled{cursor:wait;opacity:.55}button:hover:not(:
 .planner-hero-controls .diet-filters button svg{color:currentColor}
 @media(max-width:760px){.planner-hero-controls .diet-filters button{flex:1 1 0;min-width:0;min-height:46px;justify-content:center;gap:5px;padding:8px 6px;font-size:12px;white-space:normal}.planner-hero-controls .diet-filters button svg{width:16px;height:16px}}
 @media(max-width:380px){.planner-hero-controls .diet-filters button{font-size:11px;gap:4px;padding-inline:4px}}
+
+/* Compact ingredient pictograms: recognizable choices without widening the pantry menu. */
+.pantry-food-combobox-option{display:flex;align-items:center;gap:8px;min-height:42px;padding:5px 7px;text-align:right;line-height:1.55}
+.pantry-food-thumbnail{display:block;width:32px;height:32px;flex:0 0 32px;border-radius:10px}
+.pantry-food-combobox-option>span{min-width:0;overflow-wrap:anywhere}
+@media(max-width:760px){.pantry-food-combobox-option{min-height:44px;gap:7px;padding:5px 6px;font-size:12px}.pantry-food-thumbnail{width:30px;height:30px;flex-basis:30px}}
+.pantry-starter-grid button{min-width:0;gap:6px}.pantry-starter-grid button .pantry-food-thumbnail{width:28px;height:28px;flex-basis:28px;border-radius:9px}.pantry-starter-grid button>span:not(.pantry-food-thumbnail){min-width:0;overflow-wrap:anywhere}
