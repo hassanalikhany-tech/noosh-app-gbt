@@ -702,7 +702,7 @@ const AppContent: React.FC = () => {
             </button>
             <button 
               onClick={() => isFullscreen ? exitFullscreen() : enterFullscreen()} 
-              className="hidden md:flex p-2 sm:p-3.5 bg-white border border-slate-100 text-slate-600 rounded-xl sm:rounded-2xl shadow-sm hover:bg-slate-50 transition-all"
+              className="mobile-hide-fullscreen-toggle hidden md:flex p-2 sm:p-3.5 bg-white border border-slate-100 text-slate-600 rounded-xl sm:rounded-2xl shadow-sm hover:bg-slate-50 transition-all"
               title={isFullscreen ? "خروج از تمام صفحه" : "تمام صفحه"}
              >
                 {isFullscreen ? <Minimize size={18} className="sm:w-6 sm:h-6" /> : <Maximize size={18} className="sm:w-6 sm:h-6" />}
