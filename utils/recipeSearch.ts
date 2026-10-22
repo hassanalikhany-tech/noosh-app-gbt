@@ -8,9 +8,13 @@ export function filterRecipeSearchDishes(dishes: Dish[], filters: { searchTerm: 
     return dishes.filter(dish => {
       if (selectedCreator !== 'all' && recipeCreatorKey(dish) !== selectedCreator) return false;
       const name = dish.name || "";
+      const normalizedSearchWords = normalizePersian(searchTerm).split(' ').filter(Boolean);
+      const normalizedName = normalizePersian(name);
       const searchable = normalizePersian([name, dish.creatorName || '', dish.description, ...dish.ingredients.map(i => i.item)].join(' '));
-      const matchesSearch = normalizePersian(searchTerm).split(' ').filter(Boolean).every(word => searchable.includes(word));
+      const matchesSearch = normalizedSearchWords.every(word => searchable.includes(word));
       if (!matchesSearch) return false;
+      const explicitlySearchedCustomRecipe = normalizedSearchWords.length > 0 &&
+        (dish.isPersonal || dish.isCommunityRecipe) && normalizedSearchWords.every(word => normalizedName.includes(word));
       
       if (selectedCategory !== 'all' && dish.category !== selectedCategory) return false;
       
@@ -20,7 +24,7 @@ export function filterRecipeSearchDishes(dishes: Dish[], filters: { searchTerm: 
       }
 
       // Filter prohibited ingredients
-      if (selectedCreator === 'all' && isDishProhibited(dish, user)) return false;
+      if (selectedCreator === 'all' && !explicitlySearchedCustomRecipe && isDishProhibited(dish, user)) return false;
 
       return true;
     });
