@@ -1,34 +1,34 @@
-import { GuestService } from './guestService';
 import { Notification } from '../types';
+import { GuestService } from './guestService';
 
-const KEY = 'noosh_local_notifications_v1';
-const readAll = (): Notification[] => {
-  try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
-};
-const saveAll = (items: Notification[]) => localStorage.setItem(KEY, JSON.stringify(items));
+const endpoint = '/.netlify/functions/notifications';
+
+async function request<T>(url: string, method = 'GET', body?: Record<string, unknown>): Promise<T> {
+  const response = await fetch(url, {
+    method,
+    credentials: 'same-origin',
+    headers: body ? { 'content-type': 'application/json' } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(typeof data.error === 'string' ? data.error : 'ارتباط با مرکز اعلان انجام نشد.');
+  return data as T;
+}
 
 export const NotificationService = {
-  createNotification: async (title: string, message: string, targetGroup: 'all' | 'active' | 'visitors' | 'specific', adminId: string, targetUids?: string[]) => {
-    const notification: Notification = {
-      id: `local-${Date.now()}`,
-      title,
-      message,
-      target_group: targetGroup,
-      target_uids: targetGroup === 'specific' ? (targetUids || []) : [],
-      send_time: Date.now(),
-      status: 'sent',
-      created_by: adminId,
-    };
-    saveAll([notification, ...readAll()]);
-    return notification;
+  createNotification: async (title: string, message: string, targetGroup: 'all' | 'active' | 'visitors' | 'specific', _adminId: string, _targetUids?: string[], sourceFeedbackId?: string) => {
+    if (targetGroup !== 'all') throw new Error('در نسخهٔ فعلی فقط اعلان عمومی برای همهٔ کاربران قابل ارسال است.');
+    const result = await request<{ notification: Notification }>(endpoint, 'POST', { title, message, targetGroup, sourceFeedbackId });
+    return result.notification;
   },
-  getAllNotifications: async (): Promise<Notification[]> => readAll(),
-  getUserNotifications: async (userId: string, role: string, isActive: boolean): Promise<Notification[]> => readAll().filter(item => {
-    if (item.target_group === 'specific') return item.target_uids?.includes(userId) || false;
-    if (item.target_group === 'all') return true;
-    if (item.target_group === 'active') return isActive;
-    return item.target_group === 'visitors' && role === 'visitor';
-  }),
+  getAllNotifications: async (): Promise<Notification[]> => {
+    const data = await request<{ notifications: Notification[] }>(`${endpoint}?scope=admin`);
+    return data.notifications;
+  },
+  getUserNotifications: async (_userId: string, _role: string, _isActive: boolean): Promise<Notification[]> => {
+    const data = await request<{ notifications: Notification[] }>(endpoint);
+    return data.notifications;
+  },
   logDelivery: async () => undefined,
   markAsRead: async (_userId: string, notificationId: string) => {
     const user = GuestService.get();

@@ -4,6 +4,8 @@ import { Dish, DishCategory, CATEGORY_LABELS } from '../../types';
 import { RecipeService } from '../../services/recipeService';
 import DishEditor from './DishEditor';
 import CommunityRecipeReview from './CommunityRecipeReview';
+import FeedbackManager from './FeedbackManager';
+import NotificationManager from './NotificationManager';
 
 const ImageGuide = lazy(() => import('./ImageGuide'));
 const DuplicateResolver = lazy(() => import('./DuplicateResolver'));
@@ -122,9 +124,9 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit, onLog
         <nav aria-label="بخش‌های مدیریت" className="flex flex-wrap gap-2">{[
           ['catalog','فهرست و ویرایش غذاها'], ['images','مدیریت عکس‌ها'], ['database','ورود و خروجی غذاها'],
           ['duplicates','اصلاح غذاهای تکراری'], ['pantry-units','واحدهای انبار'], ['units','مغایرت واحد رسپی‌ها'], ['converter','مبدل اکسل'], ['backup','پشتیبان و بازیابی'], ['unavailable','بخش‌های وابسته به سرور'],
-          ['community','رسپی‌های ارسالی کاربران'],
+          ['community','رسپی‌های ارسالی کاربران'], ['feedback','بازخورد همراهان'], ['notifications','اعلان همگانی'],
         ].map(([id,label]) => <button key={id} onClick={() => setTab(id)} aria-pressed={tab === id} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === id ? 'bg-emerald-900 text-white' : 'bg-white text-slate-700'}`}>{label}</button>)}</nav>
-        <p role="status" aria-live="polite" className={`rounded-xl p-3 text-sm leading-7 ${publishMessage.includes('انجام نشد') ? 'bg-rose-50 text-rose-800' : 'bg-emerald-50 text-emerald-900'}`}>{publishMessage || 'هر ذخیره، حذف، یا تغییر عکس پس از ثبت در GitHub به انتشار عمومی Netlify می‌رود.'}</p>
+        <p role="status" aria-live="polite" className={`rounded-xl p-3 text-sm leading-7 ${publishMessage.includes('انجام نشد') ? 'bg-rose-50 text-rose-800' : 'bg-emerald-50 text-emerald-900'}`}>{publishMessage || 'تغییرهای کتابخانهٔ غذا در GitHub منتشر می‌شوند؛ بازخورد کاربران و اعلان‌های همگانی در فضای خصوصی Netlify ثبت می‌شوند.'}</p>
         <Suspense fallback={<p role="status">در حال آماده‌سازی ابزار…</p>}>
           {tab === 'community' && <CommunityRecipeReview />}
           {tab === 'images' && <ImageGuide />}
@@ -134,7 +136,9 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit, onLog
           {tab === 'units' && <UnitConsistencyManager />}
           {tab === 'converter' && <CsvToJsonConverter />}
           {tab === 'backup' && <BackupManager />}
-          {tab === 'unavailable' && <section className="rounded-3xl bg-white p-6"><h2 className="font-black">فعلاً غیرفعال؛ نیازمند ذخیره‌سازی مرکزی</h2><p className="mt-3 leading-8 text-slate-500">کاربران، ویزیتورها، اعلان سراسری، بازخورد کاربران، آمار بازدید، گزارش‌های امنیتی، پرداخت‌ها، تنظیمات قیمت و تسویه‌ها در نسخهٔ محلی در دسترس نیستند. بهینه‌سازی آنلاین با هوش مصنوعی نیز تا تعیین سرویس مناسب غیرفعال است.</p></section>}
+          {tab === 'feedback' && <FeedbackManager />}
+          {tab === 'notifications' && <NotificationManager />}
+          {tab === 'unavailable' && <section className="rounded-3xl bg-white p-6"><h2 className="font-black">بخش‌های وابسته به دادهٔ کاربران</h2><p className="mt-3 leading-8 text-slate-500">فهرست حساب‌ها، ویزیتورها، آمار بازدید، گزارش‌های امنیتی، پرداخت‌ها، تنظیمات قیمت و تسویه‌ها غیرفعال‌اند؛ چون حساب و پایگاه دادهٔ مشترک برای کاربران راه‌اندازی نشده است. بازخورد کاربران و اعلان‌های عمومی اکنون در برگه‌های جداگانه و از طریق ذخیره‌سازی Netlify در دسترس‌اند. بهینه‌سازی آنلاین با هوش مصنوعی نیز تا تعیین سرویس مناسب غیرفعال است.</p></section>}
         </Suspense>
         {tab === 'catalog' && <>
         <section className="grid gap-4 md:grid-cols-[1.4fr_.6fr]">

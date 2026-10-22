@@ -335,6 +335,7 @@ export interface Notification {
   send_time: number;
   status: 'pending' | 'sent';
   created_by: string;
+  source_feedback_id?: string;
 }
 
 export interface NotificationLog {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle, Clock, Eye, Info, Loader2, MessageCircle, RefreshCw, Search, ShieldCheck, Tag, X } from 'lucide-react';
+import { CheckCircle, Clock, Eye, Info, Loader2, MessageCircle, RefreshCw, Search, Send, ShieldCheck, Tag, X } from 'lucide-react';
 import { FeedbackService } from '../../services/feedbackService';
+import { NotificationService } from '../../services/notificationService';
 import { UserFeedback } from '../../types';
 
 const categoryLabel = (category: UserFeedback['category']) => ({
@@ -19,6 +20,11 @@ const FeedbackManager: React.FC = () => {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<UserFeedback | null>(null);
+  const [replyOpen, setReplyOpen] = useState(false);
+  const [publicReply, setPublicReply] = useState('');
+  const [includeSuggestion, setIncludeSuggestion] = useState(false);
+  const [publicTitle, setPublicTitle] = useState('پاسخ نوش‌اپ به پیشنهاد یکی از همراهان');
+  const [publicError, setPublicError] = useState('');
 
   const loadData = async () => {
     setLoading(true);
@@ -40,6 +46,33 @@ const FeedbackManager: React.FC = () => {
       setFeedback(items => items.map(item => item.id === selected.id ? updated : item));
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'ذخیرهٔ وضعیت انجام نشد.'); }
     finally { setSaving(false); }
+  };
+
+  const openPublicReply = () => {
+    setPublicTitle('پاسخ نوش‌اپ به پیشنهاد یکی از همراهان');
+    setPublicReply('');
+    setIncludeSuggestion(false);
+    setPublicError('');
+    setReplyOpen(true);
+  };
+
+  const sendPublicReply = async () => {
+    if (!selected || !publicTitle.trim() || !publicReply.trim() || saving) return;
+    setSaving(true);
+    setPublicError('');
+    try {
+      const safeMessage = includeSuggestion && selected.message.trim()
+        ? `پیشنهاد یکی از همراهان نوش‌اپ:\n«${selected.message.trim()}»\n\nپاسخ نوش‌اپ:\n${publicReply.trim()}`
+        : publicReply.trim();
+      await NotificationService.createNotification(publicTitle.trim(), safeMessage, 'all', 'ADMIN', [], selected.id);
+      await FeedbackService.updateFeedbackStatus(selected.id, 'informed');
+      const updated = { ...selected, status: 'informed' as const };
+      setSelected(updated);
+      setFeedback(items => items.map(item => item.id === selected.id ? updated : item));
+      setReplyOpen(false);
+    } catch (cause) {
+      setPublicError(cause instanceof Error ? cause.message : 'ارسال پاسخ همگانی انجام نشد.');
+    } finally { setSaving(false); }
   };
 
   const filtered = feedback.filter(item => `${item.user_name} ${item.message} ${categoryLabel(item.category)}`.toLocaleLowerCase().includes(search.toLocaleLowerCase()));
@@ -77,7 +110,22 @@ const FeedbackManager: React.FC = () => {
             <button type="button" disabled={saving} onClick={() => void updateStatus('informed')} className={`inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-xs font-bold disabled:opacity-50 ${selected.status === 'informed' ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-700'}`}><ShieldCheck size={15}/>اطلاع حاصل شد</button>
           </div></div>
           {saving && <p className="flex items-center gap-2 text-xs text-slate-500"><Loader2 className="animate-spin" size={15}/>در حال ذخیرهٔ وضعیت…</p>}
+          <button type="button" onClick={openPublicReply} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-indigo-700 px-4 text-xs font-black text-white transition hover:bg-indigo-800"><Send size={16}/>پاسخ عمومی از طریق اعلان برای همه</button>
           {error && <p role="alert" className="rounded-xl bg-rose-50 p-3 text-xs text-rose-700">{error}</p>}
+        </div>
+      </section>
+    </div>}
+
+    {replyOpen && selected && <div className="fixed inset-0 z-[1300] grid place-items-center bg-slate-950/65 p-3 backdrop-blur-sm sm:p-6" onMouseDown={event => { if (event.target === event.currentTarget && !saving) setReplyOpen(false); }}>
+      <section role="dialog" aria-modal="true" aria-labelledby="public-reply-title" className="w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+        <header className="flex items-center justify-between gap-3 bg-indigo-700 px-5 py-4 text-white"><div><p className="text-xs text-indigo-100">اعلان همگانی · همهٔ کاربران می‌بینند</p><h3 id="public-reply-title" className="mt-1 text-lg font-black">پاسخ عمومی به بازخورد</h3></div><button type="button" disabled={saving} onClick={() => setReplyOpen(false)} aria-label="بستن" className="grid h-9 w-9 place-items-center rounded-xl bg-white/10"><X size={19}/></button></header>
+        <div className="space-y-4 p-5 sm:p-6">
+          <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-6 text-amber-950">فقط پاسخ و محتوای غیرخصوصی را منتشر کنید. شماره، نام یا اطلاعات شناسایی‌کننده را وارد نکنید. این اعلان در مرکز اعلان اپ دیده می‌شود؛ پیامک یا اعلان سیستمی گوشی نیست.</p>
+          <label className="block text-xs font-bold text-slate-600">عنوان اعلان<input maxLength={120} value={publicTitle} onChange={event => setPublicTitle(event.target.value)} className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-indigo-600"/></label>
+          <label className="flex items-start gap-2 rounded-xl bg-slate-50 p-3 text-xs leading-6 text-slate-700"><input type="checkbox" checked={includeSuggestion} onChange={event => setIncludeSuggestion(event.target.checked)} className="mt-1 accent-indigo-700"/><span>متن این بازخورد را هم نقل کن <span className="block text-[11px] text-slate-500">با فعال‌کردن این گزینه، متن کامل پیام برای همه منتشر می‌شود؛ پیش از ارسال مطمئن شوید اطلاعات خصوصی ندارد.</span></span></label>
+          <label className="block text-xs font-bold text-slate-600">پاسخ نوش‌اپ<textarea required maxLength={4500} rows={5} value={publicReply} onChange={event => setPublicReply(event.target.value)} placeholder="پاسخ عمومی و مناسب برای همهٔ همراهان را بنویسید…" className="mt-2 w-full resize-y rounded-xl border border-slate-200 px-4 py-3 text-sm leading-7 outline-none focus:border-indigo-600"/></label>
+          {publicError && <p role="alert" className="rounded-xl bg-rose-50 p-3 text-xs leading-6 text-rose-700">{publicError}</p>}
+          <button type="button" disabled={saving || !publicTitle.trim() || !publicReply.trim()} onClick={() => void sendPublicReply()} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-indigo-700 px-4 text-sm font-black text-white disabled:opacity-50">{saving ? <Loader2 size={17} className="animate-spin"/> : <Send size={17}/>}ارسال پاسخ همگانی</button>
         </div>
       </section>
     </div>}
