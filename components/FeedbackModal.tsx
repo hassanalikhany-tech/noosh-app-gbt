@@ -14,21 +14,17 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, user }) 
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [sendError, setSendError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim() || isSending) return;
     
     setIsSending(true);
+    setSendError('');
     try {
-      const userId = user?.uid || "unknown";
-      const userName = user?.fullName || "کاربر نوش";
-      const userMobile = user?.mobileNumber || user?.uid || "بدون شماره";
-
       await FeedbackService.submitFeedback(
-        userId,
-        userName,
-        userMobile,
+        user?.fullName || '',
         category,
         message.trim()
       );
@@ -41,7 +37,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, user }) 
       }, 2500);
     } catch (err) {
       console.error("Feedback error:", err);
-      alert("ذخیره در مرورگر انجام نشد. فضای ذخیره‌سازی را بررسی کنید.");
+      setSendError(err instanceof Error ? err.message : 'ارسال پیام انجام نشد؛ دوباره تلاش کنید.');
     } finally {
       setIsSending(false);
     }
@@ -69,7 +65,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, user }) 
               <div className="p-3 bg-emerald-500 text-white rounded-[1.25rem] shadow-lg"><MessageSquare size={20}/></div>
               <div>
                 <h3 className="text-lg font-black leading-none">یادداشت بازخورد</h3>
-                <p className="text-[9px] text-emerald-400 font-bold uppercase tracking-widest mt-1">فقط روی این دستگاه؛ برای مدیریت ارسال نمی‌شود</p>
+                <p className="text-[9px] text-emerald-300 font-bold mt-1">پیام شما برای بررسی به مدیریت نوش‌اپ می‌رسد</p>
               </div>
            </div>
            <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-all"><X size={20}/></button>
@@ -80,10 +76,12 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, user }) 
            {isSuccess ? (
               <div className="py-16 flex flex-col items-center text-center gap-5 animate-enter">
                  <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center shadow-lg animate-bounce"><CheckCircle size={40}/></div>
-                 <h4 className="text-xl font-black text-slate-800">یادداشت روی این دستگاه ذخیره شد</h4>
+                 <h4 className="text-xl font-black text-slate-800">نظر شما برای مدیریت ارسال شد</h4>
+                 <p className="max-w-md text-sm leading-7 text-slate-500">از اینکه برای بهتر شدن نوش‌اپ وقت گذاشتید، سپاسگزاریم.</p>
               </div>
            ) : (
               <form onSubmit={handleSubmit} className="space-y-8 animate-enter">
+                 <p className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs font-medium leading-6 text-emerald-900">پیام شما از این دستگاه به صف خصوصی بازخورد مدیریت فرستاده می‌شود. برای ارسال، ثبت‌نام یا شماره تلفن لازم نیست.</p>
                  <div className="space-y-4">
                     <label className="text-[10px] font-black text-slate-400 pr-2 flex items-center gap-2 uppercase tracking-widest"><Tag size={12}/> موضوع پیام</label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -121,9 +119,10 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, user }) 
                           className="sm:w-48 bg-slate-900 text-white rounded-[2rem] font-black text-lg flex flex-col items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all disabled:opacity-50 py-6 sm:py-0"
                         >
                            {isSending ? <Loader2 size={28} className="animate-spin"/> : <Send size={28}/>}
-                           <span className="text-sm">ذخیره روی دستگاه</span>
+                           <span className="text-sm">ارسال برای مدیریت</span>
                         </button>
                     </div>
+                    {sendError && <p role="alert" className="rounded-xl border border-rose-100 bg-rose-50 px-4 py-3 text-xs font-bold leading-6 text-rose-700">{sendError}</p>}
                  </div>
               </form>
            )}

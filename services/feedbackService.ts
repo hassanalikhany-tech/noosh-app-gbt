@@ -1,29 +1,33 @@
 import { UserFeedback, FeedbackCategory } from '../types';
 
-const KEY = 'noosh_local_feedback_v1';
-const readAll = (): UserFeedback[] => {
-  try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
-};
-const saveAll = (items: UserFeedback[]) => localStorage.setItem(KEY, JSON.stringify(items));
+const endpoint = '/.netlify/functions/feedback';
+
+async function request<T>(method: 'GET' | 'POST' | 'PUT', body?: Record<string, unknown>): Promise<T> {
+  const response = await fetch(endpoint, {
+    method,
+    credentials: 'same-origin',
+    headers: body ? { 'content-type': 'application/json' } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(typeof data.error === 'string' ? data.error : 'ارسال یا دریافت بازخورد انجام نشد.');
+  return data as T;
+}
 
 export const FeedbackService = {
-  submitFeedback: async (userId: string, userName: string, mobile: string, category: FeedbackCategory, message: string) => {
-    const feedback: UserFeedback = {
-      id: `local-${Date.now()}`,
-      user_id: userId,
-      user_name: userName,
-      user_mobile: mobile,
-      category,
-      message,
-      status: 'new',
-      created_at: Date.now(),
-      device: navigator.userAgent,
-    };
-    saveAll([feedback, ...readAll()]);
-    return feedback;
+  submitFeedback: async (userName: string, category: FeedbackCategory, message: string) => {
+    return request<{ success: true; id: string }>('POST', { userName, category, message });
   },
-  getAllFeedback: async (): Promise<UserFeedback[]> => readAll(),
+  getAllFeedback: async (): Promise<UserFeedback[]> => {
+    const data = await request<{ feedback: UserFeedback[] }>('GET');
+    return data.feedback;
+  },
   updateFeedbackStatus: async (feedbackId: string, status: UserFeedback['status'], extraFields: Partial<UserFeedback> = {}) => {
-    saveAll(readAll().map(item => item.id === feedbackId ? { ...item, ...extraFields, status } : item));
+    await request<{ success: true }>('PUT', {
+      id: feedbackId,
+      status,
+      ...(extraFields.assigned_to_name ? { assigned_to_name: extraFields.assigned_to_name } : {}),
+      ...(extraFields.assigned_at ? { assigned_at: extraFields.assigned_at } : {}),
+    });
   },
 };

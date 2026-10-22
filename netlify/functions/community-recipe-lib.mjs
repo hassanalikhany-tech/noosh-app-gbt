@@ -4,11 +4,11 @@ import { connectLambda, getStore } from '@netlify/blobs';
 export const STORE_NAME = 'noosh-community-recipes';
 // These endpoints use Netlify's Lambda-compatible handler format. Blobs needs
 // the Lambda event's signed context to discover the site and access token.
-export const store = (event) => {
+export const store = (event, name = STORE_NAME) => {
   connectLambda(event);
   // Lambda compatibility exposes the edge URL but not the uncached edge URL
   // required for strong reads. Use Blobs' default eventual consistency here.
-  return getStore(STORE_NAME);
+  return getStore(name);
 };
 export const json = (statusCode, body) => ({ statusCode, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify(body) });
 export const parseBody = (event) => JSON.parse(event.body || '{}');
