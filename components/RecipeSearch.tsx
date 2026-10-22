@@ -80,6 +80,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   const [allDishes, setAllDishes] = useState<Dish[]>([]);
   const [selectedCreator, setSelectedCreator] = useState('all');
   const creators = useMemo(() => getRecipeCreators(allDishes), [allDishes]);
+  const nooshRecipeCount = useMemo(() => allDishes.filter(dish => !dish.isCommunityRecipe && !dish.isPersonal).length, [allDishes]);
   const activeCreator = creators.find(creator => creator.key === selectedCreator);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState(externalSearchTerm);
@@ -203,7 +204,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <RecipeCreatorFilter creators={creators} value={selectedCreator} onChange={selectCreator} />
+              <RecipeCreatorFilter creators={creators} nooshCount={nooshRecipeCount} value={selectedCreator} onChange={selectCreator} />
               <p role="status" className="text-xs leading-6 text-slate-600">{activeCreator ? <><strong className="text-[#276556]">{activeCreator.name}</strong> · {toPersian(activeCreator.count)} رسپی منتشرشده · {toPersian(filteredDishes.length)} نتیجه با فیلترهای فعلی</> : `${toPersian(filteredDishes.length)} غذا مطابق جست‌وجو و فیلترهای شما`}</p>
             </div>
             {activeCreator && <p className="text-xs leading-6 text-slate-600">همهٔ دستورهای این آشپز قابل مشاهده‌اند؛ غذاهای دارای مواد ممنوع شما با هشدار مشخص می‌شوند و همچنان از پیشنهادها و برنامهٔ غذایی کنار گذاشته می‌شوند.</p>}

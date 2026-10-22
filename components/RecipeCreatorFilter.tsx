@@ -4,11 +4,12 @@ import { creatorKey } from '../utils/recipeCreators';
 
 interface Props {
   creators: { key: string; name: string; count: number }[];
+  nooshCount: number;
   value: string;
   onChange: (key: string) => void;
 }
 
-export default function RecipeCreatorFilter({ creators, value, onChange }: Props) {
+export default function RecipeCreatorFilter({ creators, nooshCount, value, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const root = useRef<HTMLDivElement>(null);
@@ -35,7 +36,7 @@ export default function RecipeCreatorFilter({ creators, value, onChange }: Props
     {open && <div id="recipe-creator-menu" role="region" aria-label="انتخاب آشپز" className="absolute inset-x-0 top-full z-[950] mt-2 overflow-hidden rounded-2xl bg-white text-slate-800 shadow-xl ring-1 ring-[#276556]/15">
       <div className="relative m-3"><Search size={16} className="pointer-events-none absolute right-3 top-3 text-[#276556]"/><input ref={input} aria-label="جستجوی نام آشپز" value={query} onChange={event => setQuery(event.target.value)} placeholder="نام آشپز را پیدا کن…" className="min-h-11 w-full rounded-xl border-0 bg-[#edf4f0] pl-3 pr-9 text-sm outline-none focus:ring-2 focus:ring-[#276556]/40"/></div>
       <div className="max-h-60 overflow-y-auto overscroll-contain px-2 pb-2">
-        <button type="button" onClick={() => choose('all')} className="flex min-h-11 w-full items-center justify-between rounded-lg px-3 text-sm font-bold hover:bg-[#edf4f0] focus-visible:bg-[#edf4f0]">رسپی های نوش اپ{value === 'all' && <Check size={16}/>}</button>
+        <button type="button" onClick={() => choose('all')} className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-right text-sm font-bold hover:bg-[#edf4f0] focus-visible:bg-[#edf4f0]"><span className="min-w-0 flex-1">رسپی های نوش اپ</span><span className="shrink-0 text-xs text-slate-500">{nooshCount.toLocaleString('fa-IR')} رسپی</span>{value === 'all' && <Check size={16} className="shrink-0"/>}</button>
         {choices.map(creator => <button type="button" key={creator.key} aria-pressed={value === creator.key} onClick={() => choose(creator.key)} className={`flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-right text-sm hover:bg-[#edf4f0] focus-visible:bg-[#edf4f0] ${value === creator.key ? 'bg-[#edf4f0] font-black text-[#276556]' : ''}`}><span className="min-w-0 flex-1 break-words">{creator.name}</span><span className="shrink-0 text-xs text-slate-500">{creator.count.toLocaleString('fa-IR')} رسپی</span>{value === creator.key && <Check size={16} className="shrink-0"/>}</button>)}
         {!choices.length && <p className="px-3 py-4 text-sm leading-6 text-slate-500">{creators.length ? 'آشپزی با این نام پیدا نشد.' : 'پس از انتشار رسپی کاربران، نام آشپز اینجا دیده می‌شود.'}</p>}
       </div>
