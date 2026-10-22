@@ -210,4 +210,11 @@ assert.equal(filterRecipeSearchDishes([authorRecipe], { ...searchFilters, search
 const personalRecipe = { ...DEFAULT_DISHES[0], id: 'personal-search-test', name: 'خوراک آزمایشی شخصی', isPersonal: true, ingredients: [{ item: 'تخم مرغ', amount: 1, unit: 'عدد' }] };
 assert.equal(filterRecipeSearchDishes([personalRecipe], searchFilters, restrictedReader).length, 0, 'Private custom recipes with disliked ingredients stay out of unfiltered results');
 assert.equal(filterRecipeSearchDishes([personalRecipe], { ...searchFilters, searchTerm: 'خوراک آزمایشی شخصی' }, restrictedReader).length, 1, 'Explicitly searching a local personal recipe by its name makes it discoverable');
+const chapliKebab = RealRecipes.getAllDishes().find(dish => dish.id === 'dish-19-1766958808663');
+assert.ok(chapliKebab, 'Chapli kebab is part of the published recipe catalog');
+assert.match(chapliKebab.imageUrl || '', /dish-19-1766958808663\.webp$/, 'The published Chapli image is linked to its recipe ID');
+assert.equal(filterRecipeSearchDishes([chapliKebab], { ...searchFilters, searchTerm: 'کباب چپلی پاکستانی' }, base).length, 1, 'A country demonym search finds Chapli kebab when the recipe nationality is stored as Pakistan');
+for (const dish of RealRecipes.getAllDishes().filter(item => item.imageReviewStatus === 'completed' && item.imageUrl?.endsWith('.webp'))) {
+  assert.equal(filterRecipeSearchDishes([dish], { ...searchFilters, searchTerm: dish.name }, base).length, 1, `Completed photo recipe is discoverable by its title: ${dish.name}`);
+}
 console.log('Recipe search regression checks passed: named custom recipes are discoverable; ingredient exclusions still apply to browsing.');

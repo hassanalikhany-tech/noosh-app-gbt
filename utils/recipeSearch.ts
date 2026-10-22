@@ -10,7 +10,11 @@ export function filterRecipeSearchDishes(dishes: Dish[], filters: { searchTerm: 
       const name = dish.name || "";
       const normalizedSearchWords = normalizePersian(searchTerm).split(' ').filter(Boolean);
       const normalizedName = normalizePersian(name);
-      const searchable = normalizePersian([name, dish.creatorName || '', dish.description, ...dish.ingredients.map(i => i.item)].join(' '));
+      const nationality = normalizePersian(dish.nationality || '');
+      // People often search with a demonym (e.g. «پاکستانی») while the
+      // recipe record stores the country name («پاکستان»). Index both forms.
+      const nationalitySearchTerms = nationality ? [nationality, `${nationality}ی`, `${nationality}یی`] : [];
+      const searchable = normalizePersian([name, dish.creatorName || '', dish.description, ...nationalitySearchTerms, ...dish.ingredients.map(i => i.item)].join(' '));
       const matchesSearch = normalizedSearchWords.every(word => searchable.includes(word));
       if (!matchesSearch) return false;
       const explicitlySearchedCustomRecipe = normalizedSearchWords.length > 0 &&
