@@ -296,7 +296,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                    </button>
                  )}
                  <button onClick={() => setIsFeedbackOpen(true)} className="flex-1 sm:flex-none px-3 py-2.5 sm:px-8 sm:py-4 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl sm:rounded-[1.5rem] font-black flex items-center justify-center gap-2 transition-all active:scale-95 text-[10px] sm:text-sm shadow-sm"><MessageSquare size={16} className="sm:w-5" /> ارسال نظر</button>
-                 <button onClick={onLogout} className="flex-1 sm:flex-none px-3 py-2.5 sm:px-8 sm:py-4 bg-rose-600 text-white rounded-xl sm:rounded-[1.5rem] font-black shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 text-[10px] sm:text-sm"><LogOut size={16} className="sm:w-5" /> خروج</button>
+                 {user.uid !== 'local-guest' && <button onClick={onLogout} className="flex-1 sm:flex-none px-3 py-2.5 sm:px-8 sm:py-4 bg-rose-600 text-white rounded-xl sm:rounded-[1.5rem] font-black shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 text-[10px] sm:text-sm"><LogOut size={16} className="sm:w-5" /> خروج</button>}
               </div>
             </div>
           </div>
