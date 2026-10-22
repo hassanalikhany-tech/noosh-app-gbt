@@ -18,7 +18,9 @@
       html.noosh-starting,html.noosh-starting body{overflow:hidden!important}
       #noosh-startup{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;min-height:100svh;box-sizing:border-box;padding:40px 24px calc(110px + env(safe-area-inset-bottom));background:#276556;color:#e8b95b;text-align:center;font-family:Vazirmatn,Tahoma,sans-serif;opacity:1;transition:opacity .3s ease}
       #noosh-startup.noosh-startup-leaving{opacity:0;pointer-events:none}
-      .noosh-startup-center{display:flex;flex-direction:column;align-items:center;gap:24px}
+      .noosh-startup-center{display:flex;flex-direction:column;align-items:center;gap:clamp(14px,2.5vh,22px)}
+      .noosh-startup-wordmark{display:flex;align-items:baseline;gap:9px;margin:0;direction:ltr;font-family:Georgia,'Times New Roman',serif;font-size:clamp(27px,7.2vw,38px);font-weight:800;letter-spacing:.12em;line-height:1;color:#f3deac;text-shadow:0 3px 16px #123e3040}
+      .noosh-startup-wordmark span{font-size:.68em;font-weight:700;letter-spacing:.2em;color:#e8b95b}
       .noosh-startup-logo{display:block;width:clamp(150px,30vw,210px);height:auto;aspect-ratio:1;object-fit:contain;animation:noosh-startup-float 4.8s ease-in-out infinite;filter:drop-shadow(0 14px 22px #123e3024)}
       .noosh-startup-motto{margin:0;font-size:clamp(18px,4.6vw,27px);font-weight:600;line-height:1.9;color:#f3deac}
       #noosh-startup-status{min-height:34px;max-width:340px;margin:0;font-size:17px;font-weight:700;line-height:1.9;color:#e8b95b}
@@ -50,7 +52,7 @@
       #noosh-startup-retry{border:1px solid #e8b95b70;border-radius:12px;background:transparent;color:#f3deac;padding:10px 18px;font:inherit;font-size:13px;cursor:pointer}
       #noosh-startup-retry[hidden]{display:none}
       @keyframes noosh-startup-float{0%,100%{transform:translateY(6px)}50%{transform:translateY(-10px)}}
-      @media(max-height:460px){#noosh-startup{padding-bottom:65px}.noosh-startup-center{gap:10px}.noosh-startup-logo{width:100px}.noosh-startup-motto{font-size:18px}.noosh-startup-credit{bottom:12px}}
+      @media(max-height:460px){#noosh-startup{padding-bottom:65px}.noosh-startup-center{gap:10px}.noosh-startup-wordmark{font-size:25px}.noosh-startup-logo{width:100px}.noosh-startup-motto{font-size:18px}.noosh-startup-credit{bottom:12px}}
       @media(prefers-reduced-motion:reduce){.noosh-startup-logo{animation:none}#noosh-startup{transition:none}.noosh-loading-dot{animation:none!important;opacity:1}}
       @media print{#noosh-startup{display:none!important}}
     </style>
@@ -226,6 +228,7 @@
   <body>
     <div id="noosh-startup" role="region" aria-label="به نوش‌اپ خوش آمدید">
       <div class="noosh-startup-center">
+        <p class="noosh-startup-wordmark" dir="ltr"><strong>NOOSH</strong><span>APP</span></p>
         <img class="noosh-startup-logo" src="/brand/noosh-logo.png" alt="لوگوی نوش‌اپ" width="210" height="210" fetchpriority="high" />
         <p class="noosh-startup-motto">همراه سلامتی و آسایش شما</p>
         <p id="noosh-startup-status" role="status" aria-live="polite"><span class="noosh-startup-loading">در حال بارگذاری<span class="noosh-loading-dots" aria-hidden="true"><span class="noosh-loading-dot" dir="ltr">.</span><span class="noosh-loading-dot" dir="ltr">.</span><span class="noosh-loading-dot" dir="ltr">.</span><span class="noosh-loading-dot" dir="ltr">.</span><span class="noosh-loading-dot" dir="ltr">.</span><span class="noosh-loading-dot" dir="ltr">.</span><span class="noosh-loading-dot" dir="ltr">.</span><span class="noosh-loading-dot" dir="ltr">.</span><span class="noosh-loading-dot" dir="ltr">.</span><span class="noosh-loading-dot" dir="ltr">.</span></span></span></p>
