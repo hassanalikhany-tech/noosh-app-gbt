@@ -7,7 +7,7 @@ import { RecipeService } from '../services/recipeService';
 import { getCountryCode, getCountryCodes } from '../utils/recipeHelpers';
 import MealCard from './MealCard';
 import RecipeCreatorFilter from './RecipeCreatorFilter';
-import { filterRecipeSearchDishes } from '../utils/recipeSearch';
+import { filterRecipeSearchDishes, suggestRecipeNames } from '../utils/recipeSearch';
 import { creatorKey, getRecipeCreators } from '../utils/recipeCreators';
 
 interface RecipeSearchProps {
@@ -84,6 +84,9 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   const activeCreator = creators.find(creator => creator.key === selectedCreator);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState(externalSearchTerm);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   
   useEffect(() => { setSearchTerm(externalSearchTerm); setCurrentPage(1); }, [externalSearchTerm]);
   useEffect(() => { setCurrentPage(1); }, [allDishes, selectedCategory, selectedCountryId, user.dislikedIngredients]);
@@ -148,6 +151,34 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
     return filterRecipeSearchDishes(allDishes, { searchTerm, selectedCreator, selectedCategory, selectedCountryId }, user, countryOptions);
   }, [searchTerm, selectedCategory, selectedCountryId, allDishes, countryOptions, user.dislikedIngredients, selectedCreator]);
 
+  const searchSuggestions = useMemo(() => suggestRecipeNames(allDishes, searchTerm), [allDishes, searchTerm]);
+  const showSearchSuggestions = searchFocused && searchTerm.trim().length > 0 && searchSuggestions.length > 0;
+
+  const chooseSuggestion = (dish: Dish) => {
+    setSearchTerm(dish.name);
+    setSelectedCreator('all'); setSelectedCategory('all'); setSelectedCountryId('all'); setCurrentPage(1);
+    setActiveSuggestionIndex(-1); setSearchFocused(false);
+    searchInputRef.current?.blur();
+  };
+
+  const handleSearchKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSearchSuggestions) {
+      if (event.key === 'Escape') setSearchFocused(false);
+      return;
+    }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setActiveSuggestionIndex(index => (index + 1) % searchSuggestions.length);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setActiveSuggestionIndex(index => index <= 0 ? searchSuggestions.length - 1 : index - 1);
+    } else if (event.key === 'Enter' && activeSuggestionIndex >= 0) {
+      event.preventDefault(); chooseSuggestion(searchSuggestions[activeSuggestionIndex]);
+    } else if (event.key === 'Escape') {
+      event.preventDefault(); setSearchFocused(false); setActiveSuggestionIndex(-1);
+    }
+  };
+
   const totalPages = Math.ceil(filteredDishes.length / ITEMS_PER_PAGE);
   const paginatedDishes = filteredDishes.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
@@ -164,15 +195,49 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
         <div className="backdrop-blur-3xl bg-white/50 border border-white/60 rounded-[1.75rem] sm:rounded-[2.5rem] p-3 sm:p-6 shadow-xl shadow-slate-200/50 max-w-7xl mx-auto space-y-3 sm:space-y-5">
            <div className="relative group">
               <input 
+                ref={searchInputRef}
                 type="text" 
                 aria-label="جستجوی نام غذا یا مواد اولیه" placeholder="جستجوی نام غذا یا مواد اولیه…" 
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={showSearchSuggestions}
+                aria-controls="recipe-search-suggestions"
+                aria-activedescendant={activeSuggestionIndex >= 0 ? `recipe-suggestion-${activeSuggestionIndex}` : undefined}
                 value={searchTerm}
-                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                className="w-full px-10 sm:px-16 py-2.5 sm:py-5 bg-white border-2 border-slate-300 rounded-xl sm:rounded-[1.75rem] outline-none focus:border-teal-500 transition-all font-black text-xs sm:text-lg text-slate-800 shadow-md"
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => window.setTimeout(() => setSearchFocused(false), 120)}
+                onKeyDown={handleSearchKeyDown}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value); setCurrentPage(1); setActiveSuggestionIndex(-1);
+                  if (e.target.value.trim()) { setSelectedCreator('all'); setSelectedCategory('all'); setSelectedCountryId('all'); }
+                }}
+                className="w-full px-10 sm:px-16 py-3 sm:py-5 bg-white border border-slate-200 rounded-xl sm:rounded-[1.75rem] outline-none focus:border-[#276556] focus:ring-4 focus:ring-[#276556]/10 transition-all font-bold text-sm sm:text-lg text-slate-800 shadow-sm placeholder:text-slate-400"
               />
               <Search className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-teal-500" size={18} sm:size={28} />
               {searchTerm && (
-                <button onClick={() => { setSearchTerm(''); setCurrentPage(1); }} className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-slate-200 text-slate-500 rounded-full hover:bg-rose-100 hover:text-rose-500 transition-all"><X size={14} sm:size={20}/></button>
+                <button onClick={() => { setSearchTerm(''); setCurrentPage(1); setSelectedCreator('all'); setSelectedCategory('all'); setSelectedCountryId('all'); setSearchFocused(false); }} className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-slate-100 text-slate-500 rounded-full hover:bg-rose-100 hover:text-rose-500 transition-all" aria-label="پاک کردن جست‌وجو"><X size={14} sm:size={20}/></button>
+              )}
+              {showSearchSuggestions && (
+                <div id="recipe-search-suggestions" role="listbox" aria-label="نزدیک‌ترین نام غذاها" className="absolute right-0 left-0 top-[calc(100%+0.55rem)] z-[1000] max-h-[min(60vh,24rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-900/15">
+                  <p className="px-3 pb-1 pt-2 text-[11px] font-bold text-slate-500">نزدیک‌ترین نام غذاها · برای انتخاب روی غذا بزن</p>
+                  {searchSuggestions.map((dish, index) => (
+                    <button
+                      key={dish.id}
+                      id={`recipe-suggestion-${index}`}
+                      type="button"
+                      role="option"
+                      aria-selected={index === activeSuggestionIndex}
+                      onMouseDown={event => event.preventDefault()}
+                      onClick={() => chooseSuggestion(dish)}
+                      onMouseEnter={() => setActiveSuggestionIndex(index)}
+                      className={`flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-2 text-right transition-colors focus:outline-none focus:ring-2 focus:ring-[#276556]/30 ${index === activeSuggestionIndex ? 'bg-[#276556]/10 text-[#194d41]' : 'text-slate-700 hover:bg-[#276556]/5'}`}
+                    >
+                      <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg bg-amber-50 text-base">{dish.imageUrl ? <img src={dish.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" /> : <span aria-hidden="true">🍽️</span>}</span>
+                      <span className="min-w-0 flex-1 truncate text-sm font-bold">{dish.name}</span>
+                      {dish.nationality && <span className="max-w-24 truncate text-[11px] text-slate-500">{dish.nationality}</span>}
+                    </button>
+                  ))}
+                </div>
               )}
            </div>
 
