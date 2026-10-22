@@ -214,10 +214,12 @@ const chapliKebab = RealRecipes.getAllDishes().find(dish => dish.id === 'dish-19
 assert.ok(chapliKebab, 'Chapli kebab is part of the published recipe catalog');
 assert.match(chapliKebab.imageUrl || '', /dish-19-1766958808663\.webp$/, 'The published Chapli image is linked to its recipe ID');
 assert.equal(filterRecipeSearchDishes([chapliKebab], { ...searchFilters, searchTerm: 'کباب چپلی پاکستانی' }, base).length, 1, 'A country demonym search finds Chapli kebab when the recipe nationality is stored as Pakistan');
-assert.equal(filterRecipeSearchDishes([chapliKebab], { ...searchFilters, searchTerm: 'کبب چپلی' }, base).length, 1, 'Recipe search tolerates a small Persian spelling error');
-assert.equal(filterRecipeSearchDishes([chapliKebab], { ...searchFilters, searchTerm: 'کبابچپلی' }, base).length, 1, 'Recipe search finds joined words without a space');
+assert.equal(filterRecipeSearchDishes([chapliKebab], { ...searchFilters, searchTerm: 'کبب چپلی' }, base).length, 0, 'Search does not treat a misspelled word as an approximate match');
+assert.equal(filterRecipeSearchDishes([chapliKebab], { ...searchFilters, searchTerm: 'کبابچپلی' }, base).length, 1, 'Recipe search ignores spaces when the letters are otherwise exact');
+assert.equal(filterRecipeSearchDishes([chapliKebab], { ...searchFilters, searchTerm: 'پاستا' }, base).length, 0, 'Pasta must not fuzzy-match the country name Pakistan');
+assert.equal(suggestRecipeNames([chapliKebab], 'کبابچپلی')[0]?.id, chapliKebab.id, 'Live suggestions ignore joined versus spaced title words');
 assert.equal(suggestRecipeNames([chapliKebab], 'کبا')[0]?.id, chapliKebab.id, 'Live suggestions begin from a short typed prefix');
-assert.equal(suggestRecipeNames([chapliKebab], 'کبب چپلی')[0]?.id, chapliKebab.id, 'Live suggestions rank the closest typo-tolerant title first');
+assert.equal(suggestRecipeNames([chapliKebab], 'کبب چپلی').length, 0, 'Live suggestions do not substitute incorrectly typed letters');
 assert.equal(filterRecipeSearchDishes([chapliKebab], { ...searchFilters, searchTerm: 'قورمه سبزی' }, base).length, 0, 'Fuzzy search does not return unrelated recipes');
 for (const dish of RealRecipes.getAllDishes().filter(item => item.imageReviewStatus === 'completed' && item.imageUrl?.endsWith('.webp'))) {
   assert.equal(filterRecipeSearchDishes([dish], { ...searchFilters, searchTerm: dish.name }, base).length, 1, `Completed photo recipe is discoverable by its title: ${dish.name}`);
