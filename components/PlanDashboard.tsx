@@ -27,26 +27,28 @@ export default function PlanDashboard(props: Props) {
   const times = plan.map(p => p.dish.cookTime).filter((time): time is number => typeof time === 'number' && time > 0);
   return <div className="plan-dashboard">
     <div className="dashboard-inner">
-      <section className="planner-hero" aria-labelledby="hero-title">
-        <div className="planner-hero-copy"><span className="planner-hero-kicker"><CalendarDays size={16} /> برنامه‌ریز سفرهٔ تو</span>
-          <h2 id="hero-title">برنامهٔ غذایی،<br /><span>به سبک زندگی تو.</span></h2>
+      <section className="planner-hero planner-hero-with-controls" aria-labelledby="planner-title">
+        <div className="planner-hero-title-row"><div><span className="planner-hero-eyebrow">کمتر فکر کن، متنوع‌تر بپز</span><h2 id="planner-title">برنامهٔ غذایی من</h2></div>
+          {plan.length > 0 && <button className="planner-hero-print" onClick={() => window.print()}><Printer size={16} /><span>چاپ</span></button>}
+        </div>
+        <div className="planner-hero-main"><div className="planner-hero-copy"><span className="planner-hero-kicker"><CalendarDays size={16} /> برنامه‌ریز سفرهٔ تو</span>
           <p>{user.kitchenMode === 'without-inventory' ? 'غذاها را مستقل از انبار، با فیلتر گیاهی، علاقه‌مندی‌ها و مواد کنارگذاشته‌شده در تنظیماتت برنامه‌ریزی کن.' : user.inventory?.length ? 'برنامه از غذاهایی شروع می‌شود که با موجودی خانه‌ات جورند؛ فیلترهای ذائقه و مواد کنارگذاشته‌شده هم رعایت می‌شوند.' : 'برای پیشنهاد دقیق با مواد خانه، چند قلم به انبار اضافه کن؛ تا آن زمان هم می‌توانی آزادانه برنامه غذایی بچینی.'} {user.kitchenMode === 'without-inventory' ? 'لیست خرید مقدار کامل دستورها را می‌آورد و چیزی از انبار کم نمی‌کند.' : 'کسری خرید پس از کسر موجودی ثبت‌شده حساب می‌شود.'}</p>
           <div className="planner-hero-steps"><span><i>۱</i> انتخاب بازه</span><b /><span><i>۲</i> چیدن غذاها</span><b /><span><i>۳</i> فهرست خرید</span></div>
         </div>
         <figure className="planner-hero-food-photo">
           <img src="/hero-chelo-kabab-barg.png" alt="چلوکباب برگ ایرانی با برنج زعفرانی و گوجه کبابی" loading="eager" fetchPriority="high" />
         </figure>
-      </section>
-      <section className="planner-panel" aria-labelledby="planner-title">
-        <div className="section-heading"><div><span className="eyebrow">کمتر فکر کن، متنوع‌تر بپز</span><h2 id="planner-title">برنامهٔ غذایی من</h2></div><div className="plan-tools">
-          {props.canUndo && <button disabled={undoing || !!loading} onClick={async () => { setUndoing(true); setUndoError(''); try { await props.onUndo(); } catch { setUndoError('بازگرداندن برنامه انجام نشد. دوباره تلاش کنید.'); } finally { setUndoing(false); } }}><Undo2 size={17} /> برنامهٔ قبلی</button>}
-          {plan.length > 0 && <button onClick={() => window.print()}><Printer size={17} /><span>چاپ</span></button>}
-        </div></div>
-        <div className="planner-controls"><div className="period-switch" aria-label="بازه برنامه">
+        </div>
+        <div className="planner-controls planner-hero-controls"><div className="period-switch" aria-label="بازه برنامه">
           {([{ id: 'daily', label: 'امروز' }, { id: 'weekly', label: 'یک هفته' }, { id: 'monthly', label: '۳۰ روز' }] as const).map(item => <button key={item.id} aria-pressed={period === item.id} onClick={() => setPeriod(item.id)} className={period === item.id ? 'selected' : ''}>{item.label}</button>)}
         </div><div className="diet-filters">{filters.map(({ key, label, icon: Icon }) => <button key={key} aria-pressed={!!user[key]} className={user[key] ? 'active' : ''} onClick={() => props.onToggleFilter(key)}><Icon size={16} />{label}</button>)}</div>
           <button className="generate-button" disabled={!!loading} onClick={() => props.onGenerate(period)}>{loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}{loading ? 'در حال چیدن برنامه…' : plan.length ? 'برنامهٔ تازه بچین' : 'برنامه‌ام را بچین'}</button>
         </div>
+      </section>
+      <section className="planner-panel" aria-label="نتایج برنامه غذایی">
+        {props.canUndo && <div className="plan-tools planner-panel-tools">
+          <button disabled={undoing || !!loading} onClick={async () => { setUndoing(true); setUndoError(''); try { await props.onUndo(); } catch { setUndoError('بازگرداندن برنامه انجام نشد. دوباره تلاش کنید.'); } finally { setUndoing(false); } }}><Undo2 size={17} /> برنامهٔ قبلی</button>
+        </div>}
         {(props.error || undoError) && <div className="plan-error" role="alert">{props.error || undoError} فیلترها را تغییر دهید یا دوباره تلاش کنید.</div>}
         {plan.length > 0 ? <>
           <div className="plan-summary" aria-live="polite"><span><CalendarDays size={16} />{fa(plan.length)} پیشنهاد برای سفرهٔ تو</span>{times.length > 0 && <span><Clock3 size={16} />میانگین زمان پخت: {fa(Math.round(times.reduce((sum, time) => sum + time, 0) / times.length))} دقیقه</span>}</div>
