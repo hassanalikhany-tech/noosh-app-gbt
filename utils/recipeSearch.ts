@@ -1,7 +1,7 @@
 import { Dish, UserProfile } from '../types';
 import { normalizePersian } from './text';
 import { recipeCreatorKey } from './recipeCreators';
-import { getCountryCodes, isDishProhibited } from './recipeHelpers';
+import { getCountryCodes } from './recipeHelpers';
 
 const normalizeSearch = (value: string) => normalizePersian(value)
   .replace(/[ۀة]/g, 'ه')
@@ -50,7 +50,7 @@ export function suggestRecipeNames(dishes: Dish[], searchTerm: string, limit = 6
     .map(result => result.dish);
 }
 
-export function filterRecipeSearchDishes(dishes: Dish[], filters: { searchTerm: string; selectedCreator: string; selectedCategory: string; selectedCountryId: string }, user: UserProfile, countries: { id: string; matches: string[] }[] = []): Dish[] {
+export function filterRecipeSearchDishes(dishes: Dish[], filters: { searchTerm: string; selectedCreator: string; selectedCategory: string; selectedCountryId: string }, _user: UserProfile, countries: { id: string; matches: string[] }[] = []): Dish[] {
   const { searchTerm, selectedCreator, selectedCategory, selectedCountryId } = filters;
   const normalizedSearch = normalizeSearch(searchTerm);
   const matchingDishes = dishes.filter(dish => {
@@ -59,9 +59,6 @@ export function filterRecipeSearchDishes(dishes: Dish[], filters: { searchTerm: 
     const ingredientMatch = dish.ingredients.some(ingredient => exactSearchScore(normalizedSearch, ingredient.item) > 0);
     const matchesSearch = !normalizedSearch || titleAndCountryMatch || ingredientMatch;
     if (!matchesSearch) return false;
-    const explicitlySearchedCustomRecipe = Boolean(normalizedSearch) &&
-      (dish.isPersonal || dish.isCommunityRecipe) && exactSearchScore(normalizedSearch, dish.name || '') > 0;
-
     if (selectedCategory !== 'all' && dish.category !== selectedCategory) return false;
 
     if (selectedCategory === 'international' && selectedCountryId !== 'all') {
@@ -69,7 +66,7 @@ export function filterRecipeSearchDishes(dishes: Dish[], filters: { searchTerm: 
       if (!getCountryCodes(dish.nationality || '').includes(selectedCountryId) && !country?.matches.some(match => normalizeSearch(dish.nationality || '').includes(normalizeSearch(match)))) return false;
     }
 
-    if (selectedCreator === 'all' && !explicitlySearchedCustomRecipe && isDishProhibited(dish, user)) return false;
+    // Catalog browsing remains complete; MealCard displays dietary warnings.
     return true;
   });
 

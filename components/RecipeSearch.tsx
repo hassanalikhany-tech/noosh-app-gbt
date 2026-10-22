@@ -180,7 +180,9 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   };
 
   const totalPages = Math.ceil(filteredDishes.length / ITEMS_PER_PAGE);
-  const paginatedDishes = filteredDishes.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const visiblePage = Math.min(currentPage, Math.max(1, totalPages));
+  const paginatedDishes = filteredDishes.slice((visiblePage - 1) * ITEMS_PER_PAGE, visiblePage * ITEMS_PER_PAGE);
+  useEffect(() => { setCurrentPage(visiblePage); }, [visiblePage]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -317,7 +319,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
 
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
           <div className="max-w-7xl mx-auto py-4 sm:py-6 space-y-6 sm:space-y-10">
-              {!filteredDishes.length && <div role="status" className="rounded-3xl bg-white p-6 text-center ring-1 ring-[#276556]/15 sm:p-10"><Search className="mx-auto mb-3 text-[#276556]" size={28}/><h2 className="text-lg font-black text-slate-800">رسپی‌ای با این ترکیب فیلترها پیدا نشد</h2><p className="mx-auto mt-2 max-w-lg text-sm leading-7 text-slate-500">نام غذا، دسته و کشور را بررسی کن. مواد ممنوع و حساسیت‌های ثبت‌شده در تنظیمات نیز در نتایج رعایت می‌شوند.</p><button type="button" onClick={resetFilters} className="mt-4 min-h-11 rounded-xl bg-[#276556] px-5 text-sm font-bold text-white">پاک کردن فیلترهای جست‌وجو</button></div>}
+              {!filteredDishes.length && <div role="status" className="rounded-3xl bg-white p-6 text-center ring-1 ring-[#276556]/15 sm:p-10"><Search className="mx-auto mb-3 text-[#276556]" size={28}/><h2 className="text-lg font-black text-slate-800">رسپی‌ای با این ترکیب فیلترها پیدا نشد</h2><p className="mx-auto mt-2 max-w-lg text-sm leading-7 text-slate-500">نام غذا، دسته و کشور را بررسی کن. غذاهای دارای مواد ممنوع یا حساسیت‌زا نیز قابل مشاهده‌اند و روی کارتشان هشدار دارند.</p><button type="button" onClick={resetFilters} className="mt-4 min-h-11 rounded-xl bg-[#276556] px-5 text-sm font-bold text-white">پاک کردن فیلترهای جست‌وجو</button></div>}
               <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                 {paginatedDishes.map(dish => <MealCard key={dish.id} plan={{ dayName: CATEGORY_LABELS[dish.category] || 'غذای برتر', dish }} user={user} onUpdateUser={onUpdateUser} />)}
               </div>

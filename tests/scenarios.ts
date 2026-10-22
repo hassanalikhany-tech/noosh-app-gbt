@@ -203,12 +203,12 @@ console.log('Creator filter checks passed: name normalization, public counts, pr
 const authorRecipe = creatorDish('author-test', 'تبریزلی', { ingredients: [{ item: 'تخم مرغ', amount: 3, unit: 'عدد' }] });
 const searchFilters = { searchTerm: '', selectedCreator: 'all', selectedCategory: 'all', selectedCountryId: 'all' };
 const restrictedReader = { ...base, dislikedIngredients: ['تخم مرغ'] };
-assert.equal(filterRecipeSearchDishes([authorRecipe], searchFilters, restrictedReader).length, 0, 'General search keeps the reader ingredient exclusions');
+assert.equal(filterRecipeSearchDishes([authorRecipe], searchFilters, restrictedReader).length, 1, 'Catalog browsing retains recipes with ingredient warnings');
 assert.equal(filterRecipeSearchDishes([authorRecipe], { ...searchFilters, selectedCreator: recipeCreatorKey(authorRecipe) }, restrictedReader).length, 1, 'Opening the author collection must show its counted recipe even when the reader ingredient exclusions conflict; cards disclose the warning');
 assert.equal(filterRecipeSearchDishes([authorRecipe, creatorFixtures[0]], { ...searchFilters, selectedCreator: recipeCreatorKey(authorRecipe) }, restrictedReader).length, 1, 'The author collection never leaks another contributor recipes');
 assert.equal(filterRecipeSearchDishes([authorRecipe], { ...searchFilters, searchTerm: authorRecipe.name }, restrictedReader).length, 1, 'Explicitly searching an approved community recipe by its name keeps it discoverable despite ingredient exclusions');
 const personalRecipe = { ...DEFAULT_DISHES[0], id: 'personal-search-test', name: 'خوراک آزمایشی شخصی', isPersonal: true, ingredients: [{ item: 'تخم مرغ', amount: 1, unit: 'عدد' }] };
-assert.equal(filterRecipeSearchDishes([personalRecipe], searchFilters, restrictedReader).length, 0, 'Private custom recipes with disliked ingredients stay out of unfiltered results');
+assert.equal(filterRecipeSearchDishes([personalRecipe], searchFilters, restrictedReader).length, 1, 'Personal recipes stay visible in the catalog regardless of dietary preferences');
 assert.equal(filterRecipeSearchDishes([personalRecipe], { ...searchFilters, searchTerm: 'خوراک آزمایشی شخصی' }, restrictedReader).length, 1, 'Explicitly searching a local personal recipe by its name makes it discoverable');
 const chapliKebab = RealRecipes.getAllDishes().find(dish => dish.id === 'dish-19-1766958808663');
 assert.ok(chapliKebab, 'Chapli kebab is part of the published recipe catalog');
@@ -225,3 +225,16 @@ for (const dish of RealRecipes.getAllDishes().filter(item => item.imageReviewSta
   assert.equal(filterRecipeSearchDishes([dish], { ...searchFilters, searchTerm: dish.name }, base).length, 1, `Completed photo recipe is discoverable by its title: ${dish.name}`);
 }
 console.log('Recipe search regression checks passed: named custom recipes are discoverable; ingredient exclusions still apply to browsing.');
+
+const completeCatalog = RealRecipes.getAllDishes();
+const catalogReader = { ...base, dislikedIngredients: [...new Set(completeCatalog.flatMap(dish => dish.ingredients.map(item => item.item)))] };
+assert.equal(filterRecipeSearchDishes(completeCatalog, searchFilters, catalogReader).length, completeCatalog.length, 'Every catalog recipe remains browsable even with dietary exclusions');
+for (const dish of completeCatalog) {
+  for (const query of [dish.name, dish.name.replace(/[\s\u200c]/g, '')]) {
+    assert.ok(filterRecipeSearchDishes(completeCatalog, { ...searchFilters, searchTerm: query }, catalogReader).some(result => result.id === dish.id), `Every recipe can be found by its own name: ${dish.id}`);
+  }
+  for (const suggestion of suggestRecipeNames(completeCatalog, dish.name)) {
+    assert.ok(filterRecipeSearchDishes(completeCatalog, { ...searchFilters, searchTerm: suggestion.name }, catalogReader).some(result => result.id === suggestion.id), `Selecting any suggestion must display its card: ${suggestion.id}`);
+  }
+}
+console.log(`Full catalog search audit passed for ${completeCatalog.length} recipes, joined names and suggestion-to-card consistency.`);
