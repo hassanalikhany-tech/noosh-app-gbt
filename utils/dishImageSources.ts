@@ -1,4 +1,4 @@
-const DISH_IMAGES_REPOSITORY = 'https://raw.githubusercontent.com/hassanalikhany-tech/noosh-app/main/public/images/dishes';
+const DISH_IMAGES_REPOSITORY = 'https://raw.githubusercontent.com/hassanalikhany-tech/noosh-app-gbt/main/public/images/dishes';
 
 /** Image candidates in the same order used by dish cards and the recipe modal. */
 export const getDishImageCandidates = (dishId?: string, imageUrl?: string): string[] => {

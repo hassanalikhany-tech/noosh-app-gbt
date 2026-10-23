@@ -196,7 +196,6 @@ const mergeAllDishes = (sources: Dish[][], allowLocalOverrides = true): Dish[] =
   const map = new Map<string, Dish>();
   if (DEFAULT_DISHES) DEFAULT_DISHES.forEach(d => map.set(d.id, d));
   (RECIPE_CATALOG as unknown as Dish[]).forEach(d => map.set(d.id, d));
-  (RECIPE_OVERRIDES.dishes as Dish[]).forEach(d => map.set(d.id, d));
   EXTRA_CLOUD_DISHES.forEach(d => map.set(d.id, {
     ...d, category: 'international', nationality: d.Nationality,
     nature: d.nature === 'گرم' ? 'hot' : d.nature === 'سرد' ? 'cold' : 'balanced',
@@ -207,6 +206,9 @@ const mergeAllDishes = (sources: Dish[][], allowLocalOverrides = true): Dish[] =
       return { item: item.trim(), amount: match ? Number(match[1]) : 0, unit: match ? match[2] : value };
     }),
   }));
+  // Reviewed catalog overrides must be applied last: supplemental recipes may
+  // share IDs, but must not erase their published photos or editorial changes.
+  (RECIPE_OVERRIDES.dishes as Dish[]).forEach(d => map.set(d.id, d));
   sources.forEach(arr => {
     if (arr) arr.forEach(d => {
       // Bundled catalog data is the published source of truth. Keep local-only

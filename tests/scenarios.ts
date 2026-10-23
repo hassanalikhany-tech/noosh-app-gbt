@@ -166,6 +166,11 @@ assert.equal(RealRecipes.getAllDishes().length, RealRecipes.getRawDishes().filte
 for (const dish of recipeOverrides.dishes.filter(dish => dish.isCommunityRecipe && !recipeOverrides.hiddenDishIds.includes(dish.id))) assert.ok(RealRecipes.getAllDishes().some(visible => visible.id === dish.id), 'Every approved community recipe must reach the public search catalog');
 assert.ok(RealRecipes.getAllDishes().every(d => d.category in CATEGORY_LABELS), 'Every recipe belongs to a visible search category');
 assert.ok(RealRecipes.getAllDishes().filter(d => d.id.includes('1782263836159')).every(d => d.ingredients.some(i => i.amount > 0)), 'Supplemental recipes contain usable shopping quantities');
+const arayesPhotoIds = ['dish-1-1782263836159','dish-2-1782263836159','dish-3-1782263836159','dish-4-1782263836159'];
+for (const id of arayesPhotoIds) {
+  const arayes = RealRecipes.getRawDishes().find(dish => dish.id === id);
+  assert.ok(arayes?.imageUrl?.endsWith(`${id}.jpg`), `Published override photo takes precedence for ${id}`);
+}
 console.log('Release checks passed: personal settings persistence, removed image fallback, all published service recipes and valid categories.');
 
 // Test the actual persistence boundary (not the mocked network/user service).
