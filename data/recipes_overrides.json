@@ -45162,9 +45162,10 @@
         "درب قابلمه را ببندید و اجازه دهید خورش با حرارت ملایم به مدت ۶۰ دقیقه جا بیفتد؛ در پایان پخت زعفران را اضافه کنید تا عطر آن حفظ شود."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "create",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-stew-19.jpg"
     },
     {
       "id": "dish-stew-2",
@@ -45223,9 +45224,10 @@
         "نیم ساعت قبل از پایان پخت دانه‌های انار را اضافه کنید تا رنگشان تغییر نکند و خورش جا بیفتد"
       ],
       "hasRealData": true,
-      "imageReviewStatus": "create",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-stew-2.jpg"
     },
     {
       "id": "dish-stew-3",
@@ -45289,9 +45291,10 @@
         "ده دقیقه صبر کنید تا خورش جا بیفتد و سپس سرو کنید"
       ],
       "hasRealData": true,
-      "imageReviewStatus": "create",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-stew-3.jpg"
     },
     {
       "id": "dish-stew-4",
@@ -45355,9 +45358,10 @@
         "اجازه دهید خورش کاملاً غلیظ شده و روغن بیندازد"
       ],
       "hasRealData": true,
-      "imageReviewStatus": "create",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-stew-4.jpg"
     },
     {
       "id": "dish-stew-5",
@@ -45438,9 +45442,10 @@
         "در ۱۰ دقیقه پایانی پخت، آبغوره، نمک و فلفل را برای تنظیم طعم نهایی اضافه کنید و وقتی خورش به غلظت مطلوب رسید، آن را سرو نمایید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "create",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-stew-5.jpg"
     },
     {
       "id": "dish-stew-6",
@@ -45505,9 +45510,10 @@
         "در مرحله آخر، چاشنی تمر هندی یا آبغوره را به همراه نمک اضافه کرده و اجازه دهید خورش با شعله بسیار کم جا بیفتد و غلیظ شود."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "create",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-stew-6.jpg"
     },
     {
       "id": "dish-stew-7",
@@ -45571,9 +45577,10 @@
         "در اواخر پخت شکر یا شیره را برای ملس شدن طعم اضافه کرده و اجازه می‌دهیم خورش کاملاً غلیظ شود"
       ],
       "hasRealData": true,
-      "imageReviewStatus": "create",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-stew-7.jpg"
     },
     {
       "id": "dish-stew-8",
@@ -45652,9 +45659,10 @@
         "در ۳۰ دقیقه پایانی پخت، پودر لیمو عمانی، نمک و زرشک تفت داده شده را برای ایجاد طعم ترش و جذاب به خورش اضافه کنید و اجازه دهید خورش کاملاً جا بیفتد و روغن بیندازد."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "create",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-stew-8.jpg"
     },
     {
       "id": "dish-stew-9",
@@ -45724,9 +45732,10 @@
         "در نیم ساعت پایانی پخت، نمک، زعفران دم‌کرده و چاشنی آبغوره را برای تعادل طعم و طبع به خورش اضافه کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "create",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-stew-9.jpg"
     },
     {
       "name": "آرایس کفته کلاسیک لبنانی",
@@ -45793,8 +45802,9 @@
       "mosleh": "سماق و ماست",
       "hasRealData": true,
       "nationality": "لبنانی",
-      "imageReviewStatus": "create",
-      "localEdited": true
+      "imageReviewStatus": "completed",
+      "localEdited": true,
+      "imageUrl": "/images/dishes/dish-0-1782263836159.jpg"
     },
     {
       "name": "آرایس کفته با پنیر و گردو",
