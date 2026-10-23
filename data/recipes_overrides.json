@@ -45552,7 +45552,9 @@
       "nature": "hot",
       "mosleh": "سماق و ماست",
       "hasRealData": true,
-      "nationality": "لبنانی"
+      "nationality": "لبنانی",
+      "imageReviewStatus": "create",
+      "localEdited": true
     },
     {
       "name": "آرایس کفته با پنیر و گردو",
@@ -45617,7 +45619,9 @@
       "nature": "balanced",
       "mosleh": "انار یا آبلیموی تازه",
       "hasRealData": true,
-      "nationality": "خاورمیانه"
+      "nationality": "خاورمیانه",
+      "imageReviewStatus": "create",
+      "localEdited": true
     },
     {
       "name": "آرایس کفته تند با سس تاتار",
@@ -45682,7 +45686,9 @@
       "nature": "hot",
       "mosleh": "دوغ محلی یا خیار",
       "hasRealData": true,
-      "nationality": "سوریه"
+      "nationality": "سوریه",
+      "imageReviewStatus": "create",
+      "localEdited": true
     },
     {
       "name": "آرایس کفته مرغ و سبزیجات",
@@ -45747,7 +45753,9 @@
       "nature": "cold",
       "mosleh": "سیاه دانه و فلفل قرمز",
       "hasRealData": true,
-      "nationality": "اردنی"
+      "nationality": "اردنی",
+      "imageReviewStatus": "create",
+      "localEdited": true
     },
     {
       "name": "آرایس کفته با ارده ",
@@ -45812,7 +45820,9 @@
       "nature": "hot",
       "mosleh": "سرکه انگور یا آب نارنج",
       "hasRealData": true,
-      "nationality": "فلسطینی"
+      "nationality": "فلسطینی",
+      "imageReviewStatus": "create",
+      "localEdited": true
     },
     {
       "name": "کوفته سبزی مخصوص مادر",
