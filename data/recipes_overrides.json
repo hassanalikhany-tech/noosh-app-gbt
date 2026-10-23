@@ -45870,8 +45870,9 @@
       "mosleh": "انار یا آبلیموی تازه",
       "hasRealData": true,
       "nationality": "خاورمیانه",
-      "imageReviewStatus": "create",
-      "localEdited": true
+      "imageReviewStatus": "completed",
+      "localEdited": true,
+      "imageUrl": "/images/dishes/dish-1-1782263836159.jpg"
     },
     {
       "name": "آرایس کفته تند با سس تاتار",
@@ -45937,8 +45938,9 @@
       "mosleh": "دوغ محلی یا خیار",
       "hasRealData": true,
       "nationality": "سوریه",
-      "imageReviewStatus": "create",
-      "localEdited": true
+      "imageReviewStatus": "completed",
+      "localEdited": true,
+      "imageUrl": "/images/dishes/dish-2-1782263836159.jpg"
     },
     {
       "name": "آرایس کفته مرغ و سبزیجات",
@@ -46004,8 +46006,9 @@
       "mosleh": "سیاه دانه و فلفل قرمز",
       "hasRealData": true,
       "nationality": "اردنی",
-      "imageReviewStatus": "create",
-      "localEdited": true
+      "imageReviewStatus": "completed",
+      "localEdited": true,
+      "imageUrl": "/images/dishes/dish-3-1782263836159.jpg"
     },
     {
       "name": "آرایس کفته با ارده ",
@@ -46071,8 +46074,9 @@
       "mosleh": "سرکه انگور یا آب نارنج",
       "hasRealData": true,
       "nationality": "فلسطینی",
-      "imageReviewStatus": "create",
-      "localEdited": true
+      "imageReviewStatus": "completed",
+      "localEdited": true,
+      "imageUrl": "/images/dishes/dish-4-1782263836159.jpg"
     },
     {
       "name": "کوفته سبزی مخصوص مادر",
