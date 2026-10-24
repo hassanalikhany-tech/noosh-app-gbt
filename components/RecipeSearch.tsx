@@ -9,6 +9,7 @@ import MealCard from './MealCard';
 import RecipeCreatorFilter from './RecipeCreatorFilter';
 import { filterRecipeSearchDishes, suggestRecipeNames } from '../utils/recipeSearch';
 import { creatorKey, getRecipeCreators } from '../utils/recipeCreators';
+import DishVisual from './DishVisual';
 
 interface RecipeSearchProps {
   user: UserProfile;
@@ -234,7 +235,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
                       onMouseEnter={() => setActiveSuggestionIndex(index)}
                       className={`flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-2 text-right transition-colors focus:outline-none focus:ring-2 focus:ring-[#276556]/30 ${index === activeSuggestionIndex ? 'bg-[#276556]/10 text-[#194d41]' : 'text-slate-700 hover:bg-[#276556]/5'}`}
                     >
-                      <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg bg-amber-50 text-base">{dish.imageUrl ? <img src={dish.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover" /> : <span aria-hidden="true">🍽️</span>}</span>
+                      <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg bg-amber-50 text-base"><DishVisual category={dish.category} dishId={dish.id} imageUrl={dish.imageUrl} iconSize={14} className="h-full w-full" /></span>
                       <span className="min-w-0 flex-1 truncate text-sm font-bold">{dish.name}</span>
                       {dish.nationality && <span className="max-w-24 truncate text-[11px] text-slate-500">{dish.nationality}</span>}
                     </button>

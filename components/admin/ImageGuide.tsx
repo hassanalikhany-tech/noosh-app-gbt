@@ -114,6 +114,7 @@ const ImageGuide: React.FC = () => {
     duplicate: duplicateDishIds.size,
     replace: allDishes.filter(dish => dish.imageReviewStatus === 'replace').length,
   }), [allDishes, auditResults, duplicateDishIds]);
+  const imageAuditComplete = allDishes.length > 0 && allDishes.every(dish => Boolean(auditResults[dish.id]));
 
   const handleToggleSelect = (id: string) => setSelectedIds(previous => {
     const next = new Set(previous);
@@ -365,9 +366,15 @@ const ImageGuide: React.FC = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mt-5">
           {filterOptions.map(option => (
-            <button key={option.id} type="button" onClick={() => setActiveFilter(option.id)} className={`rounded-xl px-3 py-2.5 text-right transition-colors ${activeFilter === option.id ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:border-emerald-300'}`}>
+            <button key={option.id} type="button" onClick={() => {
+              setActiveFilter(option.id);
+              if ((option.id === 'missing' || option.id === 'broken') && !imageAuditComplete && !isScanning) void scanImages(false);
+            }} className={`rounded-xl px-3 py-2.5 text-right transition-colors ${activeFilter === option.id ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:border-emerald-300'}`}>
               <span className="block text-xs font-bold">{option.label}</span>
-              <span className={`block text-lg font-black mt-0.5 ${activeFilter === option.id ? 'text-emerald-300' : 'text-slate-800'}`}>{counts[option.id]}</span>
+              <span className={`block text-lg font-black mt-0.5 ${activeFilter === option.id ? 'text-emerald-300' : 'text-slate-800'}`}>
+                {(option.id === 'missing' || option.id === 'broken') && !imageAuditComplete ? '—' : counts[option.id]}
+              </span>
+              {(option.id === 'missing' || option.id === 'broken') && !imageAuditComplete && <span className="block mt-0.5 text-[10px] font-semibold opacity-75">پس از بررسی عکس‌ها</span>}
             </button>
           ))}
         </div>
