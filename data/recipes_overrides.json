@@ -8948,9 +8948,10 @@
         "شامی‌ها را در تابه حاوی روغن داغ با حرارت ملایم سرخ کنید تا هر دو طرف آن‌ها طلایی و برشته شود."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "approved",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-10-1766877137846.jpg"
     },
     {
       "id": "dish-10-1766881812358",
@@ -9015,9 +9016,10 @@
         "اجازه دهید املت برای ۱ تا ۲ دقیقه دیگر روی حرارت متوسط بماند تا کاملاً جا بیفتد و روغن بیندازد، سپس با نان سنگک تازه و پیاز سرو کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "approved",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-10-1766881812358.jpg"
     },
     {
       "id": "dish-10-1766883317767",
@@ -10063,9 +10065,10 @@
         "نمک، زردچوبه و نیمی از پیاز داغ و نعنا داغ را به آش اضافه کرده و اجازه دهید تمامی مواد به مدت ۳۰ تا ۴۵ دقیقه با هم بجوشند تا آش کاملاً جا بیفتد. در نهایت آش را با باقیمانده پیاز داغ و نعنا داغ تزیین و سرو کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "approved",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-11-1766794336336.jpg"
     },
     {
       "id": "dish-11-1766799342396",
@@ -10107,9 +10110,10 @@
         "برنج را آبکش کرده و لایه لایه با مایه گوشتی و دارچین دم کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "approved",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-11-1766799342396.jpg"
     },
     {
       "id": "dish-11-1766876956936",
@@ -10174,9 +10178,10 @@
         "پس از اینکه غذا قوام آمد و داغ شد، آن را از روی حرارت برداشته، در ظرف مناسب ریخته و با نان سنگک خرد شده تلیت و میل کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "approved",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-11-1766876956936.jpg"
     },
     {
       "id": "dish-11-1766877137846",
@@ -10258,9 +10263,10 @@
         "حرارت را ملایم کرده و اجازه دهید کوفته‌ها به مدت ۱.۵ الی ۲ ساعت بپزند تا سس غلیظ شده و کوفته‌ها کاملاً مغزپخت شوند."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "approved",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-11-1766877137846.jpg"
     },
     {
       "id": "dish-11-1766881812358",
@@ -10306,9 +10312,10 @@
         "این نیمروی لذیذ و سنتی را بلافاصله و به صورت کاملاً داغ همراه با نان تافتون یا لواش تازه سرو کنید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "approved",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-11-1766881812358.jpg"
     },
     {
       "id": "dish-11-1766883317767",
@@ -10797,9 +10804,10 @@
         "روی زغال داغ کباب کنید و اواسط پخت نمک بپاشید و سس کره و زعفران را روی آن بمالید."
       ],
       "hasRealData": true,
-      "imageReviewStatus": "approved",
+      "imageReviewStatus": "completed",
       "localEdited": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-11-1766956905814.jpg"
     },
     {
       "id": "dish-11-1766958808663",
@@ -11350,7 +11358,9 @@
         "اجازه دهید آش با حرارت کم کاملاً جا افتاده و غلیظ شود، سپس آن را به صورت گرم میل نمایید."
       ],
       "hasRealData": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-12-1766794336336.jpg",
+      "imageReviewStatus": "completed"
     },
     {
       "id": "dish-12-1766799342396",
@@ -11392,7 +11402,9 @@
         "لایه لایه برنج، مایه گوشت و پودر دارچین بریزید و دم کنید."
       ],
       "hasRealData": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-12-1766799342396.jpg",
+      "imageReviewStatus": "completed"
     },
     {
       "id": "dish-12-1766876956936",
