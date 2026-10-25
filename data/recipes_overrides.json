@@ -44411,7 +44411,9 @@
         "زعفران بدهید و اجازه دهید ۴۵ دقیقه دم بکشد."
       ],
       "hasRealData": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-polo-33.jpg",
+      "imageReviewStatus": "completed"
     },
     {
       "id": "dish-polo-34",
@@ -44459,7 +44461,9 @@
         "ماهی را در کنار پلوی داغ سرو کنید."
       ],
       "hasRealData": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-polo-34.jpg",
+      "imageReviewStatus": "completed"
     },
     {
       "id": "dish-polo-4",
@@ -44534,7 +44538,9 @@
         "درب قابلمه را گذاشته و اجازه دهید پلو به مدت ۴۵ دقیقه با حرارت ملایم دم بکشد. در انتها غذا را در دیس کشیده و با خلال پسته تزیین کنید."
       ],
       "hasRealData": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-polo-4.jpg",
+      "imageReviewStatus": "completed"
     },
     {
       "id": "dish-polo-5",
@@ -44589,7 +44595,9 @@
         "در آخر زعفران و روغن داغ روی برنج بدهید و ۴۰ دقیقه دم کنید."
       ],
       "hasRealData": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-polo-5.jpg",
+      "imageReviewStatus": "completed"
     },
     {
       "id": "dish-polo-6",
@@ -44633,7 +44641,9 @@
         "پس از ۴۵ دقیقه، روغن داغ و زعفران را روی برنج داده و سرو کنید."
       ],
       "hasRealData": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-polo-6.jpg",
+      "imageReviewStatus": "completed"
     },
     {
       "id": "dish-polo-7",
@@ -44687,7 +44697,9 @@
         "برنج را دم بگذارید و ۴۵ دقیقه با حرارت ملایم بپزد."
       ],
       "hasRealData": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-polo-7.jpg",
+      "imageReviewStatus": "completed"
     },
     {
       "id": "dish-polo-8",
@@ -44741,7 +44753,9 @@
         "برنج را به صورت کته با مواد مخلوط کرده و ۴۵ دقیقه دم بکشد."
       ],
       "hasRealData": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-polo-8.jpg",
+      "imageReviewStatus": "completed"
     },
     {
       "id": "dish-polo-9",
@@ -44790,7 +44804,9 @@
         "کمی دارچین روی برنج بپاشید و ۴۰ دقیقه دم بکشد."
       ],
       "hasRealData": true,
-      "servings": 4
+      "servings": 4,
+      "imageUrl": "/images/dishes/dish-polo-9.jpg",
+      "imageReviewStatus": "completed"
     },
     {
       "id": "dish-stew-0",
