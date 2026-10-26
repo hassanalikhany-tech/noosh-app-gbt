@@ -1,4 +1,5 @@
 import { isAdminSession } from './admin-auth.mjs';
+import { isSameOriginMutation } from './request-security.mjs';
 
 const response = (statusCode, body) => ({ statusCode, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify(body) });
 const ALLOWED_UNITS = new Set(['کیلوگرم', 'گرم', 'عدد', 'بسته', 'قوطی', 'لیتر', 'میلی‌لیتر', 'پیمانه', 'استکان', 'لیوان', 'قاشق غذاخوری', 'قاشق مرباخوری', 'قاشق چایخوری', 'حبه', 'تکه', 'شاخه', 'ورق', 'حلقه', 'دانه']);
@@ -6,9 +7,7 @@ const ALLOWED_REFERENCE_UNITS = new Set(['عدد', 'بسته', 'قوطی', 'لی
 
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') return response(405, { error: 'روش درخواست پشتیبانی نمی‌شود.' });
-  const host = event.headers?.host;
-  const origin = event.headers?.origin;
-  if (origin && host && new URL(origin).host !== host) return response(403, { error: 'درخواست نامعتبر است.' });
+  if (!isSameOriginMutation(event)) return response(403, { error: 'درخواست نامعتبر است؛ صفحه را تازه کنید و دوباره تلاش کنید.' });
   if (!isAdminSession(event)) return response(401, { error: 'نشست مدیریت منقضی شده؛ دوباره وارد شو.' });
   if (!process.env.GITHUB_TOKEN) return response(503, { error: 'دسترسی GitHub در Netlify تنظیم نشده است.' });
 

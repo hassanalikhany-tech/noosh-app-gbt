@@ -1,12 +1,11 @@
 import { isAdminSession } from './admin-auth.mjs';
 import { applyCatalogAction } from './catalog-management.mjs';
 import { json, parseBody, readGithubJson, writeGithubJson } from './community-recipe-lib.mjs';
+import { isSameOriginMutation } from './request-security.mjs';
 
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'روش درخواست پشتیبانی نمی‌شود.' });
-  const host = event.headers?.host;
-  const origin = event.headers?.origin;
-  if (origin && host && new URL(origin).host !== host) return json(403, { error: 'درخواست نامعتبر است.' });
+  if (!isSameOriginMutation(event)) return json(403, { error: 'درخواست نامعتبر است؛ صفحه را تازه کنید و دوباره تلاش کنید.' });
   if (!isAdminSession(event)) return json(401, { error: 'نشست مدیریت منقضی شده؛ دوباره وارد شو.' });
   if (!process.env.GITHUB_TOKEN) return json(503, { error: 'دسترسی GitHub در Netlify تنظیم نشده است.' });
 

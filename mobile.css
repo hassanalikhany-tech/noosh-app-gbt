@@ -259,3 +259,37 @@
   .pantry-hero-inventory .pantry-toolbar-title{gap:6px}
   .pantry-hero-stock-cta{gap:5px;padding-inline:7px;font-size:9px}
 }
+
+/* Clear, balanced controls at phone widths without changing the desktop design. */
+@media (max-width: 760px) {
+  .pantry-hero-copy { width: 100% !important; box-sizing: border-box; }
+  .pantry-hero-copy > * { max-width: 100%; }
+  .pantry-hero-cta { max-width: 100%; white-space: normal; text-align: center; line-height: 1.5; }
+
+  .planner-hero.planner-hero-with-controls { padding: 14px 15px; gap: 10px; }
+  .planner-hero-title-row h2 { font-size: 19px; line-height: 1.5; }
+  .planner-hero-eyebrow { font-size: 10px; }
+  .planner-hero-main { grid-template-columns: minmax(0, 1fr) minmax(104px, 30%); align-items: center; gap: 10px; }
+  .planner-hero-with-controls .planner-hero-copy > p { font-size: 12px; line-height: 1.75; }
+  .planner-hero-with-controls .planner-hero-kicker { font-size: 11px; }
+  .planner-hero-with-controls .planner-hero-steps { gap: 6px; font-size: 10px; line-height: 1.6; }
+  .planner-hero-with-controls .planner-hero-steps i { width: 19px; height: 19px; font-size: 9px; }
+  .planner-hero-with-controls .planner-hero-food-photo { height: clamp(116px, 32vw, 148px); border-radius: 13px; }
+  .planner-hero-controls .diet-filters button { min-height: 44px; font-size: 10px; }
+
+  .settings-tabs { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px !important; overflow: visible !important; }
+  .settings-tabs [role="tab"] { width: 100%; min-width: 0; min-height: 46px; padding-inline: 8px; font-size: 12px; line-height: 1.45; white-space: normal; }
+  .settings-tabs [role="tab"] svg { flex: none; width: 16px; height: 16px; }
+
+  .recipe-search .meal-card .meal-image, .plan-dashboard .meal-card .meal-image { height: clamp(165px, 47vw, 200px); }
+  .recipe-modal-photo { height: clamp(112px, 31vw, 148px) !important; }
+}
+
+@media (max-width: 380px) {
+  .planner-hero.planner-hero-with-controls { padding: 12px; }
+  .planner-hero-title-row h2 { font-size: 18px; }
+  .planner-hero-main { grid-template-columns: minmax(0, 1fr) minmax(92px, 29%); gap: 8px; }
+  .planner-hero-with-controls .planner-hero-copy > p { font-size: 11px; }
+  .planner-hero-with-controls .planner-hero-steps { font-size: 9px; }
+  .planner-hero-controls .diet-filters button { font-size: 9px; }
+}

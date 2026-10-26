@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, CalendarDays, Clock3, Heart, Leaf, Loader2, Printer, ShoppingBag, Sparkles, Undo2, Zap } from 'lucide-react';
+import { ArrowLeft, CalendarDays, ChefHat, Clock3, Heart, Leaf, Loader2, Printer, ShoppingBag, Sparkles, Undo2, Zap } from 'lucide-react';
 import { DayPlan, UserProfile } from '../types';
 import MealCard from './MealCard';
 
@@ -24,6 +24,7 @@ export default function PlanDashboard(props: Props) {
   const [query, setQuery] = useState('');
   const [undoing, setUndoing] = useState(false);
   const [undoError, setUndoError] = useState('');
+  const [foodPhotoSrc, setFoodPhotoSrc] = useState('/hero-chelo-kabab-barg.png');
   const times = plan.map(p => p.dish.cookTime).filter((time): time is number => typeof time === 'number' && time > 0);
   return <div className="plan-dashboard">
     <div className="dashboard-inner">
@@ -36,7 +37,7 @@ export default function PlanDashboard(props: Props) {
           <div className="planner-hero-steps"><span><i>۱</i> انتخاب بازه</span><b /><span><i>۲</i> چیدن غذاها</span><b /><span><i>۳</i> فهرست خرید</span></div>
         </div>
         <figure className="planner-hero-food-photo">
-          <img src="/hero-chelo-kabab-barg.png" alt="چلوکباب برگ ایرانی با برنج زعفرانی و گوجه کبابی" loading="eager" fetchPriority="high" />
+          {foodPhotoSrc ? <img src={foodPhotoSrc} alt="چلوکباب برگ ایرانی با برنج زعفرانی و گوجه کبابی" loading="eager" fetchPriority="high" onError={() => setFoodPhotoSrc(current => current === '/hero-chelo-kabab-barg.png' ? '/hero-zereshk-polo.png' : '')} /> : <div className="planner-hero-image-fallback" role="img" aria-label="تصویر غذا در دسترس نیست"><ChefHat size={36} aria-hidden="true" /></div>}
         </figure>
         </div>
         <div className="planner-controls planner-hero-controls"><div className="period-switch" aria-label="بازه برنامه">

@@ -138,7 +138,7 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit, onLog
           {tab === 'backup' && <BackupManager />}
           {tab === 'feedback' && <FeedbackManager />}
           {tab === 'notifications' && <NotificationManager />}
-          {tab === 'unavailable' && <section className="rounded-3xl bg-white p-6"><h2 className="font-black">بخش‌های وابسته به دادهٔ کاربران</h2><p className="mt-3 leading-8 text-slate-500">فهرست حساب‌ها، ویزیتورها، آمار بازدید، گزارش‌های امنیتی، پرداخت‌ها، تنظیمات قیمت و تسویه‌ها غیرفعال‌اند؛ چون حساب و پایگاه دادهٔ مشترک برای کاربران راه‌اندازی نشده است. بازخورد کاربران و اعلان‌های عمومی اکنون در برگه‌های جداگانه و از طریق ذخیره‌سازی Netlify در دسترس‌اند. بهینه‌سازی آنلاین با هوش مصنوعی نیز تا تعیین سرویس مناسب غیرفعال است.</p></section>}
+          {tab === 'unavailable' && <section className="rounded-3xl bg-white p-6"><h2 className="font-black">بخش‌های وابسته به دادهٔ کاربران</h2><p className="mt-3 leading-8 text-slate-500">فهرست حساب‌ها، ویزیتورها، آمار بازدید، گزارش‌های امنیتی، پرداخت‌ها، تنظیمات قیمت و تسویه‌ها غیرفعال‌اند؛ چون حساب و پایگاه دادهٔ مشترک برای کاربران راه‌اندازی نشده است. بازخورد کاربران و اعلان‌های عمومی اکنون در برگه‌های جداگانه و از طریق ذخیره‌سازی Netlify در دسترس‌اند.</p></section>}
         </Suspense>
         {tab === 'catalog' && <>
         <section className="grid gap-4 md:grid-cols-[1.4fr_.6fr]">

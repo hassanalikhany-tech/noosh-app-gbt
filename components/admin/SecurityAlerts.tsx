@@ -66,7 +66,7 @@ const SecurityAlerts: React.FC = () => {
           </div>
           <div>
             <h2 className="text-3xl font-black text-slate-800">دیدبان امنیت و ضدتقلب</h2>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Intelligent Anti-Fraud & Risk Monitor</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Fraud & Risk Monitor</p>
           </div>
         </div>
         <div className="flex gap-3">

@@ -123,6 +123,7 @@ button{cursor:pointer}button:disabled{cursor:wait;opacity:.55}button:hover:not(:
 .planner-hero-controls .diet-filters button.active{background:#276556;border-color:#276556;color:#fff;box-shadow:0 2px 7px #27655635}
 .planner-hero-controls .diet-filters button:focus-visible{outline:3px solid #c79a3b;outline-offset:2px}
 .planner-hero-controls .diet-filters button svg{color:currentColor}
+.planner-hero-image-fallback{position:absolute;inset:0;z-index:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#487a60 0,#244d3c 62%,#18392e 100%);color:#e7c678}
 @media(max-width:760px){.planner-hero-controls .diet-filters button{flex:1 1 0;min-width:0;min-height:46px;justify-content:center;gap:5px;padding:8px 6px;font-size:12px;white-space:normal}.planner-hero-controls .diet-filters button svg{width:16px;height:16px}}
 @media(max-width:380px){.planner-hero-controls .diet-filters button{font-size:11px;gap:4px;padding-inline:4px}}
 

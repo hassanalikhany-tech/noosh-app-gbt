@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ShieldCheck, LogOut, Trash2, CalendarPlus, Users, Search, FileJson, ExternalLink, GitMerge, ImageIcon, CheckCircle, XCircle, FileSpreadsheet, Lock, ShieldAlert, SmartphoneNfc, UserPlus, UserCheck, UserX, Loader2, Award, Gift, QrCode, Ticket, TicketMinus, Info, Check, X, CreditCard, Eye, Fingerprint, Clock, Banknote, Shield, Settings2, Layers, Save, RefreshCw, BarChart3, PieChart, Activity, Bell, MessageSquare, Scale, Sparkles } from 'lucide-react';
+import { ShieldCheck, LogOut, Trash2, CalendarPlus, Users, Search, FileJson, ExternalLink, GitMerge, ImageIcon, CheckCircle, XCircle, FileSpreadsheet, Lock, ShieldAlert, SmartphoneNfc, UserPlus, UserCheck, UserX, Loader2, Award, Gift, QrCode, Ticket, TicketMinus, Info, Check, X, CreditCard, Eye, Fingerprint, Clock, Banknote, Shield, Settings2, Layers, Save, RefreshCw, BarChart3, PieChart, Activity, Bell, MessageSquare, Scale } from 'lucide-react';
 import { UserService } from '../../services/userService';
 import { UserProfile } from '../../types';
 import DatabaseManager from './DatabaseManager';
@@ -18,7 +18,6 @@ import SecurityAlerts from './SecurityAlerts';
 import NotificationManager from './NotificationManager';
 import FeedbackManager from './FeedbackManager';
 import UnitConsistencyManager from './UnitConsistencyManager';
-import AiRecipeEnhancer from './AiRecipeEnhancer';
 import { auth } from '../../services/firebase';
 import { SecurityService } from '../../services/securityService';
 
@@ -27,7 +26,7 @@ interface AdminDashboardProps {
   onSwitchToApp?: () => void;
 }
 
-type AdminTab = 'users' | 'security-alerts' | 'analytics' | 'notifications' | 'feedback' | 'settlements' | 'financial-reports' | 'financial' | 'payments' | 'security-logs' | 'visitors' | 'images' | 'duplicates' | 'csv-converter' | 'database' | 'security-policy' | 'backup' | 'unit-consistency' | 'ai-enhancer';
+type AdminTab = 'users' | 'security-alerts' | 'analytics' | 'notifications' | 'feedback' | 'settlements' | 'financial-reports' | 'financial' | 'payments' | 'security-logs' | 'visitors' | 'images' | 'duplicates' | 'csv-converter' | 'database' | 'security-policy' | 'backup' | 'unit-consistency';
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, onSwitchToApp }) => {
   const [activeTab, setActiveTab] = useState<AdminTab>('users');
@@ -120,7 +119,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, onSwitchToApp
             {id: 'notifications', label: 'نوتیفیکیشن‌ها', icon: Bell},
             {id: 'feedback', label: 'بازخورد کاربران', icon: MessageSquare},
             {id: 'security-alerts', label: 'هشدارهای امنیتی', icon: Bell},
-            {id: 'analytics', label: 'آنالیتیکس هوشمند', icon: Activity},
+            {id: 'analytics', label: 'گزارش‌های تحلیلی', icon: Activity},
             {id: 'settlements', label: 'تسویه ویزیتورها', icon: Banknote},
             {id: 'financial-reports', label: 'داشبورد مالی', icon: PieChart},
             {id: 'financial', label: 'تنظیمات قیمت', icon: Settings2},
@@ -128,7 +127,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, onSwitchToApp
             {id: 'security-logs', label: 'امنیت', icon: ShieldAlert},
             {id: 'visitors', label: 'ویزیتورها', icon: Award},
             {id: 'duplicates', label: 'اصلاح پخت‌ها', icon: Layers},
-            {id: 'ai-enhancer', label: 'بهینه‌ساز هوشمند', icon: Sparkles},
             {id: 'unit-consistency', label: 'مغایرت واحدها', icon: Scale},
             {id: 'database', label: 'بانک پخت‌ها', icon: FileJson},
             {id: 'csv-converter', label: 'مبدل اکسل', icon: FileSpreadsheet},
@@ -217,7 +215,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, onSwitchToApp
         {activeTab === 'images' && <ImageGuide />}
         {activeTab === 'duplicates' && <DuplicateResolver />}
         {activeTab === 'unit-consistency' && <UnitConsistencyManager />}
-        {activeTab === 'ai-enhancer' && <AiRecipeEnhancer />}
         {activeTab === 'database' && <DatabaseManager />}
         {activeTab === 'backup' && <BackupManager />}
 

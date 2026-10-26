@@ -2,9 +2,25 @@
 import { CATEGORY_LABELS, Dish, UserProfile } from '../types';
 import { DB } from '../utils/db';
 import { DEFAULT_DISHES } from '../data/recipes';
-import RECIPE_CATALOG from '../data/recipes_catalog.json';
-import RECIPE_OVERRIDES from '../data/recipes_overrides.json';
 import { getHiddenDishIds, getRenamedDishes, getRestoredDishIds, hideDishIds, unhideDishIds } from '../utils/dishStorage';
+
+let recipeOverrides: { dishes: Dish[]; hiddenDishIds: string[] } = { dishes: [], hiddenDishIds: [] };
+let bundledCatalogPromise: Promise<void> | null = null;
+
+const loadBundledCatalog = () => {
+  if (!bundledCatalogPromise) {
+    bundledCatalogPromise = fetch('/data/recipes_overrides.json', { cache: 'no-cache' }).then(async response => {
+      if (!response.ok) throw new Error('کتابخانهٔ رسپی‌ها بارگیری نشد.');
+      const catalog = await response.json() as typeof recipeOverrides;
+      if (!Array.isArray(catalog?.dishes) || !Array.isArray(catalog?.hiddenDishIds)) throw new Error('ساختار کتابخانهٔ رسپی‌ها معتبر نیست.');
+      recipeOverrides = catalog;
+    }).catch(error => {
+      bundledCatalogPromise = null;
+      throw error;
+    });
+  }
+  return bundledCatalogPromise;
+};
 
 // غذاهای تکمیلیِ همراه اپ که در فایل فهرست اصلی نیستند.
 const EXTRA_CLOUD_DISHES: any[] = [
@@ -191,11 +207,10 @@ const EXTRA_CLOUD_DISHES: any[] = [
   }
 ];
 
-// تابع ادغام هوشمند برای جلوگیری از حذف غذاهای اصلی هنگام دریافت داده‌ها
+// ادغام رکوردها برای جلوگیری از حذف غذاهای اصلی هنگام دریافت داده‌ها
 const mergeAllDishes = (sources: Dish[][], allowLocalOverrides = true): Dish[] => {
   const map = new Map<string, Dish>();
   if (DEFAULT_DISHES) DEFAULT_DISHES.forEach(d => map.set(d.id, d));
-  (RECIPE_CATALOG as unknown as Dish[]).forEach(d => map.set(d.id, d));
   EXTRA_CLOUD_DISHES.forEach(d => map.set(d.id, {
     ...d, category: 'international', nationality: d.Nationality,
     nature: d.nature === 'گرم' ? 'hot' : d.nature === 'سرد' ? 'cold' : 'balanced',
@@ -208,7 +223,7 @@ const mergeAllDishes = (sources: Dish[][], allowLocalOverrides = true): Dish[] =
   }));
   // Reviewed catalog overrides must be applied last: supplemental recipes may
   // share IDs, but must not erase their published photos or editorial changes.
-  (RECIPE_OVERRIDES.dishes as Dish[]).forEach(d => map.set(d.id, d));
+  recipeOverrides.dishes.forEach(d => map.set(d.id, d));
   sources.forEach(arr => {
     if (arr) arr.forEach(d => {
       // Bundled catalog data is the published source of truth. Keep local-only
@@ -266,6 +281,7 @@ const publishSingleDishChange = async (payload: { action: 'edit' | 'delete' | 'r
 export const RecipeService = {
   initialize: async (): Promise<{count: number}> => {
     try {
+      await loadBundledCatalog();
       const localCache = await DB.getAll('dishes');
       cachedDishes = mergeAllDishes([localCache || []], false);
       try {
@@ -285,7 +301,15 @@ export const RecipeService = {
 
       return { count: cachedDishes.length };
     } catch (e) {
-      cachedDishes = mergeAllDishes([]);
+      console.warn('Published recipe catalog is unavailable; opening the saved device copy.', e);
+      try {
+        const [localCache, savedPersonal] = await Promise.all([DB.getAll('dishes'), DB.get('settings', PERSONAL_DISHES_KEY)]);
+        cachedDishes = mergeAllDishes([localCache || []], false);
+        personalDishes = Array.isArray(savedPersonal?.recipes) ? savedPersonal.recipes.filter(isValidPersonalDish) : [];
+      } catch {
+        cachedDishes = mergeAllDishes([]);
+        personalDishes = [];
+      }
       isInitialized = true;
       return { count: cachedDishes.length };
     }
@@ -306,12 +330,12 @@ export const RecipeService = {
     const restoredIds = getRestoredDishIds();
     const renamedMap = getRenamedDishes();
     return cachedDishes
-      .filter(d => !hiddenIds.includes(d.id) && (!RECIPE_OVERRIDES.hiddenDishIds.includes(d.id) || restoredIds.includes(d.id)))
+      .filter(d => !hiddenIds.includes(d.id) && (!recipeOverrides.hiddenDishIds.includes(d.id) || restoredIds.includes(d.id)))
       .map(d => renamedMap[d.id] ? { ...d, name: renamedMap[d.id] } : d);
   },
 
   getDeletedCatalogDishes: (): Dish[] => {
-    const hiddenIds = new Set([...getHiddenDishIds(), ...RECIPE_OVERRIDES.hiddenDishIds]);
+    const hiddenIds = new Set([...getHiddenDishIds(), ...recipeOverrides.hiddenDishIds]);
     const restoredIds = new Set(getRestoredDishIds());
     return cachedDishes.filter(d => hiddenIds.has(d.id) && !restoredIds.has(d.id));
   },
@@ -379,7 +403,7 @@ export const RecipeService = {
     try {
       const response = await fetch('/.netlify/functions/publish-catalog', {
         method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ dishes: cachedDishes, hiddenDishIds: [...new Set([...getHiddenDishIds(), ...RECIPE_OVERRIDES.hiddenDishIds])] }),
+        body: JSON.stringify({ dishes: cachedDishes, hiddenDishIds: [...new Set([...getHiddenDishIds(), ...recipeOverrides.hiddenDishIds])] }),
       });
       const result = await response.json();
       if (!response.ok) return { success: false, error: result.error || 'ثبت در GitHub انجام نشد.' };

@@ -124,7 +124,7 @@ const CsvToJsonConverter: React.FC = () => {
           const rawSteps = entry[stepKey || ''];
           entry.recipeSteps = typeof rawSteps === 'string' ? rawSteps.split('|').map(s => s.trim()).filter(s => s) : [];
 
-          // پردازش هوشمند زمان
+          // پردازش متن زمان
           const rawTime = entry[timeKey || ''];
           entry.cookTime = parseDurationToMinutes(rawTime) || standardTime;
 
@@ -248,9 +248,9 @@ const CsvToJsonConverter: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-amber-50 border border-amber-100 p-6 rounded-[2rem] space-y-3">
-          <h4 className="font-black text-amber-800 flex items-center gap-2"><Clock size={18}/> هوش مصنوعی زمان پخت</h4>
+          <h4 className="font-black text-amber-800 flex items-center gap-2"><Clock size={18}/> تشخیص زمان پخت</h4>
           <p className="text-[11px] text-amber-700 leading-relaxed font-bold">
-            سیستم عبارات پیچیده مانند «۱ ساعت و ۲۰ دقیقه»، «۹۰ دقیقه»، «1.5h» را می‌فهمد و به عدد خالص تبدیل می‌کند. اگر فقط عدد باشد، هوشمندانه ساعت یا دقیقه بودن آن را حدس می‌زند.
+            سیستم عبارات زمان مانند «۱ ساعت و ۲۰ دقیقه»، «۹۰ دقیقه» یا «1.5h» را به دقیقه تبدیل می‌کند. اگر فقط عدد باشد، ساعت یا دقیقه بودن آن بر اساس قالب داده تشخیص داده می‌شود.
           </p>
         </div>
         <div className="bg-blue-50 border border-blue-100 p-6 rounded-[2rem] space-y-3">

@@ -1,7 +1,7 @@
 {
   "name": "noosh-app",
   "private": true,
-  "version": "17.42.0",
+  "version": "17.43.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,6 @@
     "audit:quantities": "node scripts/audit-quantities.mjs"
   },
   "dependencies": {
-    "@google/genai": "^1.47.0",
     "@netlify/blobs": "^11.1.6",
     "firebase": "^12.9.0",
     "lucide-react": "^0.574.0",

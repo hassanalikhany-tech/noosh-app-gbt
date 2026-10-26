@@ -1,19 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import { isAdminSession } from './admin-auth.mjs';
 import { dailyRateKey, json, parseBody, store, validText } from './community-recipe-lib.mjs';
+import { isSameOriginMutation } from './request-security.mjs';
 
 const STORE_NAME = 'noosh-user-feedback';
 const itemKey = (id) => `feedback:${id}`;
 const statuses = ['new', 'reviewed', 'to_be_reviewed', 'to_be_followed_up', 'handled', 'informed', 'referred'];
-const originIsValid = (event) => {
-  const host = event.headers?.host;
-  const origin = event.headers?.origin;
-  return !origin || !host || new URL(origin).host === host;
-};
-
 export const handler = async (event) => {
   if (!['GET', 'POST', 'PUT'].includes(event.httpMethod)) return json(405, { error: 'روش درخواست پشتیبانی نمی‌شود.' });
-  if (!originIsValid(event)) return json(403, { error: 'درخواست نامعتبر است.' });
+  if (event.httpMethod !== 'GET' && !isSameOriginMutation(event)) return json(403, { error: 'درخواست نامعتبر است؛ صفحه را تازه کنید و دوباره تلاش کنید.' });
 
   if (event.httpMethod !== 'POST' && !isAdminSession(event)) {
     return json(401, { error: 'برای مشاهده یا مدیریت بازخوردها باید وارد پنل مدیریت شوید.' });

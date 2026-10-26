@@ -1,10 +1,9 @@
 import { dailyRateKey, decodeRecipeImage, json, parseBody, randomRequestId, requestKey, store, validRecipe, validText } from './community-recipe-lib.mjs';
+import { isSameOriginMutation } from './request-security.mjs';
 
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'روش درخواست پشتیبانی نمی‌شود.' });
-  const host = event.headers?.host;
-  const origin = event.headers?.origin;
-  if (origin && host && new URL(origin).host !== host) return json(403, { error: 'درخواست نامعتبر است.' });
+  if (!isSameOriginMutation(event)) return json(403, { error: 'درخواست نامعتبر است؛ صفحه را تازه کنید و دوباره تلاش کنید.' });
   try {
     const payload = parseBody(event);
     if (payload.website) return json(200, { success: true }); // honeypot

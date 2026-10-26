@@ -46,7 +46,7 @@ export const filterDishes = (user: UserProfile) => {
   });
   pool = filteredByNature;
   
-  // ۵. فیلترهای هوشمند سریع
+  // ۵. فیلترهای سریع
   if (user.onlyFavoritesMode) {
       const favorites = pool.filter(d => user.favoriteDishIds?.includes(d.id));
       pool = favorites;

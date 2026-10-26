@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /.netlify/functions/
+Sitemap: https://noosh-app-gbt.netlify.app/sitemap.xml

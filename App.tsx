@@ -1,13 +1,12 @@
-import PlanDashboard from './components/PlanDashboard';
-import AdminAccessGate from './components/admin/AdminAccessGate';
-
 import { CalendarDays, RefreshCw, ChefHat, Search, Settings, Trophy, X, ShoppingCart, Heart, Clock, Trash2, Calendar, Leaf, Sparkles, Utensils, ShieldCheck, ArrowRight, CloudDownload, UserX, Info, CheckCircle2, Wand2, Loader2, ScanFace, Printer, Share2, MessageCircle, Smartphone, Database, ShieldAlert, FilterX, Check, AlertTriangle, Shield, LayoutDashboard, Bell, Zap, Maximize, Minimize, Package } from 'lucide-react';
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import Challenges from './components/Challenges';
 import MealCard from './components/MealCard';
+const PlanDashboard = lazy(() => import('./components/PlanDashboard'));
+const AdminAccessGate = lazy(() => import('./components/admin/AdminAccessGate'));
 const PantryChef = lazy(() => import('./components/PantryChef'));
 const Preferences = lazy(() => import('./components/Preferences'));
-import RecipeSearch from './components/RecipeSearch';
+const RecipeSearch = lazy(() => import('./components/RecipeSearch'));
 import ShoppingList from './components/ShoppingList';
 import AuthGate from './components/auth/AuthGate';
 import NotificationCenter from './components/NotificationCenter';
@@ -475,7 +474,7 @@ const AppContent: React.FC = () => {
   const toPersian = (num: number | string) => num.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
 
   const footerMessage = useMemo(() => {
-    if (planLoading) return "در حال تنظیم هوشمند برنامه غذایی شما...";
+    if (planLoading) return "در حال تنظیم برنامهٔ غذایی شما...";
     if (RecipeService.getLocalCount() === 0) return "در حال بارگذاری بانک اطلاعات پخت‌ها...";
     if (!currentUser || currentUser.uid === "local-guest") return "";
     const now = Date.now();
@@ -534,12 +533,12 @@ const AppContent: React.FC = () => {
   if (isInitializing || !currentUser) return (
     <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-slate-950 text-white dir-rtl overflow-hidden">
       <Loader2 className="w-16 h-16 text-teal-500 animate-spin mb-4" />
-      <p className="text-sm font-black tracking-widest animate-pulse">فراخوانی دستیار هوشمند نوش...</p>
+      <p className="text-sm font-black tracking-widest animate-pulse">آماده‌سازی نوش اپ...</p>
     </div>
   );
 
   const isAdminPath = window.location.pathname.replace(/\/+$/, '') === '/admin';
-  if (isAdminPath) return <AdminAccessGate onExit={() => { window.history.replaceState({}, '', '/'); window.location.reload(); }} />;
+  if (isAdminPath) return <Suspense fallback={<div role="status" className="min-h-screen grid place-items-center text-[#276556]">در حال آماده‌سازی پنل…</div>}><AdminAccessGate onExit={() => { window.history.replaceState({}, '', '/'); window.location.reload(); }} /></Suspense>;
 
   const navItems = [
     { id: 'pantry', label: 'آشپزخانه من', icon: ChefHat },
@@ -565,7 +564,7 @@ const AppContent: React.FC = () => {
              <FilterIcon size={20} strokeWidth={2.5} />
           </div>
           <div className="flex-1 min-w-0 pr-1">
-             <h3 className="text-sm font-black text-slate-900">تنظیمات هوشمند نوش</h3>
+             <h3 className="text-sm font-black text-slate-900">تنظیمات نوش</h3>
              <p className="text-xs font-semibold text-slate-600 mt-0.5 leading-relaxed">{filterNotif.message}</p>
              
              <div className="flex items-center gap-4 mt-3 justify-between pt-2 border-t border-slate-100/80">
@@ -629,7 +628,7 @@ const AppContent: React.FC = () => {
                     })}
                 </tbody>
              </table>
-             <div className="print-footer">🌐 www.nooshapp.ir | اپلیکیشن تخصصی هوشمند برنامه‌ریزی غذایی نوش</div>
+             <div className="print-footer">🌐 www.nooshapp.ir | اپلیکیشن برنامه‌ریزی غذایی نوش</div>
           </div>
         ))}
 
@@ -652,7 +651,7 @@ const AppContent: React.FC = () => {
                 </article>
               ))}
             </div> : <p className="shopping-print-empty">سبد خرید شما خالی است.</p>}
-            <footer className="shopping-print-footer">لیست خرید هوشمند نوش · {persianDate}</footer>
+            <footer className="shopping-print-footer">لیست خرید نوش · {persianDate}</footer>
           </section>
         )}
       </div>

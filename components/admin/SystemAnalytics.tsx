@@ -22,7 +22,7 @@ const SystemAnalytics: React.FC = () => {
   if (loading || !data) return (
     <div className="py-32 flex flex-col items-center justify-center gap-6">
         <Loader2 className="animate-spin text-indigo-600" size={60} />
-        <p className="font-black text-slate-400 animate-pulse">در حال تحلیل هوشمند داده‌های سیستم...</p>
+        <p className="font-black text-slate-400 animate-pulse">در حال آماده‌سازی گزارش‌های سیستم...</p>
     </div>
   );
 
@@ -141,16 +141,16 @@ const SystemAnalytics: React.FC = () => {
 
               <div className="bg-indigo-50/50 p-6 rounded-[2rem] border border-indigo-100 flex items-center gap-4">
                   <div className="p-3 bg-white rounded-xl shadow-sm text-indigo-600"><Monitor size={20}/></div>
-                  <p className="text-[11px] text-indigo-800 font-bold leading-relaxed">بیش از <span className="font-black">۸۲٪</span> کاربران از اپلیکیشن در پلتفرم‌های موبایلی استفاده می‌کنند. بهینه‌سازی UI موبایل اولویت است.</p>
+                  <p className="text-[11px] text-indigo-800 font-bold leading-relaxed">بیش از <span className="font-black">۸۲٪</span> کاربران از اپلیکیشن در پلتفرم‌های موبایلی استفاده می‌کنند. بهبود نمایش موبایل در اولویت است.</p>
               </div>
           </div>
       </div>
 
-      {/* هشدار پایش هوشمند */}
+      {/* گزارش روند تمدید کاربران */}
       <div className="bg-rose-50 border border-rose-100 p-8 rounded-[3rem] flex flex-col md:flex-row items-center gap-8 animate-pulse">
           <div className="w-16 h-16 bg-rose-500 text-white rounded-2xl flex items-center justify-center shadow-lg shrink-0"><ShieldAlert size={32}/></div>
           <div className="space-y-1">
-              <h4 className="text-lg font-black text-rose-900">سامانه پایش هوشمند ریزش (Churn Watcher)</h4>
+              <h4 className="text-lg font-black text-rose-900">گزارش تمدید کاربران</h4>
               <p className="text-sm font-bold text-rose-700 leading-relaxed">در حال حاضر سیستم آنالیزی نشان می‌دهد که {toPersian(data.churnRate.toFixed(1))} درصد از کاربران پس از اتمام اشتراک تمدید نکرده‌اند. پیشنهاد می‌شود کمپین‌های بازگشت کاربر (Retargeting) را فعال کنید.</p>
           </div>
       </div>

@@ -159,6 +159,13 @@ const preferences = {familySize: 6, favoriteDishIds: ['veg'], blacklistedDishIds
 GuestService.save(preferences as any);
 for (const [key,value] of Object.entries(preferences)) assert.deepEqual((GuestService.get() as any)[key], value, `Persists ${key}`);
 assert.deepEqual(getDishImageCandidates('dish-test', 'none'), [], 'Removed pictures cannot reappear from fallbacks');
+// The production service loads this JSON from the site root. Scenario tests are
+// bundled as a data URL, so provide the same catalog response without relying
+// on a browser-relative URL or network access.
+(globalThis as any).fetch = async (input: string | URL) => {
+  assert.equal(String(input), '/data/recipes_overrides.json', 'Only the bundled recipe catalog is requested during local scenarios');
+  return { ok: true, json: async () => recipeOverrides };
+};
 DB.getAll = async () => [];
 DB.init = async () => { throw new Error('Test without IndexedDB'); };
 await RealRecipes.initialize();

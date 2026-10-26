@@ -1,17 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { isAdminSession } from './admin-auth.mjs';
 import { json, parseBody, store, validText } from './community-recipe-lib.mjs';
+import { isSameOriginMutation } from './request-security.mjs';
 
 const STORE_NAME = 'noosh-user-notifications';
 const prefix = 'notification:';
-const validOrigin = (event) => {
-  const { host, origin } = event.headers || {};
-  return !origin || !host || new URL(origin).host === host;
-};
-
 export const handler = async (event) => {
   if (!['GET', 'POST'].includes(event.httpMethod)) return json(405, { error: 'روش درخواست پشتیبانی نمی‌شود.' });
-  if (!validOrigin(event)) return json(403, { error: 'درخواست نامعتبر است.' });
+  if (event.httpMethod === 'POST' && !isSameOriginMutation(event)) return json(403, { error: 'درخواست نامعتبر است؛ صفحه را تازه کنید و دوباره تلاش کنید.' });
   const isAdmin = isAdminSession(event);
   const adminScope = event.queryStringParameters?.scope === 'admin';
   if ((event.httpMethod === 'POST' || adminScope) && !isAdmin) return json(401, { error: 'برای مدیریت اعلان‌ها باید وارد پنل مدیریت شوید.' });

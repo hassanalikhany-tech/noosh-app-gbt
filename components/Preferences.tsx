@@ -307,7 +307,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
 
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-3 sm:px-8 pb-16 no-scrollbar">
           <div className="max-w-5xl mx-auto py-3 sm:py-5 space-y-4 sm:space-y-5">
-            <div role="tablist" aria-label="بخش‌های تنظیمات" className="sticky top-0 z-30 -mx-3 flex gap-2 overflow-x-auto border-b border-slate-200/80 bg-[#f5f7f2]/95 px-3 py-2 backdrop-blur-md sm:-mx-8 sm:px-8">
+            <div role="tablist" aria-label="بخش‌های تنظیمات" className="settings-tabs sticky top-0 z-30 -mx-3 flex gap-2 overflow-x-auto border-b border-slate-200/80 bg-[#f5f7f2]/95 px-3 py-2 backdrop-blur-md sm:-mx-8 sm:px-8">
               {settingsTabs.map(tab => {
                 const TabIcon = tab.icon;
                 const selected = settingsTab === tab.id;
@@ -318,6 +318,10 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
             </div>
             {settingsTab === 'recipes' && <div id="settings-panel-recipes" role="tabpanel" aria-labelledby="settings-tab-recipes"><PersonalRecipes user={user} onUpdateUser={nextUser => onUpdateUser(nextUser)} /></div>}
             {settingsTab === 'device' && <div id="settings-panel-device" role="tabpanel" aria-labelledby="settings-tab-device" className="space-y-3"><BackupManager personalOnly />
+              <nav aria-label="اطلاعات و پشتیبانی" className="grid gap-2 rounded-2xl border border-emerald-100 bg-white p-3 sm:grid-cols-2">
+                <a href="/privacy.html" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#f1f6f0] px-4 text-sm font-bold text-[#276556] transition hover:bg-[#e5efe5]">حریم خصوصی و داده‌های شما</a>
+                <a href="/support.html" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#f1f6f0] px-4 text-sm font-bold text-[#276556] transition hover:bg-[#e5efe5]">راهنمای پشتیبانی</a>
+              </nav>
               <div className="grid gap-3 md:grid-cols-2">
               <section className="overflow-hidden rounded-2xl border border-emerald-100 bg-gradient-to-l from-[#eaf4ef] via-white to-white p-4 shadow-sm sm:p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -362,7 +366,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
             </div>}
 
             {settingsTab === 'planning' && <div id="settings-panel-planning" role="tabpanel" aria-labelledby="settings-tab-planning" className="space-y-4">
-              {/* بخش تنظیمات هوشمند و فیلترهای سریع */}
+              {/* تنظیمات برنامه‌ریزی و فیلترهای سریع */}
               <section className="bg-white rounded-2xl p-4 shadow-sm ring-1 ring-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:p-5">
                 <div>
                   <h2 className="text-base sm:text-xl font-black text-slate-800">تعداد اعضای خانواده</h2>
@@ -381,7 +385,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                        <Layers size={19} />
                     </div>
                     <div>
-                       <h2 className="text-sm sm:text-base font-black text-slate-800">تنظیمات هوشمند و فیلترهای سریع</h2>
+                       <h2 className="text-sm sm:text-base font-black text-slate-800">تنظیمات برنامه‌ریزی و فیلترهای سریع</h2>
                        <p className="text-[10px] text-slate-500 font-medium mt-1">رژیم، پیشنهادهای شخصی و چالش‌ها را تنظیم کن.</p>
                     </div>
                  </div>
@@ -412,7 +416,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                           </div>
                           <div>
                              <h3 className="text-xs sm:text-sm font-black text-slate-800">فقط غذاهای محبوب من</h3>
-                             <p className="text-[10px] text-slate-400 font-semibold mt-0.5 leading-normal">پیشنهاد هوشمند فقط از موارد پسندیده</p>
+                             <p className="text-[10px] text-slate-400 font-semibold mt-0.5 leading-normal">نمایش غذاهای پسندیده</p>
                           </div>
                        </div>
                        <ToggleSwitch 
@@ -615,7 +619,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
               </div>
 
               <div className="bg-white rounded-2xl p-4 shadow-sm ring-1 ring-slate-100 sm:p-5">
-                <div className="flex items-center gap-3 mb-4"><div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl"><FilterX size={19} /></div><div><h2 className="text-sm sm:text-base font-black text-slate-800">فیلتر هوشمند دسته‌ها</h2><p className="text-[10px] text-slate-500 font-medium mt-1 leading-5">با خاموش‌کردن هر دسته، غذاهای آن از پیشنهادها و برنامه کنار گذاشته می‌شوند.</p></div></div>
+                <div className="flex items-center gap-3 mb-4"><div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl"><FilterX size={19} /></div><div><h2 className="text-sm sm:text-base font-black text-slate-800">فیلتر دسته‌ها</h2><p className="text-[10px] text-slate-500 font-medium mt-1 leading-5">با خاموش‌کردن هر دسته، غذاهای آن از پیشنهادها و برنامه کنار گذاشته می‌شوند.</p></div></div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                     {(Object.keys(CATEGORY_LABELS) as DishCategory[]).map(cat => (
                       <button 

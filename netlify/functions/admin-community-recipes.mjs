@@ -1,15 +1,11 @@
 import { isAdminSession } from './admin-auth.mjs';
+import { isSameOriginMutation } from './request-security.mjs';
 import { decisionKey, decodeRecipeImage, githubSettings, json, parseBody, readGithubJson, requestKey, store, writeGithubJson } from './community-recipe-lib.mjs';
-
-const checkRequest = (event) => {
-  const host = event.headers?.host;
-  const origin = event.headers?.origin;
-  return (!origin || !host || new URL(origin).host === host) && isAdminSession(event);
-};
 
 export const handler = async (event) => {
   if (!['GET','POST'].includes(event.httpMethod)) return json(405, { error: 'روش درخواست پشتیبانی نمی‌شود.' });
-  if (!checkRequest(event)) return json(401, { error: 'نشست مدیریت معتبر نیست؛ دوباره وارد شو.' });
+  if (event.httpMethod === 'POST' && !isSameOriginMutation(event)) return json(403, { error: 'درخواست نامعتبر است؛ صفحه را تازه کنید و دوباره تلاش کنید.' });
+  if (!isAdminSession(event)) return json(401, { error: 'نشست مدیریت معتبر نیست؛ دوباره وارد شو.' });
   try {
     const blobs = store(event);
     if (event.httpMethod === 'GET') {

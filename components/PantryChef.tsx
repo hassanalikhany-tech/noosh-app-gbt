@@ -438,7 +438,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
   return (
     <div className="pantry-page flex flex-col h-full [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter">
       <section className="pantry-hero" aria-label="پیشنهاد غذا بر پایهٔ موجودی آشپزخانه">
-        <div className="pantry-hero-copy"><span className="pantry-hero-label"><ChefHat size={15}/> دستیار آشپزخانهٔ تو</span>
+        <div className="pantry-hero-copy"><span className="pantry-hero-label"><ChefHat size={15}/> آشپزخانهٔ تو</span>
           <h1>امروز چی بپزم؟</h1>
           <p>{user.kitchenMode === 'without-inventory' ? 'در حالت مستقل از انبار، پیشنهادها بدون توجه به موجودی ثبت‌شده چیده می‌شوند؛ هر زمان خواستی از کلید پایین حالت را عوض کن.' : 'موجودی ثبت‌شده‌ات را به‌روز کن تا پیشنهادها با مواد خانه جور باشند و کسری‌های خرید دقیق حساب شوند.'}</p>
         </div><div className="pantry-hero-photo" role="img" aria-label="زرشک پلو با مرغ زعفرانی خانگی" />
