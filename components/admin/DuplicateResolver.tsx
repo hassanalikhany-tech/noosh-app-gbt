@@ -2,12 +2,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Dish, DishCategory, CATEGORY_LABELS } from '../../types';
 import { RecipeService } from '../../services/recipeService';
-import { getHiddenDishIds } from '../../utils/dishStorage';
 import { Trash2, Search, Eye, Edit2, Loader2, Check, ShieldAlert, Wifi, WifiOff, X, RefreshCw, Filter, Layers } from 'lucide-react';
 import RecipeModal from '../RecipeModal';
 import DishEditor from './DishEditor';
 
-type AdminDish = Dish & { _internalId: string, isHidden: boolean };
+type AdminDish = Dish & { _internalId: string };
 
 interface DuplicateGroup {
   nameKey: string;
@@ -49,12 +48,14 @@ const DuplicateResolver: React.FC = () => {
   }, []);
 
   const loadFromSource = () => {
-    const dishes = RecipeService.getRawDishes(); 
-    const hiddenIds = getHiddenDishIds();
+    // Duplicate management must show only active catalog entries. The raw
+    // catalog still contains soft-deleted dishes so they can be restored from
+    // the dedicated deleted-items view; including it here made a deleted row
+    // appear to remain in its duplicate group.
+    const dishes = RecipeService.getCatalogDishes();
     const safeDishes = dishes.map((d, idx) => ({
       ...d, 
-      _internalId: `admin-${d.id}-${idx}`,
-      isHidden: hiddenIds.includes(d.id)
+      _internalId: `admin-${d.id}-${idx}`
     }));
     setAllDishes(safeDishes);
   };
