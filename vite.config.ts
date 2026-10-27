@@ -2,6 +2,7 @@ import path from 'path';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { createHash } from 'node:crypto';
 
 export default defineConfig(({ mode }) => ({
       publicDir: mode === 'native' ? false : 'public',
@@ -19,6 +20,11 @@ export default defineConfig(({ mode }) => ({
             .map(file => `/${file.fileName}`);
           runtimeAssets.push('/data/recipes_overrides.json');
           this.emitFile({ type: 'asset', fileName: 'sw-precache.json', source: JSON.stringify({ assets: runtimeAssets }) });
+          if (mode !== 'native') {
+            const worker = readFileSync(path.resolve(__dirname, 'public/sw.js'), 'utf8');
+            const revision = createHash('sha256').update(worker).update(source).update(JSON.stringify(runtimeAssets)).digest('hex').slice(0, 16);
+            this.emitFile({ type: 'asset', fileName: 'sw.js', source: worker.replace('__NOOSH_BUILD_ID__', revision) });
+          }
         }
       }, ...(mode === 'native' ? [{
         name: 'noosh-native-public-assets',

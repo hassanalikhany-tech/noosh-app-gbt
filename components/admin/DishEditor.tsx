@@ -6,6 +6,7 @@ import { PANTRY_ITEMS } from '../../data/pantry';
 import { PANTRY_UNIT_OPTIONS } from '../../utils/pantryUnits';
 import { convertIngredientQuantity, getIngredientIdentity, parseQuantity } from '../../utils/recipeHelpers';
 import { RecipeService } from '../../services/recipeService';
+import { recipeQuantityProblem } from '../../utils/quantitySanity.mjs';
 
 interface DishEditorProps {
   dish: Dish;
@@ -88,6 +89,8 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
 
   const handleSave = async () => {
     setError('');
+    const quantityProblem = formData.ingredients.map(ingredient => recipeQuantityProblem(ingredient, Number(formData.servings) || 4)).find(Boolean);
+    if (quantityProblem) { setError(quantityProblem); return; }
     if (pendingUnits.length) { setError('برای واحدهای تغییرکردهٔ بدون تبدیل قطعی، مقدار واقعی جدید را هم وارد کن.'); return; }
     if (!formData.name.trim() || !formData.category || !Array.isArray(formData.recipeSteps) || formData.recipeSteps.length === 0 || formData.recipeSteps.some(step => !step.trim())) { setError('نام غذا و دست‌کم یک مرحلهٔ کامل برای دستور پخت لازم است.'); return; }
     if (!Number.isFinite(Number(formData.servings)) || Number(formData.servings) <= 0 || formData.ingredients.some(ingredient => !ingredient.item.trim() || !Number.isFinite(parseQuantity(ingredient.amount)) || parseQuantity(ingredient.amount) < 0)) { setError('نام مواد، مقدارهای غیرمنفی و تعداد نفرات پایه را بررسی کن.'); return; }

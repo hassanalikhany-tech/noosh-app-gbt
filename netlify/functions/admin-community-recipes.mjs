@@ -19,7 +19,7 @@ export const handler = async (event) => {
     }
 
     if (!process.env.GITHUB_TOKEN) return json(503, { error: 'دسترسی GitHub در Netlify تنظیم نشده است.' });
-    const payload = parseBody(event);
+    const payload = parseBody(event, 10_000);
     const { id, action } = payload;
     if (typeof id !== 'string' || !/^[0-9a-f-]{36}$/iu.test(id) || !['approve','reject'].includes(action)) return json(400, { error: 'درخواست مدیریت معتبر نیست.' });
     const key = requestKey(id);
@@ -63,6 +63,7 @@ export const handler = async (event) => {
     await blobs.delete(key);
     return json(200, { success: true, status: 'published', commit, name: publicDish.name });
   } catch (error) {
+    if ([400, 413].includes(error?.statusCode)) return json(error.statusCode, { error: error.message });
     console.error('Admin community recipe action failed:', error);
     return json(502, { error: error instanceof Error ? error.message : 'تغییر در مخزن عمومی انجام نشد؛ درخواست در صف باقی ماند.' });
   }

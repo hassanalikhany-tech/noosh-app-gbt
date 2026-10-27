@@ -48,6 +48,15 @@ assert.equal(invalid.lines[0].status,'unmeasured'); assert.equal(invalid.newInve
 assert.throws(()=>evaluateInventory([stock()],dish().ingredients,0));
 const salt = evaluateInventory([stock(100,'گرم','نمک')],dish(3,'گرم','نمک').ingredients,4);
 assert.equal(salt.newInventory[0].amount,97,'Tracked additives are consumed rather than silently excluded');
+const implausiblyTinyRice = evaluateInventory([stock(500,'گرم')],dish(3,'گرم').ingredients,4);
+assert.equal(implausiblyTinyRice.newInventory[0].amount,500,'A likely unit/amount typo for a main ingredient cannot silently deduct pantry stock');
+assert.equal(implausiblyTinyRice.lines[0].status,'blocked');
+const asNeededText = evaluateInventory([stock(100,'گرم','نمک')],[{item:'نمک به میزان لازم',amount:1,unit:'گرم'}],4);
+assert.equal(asNeededText.newInventory[0].amount,100,'An ingredient marked as needed is not consumed from pantry without a defined amount');
+assert.equal(asNeededText.lines[0].status,'unmeasured');
+const implausiblyHugeChicken = evaluateInventory([stock(5,'کیلوگرم','مرغ')],[{item:'مرغ',amount:125000,unit:'گرم'}],4);
+assert.equal(implausiblyHugeChicken.newInventory[0].amount,5,'A corrupted oversized recipe amount cannot drain the pantry');
+assert.equal(implausiblyHugeChicken.lines[0].status,'blocked');
 const pack = stock(2,'بسته'); pack.unitWeightGrams={'بسته':500};
 assert.equal(evaluateInventory([pack],dish(750,'گرم').ingredients,4).newInventory[0].amount,0.5,'User-defined package content bridges weight and packages');
 const sized = convertIngredientQuantity(1,'عدد','گرم','پیاز بزرگ','پیاز',{'پیاز':{'عدد بزرگ':180}});
@@ -84,7 +93,7 @@ for (const family of [1,2,4,7,12]) {
  assert.ok(Math.abs(output.newInventory[0].amount-(10-0.025*family))<1e-9,'Family scaling applies once');
 }
 for (let i=1;i<=100;i++) {
- const required=i*3.17;
+ const required=i*5+3.17;
  const out=evaluateInventory([stock(500,'گرم')],dish(required,'گرم').ingredients,4);
  assert.ok(Math.abs(out.newInventory[0].amount+out.lines[0].allocations[0].consumed-500)<1e-8,'Conservation of stock');
  assert.ok(out.newInventory[0].amount>=0);

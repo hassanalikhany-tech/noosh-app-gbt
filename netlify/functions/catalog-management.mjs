@@ -1,3 +1,4 @@
+import { recipeQuantityProblem } from '../../utils/quantitySanity.mjs';
 const CATEGORIES = new Set(['ash', 'polo', 'khorak', 'stew', 'soup', 'fastfood', 'kabab', 'international', 'dessert']);
 const DISH_ID = /^[\w-]{1,160}$/u;
 
@@ -7,6 +8,7 @@ export const validCatalogDish = (dish) => Boolean(
   CATEGORIES.has(dish.category) && typeof dish.description === 'string' && dish.description.length <= 3000 &&
   Array.isArray(dish.ingredients) && dish.ingredients.length > 0 && dish.ingredients.length <= 100 &&
   dish.ingredients.every(item => item && typeof item.item === 'string' && item.item.trim().length > 0 && item.item.length <= 160 && Number.isFinite(item.amount) && item.amount >= 0 && item.amount <= 100_000_000 && typeof item.unit === 'string' && item.unit.trim().length > 0 && item.unit.length <= 60) &&
+  dish.ingredients.every(item => !recipeQuantityProblem(item, dish.servings)) &&
   Array.isArray(dish.recipeSteps) && dish.recipeSteps.length > 0 && dish.recipeSteps.length <= 100 &&
   dish.recipeSteps.every(step => typeof step === 'string' && step.trim().length > 0 && step.length <= 2000) &&
   (dish.nationality === undefined || typeof dish.nationality === 'string' && dish.nationality.length <= 100) &&

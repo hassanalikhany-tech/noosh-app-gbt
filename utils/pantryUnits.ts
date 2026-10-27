@@ -20,10 +20,13 @@ export const getPantryUnitPreference = (name: string): string | undefined => {
 export const suggestPantryUnit = (name: string): string => {
   const saved = getPantryUnitPreference(name);
   if (saved) return saved;
+  const key = getPantryUnitKey(name);
+  if (/^شیرخشک/.test(key)) return 'کیلوگرم';
+  if (/^شیرنارگیل/.test(key)) return 'کیلوگرم';
   const category = getIngredientCategoryId(name);
   if (category === 'proteins' && /تخممرغ/.test(getPantryUnitKey(name))) return 'عدد';
   if (category === 'proteins' || category === 'grains' || category === 'vegetables') return 'کیلوگرم';
-  if (/^(آب|شیر|دوغ|آبلیمو|آبغوره|سرکه|روغن)/.test(getPantryUnitKey(name))) return 'لیتر';
+  if (/^(?:اب|شیر|دوغ|ابلیمو|ابغوره|سرکه|روغن)/.test(getPantryUnitKey(name))) return 'لیتر';
   if (/^(تنماهی|کنسرو|ربگوجه)/.test(getPantryUnitKey(name))) return 'قوطی';
   return 'گرم';
 };

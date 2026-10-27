@@ -28,6 +28,7 @@ try {
   console.log('Community recipe checks passed: consent-ready recipe schema, category, ingredients, steps and safe image formats.');
   console.log('Catalog management checks passed: validated edits, preserved attribution, public removal and restore.');
   await import('./startup.mjs');
+  await import('./webReliability.mjs');
 } catch (error) {
   console.error(`${error?.name || 'Error'}: ${error?.message || error}`);
   process.exitCode = 1;

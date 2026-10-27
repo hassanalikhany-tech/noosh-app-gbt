@@ -11,6 +11,7 @@ import { CookingDraft, prepareCooking } from '../utils/inventoryLedger';
 import { mergeShoppingNeeds } from '../utils/shoppingQuantities';
 import { showCreatorRecipes } from '../utils/recipeCreators';
 import { formatCommunityAttribution } from '../utils/communityAttribution';
+import { useDialogFocus } from '../utils/useDialogFocus';
 
 interface RecipeModalProps {
   dish: Dish;
@@ -21,6 +22,7 @@ interface RecipeModalProps {
 }
 
 const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, onUpdateUser }) => {
+  const dialogRef = useDialogFocus(onClose);
   const [addedToCart, setAddedToCart] = useState(false);
   const [cooked, setCooked] = useState(false);
   const [cookingBusy, setCookingBusy] = useState(false);
@@ -219,7 +221,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center [@media(orientation:landscape)_and_(max-height:500px)]:items-start p-0 [@media(orientation:landscape)_and_(max-height:500px)]:p-4 bg-black/80 backdrop-blur-md overflow-hidden [@media(orientation:landscape)_and_(max-height:500px)]:overflow-y-auto" onClick={onClose}>
-      <div role="dialog" aria-modal="true" aria-label={`دستور پخت ${dish.name}`} className="recipe-modal-dialog relative w-full h-[100dvh] sm:w-[95vw] sm:h-[95vh] [@media(orientation:landscape)_and_(max-height:500px)]:h-auto rounded-none sm:rounded-[3rem] bg-white flex flex-col animate-enter shadow-2xl overflow-hidden [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible" onClick={e => e.stopPropagation()}>
+      <div ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={`دستور پخت ${dish.name}`} className="recipe-modal-dialog relative w-full h-[100dvh] sm:w-[95vw] sm:h-[95vh] [@media(orientation:landscape)_and_(max-height:500px)]:h-auto rounded-none sm:rounded-[3rem] bg-white flex flex-col animate-enter shadow-2xl overflow-hidden [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible" onClick={e => e.stopPropagation()}>
         
         {/* Glassmorphism Header */}
         <div className="recipe-modal-header sticky top-0 [@media(orientation:landscape)_and_(max-height:500px)]:relative z-[100] bg-white/90 backdrop-blur-2xl border-b border-white/50 p-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-8 [@media(orientation:landscape)_and_(max-height:500px)]:p-4 shadow-xl flex-shrink-0">

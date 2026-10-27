@@ -23,11 +23,12 @@ interface PreferencesProps {
   onInstallPromptConsumed?: () => void;
 }
 
-const ToggleSwitch = ({ isActive, onChange }: { isActive: boolean; onChange: () => void }) => {
+const ToggleSwitch = ({ isActive, onChange, label }: { isActive: boolean; onChange: () => void; label: string }) => {
   return (
     <button
       onClick={(e) => { e.stopPropagation(); onChange(); }}
       type="button"
+      role="switch" aria-checked={isActive} aria-label={label}
       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
         isActive ? 'bg-teal-500' : 'bg-slate-200'
       }`}
@@ -86,50 +87,44 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
     reader.readAsDataURL(file);
   };
 
+  const savePreferences = async (updates: Partial<UserProfile>) => {
+    try {
+      const updated = await UserService.updateProfile(user.username, updates);
+      onUpdateUser(updated);
+    } catch {
+      onNotify?.('ذخیره انجام نشد', 'فضای ذخیره‌سازی مرورگر را بررسی کنید و دوباره تلاش کنید.', AlertTriangle, 'rose');
+    }
+  };
+
   const toggleCategory = (cat: DishCategory) => {
-    onUpdateUser(prev => {
-      const currentExcluded = prev.excludedCategories || [];
-      let newExcluded: DishCategory[];
-      if (currentExcluded.includes(cat)) {
-        newExcluded = currentExcluded.filter(c => c !== cat);
-      } else {
-        newExcluded = [...currentExcluded, cat];
-      }
-      UserService.updateProfile(prev.username, { excludedCategories: newExcluded });
-      return { ...prev, excludedCategories: newExcluded };
-    });
+    const current = user.excludedCategories || [];
+    void savePreferences({ excludedCategories: current.includes(cat) ? current.filter(value => value !== cat) : [...current, cat] });
   };
 
   const toggleNature = (nature: NatureType) => {
-    onUpdateUser(prev => {
-      const currentNatures = prev.preferredNatures || ['balanced'];
+      const currentNatures = user.preferredNatures || ['balanced'];
       const isActive = currentNatures.includes(nature);
       let newNatures: NatureType[];
       if (isActive) {
         if (currentNatures.length <= 1) {
           if (onNotify) onNotify('خطای تنظیمات', 'حداقل یک طبع باید فعال بماند.', AlertTriangle, 'rose');
-          return prev;
+          return;
         }
         newNatures = currentNatures.filter(n => n !== nature);
       } else {
         newNatures = [...currentNatures, nature];
       }
-      UserService.updateProfile(prev.username, { preferredNatures: newNatures });
-      return { ...prev, preferredNatures: newNatures };
-    });
+      void savePreferences({ preferredNatures: newNatures });
   };
 
   const toggleIngredient = (ing: string) => {
-    onUpdateUser(prev => {
-      let current = [...(prev.dislikedIngredients || [])];
+      let current = [...(user.dislikedIngredients || [])];
       if (current.includes(ing)) {
         current = current.filter(i => i !== ing);
       } else {
         current = [...current, ing];
       }
-      UserService.updateProfile(prev.username, { dislikedIngredients: current });
-      return { ...prev, dislikedIngredients: current };
-    });
+      void savePreferences({ dislikedIngredients: current });
   };
 
   const toPersian = (num: number | string | undefined | null) => {
@@ -402,7 +397,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                              <p className="text-[10px] text-slate-400 font-semibold mt-0.5 leading-normal">حذف خودکار غذاهای گوشتی و کباب‌ها</p>
                           </div>
                        </div>
-                       <ToggleSwitch 
+                       <ToggleSwitch label="رژیم بدون گوشت"
                           isActive={!!user.meatlessMode} 
                           onChange={() => onToggleFilter?.('meatlessMode')} 
                        />
@@ -419,7 +414,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                              <p className="text-[10px] text-slate-400 font-semibold mt-0.5 leading-normal">نمایش غذاهای پسندیده</p>
                           </div>
                        </div>
-                       <ToggleSwitch 
+                       <ToggleSwitch label="فقط غذاهای محبوب من"
                           isActive={!!user.onlyFavoritesMode} 
                           onChange={() => onToggleFilter?.('onlyFavoritesMode')} 
                        />
@@ -436,7 +431,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                              <p className="text-[10px] text-slate-400 font-semibold mt-0.5 leading-normal">اولویت عالی به غذاهای زیر ۴۵ دقیقه</p>
                           </div>
                        </div>
-                       <ToggleSwitch 
+                       <ToggleSwitch label="غذاهای سریع‌پخت"
                           isActive={!!user.quickMealsMode} 
                           onChange={() => onToggleFilter?.('quickMealsMode')} 
                        />
@@ -457,7 +452,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                              </p>
                           </div>
                        </div>
-                       <ToggleSwitch 
+                       <ToggleSwitch label="چالش‌های هفتگی"
                           isActive={!!user.activeChallengeId} 
                           onChange={handleMainChallengeToggle} 
                        />

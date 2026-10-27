@@ -1,5 +1,6 @@
 import { isAdminSession } from './admin-auth.mjs';
 import { isSameOriginMutation } from './request-security.mjs';
+import { parseBody } from './community-recipe-lib.mjs';
 
 const response = (statusCode, body) => ({ statusCode, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify(body) });
 const ALLOWED_UNITS = new Set(['کیلوگرم', 'گرم', 'عدد', 'بسته', 'قوطی', 'لیتر', 'میلی‌لیتر', 'پیمانه', 'استکان', 'لیوان', 'قاشق غذاخوری', 'قاشق مرباخوری', 'قاشق چایخوری', 'حبه', 'تکه', 'شاخه', 'ورق', 'حلقه', 'دانه']);
@@ -12,7 +13,7 @@ export const handler = async (event) => {
   if (!process.env.GITHUB_TOKEN) return response(503, { error: 'دسترسی GitHub در Netlify تنظیم نشده است.' });
 
   try {
-    const payload = JSON.parse(event.body || '{}');
+    const payload = parseBody(event, 2_500_000);
     const units = payload.units;
     const referenceNotes = payload.referenceNotes || {};
     if (!referenceNotes || typeof referenceNotes !== 'object' || Array.isArray(referenceNotes) || Object.keys(referenceNotes).length > 3000) return response(400, { error: 'یادداشت‌های مرجع معتبر نیست.' });
@@ -52,7 +53,8 @@ export const handler = async (event) => {
     const result = await committed.json().catch(() => ({}));
     if (!committed.ok) return response(502, { error: committed.status === 409 ? 'همزمان تنظیم دیگری تغییر کرده؛ صفحه را تازه کن و دوباره ذخیره کن.' : 'ثبت واحدها در GitHub انجام نشد. دسترسی توکن و شاخهٔ main را بررسی کن.' });
     return response(200, { commit: result.commit?.sha, count: Object.keys(units).length, deploy: 'Netlify deploy will start after the GitHub commit.' });
-  } catch {
+  } catch (error) {
+    if ([400, 413].includes(error?.statusCode)) return response(error.statusCode, { error: error.message });
     return response(500, { error: 'ارتباط امن با GitHub انجام نشد؛ تنظیم‌های قبلی دست‌نخورده ماند.' });
   }
 };

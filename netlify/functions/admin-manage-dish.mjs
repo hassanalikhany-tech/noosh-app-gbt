@@ -2,6 +2,7 @@ import { isAdminSession } from './admin-auth.mjs';
 import { applyCatalogAction } from './catalog-management.mjs';
 import { json, parseBody, readGithubJson, writeGithubJson } from './community-recipe-lib.mjs';
 import { isSameOriginMutation } from './request-security.mjs';
+import { createHash } from 'node:crypto';
 
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'روش درخواست پشتیبانی نمی‌شود.' });
@@ -13,11 +14,14 @@ export const handler = async (event) => {
     const payload = parseBody(event);
     const path = 'data/recipes_overrides.json';
     const current = await readGithubJson(path);
+    const revision = createHash('sha256').update(JSON.stringify(current.value)).digest('hex');
+    if (!current.value || payload.baseRevision !== revision) return json(409, { error: 'فهرست عمومی پس از بازشدن این صفحه تغییر کرده است؛ صفحه را تازه کن و دوباره تلاش کن.' });
     const result = applyCatalogAction(current.value, payload);
     if (!result.changed) return json(200, { success: true, changed: false, name: result.name });
     const commit = await writeGithubJson(path, result.catalog, `${payload.action} published recipe: ${result.name || payload.dishId}`, current.sha);
-    return json(200, { success: true, changed: true, action: payload.action, name: result.name, commit });
+    return json(200, { success: true, changed: true, action: payload.action, name: result.name, commit, revision: createHash('sha256').update(JSON.stringify(result.catalog)).digest('hex') });
   } catch (error) {
+    if ([400, 413].includes(error?.statusCode)) return json(error.statusCode, { error: error.message });
     console.error('Admin catalog change failed:', error);
     const message = error instanceof Error ? error.message : 'ثبت تغییر غذا در GitHub انجام نشد.';
     return json(502, { error: message });

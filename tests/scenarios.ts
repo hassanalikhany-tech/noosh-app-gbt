@@ -20,6 +20,8 @@ import { PANTRY_ITEMS, SPICES_AND_ADDITIVES, getIngredientCategoryId } from '../
 import { DEFAULT_DISHES } from '../data/recipes';
 import recipeCatalog from '../data/recipes_catalog.json';
 import recipeOverrides from '../data/recipes_overrides.json';
+import { validBackupProfile } from '../utils/backupValidation';
+import { recipeQuantityProblem } from '../utils/quantitySanity.mjs';
 const storage = new Map();
 globalThis.localStorage = { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) } as any;
 globalThis.window = { dispatchEvent: () => true } as any;
@@ -90,6 +92,12 @@ assert.equal(unknownVolumeVsWeight.unconvertibleItems.length, 0, 'The shared est
 const beansStaySeparate = getInventoryUpdate([{id:'pinto',name:'لوبیا چیتی',amount:1,unit:'کیلوگرم'}], [{item:'لوبیا قرمز',amount:500,unit:'گرم'}], 4);
 assert.equal(beansStaySeparate.newInventory[0].amount, 1, 'Similar but distinct bean varieties do not share pantry stock');
 assert.equal(beansStaySeparate.missingItems[0].amount, 500, 'A distinct bean variety remains a full shopping need');
+const alternativeStock = getInventoryUpdate([{id:'beef',name:'گوشت گوساله',amount:250,unit:'گرم'}], [{item:'گوشت گوسفندی یا گوساله',amount:200,unit:'گرم'}], 4);
+assert.equal(alternativeStock.newInventory[0].amount, 50, 'A simple recipe alternative consumes only the matching ingredient stocked at home');
+assert.equal(alternativeStock.missingItems.length, 0, 'A stocked recipe alternative does not create a false shopping shortage');
+const alternativeShortage = getInventoryUpdate([], [{item:'گوشت گوسفندی یا گوساله',amount:200,unit:'گرم'}], 4);
+assert.equal(alternativeShortage.missingItems[0].item, 'گوشت گوسفندی', 'When neither alternative is stocked, shopping lists one clear default option');
+assert.equal(getInventoryUpdate([], [{item:'آب',amount:250,unit:'میلی‌لیتر'}], 4).lines.length, 0, 'Tap water is not tracked as a pantry or shopping item');
 const recipeQuantityUsesRawBasis = getInventoryUpdate([{id:'rice',name:'برنج',amount:5,unit:'کیلوگرم'}], [{item:'برنج پخته',amount:300,unit:'گرم',state:'prepared'}], 4);
 assert.equal(getPhysicalForm('برنج پخته'), 'raw', 'All recipe ingredient references use the raw-food basis');
 assert.equal(recipeQuantityUsesRawBasis.newInventory[0].amount, 4.7, 'Recipe quantities are consumed as raw ingredients without cooking-yield adjustments');
@@ -244,3 +252,18 @@ for (const dish of completeCatalog) {
   }
 }
 console.log(`Full catalog search audit passed for ${completeCatalog.length} recipes, joined names and suggestion-to-card consistency.`);
+
+const profileBackup = { ...GuestService.get(), weeklyPlan: [], cookingTransactions: [], inventory: [], customShoppingList: [] };
+assert.equal(validBackupProfile(profileBackup), true, 'A normal full-device profile remains restorable');
+assert.equal(validBackupProfile({ ...profileBackup, inventory: [null] }), false);
+assert.equal(validBackupProfile({ ...profileBackup, dislikedIngredients: [null] }), false);
+assert.equal(validBackupProfile({ ...profileBackup, weeklyPlan: [{ dayName: 'شنبه', dish: {} }] }), false);
+assert.equal(validBackupProfile({ ...profileBackup, inventory: [{ id: 'x', name: 'برنج', amount: -1, unit: 'کیلوگرم', minThreshold: 0, lastUpdated: 0 }] }), false);
+for (const dish of recipeOverrides.dishes) for (const ingredient of dish.ingredients) assert.equal(recipeQuantityProblem(ingredient, dish.servings || 4), '', `Published quantity for ${dish.name}: ${ingredient.item}`);
+const beforeBatch = RealRecipes.getRawDishes();
+const fetchBeforeBatch = globalThis.fetch;
+globalThis.fetch = async () => ({ ok: false, json: async () => ({ error: 'Publication unavailable' }) }) as any;
+assert.equal(await RealRecipes.updateDishesBatch([{ id: beforeBatch[0].id, data: { name: 'Unpublished edit' } }]), false);
+assert.equal(RealRecipes.getRawDishes(), beforeBatch, 'Failed publication cannot change the visible device catalog');
+globalThis.fetch = fetchBeforeBatch;
+console.log('Backup and publication checks passed: nested corrupt data rejected, catalog quantities bounded and failed edits leave the catalog unchanged.');

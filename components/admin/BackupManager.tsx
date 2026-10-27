@@ -2,8 +2,9 @@ import React, { useRef, useState } from 'react';
 import { GuestService } from '../../services/guestService';
 import { RecipeService, validPersonalRecipes } from '../../services/recipeService';
 import { CATEGORY_LABELS, Dish } from '../../types';
+import { validBackupDish, validBackupProfile } from '../../utils/backupValidation';
 
-export const validCatalog = (value: unknown): value is Dish[] => Array.isArray(value) && value.length > 0 && value.every(d => d && typeof d.id === 'string' && typeof d.name === 'string' && d.category in CATEGORY_LABELS && Array.isArray(d.ingredients) && d.ingredients.every((i: any) => typeof i.item === 'string' && typeof i.amount === 'number' && Number.isFinite(i.amount) && i.amount >= 0 && typeof i.unit === 'string') && Array.isArray(d.recipeSteps) && d.recipeSteps.every((s: unknown) => typeof s === 'string'));
+export const validCatalog = (value: unknown): value is Dish[] => Array.isArray(value) && value.length > 0 && value.length <= 20000 && value.every(validBackupDish);
 
 const BackupManager: React.FC<{personalOnly?: boolean}> = ({personalOnly = false}) => {
   const input = useRef<HTMLInputElement>(null);
@@ -18,23 +19,25 @@ const BackupManager: React.FC<{personalOnly?: boolean}> = ({personalOnly = false
     if (!file) return;
     setBusy(true); setMessage('');
     try {
+      if (file.size > 100_000_000) throw new Error('حجم فایل پشتیبان بیش از ۱۰۰ مگابایت است.');
       const data = JSON.parse(await file.text());
+      if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('فایل پشتیبان معتبر نوش نیست.');
       if (data.format === 'noosh-personal-recipes' && data.version === 1 && validPersonalRecipes(data.recipes)) {
         if (!confirm('رسپی‌های شخصی این فایل روی همین دستگاه بازیابی شوند؟ رسپی‌های هم‌شناسه به‌روزرسانی و بقیه به فهرست افزوده می‌شوند.')) return;
         const count = await RecipeService.restorePersonalDishes(data.recipes);
         setMessage(`${count.toLocaleString('fa-IR')} رسپی شخصی بازیابی شد.`);
         return;
       }
-      if (data.format !== 'noosh-device-backup' || ![1, 2].includes(data.version) || !data.profile || !Number.isInteger(data.profile.familySize) || data.profile.familySize < 1 || data.profile.familySize > 20) throw new Error('فایل پشتیبان معتبر نوش نیست.');
-      for (const key of ['inventory', 'favoriteDishIds', 'blacklistedDishIds', 'dislikedIngredients', 'excludedCategories', 'preferredNatures', 'customShoppingList', 'history']) {
-        if (!Array.isArray(data.profile[key])) throw new Error('ساختار تنظیمات در فایل پشتیبان معتبر نیست.');
-      }
+      if (data.format !== 'noosh-device-backup' || ![1, 2].includes(data.version) || !validBackupProfile(data.profile)) throw new Error('ساختار تنظیمات، انبار یا برنامهٔ غذایی در فایل پشتیبان معتبر نیست؛ اطلاعات فعلی تغییر نکرد.');
       if (!personalOnly && data.dishes && !validCatalog(data.dishes)) throw new Error('فهرست غذاهای فایل معتبر نیست.');
       if (data.personalRecipes !== undefined && !validPersonalRecipes(data.personalRecipes)) throw new Error('رسپی‌های شخصی فایل پشتیبان معتبر نیستند.');
-      if (!confirm('اطلاعات این فایل روی همین دستگاه بازیابی شود؟ تنظیمات شخصی جایگزین می‌شوند و رسپی‌های شخصی به فهرست افزوده یا به‌روزرسانی می‌شوند.')) return;
+      const confirmation = !personalOnly && data.dishes
+        ? 'فهرست عمومی غذاهای این پشتیبان در GitHub ثبت و برای همهٔ کاربران سایت منتشر شود؟ تنظیمات شخصی همین دستگاه نیز بازیابی می‌شوند.'
+        : 'اطلاعات این فایل روی همین دستگاه بازیابی شود؟ تنظیمات شخصی جایگزین می‌شوند و رسپی‌های شخصی به فهرست افزوده یا به‌روزرسانی می‌شوند.';
+      if (!confirm(confirmation)) return;
       if (Array.isArray(data.personalRecipes)) await RecipeService.restorePersonalDishes(data.personalRecipes);
       if (!personalOnly && data.dishes) {
-        await RecipeService.seedFromExternalData(data.dishes);
+        await RecipeService.seedFromExternalData(data.dishes, Array.isArray(data.hidden) ? data.hidden : undefined);
         if (Array.isArray(data.hidden) && data.hidden.every((id: unknown) => typeof id === 'string')) localStorage.setItem('global_hidden_dish_ids_v1', JSON.stringify(data.hidden));
         if (data.renamed && typeof data.renamed === 'object' && !Array.isArray(data.renamed) && Object.values(data.renamed).every(v => typeof v === 'string')) localStorage.setItem('renamed_dishes_map_v1', JSON.stringify(data.renamed));
       }

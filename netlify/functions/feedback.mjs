@@ -20,10 +20,10 @@ export const handler = async (event) => {
   }
 
   try {
+    const payload = event.httpMethod === 'GET' ? null : parseBody(event, 30_000);
     const blobs = store(event, STORE_NAME);
 
     if (event.httpMethod === 'POST') {
-      const payload = parseBody(event);
       if (payload.website) return reply(200, { success: true }); // Honeypot for basic spam protection.
       if (!['suggestion', 'issue', 'criticism', 'feature_request'].includes(payload.category)) return reply(400, { error: 'موضوع پیام معتبر نیست.' });
       if (!validText(payload.message, 5000)) return reply(400, { error: 'متن پیام را بنویسید؛ حداکثر ۵۰۰۰ نویسه.' });
@@ -60,7 +60,6 @@ export const handler = async (event) => {
       return reply(200, { feedback: feedback.filter(Boolean).sort((a, b) => b.created_at - a.created_at) });
     }
 
-    const payload = parseBody(event);
     if (typeof payload.id !== 'string' || !/^[0-9a-f-]{36}$/iu.test(payload.id) || !statuses.includes(payload.status)) {
       return reply(400, { error: 'شناسه یا وضعیت بازخورد معتبر نیست.' });
     }
@@ -77,6 +76,7 @@ export const handler = async (event) => {
     await blobs.set(key, JSON.stringify(updated));
     return reply(200, { success: true, feedback: updated });
   } catch (error) {
+    if ([400, 413].includes(error?.statusCode)) return reply(error.statusCode, { error: error.message });
     console.error('Feedback request failed:', error);
     return reply(503, { error: 'ارتباط با صف بازخورد برقرار نشد؛ دوباره تلاش کنید.' });
   }

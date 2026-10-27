@@ -66,6 +66,16 @@ export const DB = {
   },
 
   // متدهای عمومی برای کار با جداول
+  putMany: async (storeName: string, items: any[]): Promise<void> => {
+    const db = await DB.init();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(storeName, 'readwrite');
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = transaction.onabort = () => reject(transaction.error || new Error('Storage transaction failed'));
+      const store = transaction.objectStore(storeName);
+      for (const item of items) store.put(item);
+    });
+  },
   put: async (storeName: string, data: any): Promise<void> => {
     const db = await DB.init();
     return new Promise((resolve, reject) => {

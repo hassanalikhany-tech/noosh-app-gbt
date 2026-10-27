@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { connectLambda, getStore } from '@netlify/blobs';
+import { recipeQuantityProblem } from '../../utils/quantitySanity.mjs';
 
 export const STORE_NAME = 'noosh-community-recipes';
 // These endpoints use Netlify's Lambda-compatible handler format. Blobs needs
@@ -11,7 +12,19 @@ export const store = (event, name = STORE_NAME) => {
   return getStore(name);
 };
 export const json = (statusCode, body) => ({ statusCode, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify(body) });
-export const parseBody = (event) => JSON.parse(event.body || '{}');
+export class RequestBodyError extends Error {
+  constructor(statusCode, message) { super(message); this.statusCode = statusCode; }
+}
+export const parseBody = (event, maxBytes = 2_500_000) => {
+  if (typeof event.body !== 'string') throw new RequestBodyError(400, 'بدنهٔ درخواست باید یک شیء JSON معتبر باشد.');
+  if (event.body.length > maxBytes * (event.isBase64Encoded ? 1.4 : 1)) throw new RequestBodyError(413, 'حجم درخواست بیش از حد مجاز است.');
+  const body = event.isBase64Encoded ? Buffer.from(event.body, 'base64').toString('utf8') : event.body;
+  if (Buffer.byteLength(body, 'utf8') > maxBytes) throw new RequestBodyError(413, 'حجم درخواست بیش از حد مجاز است.');
+  let value;
+  try { value = JSON.parse(body); } catch { throw new RequestBodyError(400, 'ساختار JSON درخواست معتبر نیست.'); }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new RequestBodyError(400, 'بدنهٔ درخواست باید یک شیء JSON معتبر باشد.');
+  return value;
+};
 export const validText = (value, max) => typeof value === 'string' && value.trim().length > 0 && value.length <= max && !/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/u.test(value);
 export const decodeRecipeImage = (value) => {
   if (typeof value !== 'string') return null;
@@ -26,11 +39,14 @@ export const decodeRecipeImage = (value) => {
 };
 export const validRecipe = (dish) => {
   const categories = ['ash','polo','khorak','stew','soup','fastfood','kabab','international','dessert'];
-  return dish && typeof dish === 'object' && validText(dish.name, 120) && categories.includes(dish.category) &&
+  return dish && typeof dish === 'object' && !Array.isArray(dish) && validText(dish.name, 120) && categories.includes(dish.category) &&
     typeof dish.description === 'string' && dish.description.length <= 1000 && Array.isArray(dish.ingredients) && dish.ingredients.length > 0 && dish.ingredients.length <= 60 &&
-    dish.ingredients.every((item) => item && validText(item.item, 120) && Number.isFinite(item.amount) && item.amount >= 0 && item.amount <= 100000000 && validText(item.unit, 40)) &&
+    dish.ingredients.every((item) => item && validText(item.item, 120) && Number.isFinite(item.amount) && item.amount >= 0 && item.amount <= 100000000 && validText(item.unit, 40) && !recipeQuantityProblem(item, dish.servings)) &&
     Array.isArray(dish.recipeSteps) && dish.recipeSteps.length > 0 && dish.recipeSteps.length <= 60 && dish.recipeSteps.every((step) => validText(step, 1000)) &&
     (!dish.nationality || (typeof dish.nationality === 'string' && dish.nationality.length <= 80)) &&
+    (dish.servings === undefined || Number.isInteger(dish.servings) && dish.servings >= 1 && dish.servings <= 100) &&
+    (dish.cookTime === undefined || Number.isFinite(dish.cookTime) && dish.cookTime >= 0 && dish.cookTime <= 1440) &&
+    (dish.calories === undefined || Number.isFinite(dish.calories) && dish.calories >= 0 && dish.calories <= 100000) &&
     (!dish.imageUrl || (typeof dish.imageUrl === 'string' && dish.imageUrl.length <= 2_000_000 && Boolean(decodeRecipeImage(dish.imageUrl))));
 };
 export const requestKey = (id) => `pending:${id}`;

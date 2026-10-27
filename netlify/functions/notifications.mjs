@@ -17,6 +17,7 @@ export const handler = async (event) => {
   if ((event.httpMethod === 'POST' || adminScope) && !isAdmin) return reply(401, { error: 'برای مدیریت اعلان‌ها باید وارد پنل مدیریت شوید.' });
 
   try {
+    const payload = event.httpMethod === 'POST' ? parseBody(event, 30_000) : null;
     const blobs = store(event, STORE_NAME);
     if (event.httpMethod === 'GET') {
       const page = await blobs.list({ prefix, limit: 500 });
@@ -28,7 +29,6 @@ export const handler = async (event) => {
       return reply(200, { notifications: adminScope ? sorted : sorted.filter(item => item.target_group === 'all') });
     }
 
-    const payload = parseBody(event);
     if (!validText(payload.title, 120) || !validText(payload.message, 5000)) return reply(400, { error: 'عنوان و متن اعلان را کامل کنید (حداکثر ۵۰۰۰ نویسه).' });
     // Accounts and recipient lists are intentionally local-only. Public announcements can only go to everyone.
     if (payload.targetGroup && payload.targetGroup !== 'all') return reply(400, { error: 'در این نسخه فقط اعلان همگانی برای همهٔ همراهان قابل ارسال است.' });
@@ -55,6 +55,7 @@ export const handler = async (event) => {
     if (responseKey) await blobs.set(responseKey, notification.id);
     return reply(201, { success: true, notification });
   } catch (error) {
+    if ([400, 413].includes(error?.statusCode)) return reply(error.statusCode, { error: error.message });
     console.error('Notification request failed:', error);
     return reply(503, { error: 'ثبت یا دریافت اعلان انجام نشد؛ دوباره تلاش کنید.' });
   }

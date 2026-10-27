@@ -6,6 +6,7 @@ import App from './App';
 import './styles.css';
 import './mobile.css';
 import { startStartupScreen } from './utils/startup';
+import ApplicationErrorBoundary from './components/ApplicationErrorBoundary';
 
 startStartupScreen();
 
@@ -25,6 +26,6 @@ if (!rootElement) {
 const root = createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <ApplicationErrorBoundary><App /></ApplicationErrorBoundary>
   </React.StrictMode>
 );

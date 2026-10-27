@@ -29,6 +29,7 @@ export const handler = async (event) => {
     await blobs.set(requestKey(id), JSON.stringify(request));
     return publicAppJson(event, 200, { success: true, requestId: id }, 'POST, OPTIONS');
   } catch (error) {
+    if ([400, 413].includes(error?.statusCode)) return publicAppJson(event, error.statusCode, { error: error.message }, 'POST, OPTIONS');
     console.error('Community recipe submission failed:', error);
     return publicAppJson(event, 503, { error: 'ارسال امن برای بررسی در دسترس نیست؛ کمی بعد دوباره تلاش کن.' }, 'POST, OPTIONS');
   }

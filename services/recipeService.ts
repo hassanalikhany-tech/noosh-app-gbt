@@ -7,6 +7,7 @@ import { publicFunctionUrl } from './publicFunctionUrl';
 
 let recipeOverrides: { dishes: Dish[]; hiddenDishIds: string[] } = { dishes: [], hiddenDishIds: [] };
 let bundledCatalogPromise: Promise<void> | null = null;
+let catalogRevision = '';
 
 const loadBundledCatalog = () => {
   if (!bundledCatalogPromise) {
@@ -15,6 +16,8 @@ const loadBundledCatalog = () => {
       const catalog = await response.json() as typeof recipeOverrides;
       if (!Array.isArray(catalog?.dishes) || !Array.isArray(catalog?.hiddenDishIds)) throw new Error('ساختار کتابخانهٔ رسپی‌ها معتبر نیست.');
       recipeOverrides = catalog;
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(catalog)));
+      catalogRevision = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
     }).catch(error => {
       bundledCatalogPromise = null;
       throw error;
@@ -249,7 +252,7 @@ const isValidPersonalDish = (dish: unknown): dish is Dish => {
   const candidate = dish as Dish;
   return candidate.isPersonal === true && typeof candidate.id === 'string' && candidate.id.startsWith('personal-') &&
     typeof candidate.name === 'string' && candidate.name.trim().length > 0 && candidate.name.length <= 120 &&
-    candidate.category in CATEGORY_LABELS &&
+    Object.hasOwn(CATEGORY_LABELS, candidate.category) &&
     typeof candidate.description === 'string' && Array.isArray(candidate.ingredients) && candidate.ingredients.length <= 100 &&
     candidate.ingredients.every(item => item && typeof item.item === 'string' && item.item.trim().length > 0 && Number.isFinite(item.amount) && item.amount >= 0 && typeof item.unit === 'string') &&
     Array.isArray(candidate.recipeSteps) && candidate.recipeSteps.length <= 100 && candidate.recipeSteps.every(step => typeof step === 'string') &&
@@ -266,10 +269,11 @@ const notifyRecipesUpdate = (count: number, sync?: { syncing?: boolean; error?: 
 const publishSingleDishChange = async (payload: { action: 'edit' | 'delete' | 'restore'; dish?: Dish; dishId?: string }) => {
   try {
     const response = await fetch('/.netlify/functions/admin-manage-dish', {
-      method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload)
+      method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...payload, baseRevision: catalogRevision })
     });
     const result = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(result.error || 'ثبت تغییر در فهرست عمومی انجام نشد.');
+    if (result.revision) catalogRevision = result.revision;
     window.dispatchEvent(new CustomEvent('recipes-published', { detail: { commit: result.commit, name: result.name, action: payload.action } }));
     return result as { success: boolean; changed: boolean; commit?: string; name?: string };
   } catch (error) {
@@ -395,19 +399,21 @@ export const RecipeService = {
   updatePersonalShareStatus: async (dishId: string, status: 'pending' | 'approved' | 'rejected', feedback = ''): Promise<void> => {
     const current = personalDishes.find(item => item.id === dishId);
     if (!current || (current.communityShareStatus === status && (status !== 'rejected' || current.communityShareFeedback === feedback))) return;
-    personalDishes = personalDishes.map(item => item.id === dishId ? { ...item, communityShareStatus: status, ...(status === 'rejected' ? { communityShareFeedback: feedback } : {}) } : item);
-    await DB.put('settings', { key: PERSONAL_DISHES_KEY, recipes: personalDishes });
+    const next = personalDishes.map(item => item.id === dishId ? { ...item, communityShareStatus: status, ...(status === 'rejected' ? { communityShareFeedback: feedback } : {}) } : item);
+    await DB.put('settings', { key: PERSONAL_DISHES_KEY, recipes: next });
+    personalDishes = next;
     notifyRecipesUpdate(RecipeService.getAllDishes().length);
   },
 
-  publishCatalog: async (): Promise<{ success: boolean; commit?: string; error?: string }> => {
+  publishCatalog: async (dishes = cachedDishes, hiddenDishIds = [...new Set([...getHiddenDishIds(), ...recipeOverrides.hiddenDishIds])].filter(id => !getRestoredDishIds().includes(id))): Promise<{ success: boolean; commit?: string; error?: string }> => {
     try {
       const response = await fetch('/.netlify/functions/publish-catalog', {
         method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ dishes: cachedDishes, hiddenDishIds: [...new Set([...getHiddenDishIds(), ...recipeOverrides.hiddenDishIds])] }),
+        body: JSON.stringify({ dishes, hiddenDishIds, baseRevision: catalogRevision }),
       });
       const result = await response.json();
       if (!response.ok) return { success: false, error: result.error || 'ثبت در GitHub انجام نشد.' };
+      if (result.revision) catalogRevision = result.revision;
       window.dispatchEvent(new CustomEvent('recipes-published', { detail: { commit: result.commit, count: result.count } }));
       return { success: true, commit: result.commit };
     } catch {
@@ -426,7 +432,7 @@ export const RecipeService = {
       const updatedDish = { ...current, ...updates, id: dishId, localEdited: true };
       await publishSingleDishChange({ action: 'edit', dish: updatedDish });
       cachedDishes = cachedDishes.map(d => d.id === dishId ? updatedDish : d);
-      await DB.put('dishes', updatedDish);
+      try { await DB.put('dishes', updatedDish); } catch { console.warn('Published recipe could not be cached on this device.'); }
       notifyRecipesUpdate(cachedDishes.length);
       return true;
     } catch (e) { return false; }
@@ -436,23 +442,21 @@ export const RecipeService = {
     if (updates.length === 0) return true;
     try {
       // Update cache and local DB
-      cachedDishes = cachedDishes.map(d => {
+      const next = cachedDishes.map(d => {
         const update = updates.find(u => u.id === d.id);
         return update ? { ...d, ...update.data, localEdited: true } : d;
       });
       
-      const dbInstance = await DB.init();
-      const transaction = dbInstance.transaction('dishes', 'readwrite');
-      const store = transaction.objectStore('dishes');
-      for (const u of updates) {
-        const updatedDish = cachedDishes.find(d => d.id === u.id);
-        if (updatedDish) await store.put(updatedDish);
+      const published = await RecipeService.publishCatalog(next);
+      if (!published.success) {
+        window.dispatchEvent(new CustomEvent('recipes-publish-error', { detail: published.error }));
+        return false;
       }
-      
+      cachedDishes = next;
+      try { await DB.putMany('dishes', next.filter(d => updates.some(update => update.id === d.id))); }
+      catch { console.warn('Published recipe batch could not be cached on this device.'); }
       notifyRecipesUpdate(cachedDishes.length);
-      const published = await RecipeService.publishCatalog();
-      if (!published.success) window.dispatchEvent(new CustomEvent('recipes-publish-error', { detail: published.error }));
-      return published.success;
+      return true;
     } catch (e) {
       console.error("Batch update failed:", e);
       return false;
@@ -463,7 +467,7 @@ export const RecipeService = {
     try {
       await publishSingleDishChange({ action: 'delete', dishId });
       hideDishIds([dishId]);
-      await DB.delete('dishes', dishId);
+      try { await DB.delete('dishes', dishId); } catch { console.warn('Published deletion could not be cached on this device.'); }
       notifyRecipesUpdate(cachedDishes.length);
     } catch (e) { return false; }
     return true;
@@ -493,16 +497,15 @@ export const RecipeService = {
 
   getLocalCount: () => cachedDishes.length,
 
-  seedFromExternalData: async (dishes: Dish[]) => {
-    cachedDishes = mergeAllDishes([cachedDishes, dishes.map(d => ({ ...d, localEdited: true }))]);
-    const dbInstance = await DB.init();
-    const transaction = dbInstance.transaction('dishes', 'readwrite');
-    const store = transaction.objectStore('dishes');
-    for (const dish of cachedDishes) await store.put(dish);
+  seedFromExternalData: async (dishes: Dish[], hiddenDishIds?: string[]) => {
+    const next = mergeAllDishes([cachedDishes, dishes.map(d => ({ ...d, localEdited: true }))]);
+    const published = await RecipeService.publishCatalog(next, hiddenDishIds);
+    if (!published.success) throw new Error(published.error);
+    cachedDishes = next;
+    try { await DB.putMany('dishes', cachedDishes); }
+    catch { console.warn('Published catalog could not be cached on this device.'); }
     isInitialized = true;
     notifyRecipesUpdate(cachedDishes.length);
-    const published = await RecipeService.publishCatalog();
-    if (!published.success) throw new Error(published.error);
     return { success: true, message: "انجام شد" };
   },
 
