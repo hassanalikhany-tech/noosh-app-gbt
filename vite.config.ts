@@ -1,9 +1,10 @@
 import path from 'path';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig(() => ({
+export default defineConfig(({ mode }) => ({
+      publicDir: mode === 'native' ? false : 'public',
       server: {
         port: 3000,
         host: '0.0.0.0',
@@ -19,7 +20,24 @@ export default defineConfig(() => ({
           runtimeAssets.push('/data/recipes_overrides.json');
           this.emitFile({ type: 'asset', fileName: 'sw-precache.json', source: JSON.stringify({ assets: runtimeAssets }) });
         }
-      }],
+      }, ...(mode === 'native' ? [{
+        name: 'noosh-native-public-assets',
+        generateBundle() {
+          const publicRoot = path.resolve(__dirname, 'public');
+          const emitPublicFiles = (directory, relativeDirectory = '') => {
+            for (const entry of readdirSync(directory)) {
+              const absolutePath = path.join(directory, entry);
+              const relativePath = path.posix.join(relativeDirectory, entry);
+              if (relativePath.startsWith('images/dishes/')) continue;
+              if (statSync(absolutePath).isDirectory()) emitPublicFiles(absolutePath, relativePath);
+              else if (!['sw.js', 'sw-precache.json', 'data/recipes_overrides.json'].includes(relativePath)) {
+                this.emitFile({ type: 'asset', fileName: relativePath, source: readFileSync(absolutePath) });
+              }
+            }
+          };
+          emitPublicFiles(publicRoot);
+        },
+      }] : [])],
       build: {
         rollupOptions: {
           output: {
