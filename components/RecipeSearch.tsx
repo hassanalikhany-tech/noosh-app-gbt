@@ -1,6 +1,6 @@
 import { normalizePersian } from '../utils/text';
 
-import { Search, Database, ChevronRight, ChevronLeft, LayoutList, MapPin, BarChart3, X } from 'lucide-react';
+import { Search, Database, ChevronRight, ChevronLeft, LayoutList, MapPin, X } from 'lucide-react';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Dish, DishCategory, CATEGORY_LABELS, UserProfile } from '../types';
 import { RecipeService } from '../services/recipeService';
@@ -244,31 +244,22 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
               )}
            </div>
 
-           <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center overflow-x-auto no-scrollbar pb-1">
+           <div className="grid grid-cols-5 grid-rows-2 gap-1.5 pb-1 sm:flex sm:flex-wrap sm:items-center sm:gap-2" role="group" aria-label="فیلتر دسته‌بندی غذاها">
               <button 
                 onClick={() => { setSelectedCategory('all'); setSelectedCountryId('all'); setCurrentPage(1); }} 
-                className={`px-3 py-2 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-2xl text-[9px] sm:text-sm font-black border transition-all whitespace-nowrap ${selectedCategory === 'all' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white/80 text-slate-500 border-transparent hover:border-slate-200'}`}
+                className={`min-h-14 min-w-0 whitespace-normal break-words px-1 py-1.5 text-center leading-4 sm:min-h-11 sm:whitespace-nowrap sm:px-6 sm:py-3.5 rounded-lg sm:rounded-2xl text-[11px] sm:text-sm font-black border transition-all ${selectedCategory === 'all' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white/80 text-slate-600 border-slate-200 hover:border-slate-300'}`}
               >
-                 همه غذاها
+                 <span className="block w-full">همه غذاها</span>
               </button>
               {(Object.keys(CATEGORY_LABELS) as DishCategory[]).map(cat => (
                 <button 
                   key={cat} 
                   onClick={() => { setSelectedCategory(cat); setSelectedCountryId('all'); setCurrentPage(1); }} 
-                  className={`px-3 py-2 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-2xl text-[9px] sm:text-sm font-black border transition-all whitespace-nowrap ${selectedCategory === cat ? 'bg-emerald-600 text-white shadow-lg' : 'bg-white/80 text-slate-500 border-transparent hover:border-slate-200'}`}
+                  className={`min-h-14 min-w-0 whitespace-normal break-words px-1 py-1.5 text-center leading-4 sm:min-h-11 sm:whitespace-nowrap sm:px-6 sm:py-3.5 rounded-lg sm:rounded-2xl text-[11px] sm:text-sm font-black border transition-all ${selectedCategory === cat ? 'bg-emerald-600 text-white shadow-lg' : 'bg-white/80 text-slate-600 border-slate-200 hover:border-slate-300'}`}
                 >
-                  {CATEGORY_LABELS[cat]}
+                  <span className="block w-full">{CATEGORY_LABELS[cat]}</span>
                 </button>
               ))}
-
-              <div className="mr-auto flex items-center gap-1.5 sm:gap-3">
-                 <div className="flex items-center gap-1.5 sm:gap-3 px-3 py-2 sm:px-6 sm:py-3.5 bg-slate-900 rounded-lg sm:rounded-2xl border border-slate-700 shadow-xl overflow-hidden">
-                    <BarChart3 size={14} className="text-teal-400 sm:w-5" />
-                    <span className="text-[10px] sm:text-lg font-black text-white font-mono pt-0.5" style={{ direction: 'ltr' }}>
-                       {toPersian(allDishes.length)}
-                    </span>
-                 </div>
-              </div>
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
