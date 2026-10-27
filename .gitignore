@@ -21,6 +21,8 @@ android/.idea/
 *.jks
 *.keystore
 keystore.properties
+artifacts/*.apk
+artifacts/*.aab
 
 # Editor directories and files
 .vscode/*

@@ -3,7 +3,9 @@ import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'rea
 import Challenges from './components/Challenges';
 import MealCard from './components/MealCard';
 const PlanDashboard = lazy(() => import('./components/PlanDashboard'));
-const AdminAccessGate = lazy(() => import('./components/admin/AdminAccessGate'));
+const AdminAccessGate = import.meta.env.MODE === 'native'
+  ? null
+  : lazy(() => import('./components/admin/AdminAccessGate'));
 const PantryChef = lazy(() => import('./components/PantryChef'));
 const Preferences = lazy(() => import('./components/Preferences'));
 const RecipeSearch = lazy(() => import('./components/RecipeSearch'));
@@ -538,7 +540,11 @@ const AppContent: React.FC = () => {
   );
 
   const isAdminPath = window.location.pathname.replace(/\/+$/, '') === '/admin';
-  if (isAdminPath) return <Suspense fallback={<div role="status" className="min-h-screen grid place-items-center text-[#276556]">در حال آماده‌سازی پنل…</div>}><AdminAccessGate onExit={() => { window.history.replaceState({}, '', '/'); window.location.reload(); }} /></Suspense>;
+  if (isAdminPath) {
+    if (!AdminAccessGate) return <main className="min-h-screen grid place-items-center p-6 text-center text-[#276556]">پنل مدیریت فقط در نسخهٔ وب در دسترس است.</main>;
+    const AdminGate = AdminAccessGate;
+    return <Suspense fallback={<div role="status" className="min-h-screen grid place-items-center text-[#276556]">در حال آماده‌سازی پنل…</div>}><AdminGate onExit={() => { window.history.replaceState({}, '', '/'); window.location.reload(); }} /></Suspense>;
+  }
 
   const navItems = [
     { id: 'pantry', label: 'آشپزخانه من', icon: ChefHat },

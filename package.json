@@ -7,9 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "android:sync": "npm run build && cap sync android",
+    "android:sync": "vite build --mode native && cap sync android",
     "android:open": "cap open android",
-    "android:bundle": "npm run build && cap sync android && cd android && gradlew.bat bundleRelease",
+    "android:bundle": "vite build --mode native && cap sync android && cd android && gradlew.bat bundleRelease",
     "lint": "tsc --noEmit",
     "test": "node tests/run.mjs",
     "audit:quantities": "node scripts/audit-quantities.mjs"
