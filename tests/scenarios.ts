@@ -11,8 +11,7 @@ import { filterDishes, getPlanningPool, generateWeeklyPlan, generateMonthlyPlan,
 import { getRelevantInventory, usesInventory } from '../utils/kitchenMode';
 import { areUnitsComparable, convertAmountBetweenUnits, convertToBase, formatQuantityForDisplay, getCountryCode, getCountryCodes, getInventoryUpdate, getPhysicalForm, getShoppingShortages, normalizeItemName, normalizeUnit } from '../utils/recipeHelpers';
 import { normalizePersian, englishDigits } from '../utils/text';
-import { formatPhoneNumberInput, getPhoneUserDocumentIds, normalizePhoneNumber } from '../utils/phoneNumbers';
-import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthErrors';
+import { formatPhoneNumberInput, normalizePhoneNumber } from '../utils/phoneNumbers';
 import { getPantryUnitKey, suggestPantryUnit } from '../utils/pantryUnits';
 import { UserService as ActualUsers } from '../services/./userService';
 import { prepareCooking } from '../utils/inventoryLedger';
@@ -135,12 +134,7 @@ assert.equal(normalizePhoneNumber('۴۱۲۳۴۵۶۷۸۹'), null, 'Ambiguous inte
 assert.equal(formatPhoneNumberInput('+1 (415) 555-0132'), '+14155550132', 'Phone input keeps the international plus and strips formatting');
 assert.equal(formatPhoneNumberInput('0044 20 7946 0018'), '+442079460018', 'Pasted 00-prefixed numbers become international plus format');
 assert.equal(formatPhoneNumberInput(''), '+', 'Phone input keeps the plus prefix ready for typing');
-assert.deepEqual(getPhoneUserDocumentIds('+989123456789'), ['09123456789', '+989123456789'], 'Iranian profile lookup preserves legacy document IDs');
-assert.match(getFirebaseAuthErrorMessage({code:'auth/network-request-failed'}), /اینترنت/);
-assert.match(getFirebaseAuthErrorMessage({code:'auth/region-not-allowed'}), /کشور/);
-assert.match(getFirebaseAuthErrorMessage({code:'auth/unknown-new-code'}), /auth\/unknown-new-code/, 'Unmapped Firebase errors expose their safe code');
 (globalThis.window as any).location = { hostname: '127.0.0.1' };
-assert.match(getFirebaseAuthErrorMessage({code:'auth/unauthorized-domain'}), /شماره‌های آزمایشی Firebase/);
 assert.equal(GuestService.getStartMode(), null, 'New browsers have no forced kitchen setup path');
 GuestService.start('without-inventory');
 assert.equal(GuestService.getStartMode(), 'without-inventory', 'Flexible mode starts without pantry setup');
@@ -153,7 +147,7 @@ assert.deepEqual(GuestService.get().favoriteDishIds, ['veg']);
 assert.equal(GuestService.get().weeklyPlan.length, 7);
 GuestService.stop(); assert.equal(GuestService.isActive(), false);
 assert.deepEqual(GuestService.get().favoriteDishIds, ['veg'], 'Logging out preserves guest data');
-console.log('Passed core checks: offline recipe catalog, mode persistence, pantry-aware and flexible planning, mode-aware shopping and cooking, filters, guest persistence, phone normalization, and Firebase auth errors.');
+console.log('Passed core checks: offline recipe catalog, mode persistence, pantry-aware and flexible planning, mode-aware shopping and cooking, filters, guest persistence, and phone normalization.');
 
 const preferences = {familySize: 6, favoriteDishIds: ['veg'], blacklistedDishIds: ['meat'], dislikedIngredients: ['گردو'], preferredNatures: ['hot'] as const, excludedCategories: ['stew'] as const, meatlessMode: true};
 GuestService.save(preferences as any);

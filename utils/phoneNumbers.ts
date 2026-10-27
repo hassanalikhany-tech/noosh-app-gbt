@@ -19,9 +19,3 @@ export const normalizePhoneNumber = (input: string): string | null => {
   if (!value.startsWith('+')) return null;
   return /^\+[1-9]\d{7,14}$/.test(value) ? value : null;
 };
-
-/** Preserve legacy Iranian Firestore IDs while using E.164 for Firebase Auth. */
-export const getPhoneUserDocumentIds = (e164Phone: string): string[] => {
-  if (/^\+989\d{9}$/.test(e164Phone)) return [`0${e164Phone.slice(3)}`, e164Phone];
-  return [e164Phone];
-};

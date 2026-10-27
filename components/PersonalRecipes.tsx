@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Camera, ChefHat, Clock3, Flame, ImagePlus, Pencil, Plus, Share2, Trash2, Utensils, X, ShieldCheck, LoaderCircle, Globe2 } from 'lucide-react';
 import { CATEGORY_LABELS, Dish, DishCategory, Ingredient, NatureType, UserProfile } from '../types';
 import { RecipeService } from '../services/recipeService';
+import { publicFunctionUrl } from '../services/publicFunctionUrl';
 import RecipeModal from './RecipeModal';
 import { useDialogFocus } from '../utils/useDialogFocus';
 
@@ -81,7 +82,7 @@ const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserPr
     let active = true;
     const syncStatus = async (recipe: Dish) => {
       try {
-        const response = await fetch(`/.netlify/functions/community-recipe-status?id=${encodeURIComponent(recipe.communitySubmissionId!)}`);
+        const response = await fetch(publicFunctionUrl('community-recipe-status', `?id=${encodeURIComponent(recipe.communitySubmissionId!)}`));
         const result = await response.json();
         if (active && response.ok && (result.status === 'approved' || result.status === 'rejected')) await RecipeService.updatePersonalShareStatus(recipe.id, result.status, result.reason || '');
       } catch { /* A temporary network issue should not change the local recipe. */ }

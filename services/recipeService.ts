@@ -3,6 +3,7 @@ import { CATEGORY_LABELS, Dish, UserProfile } from '../types';
 import { DB } from '../utils/db';
 import { DEFAULT_DISHES } from '../data/recipes';
 import { getHiddenDishIds, getRenamedDishes, getRestoredDishIds, hideDishIds, unhideDishIds } from '../utils/dishStorage';
+import { publicFunctionUrl } from './publicFunctionUrl';
 
 let recipeOverrides: { dishes: Dish[]; hiddenDishIds: string[] } = { dishes: [], hiddenDishIds: [] };
 let bundledCatalogPromise: Promise<void> | null = null;
@@ -378,7 +379,7 @@ export const RecipeService = {
   requestPublicRecipe: async (dishId: string, creatorName: string, creatorTitle: 'lady' | 'gentleman' | 'none', imageData?: string): Promise<{ requestId: string }> => {
     const dish = personalDishes.find(item => item.id === dishId);
     if (!dish) throw new Error('رسپی شخصی پیدا نشد؛ فهرست را تازه کن.');
-    const response = await fetch('/.netlify/functions/community-recipe-submit', {
+    const response = await fetch(publicFunctionUrl('community-recipe-submit'), {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ dish: imageData ? { ...dish, imageUrl: imageData } : dish, creatorName, creatorTitle, website: '' })
     });

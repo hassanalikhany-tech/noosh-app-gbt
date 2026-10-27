@@ -1,7 +1,8 @@
 import { Notification } from '../types';
 import { GuestService } from './guestService';
+import { publicFunctionUrl } from './publicFunctionUrl';
 
-const endpoint = '/.netlify/functions/notifications';
+const endpoint = publicFunctionUrl('notifications');
 
 async function request<T>(url: string, method = 'GET', body?: Record<string, unknown>): Promise<T> {
   const response = await fetch(url, {
@@ -22,7 +23,7 @@ export const NotificationService = {
     return result.notification;
   },
   getAllNotifications: async (): Promise<Notification[]> => {
-    const data = await request<{ notifications: Notification[] }>(`${endpoint}?scope=admin`);
+    const data = await request<{ notifications: Notification[] }>(publicFunctionUrl('notifications', '?scope=admin'));
     return data.notifications;
   },
   getUserNotifications: async (_userId: string, _role: string, _isActive: boolean): Promise<Notification[]> => {

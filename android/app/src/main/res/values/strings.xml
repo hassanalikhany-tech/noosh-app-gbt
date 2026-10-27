@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">نوش‌اپ</string>
+    <string name="title_activity_main">نوش‌اپ</string>
+    <string name="package_name">com.cydevit.nooshapp</string>
+    <string name="custom_url_scheme">com.cydevit.nooshapp</string>
+</resources>

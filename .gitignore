@@ -13,6 +13,15 @@ dist-ssr
 .netlify
 *.local
 
+# Android build output and signing material
+android/.gradle/
+android/local.properties
+android/**/build/
+android/.idea/
+*.jks
+*.keystore
+keystore.properties
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

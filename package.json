@@ -7,20 +7,25 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "android:sync": "npm run build && cap sync android",
+    "android:open": "cap open android",
+    "android:bundle": "npm run build && cap sync android && cd android && gradlew.bat bundleRelease",
     "lint": "tsc --noEmit",
     "test": "node tests/run.mjs",
     "audit:quantities": "node scripts/audit-quantities.mjs"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
     "@netlify/blobs": "^11.1.6",
-    "firebase": "^12.9.0",
     "lucide-react": "^0.574.0",
     "motion": "^12.38.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.3",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.6.1",

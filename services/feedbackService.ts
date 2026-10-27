@@ -1,6 +1,7 @@
 import { UserFeedback, FeedbackCategory } from '../types';
+import { publicFunctionUrl } from './publicFunctionUrl';
 
-const endpoint = '/.netlify/functions/feedback';
+const endpoint = publicFunctionUrl('feedback');
 
 async function request<T>(method: 'GET' | 'POST' | 'PUT', body?: Record<string, unknown>): Promise<T> {
   const response = await fetch(endpoint, {
