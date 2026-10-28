@@ -4,13 +4,12 @@ import PersonalRecipes from './PersonalRecipes';
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { UserProfile, DishCategory, CATEGORY_LABELS, NatureType, VisitorProfile } from '../types';
 import { UserService } from '../services/userService';
-import { LogOut, User, Sun, Snowflake, Scale, Heart, Plus, ThumbsDown, RotateCcw, ShieldCheck, Award, Info, Layers, Minus, FilterX, X, Check, CheckCircle, AlertTriangle, UserX, Search, MessageSquare, Camera, BookOpen, ChevronLeft, Leaf, Zap, Trophy, ChefHat, Sparkles, Smartphone, Share, Download, ExternalLink, ReceiptText } from 'lucide-react';
+import { LogOut, User, Sun, Snowflake, Scale, Heart, Plus, ThumbsDown, RotateCcw, ShieldCheck, Award, Info, Layers, Minus, FilterX, X, Check, CheckCircle, AlertTriangle, UserX, Search, MessageSquare, Camera, Leaf, Zap, Trophy, ChefHat, Sparkles, Smartphone, Share, Download, ExternalLink, ReceiptText } from 'lucide-react';
 import { RecipeService } from '../services/recipeService';
 import { PANTRY_ITEMS } from '../data/pantry';
 import { CHALLENGES } from '../data/challenges';
 import DishVisual from './DishVisual';
 import FeedbackModal from './FeedbackModal';
-import UserGuide from './UserGuide';
 import PurchaseReport from './PurchaseReport';
 
 interface PreferencesProps {
@@ -47,7 +46,6 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
   const [ingredientSearch, setIngredientSearch] = useState('');
   const [settingsTab, setSettingsTab] = useState<'planning' | 'taste' | 'recipes' | 'purchases' | 'device'>('planning');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
-  const [isUserGuideOpen, setIsUserGuideOpen] = useState(false);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -300,7 +298,6 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
       </div>
 
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} user={user} />
-      <UserGuide isOpen={isUserGuideOpen} onClose={() => setIsUserGuideOpen(false)} />
 
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-3 sm:px-8 pb-16 no-scrollbar">
           <div className="max-w-5xl mx-auto py-3 sm:py-5 space-y-4 sm:space-y-5">
@@ -342,24 +339,6 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                 </div>}
                 {showInstallHelp && isAppInstalled && <p className="mt-3 border-t border-emerald-100 pt-3 text-[11px] leading-5 text-emerald-900">نوش از صفحهٔ اصلی گوشی به شکل مستقل اجرا می‌شود. برای حذف نوار مرورگر، آیکن نوش را از صفحهٔ اصلی باز کن.</p>}
               </section>
-              {/* بخش راهنمای اپلیکیشن */}
-              <button 
-                onClick={() => setIsUserGuideOpen(true)}
-                className="w-full rounded-2xl border border-teal-700/10 bg-gradient-to-r from-teal-700 to-[#276556] p-4 text-right shadow-sm transition hover:brightness-105 active:scale-[.99] sm:p-5"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/15 text-white">
-                      <BookOpen size={20} />
-                    </div>
-                    <div>
-                      <h2 className="text-sm font-black text-white">راهنمای استفاده از نوش</h2>
-                      <p className="mt-1 text-[10px] font-semibold text-teal-50/85">آموزش کوتاه امکانات اپ</p>
-                    </div>
-                  </div>
-                  <ChevronLeft size={20} className="shrink-0 text-white/80" />
-                </div>
-              </button>
               </div>
             </div>}
 
