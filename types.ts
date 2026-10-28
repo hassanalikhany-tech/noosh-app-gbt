@@ -260,6 +260,30 @@ export interface InventoryItem {
   previousIds?: string[];
   measurement?: { value: number; baseUnit: string; enteredAmount: number; enteredUnit: string };
   unitWeightGrams?: Record<string, number>;
+  /** Optional purchase batches, in the same unit as amount. Existing rows migrate as one undated batch when first edited. */
+  stockBatches?: InventoryBatch[];
+}
+
+export interface InventoryBatch {
+  id: string;
+  amount: number;
+  expiresOn?: string;
+  receivedAt: number;
+}
+
+export interface IngredientPrice {
+  ingredientId: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  totalPrice: number;
+  updatedAt: number;
+}
+
+export interface RecipePersonalReview {
+  rating?: number;
+  note?: string;
+  updatedAt: number;
 }
 
 export interface CookingTransaction {
@@ -272,7 +296,7 @@ export interface CookingTransaction {
   createdAt: number;
   reversedAt?: number;
   notes?: string[];
-  changes: Array<{ inventoryId: string; name: string; unit: string; consumed: number; before: number; after: number; estimated: boolean; reason: string; stockSnapshot?: InventoryItem }>;
+  changes: Array<{ inventoryId: string; name: string; unit: string; consumed: number; before: number; after: number; estimated: boolean; reason: string; stockSnapshot?: InventoryItem; batchDeductions?: InventoryBatch[] }>;
 }
 
 export interface UserProfile {
@@ -301,6 +325,8 @@ export interface UserProfile {
   activeChallengeId?: string | null; 
   customShoppingList?: ShoppingItem[]; 
   inventory?: InventoryItem[];
+  ingredientPrices?: Record<string, IngredientPrice>;
+  recipeReviews?: Record<string, RecipePersonalReview>;
   cookingTransactions?: CookingTransaction[];
   inventorySchemaVersion?: number;
   inventoryNeedsReview?: boolean;

@@ -2,7 +2,7 @@ import { normalizePersian } from '../utils/text';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChefHat, Sparkles, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Minus, Save, ShoppingCart, Pencil } from 'lucide-react';
+import { ChefHat, Sparkles, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Minus, Save, ShoppingCart, Pencil, CalendarDays } from 'lucide-react';
 import { PANTRY_ITEMS, getIngredientCategoryId } from '../data/pantry';
 import { RecipeService } from '../services/recipeService';
 import { Dish, KitchenMode, UserProfile, InventoryItem } from '../types';
@@ -13,6 +13,8 @@ import RecipeModal from './RecipeModal';
 import InventoryHistory from './InventoryHistory';
 import MealCard from './MealCard';
 import PantryFoodThumbnail from './PantryFoodThumbnail';
+import InventoryBatchManager from './InventoryBatchManager';
+import { appendInventoryBatch, earliestExpiry, getInventoryBatches, inventoryExpiryState, sumInventoryBatches, resizeInventoryBatches } from '../utils/inventoryBatches';
 
 interface PantryChefProps {
   user: UserProfile;
@@ -138,12 +140,14 @@ interface ProcessedResult {
 const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate, onKitchenModeChange }) => {
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('1');
+  const [newItemExpiry, setNewItemExpiry] = useState('');
   const [addMessage, setAddMessage] = useState('');
   const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
   const [pendingUnitCorrection, setPendingUnitCorrection] = useState<{ id: string; name: string; oldAmount: number; oldUnit: string; nextUnit: string; oldThreshold: number; oldThresholdUnit: string; amount: string; threshold: string } | null>(null);
   const [isInventoryOverviewOpen, setIsInventoryOverviewOpen] = useState(false);
   const [inventoryOverviewView, setInventoryOverviewView] = useState<'rows' | 'table'>('table');
   const [isInlineAddingInventory, setIsInlineAddingInventory] = useState(false);
+  const [selectedBatchItem, setSelectedBatchItem] = useState<InventoryItem | null>(null);
   const [dishCount, setDishCount] = useState(() => RecipeService.getAllDishes().length);
 
   useEffect(() => {
@@ -182,6 +186,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
         return;
       }
       existing.amount = roundQuantity(existing.amount + convertedAmount.amount);
+      const incomingBatches = getInventoryBatches(item).map(batch => ({ ...batch, amount: item.amount > 0 ? roundQuantity(batch.amount * convertedAmount.amount / item.amount) : 0 }));
+      existing.stockBatches = [...getInventoryBatches(existing), ...incomingBatches];
       existing.previousIds = [...new Set([...(existing.previousIds || []), item.id, ...(item.previousIds || [])])];
       existing.lastUpdated = Math.max(existing.lastUpdated, item.lastUpdated);
       const incomingThreshold = convertAmountBetweenUnits(
@@ -226,6 +232,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
   const lowStockItems = useMemo(() => {
     return inventory.filter(isBelowThreshold);
   }, [inventory]);
+
+  const expiringItems = useMemo(() => inventory.map(item => ({ item, date: earliestExpiry(item) })).filter(entry => entry.date && inventoryExpiryState(entry.date) !== 'fresh').sort((a, b) => String(a.date).localeCompare(String(b.date))), [inventory]);
 
   const findRecipes = (items: string[]) => {
     if (items.length === 0) { setRawResults([]); return; }
@@ -302,7 +310,20 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
   const updateInventoryItem = (itemId: string, updates: Partial<InventoryItem>) => {
     if (updates.amount !== undefined && (!Number.isFinite(updates.amount) || updates.amount < 0)) { setAddMessage('مقدار موجودی باید عددی معتبر و صفر یا بیشتر باشد.'); return; }
     if (updates.minThreshold !== undefined && (!Number.isFinite(updates.minThreshold) || updates.minThreshold < 0)) { setAddMessage('آستانهٔ هشدار باید عددی معتبر و صفر یا بیشتر باشد.'); return; }
-    const newInventory = inventory.map(item => item.id === itemId ? { ...item, ...updates, lastUpdated: Date.now() } : item);
+    const newInventory = inventory.map(item => {
+      if (item.id !== itemId) return item;
+      let stockBatches = updates.stockBatches;
+      const nextAmount = updates.amount ?? item.amount;
+      const nextUnit = updates.unit ?? item.unit;
+      if (!stockBatches && item.stockBatches?.length) {
+        stockBatches = resizeInventoryBatches(item, nextAmount);
+        if (nextUnit !== item.unit && item.amount > 0 && stockBatches) {
+          const factor = nextAmount / item.amount;
+          stockBatches = stockBatches.map(batch => ({ ...batch, amount: roundQuantity(batch.amount * factor) }));
+        }
+      }
+      return { ...item, ...updates, ...(stockBatches ? { stockBatches } : {}), lastUpdated: Date.now() };
+    });
     // Optimistic update for immediate UI feedback
     onUpdateUser({ ...user, inventory: newInventory });
     // Sync with backend in background
@@ -323,12 +344,13 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     setAddMessage(converted.estimated ? `مقدار ${item.name} با وزن مرجع متوسط تبدیل شد؛ برای دقت کامل، وزن واقعی را وارد کن.` : `واحد ${item.name} با حفظ مقدار واقعی تغییر کرد.`);
   };
 
-  const addToInventory = async (itemName: string, amount = 1, unit?: string, focusNext = false) => {
+  const addToInventory = async (itemName: string, amount = 1, unit?: string, focusNext = false, expiresOn = '') => {
     const cleanName = itemName.trim();
     if (!cleanName || !Number.isFinite(amount) || amount <= 0) return;
     const prepareNextEntry = () => {
       setNewItemName('');
       setNewItemAmount('1');
+      setNewItemExpiry('');
       if (focusNext) window.requestAnimationFrame(() => newItemNameRef.current?.focus());
     };
     const existingItem = inventory.find(item => isInventoryIngredientMatch(item.name, cleanName));
@@ -339,7 +361,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
         setAddMessage(`واحد ورودی ${inputUnit} با موجودی ${existingItem.unit} تبدیل دقیق ندارد. ابتدا واحد و مقدار واقعی موجودی قبلی را از بخش ویرایش اصلاح کن؛ موجودی دست‌نخورده ماند.`);
         return;
       }
-      updateInventoryItem(existingItem.id, { amount: roundQuantity(existingItem.amount + incoming.amount) });
+      const appended = appendInventoryBatch(existingItem, incoming.amount, expiresOn || undefined);
+      updateInventoryItem(existingItem.id, { amount: appended.amount, stockBatches: appended.stockBatches });
       setAddMessage(`${cleanName} به موجودی اضافه شد؛ واحد قبلی ${existingItem.unit} حفظ شد.`);
       prepareNextEntry();
       return;
@@ -354,7 +377,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
       unit: selectedUnit,
       minThreshold: defaultThreshold,
       minThresholdUnit: selectedUnit,
-      lastUpdated: Date.now()
+      lastUpdated: Date.now(),
+      stockBatches: [{ id: globalThis.crypto?.randomUUID?.() || `lot-${Date.now()}`, amount, ...(expiresOn ? { expiresOn } : {}), receivedAt: Date.now() }]
     };
     const newInventory = [...inventory, newItem];
 
@@ -427,10 +451,11 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     </div>
   ) : <span className="whitespace-nowrap font-black text-emerald-800">{toPersian(item.amount)} <small className="font-semibold text-slate-500">{item.unit}</small></span>;
 
-  const renderInlineInventoryForm = (compact = false) => <form onSubmit={event => { event.preventDefault(); void addToInventory(newItemName, Number(newItemAmount)); }} className={`grid gap-2 ${compact ? 'grid-cols-1 sm:grid-cols-[minmax(160px,1fr)_90px_auto_auto_auto]' : 'grid-cols-1 md:grid-cols-[minmax(220px,1fr)_110px_auto_auto_auto]'}`}>
+  const renderInlineInventoryForm = (compact = false) => <form onSubmit={event => { event.preventDefault(); void addToInventory(newItemName, Number(newItemAmount), undefined, false, newItemExpiry); }} className={`grid gap-2 ${compact ? 'grid-cols-1 sm:grid-cols-[minmax(160px,1fr)_90px_auto_145px_auto_auto]' : 'grid-cols-1 md:grid-cols-[minmax(220px,1fr)_110px_auto_160px_auto_auto]'}`}>
     <FoodIngredientCombobox id={`inline-pantry-name-${compact ? 'modal' : 'list'}`} inputRef={newItemNameRef} value={newItemName} onChange={setNewItemName} placeholder="نام ماده را جست‌وجو یا وارد کن…" />
     <input aria-label="مقدار قلم تازه" type="number" min="0" step="any" value={newItemAmount} onChange={event => setNewItemAmount(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-center text-sm font-black outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" />
     <span className="flex min-h-11 items-center justify-center rounded-xl bg-emerald-50 px-3 text-xs font-black text-emerald-800">{newItemName.trim() ? `واحد: ${suggestPantryUnit(newItemName)}` : 'واحد پس از انتخاب ماده'}</span>
+    <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-500"><CalendarDays size={15} className="shrink-0 text-[#276556]"/><span className="sr-only">تاریخ انقضا (اختیاری)</span><input aria-label="تاریخ انقضای سری خرید" title="تاریخ انقضا (اختیاری)" type="date" value={newItemExpiry} onChange={event => setNewItemExpiry(event.target.value)} className="min-w-0 w-full bg-transparent text-xs text-slate-700 outline-none" /></label>
     <button type="submit" disabled={!newItemName.trim() || Number(newItemAmount) <= 0} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17} /> افزودن</button>
     <button type="button" aria-label="بستن ردیف افزودن" onClick={() => setIsInlineAddingInventory(false)} className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-3 py-3 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={17} /></button>
   </form>;
@@ -556,6 +581,10 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                     </div>
                   )}
 
+                  {expiringItems.length > 0 && <section aria-label="مواد نزدیک به تاریخ انقضا" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+                    <div className="flex items-start gap-3"><CalendarDays size={20} className="mt-0.5 shrink-0 text-amber-700"/><div className="min-w-0 flex-1"><h4 className="text-sm font-black text-amber-950">این مواد را زودتر مصرف کن</h4><p className="mt-1 text-xs leading-5 text-amber-800">بر اساس نزدیک‌ترین تاریخ ثبت‌شده؛ هنگام مصرف، سری‌ای که زودتر منقضی می‌شود اول از انبار کم می‌شود.</p><div className="mt-3 flex flex-wrap gap-2">{expiringItems.map(({ item, date }) => { const state = inventoryExpiryState(date); const label = state === 'expired' ? 'تاریخ گذشته' : state === 'soon' ? 'تا ۳ روز' : 'تا یک هفته'; return <button key={item.id} type="button" onClick={() => setSelectedBatchItem(item)} className={`rounded-xl border px-3 py-2 text-right text-xs font-black ${state === 'expired' ? 'border-rose-200 bg-white text-rose-700' : 'border-amber-200 bg-white text-amber-900'}`}><span className="block">{item.name} · {label}</span><small className="mt-1 block font-semibold opacity-75">{new Date(`${date}T00:00:00`).toLocaleDateString('fa-IR')}</small></button>; })}</div></div></div>
+                  </section>}
+
                   {user.inventoryNeedsReview && <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs leading-6 text-amber-900"><p>موجودی‌های قبلی حفظ شده‌اند. اگر قبلاً مقدار اشتباه کم شده، مقدار واقعی اقلام را یک‌بار اصلاح کن؛ از روی سوابق قدیمی نمی‌توان مصرف واقعی را بازسازی کرد.</p><button type="button" onClick={() => { const updated = { ...user, inventoryNeedsReview: false }; onUpdateUser(updated); void UserService.updateProfile(user.username, { inventoryNeedsReview: false }); }} className="rounded-xl bg-white px-4 py-2 font-bold">مقدارها را بررسی کردم</button></div>}
                   {addMessage && <p role="status" className="rounded-xl bg-emerald-50 p-3 text-xs leading-6 text-emerald-900">{addMessage}</p>}
                   <div className="grid grid-cols-1 gap-6 pantry-workspace">
@@ -586,9 +615,11 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                                   <div>
                                     <h4 className="text-slate-800 font-black text-xs sm:text-sm">{item.name}</h4>
                                     <span className={`pantry-stock-state ${isBelowThreshold(item) ? 'is-low' : ''}`}>{isBelowThreshold(item) ? `کم · ${toPersian(item.amount)} ${item.unit}` : `موجود: ${toPersian(item.amount)} ${item.unit}`}</span>
+                                    {earliestExpiry(item) && <small className={`mt-1 block text-[10px] font-bold ${inventoryExpiryState(earliestExpiry(item)) === 'expired' ? 'text-rose-700' : inventoryExpiryState(earliestExpiry(item)) === 'soon' ? 'text-amber-800' : 'text-slate-500'}`}>نزدیک‌ترین انقضا: {new Date(`${earliestExpiry(item)}T00:00:00`).toLocaleDateString('fa-IR')}</small>}
                                   </div>
                                 </div>
                                   <div className="pantry-item-actions flex items-center gap-3">
+                                    <button type="button" onClick={() => setSelectedBatchItem(item)} title={`مدیریت سری‌های خرید و تاریخ انقضای ${item.name}`} aria-label={`تاریخ‌ها و سری‌های خرید ${item.name}`} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 text-[10px] font-black text-amber-800 hover:bg-amber-100"><CalendarDays size={15}/><span className="hidden sm:inline">تاریخ‌ها</span></button>
                                     <div className="pantry-control-stack flex flex-col items-end gap-1">
                                       {selectedInventoryItemId === item.id ? <div className="pantry-quantity-control flex items-center bg-slate-100 rounded-lg p-1">
                                         <div className="flex items-center gap-1">
@@ -783,7 +814,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                             <td className="px-4 py-3 font-bold text-slate-800 sm:px-6">{item.name}</td>
                             <td className="whitespace-nowrap px-4 py-3 sm:px-6">{renderOverviewQuantity(item)}</td>
                             <td className="whitespace-nowrap px-4 py-3 text-slate-600 sm:px-6">{toPersian(item.minThreshold)} {item.minThresholdUnit || item.unit}</td>
-                            <td className="px-4 py-3 sm:px-6"><span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black ${isLow ? 'bg-rose-50 text-rose-700' : selectedInventoryItemId === item.id ? 'bg-white/15 text-white' : 'bg-emerald-50 text-emerald-800'}`}><i className={`h-1.5 w-1.5 rounded-full ${isLow ? 'bg-rose-500' : selectedInventoryItemId === item.id ? 'bg-emerald-200' : 'bg-emerald-500'}`} />{isLow ? 'نیازمند خرید' : 'موجود'}</span></td>
+                            <td className="px-4 py-3 sm:px-6"><div className="flex items-center gap-2"><span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black ${isLow ? 'bg-rose-50 text-rose-700' : selectedInventoryItemId === item.id ? 'bg-white/15 text-white' : 'bg-emerald-50 text-emerald-800'}`}><i className={`h-1.5 w-1.5 rounded-full ${isLow ? 'bg-rose-500' : selectedInventoryItemId === item.id ? 'bg-emerald-200' : 'bg-emerald-500'}`} />{isLow ? 'نیازمند خرید' : 'موجود'}</span><button type="button" onClick={() => setSelectedBatchItem(item)} aria-label={`تاریخ‌ها و سری‌های خرید ${item.name}`} className="rounded-lg bg-amber-50 p-2 text-amber-800 hover:bg-amber-100"><CalendarDays size={15}/></button>{earliestExpiry(item) && <small className="text-[10px] font-bold text-amber-800">{new Date(`${earliestExpiry(item)}T00:00:00`).toLocaleDateString('fa-IR')}</small>}</div></td>
                           </tr>;
                         })}
                         {isInlineAddingInventory ? <tr><td colSpan={5} className="bg-emerald-50/60 p-3 sm:p-4">{renderInlineInventoryForm(true)}</td></tr> : <tr><td colSpan={5} className="p-2 sm:p-3"><button type="button" onClick={() => setIsInlineAddingInventory(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/70 px-4 py-3 text-sm font-black text-emerald-800 transition hover:border-emerald-500 hover:bg-emerald-100"><Plus size={18} /> افزودن ردیف جدید</button></td></tr>}
@@ -798,7 +829,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                         <div className="flex min-w-0 items-center gap-3">
                           <button type="button" onClick={() => setSelectedInventoryItemId(selectedInventoryItemId === item.id ? null : item.id)} aria-label={`ویرایش ${item.name}`} aria-pressed={selectedInventoryItemId === item.id} className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${selectedInventoryItemId === item.id ? 'bg-white/15 text-white' : 'bg-slate-100 text-slate-500 hover:bg-emerald-100 hover:text-emerald-800'}`}><Pencil size={15} /></button>
                           <PantryFoodThumbnail item={item.name} />
-                          <div className="min-w-0"><h3 className="truncate font-black text-slate-800">{item.name}</h3><p className={`mt-1 text-xs font-bold ${isLow ? 'text-rose-700' : 'text-emerald-800'}`}>{isLow ? 'نیازمند خرید' : 'موجود'} · هشدار در {toPersian(item.minThreshold)} {item.minThresholdUnit || item.unit}</p></div>
+                          <div className="min-w-0"><h3 className="truncate font-black text-slate-800">{item.name}</h3><p className={`mt-1 text-xs font-bold ${isLow ? 'text-rose-700' : 'text-emerald-800'}`}>{isLow ? 'نیازمند خرید' : 'موجود'} · هشدار در {toPersian(item.minThreshold)} {item.minThresholdUnit || item.unit}</p>{earliestExpiry(item) && <p className="mt-1 text-[10px] font-bold text-amber-800">نزدیک‌ترین انقضا: {new Date(`${earliestExpiry(item)}T00:00:00`).toLocaleDateString('fa-IR')}</p>}<button type="button" onClick={() => setSelectedBatchItem(item)} className="mt-2 inline-flex items-center gap-1 rounded-lg bg-amber-50 px-2.5 py-1.5 text-[10px] font-black text-amber-800"><CalendarDays size={13}/>سری خرید و تاریخ مصرف</button></div>
                         </div>
                         <div className="flex items-center justify-between gap-3 sm:justify-end"><span className="text-xs font-semibold text-slate-500 sm:hidden">موجودی</span>{renderOverviewQuantity(item)}</div>
                       </article>;
@@ -832,6 +863,11 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
           </section>
         </div>, document.body
       )}
+      {selectedBatchItem && <InventoryBatchManager item={inventory.find(item => item.id === selectedBatchItem.id) || selectedBatchItem} onClose={() => setSelectedBatchItem(null)} onSave={batches => {
+        const item = inventory.find(row => row.id === selectedBatchItem.id) || selectedBatchItem;
+        updateInventoryItem(item.id, { stockBatches: batches, amount: sumInventoryBatches(batches) });
+        setSelectedBatchItem(null);
+      }} />}
       {selectedDish && <RecipeModal dish={selectedDish} isOpen={!!selectedDish} onClose={() => setSelectedDish(null)} user={user} onUpdateUser={onUpdateUser} />}
     </div>
   );

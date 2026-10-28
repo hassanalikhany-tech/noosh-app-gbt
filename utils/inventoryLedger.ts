@@ -1,6 +1,7 @@
 import REFERENCES from '../data/pantry_unit_preferences.json';
 import { CookingTransaction, Dish, InventoryItem, UserProfile } from '../types';
 import { convertIngredientQuantity, evaluateInventory, getIngredientIdentity, getPhysicalForm, normalizeUnit, parseQuantity, roundQuantity, UNIT_CONVERSIONS } from './recipeHelpers';
+import { deductInventoryBatches, getInventoryBatches, restoreInventoryBatches, sumInventoryBatches } from './inventoryBatches';
 
 export interface CookingDraftRow {
   key: string; item: string; inventoryId: string; amount: string; enabled: boolean;
@@ -10,7 +11,7 @@ export interface CookingDraft {
   id: string; dishId: string; dishName: string; servings: number;
   referenceVersion: string; fingerprint: string; rows: CookingDraftRow[]; notices: string[];
 }
-export const inventoryFingerprint = (inventory: InventoryItem[]) => JSON.stringify(inventory.map(row => [row.id, row.name, row.amount, row.unit, row.state || getPhysicalForm(row.name), row.unitWeightGrams, row.previousIds]).sort((a,b) => String(a[0]).localeCompare(String(b[0]))));
+export const inventoryFingerprint = (inventory: InventoryItem[]) => JSON.stringify(inventory.map(row => [row.id, row.name, row.amount, row.unit, row.state || getPhysicalForm(row.name), row.unitWeightGrams, row.previousIds, row.stockBatches]).sort((a,b) => String(a[0]).localeCompare(String(b[0]))));
 
 /** Migration preserves the entered physical quantity, never guesses historical losses. */
 export const normalizeInventoryStorage = (inventory: InventoryItem[]) => inventory.map(row => {
@@ -51,10 +52,17 @@ export const applyCookingTransaction = (user: UserProfile, draft: CookingDraft):
     const existing = changes.get(stock.id);
     const consumed = roundQuantity((existing?.consumed || 0) + amount);
     if (consumed > stock.amount + 1e-9) throw new Error(`مصرف ${stock.name} از موجودی ثبت‌شده بیشتر است؛ مقدار را اصلاح کن.`);
-    changes.set(stock.id, { inventoryId: stock.id, name: stock.name, unit: stock.unit, before: stock.amount, consumed, after: roundQuantity(Math.max(0, stock.amount-consumed)), estimated: Boolean(existing?.estimated || row.estimated), reason: [existing?.reason, row.reason].filter(Boolean).join('؛ '), stockSnapshot: { ...stock, unitWeightGrams: stock.unitWeightGrams ? { ...stock.unitWeightGrams } : undefined } });
+    changes.set(stock.id, { inventoryId: stock.id, name: stock.name, unit: stock.unit, before: stock.amount, consumed, after: roundQuantity(Math.max(0, stock.amount-consumed)), estimated: Boolean(existing?.estimated || row.estimated), reason: [existing?.reason, row.reason].filter(Boolean).join('؛ '), stockSnapshot: { ...stock, unitWeightGrams: stock.unitWeightGrams ? { ...stock.unitWeightGrams } : undefined, stockBatches: stock.stockBatches?.map(batch => ({ ...batch })) } });
   }
+  const updatedInventory = inventory.map(stock => {
+    const change = changes.get(stock.id);
+    if (!change) return stock;
+    const batchResult = deductInventoryBatches(getInventoryBatches(stock), change.consumed);
+    change.batchDeductions = batchResult.deductions;
+    return { ...stock, amount: change.after, stockBatches: batchResult.batches, lastUpdated: Date.now() };
+  });
   const tx: CookingTransaction = { id: draft.id, dishId: draft.dishId, dishName: draft.dishName, servings: draft.servings, engineVersion: 3, referenceVersion: draft.referenceVersion, createdAt: Date.now(), changes: [...changes.values()], notes: draft.notices };
-  return { ...user, inventorySchemaVersion: 2, inventory: normalizeInventoryStorage(inventory.map(row => changes.has(row.id) ? { ...row, amount: changes.get(row.id)!.after, lastUpdated: Date.now() } : row)), cookingTransactions: [...(user.cookingTransactions || []), tx] };
+  return { ...user, inventorySchemaVersion: 2, inventory: normalizeInventoryStorage(updatedInventory), cookingTransactions: [...(user.cookingTransactions || []), tx] };
 };
 
 export const reverseCookingTransaction = (user: UserProfile, id: string): UserProfile => {
@@ -65,12 +73,20 @@ export const reverseCookingTransaction = (user: UserProfile, id: string): UserPr
   for (const change of tx.changes) {
     let row = inventory.find(row => row.id === change.inventoryId || row.previousIds?.includes(change.inventoryId));
     if (!row) {
-      row = { ...(change.stockSnapshot || { id: change.inventoryId, name: change.name, unit: change.unit, minThreshold: 0, lastUpdated: Date.now() }), amount: 0 };
+      row = { ...(change.stockSnapshot || { id: change.inventoryId, name: change.name, unit: change.unit, minThreshold: 0, lastUpdated: Date.now() }), amount: 0, stockBatches: change.batchDeductions ? [] : change.stockSnapshot?.stockBatches };
       inventory.push(row);
     }
     const conversion = convertIngredientQuantity(change.consumed, change.unit, row.unit, row.name);
     if (!conversion || conversion.estimated) throw new Error(`واحد ${row.name} تغییر کرده و بازگردانی دقیق ممکن نیست؛ ابتدا واحد را به ${change.unit} برگردان.`);
-    row.amount = roundQuantity(row.amount + conversion.amount);
+    if (change.batchDeductions) {
+      const convertedDeductions = change.batchDeductions.map(batch => {
+        const batchConversion = convertIngredientQuantity(batch.amount, change.unit, row.unit, change.name, row.name);
+        if (!batchConversion || batchConversion.estimated) throw new Error(`مقدار سری خرید ${row.name} پس از تغییر واحد دقیق قابل‌بازگردانی نیست.`);
+        return { ...batch, amount: batchConversion.amount };
+      });
+      row.stockBatches = restoreInventoryBatches(getInventoryBatches(row), convertedDeductions);
+      row.amount = sumInventoryBatches(row.stockBatches);
+    } else row.amount = roundQuantity(row.amount + conversion.amount);
     row.lastUpdated = Date.now();
   }
   return { ...user, inventory: normalizeInventoryStorage(inventory), cookingTransactions: (user.cookingTransactions || []).map(row => row.id === id ? { ...row, reversedAt: Date.now() } : row) };

@@ -1,5 +1,5 @@
 
-import { X, ChefHat, Clock, Activity, Flame, PlusCircle, Check, Sun, Snowflake, Scale, ShieldCheck, Utensils, AlertCircle, Users, Minus, Plus, Play, Pause, RotateCcw, Trophy, AlarmClock, CheckCircle2, ArrowRight } from 'lucide-react';
+import { X, ChefHat, Clock, Activity, Flame, PlusCircle, Check, Sun, Snowflake, Scale, ShieldCheck, Utensils, AlertCircle, Users, Minus, Plus, Play, Pause, RotateCcw, Trophy, AlarmClock, CheckCircle2, ArrowRight, Star, Save, ReceiptText } from 'lucide-react';
 import React, { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Dish, ShoppingItem, UserProfile } from '../types';
@@ -12,6 +12,7 @@ import { mergeShoppingNeeds } from '../utils/shoppingQuantities';
 import { showCreatorRecipes } from '../utils/recipeCreators';
 import { formatCommunityAttribution } from '../utils/communityAttribution';
 import { useDialogFocus } from '../utils/useDialogFocus';
+import { estimateRecipeCost } from '../utils/recipeCosts';
 
 interface RecipeModalProps {
   dish: Dish;
@@ -28,6 +29,10 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
   const [cookingBusy, setCookingBusy] = useState(false);
   const [cookingMessage, setCookingMessage] = useState('');
   const [servings, setServings] = useState(user?.familySize || 4);
+  const [personalRating, setPersonalRating] = useState(0);
+  const [personalNote, setPersonalNote] = useState('');
+  const [reviewMessage, setReviewMessage] = useState('');
+  const [reviewSaving, setReviewSaving] = useState(false);
   const [checkedSteps, setCheckedSteps] = useState<number[]>([]);
   const [isTimerOverlayOpen, setIsTimerOverlayOpen] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
@@ -45,6 +50,14 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
   const time = dish.cookTime || estimateCookTime(dish);
   const difficulty = dish.difficulty || getDifficulty(dish);
   const natureInfo = getDishNature(dish);
+  const costEstimate = estimateRecipeCost(dish, servings, user?.ingredientPrices || {});
+
+  useEffect(() => {
+    const saved = user?.recipeReviews?.[dish.id];
+    setPersonalRating(saved?.rating || 0);
+    setPersonalNote(saved?.note || '');
+    setReviewMessage('');
+  }, [isOpen, dish.id]);
 
   useEffect(() => {
     if (isOpen) {
@@ -191,6 +204,25 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
     if (onUpdateUser) onUpdateUser({ ...user, customShoppingList: currentList });
     UserService.updateShoppingList(user.username, currentList);
     setTimeout(() => setAddedToCart(false), 2000);
+  };
+
+  const savePersonalReview = async () => {
+    if (!user || reviewSaving) return;
+    setReviewSaving(true);
+    setReviewMessage('');
+    const recipeReviews = { ...(user.recipeReviews || {}) };
+    if (!personalRating && !personalNote.trim()) delete recipeReviews[dish.id];
+    else recipeReviews[dish.id] = { ...(personalRating ? { rating: personalRating } : {}), ...(personalNote.trim() ? { note: personalNote.trim() } : {}), updatedAt: Date.now() };
+    const nextUser = { ...user, recipeReviews };
+    try {
+      const savedUser = await UserService.updateProfile(user.username, { recipeReviews });
+      onUpdateUser?.(savedUser || nextUser);
+      setReviewMessage('امتیاز و یادداشت روی همین دستگاه ذخیره شد.');
+    } catch {
+      setReviewMessage('ذخیره انجام نشد؛ دوباره تلاش کن.');
+    } finally {
+      setReviewSaving(false);
+    }
   };
 
   const handleCookDish = async () => {
@@ -353,6 +385,15 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
                   <p className="text-slate-400 font-bold italic">لیست مواد لازم ثبت نشده است.</p>
                 )}
 
+                {user && costEstimate.eligibleRows > 0 && <section className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4" aria-label="برآورد هزینهٔ مواد">
+                  <div className="flex items-center gap-2 font-black text-amber-950"><ReceiptText size={18} /><h4>برآورد هزینهٔ مواد</h4></div>
+                  {costEstimate.pricedRows > 0 ? <>
+                    <p className="mt-2 text-xl font-black text-[#276556]">حدود {toPersianDigits(Math.round(costEstimate.pricedSubtotal).toLocaleString('fa-IR'))} تومان</p>
+                    <p className="mt-1 text-xs font-bold leading-6 text-amber-900">قیمت {toPersianDigits(costEstimate.pricedRows)} از {toPersianDigits(costEstimate.eligibleRows)} قلم ثبت‌شده در دفتر قیمت محاسبه شده است{costEstimate.approximate ? '؛ بخشی از تبدیل‌ها تقریبی است.' : '؛ این مبلغ برآوردی است.'}</p>
+                    {costEstimate.missingIngredients.length > 0 && <p className="mt-1 text-xs leading-5 text-amber-900">قیمت ثبت‌نشده: {costEstimate.missingIngredients.slice(0, 4).join('، ')}{costEstimate.missingIngredients.length > 4 ? ' و چند قلم دیگر' : ''}</p>}
+                  </> : <p className="mt-2 text-xs font-bold leading-6 text-amber-900">برای دیدن برآورد، قیمت بسته و مقدار آن را در برگهٔ «هزینهٔ غذا» در تنظیمات وارد کن. قیمت نامشخص حدس زده نمی‌شود.</p>}
+                </section>}
+
                 {user && hasIngredients && (
                   <div className="flex flex-col gap-3 mt-4">
                     <button 
@@ -435,6 +476,17 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
                 )}
               </div>
             </div>
+            {user && <section className="mt-8 rounded-3xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-white p-5 sm:p-7" aria-labelledby="personal-review-title">
+              <div className="flex items-center gap-3 text-[#276556]"><Star size={22} /><div><h3 id="personal-review-title" className="text-lg font-black">یادداشت و امتیاز شخصی</h3><p className="mt-1 text-xs font-medium text-slate-600">فقط روی همین دستگاه ذخیره می‌شود و امتیاز عمومی غذا نیست.</p></div></div>
+              <div className="mt-5 flex items-center gap-2" role="group" aria-label="امتیاز شخصی از یک تا پنج">
+                {[1, 2, 3, 4, 5].map(value => <button key={value} type="button" aria-pressed={personalRating === value} aria-label={`امتیاز ${toPersianDigits(value)} از ۵`} onClick={() => setPersonalRating(value)} className="rounded-lg p-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#276556]"><Star size={25} className={value <= personalRating ? 'fill-amber-400 text-amber-500' : 'text-slate-300'} /></button>)}
+                {personalRating > 0 && <button type="button" onClick={() => setPersonalRating(0)} className="mr-2 min-h-10 px-2 text-xs font-bold text-slate-500 underline">پاک‌کردن امتیاز</button>}
+              </div>
+              <label htmlFor={`recipe-note-${dish.id}`} className="mt-4 block text-sm font-bold text-slate-700">یادداشت برای دفعات بعد</label>
+              <textarea id={`recipe-note-${dish.id}`} value={personalNote} maxLength={2000} onChange={event => setPersonalNote(event.target.value)} placeholder="مثلاً ادویه را کمتر کنم یا ۱۰ دقیقه بیشتر بپزم…" rows={3} className="mt-2 w-full resize-y rounded-2xl border border-slate-200 bg-white p-3 text-sm leading-6 outline-none focus:border-[#276556] focus:ring-2 focus:ring-[#276556]/15" />
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3"><span className="text-xs text-slate-500">{toPersianDigits(personalNote.length)} از ۲۰۰۰ نویسه</span><button type="button" disabled={reviewSaving} onClick={savePersonalReview} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#276556] px-4 py-2 text-sm font-black text-white hover:bg-[#347866] disabled:opacity-60"><Save size={16} />{reviewSaving ? 'در حال ذخیره…' : 'ذخیرهٔ یادداشت'}</button></div>
+              {reviewMessage && <p role="status" className="mt-3 text-xs font-bold text-[#276556]">{reviewMessage}</p>}
+            </section>}
           </div>
         </div>
       </div>
