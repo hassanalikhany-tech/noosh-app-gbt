@@ -10,6 +10,7 @@ import RecipeCreatorFilter from './RecipeCreatorFilter';
 import { filterRecipeSearchDishes, suggestRecipeNames } from '../utils/recipeSearch';
 import { creatorKey, getRecipeCreators } from '../utils/recipeCreators';
 import DishVisual from './DishVisual';
+import { estimateRecipeBudgetCost } from '../utils/recipeCosts';
 
 interface RecipeSearchProps {
   user: UserProfile;
@@ -80,7 +81,9 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   const [selectedCountryId, setSelectedCountryId] = useState<string | 'all'>('all');
   const [allDishes, setAllDishes] = useState<Dish[]>([]);
   const [selectedCreator, setSelectedCreator] = useState('all');
-  const [sortMode, setSortMode] = useState<'default' | 'rating-high' | 'rating-low'>('default');
+  const [sortMode, setSortMode] = useState<'default' | 'rating-high' | 'rating-low' | 'cost-low'>('default');
+  const [budgetInput, setBudgetInput] = useState('');
+  const budgetLimit = Number(budgetInput.replace(/[٬,]/g, '').replace(/[۰-۹]/g, digit => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit))).replace(/[٠-٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit))));
   const creators = useMemo(() => getRecipeCreators(allDishes), [allDishes]);
   const nooshRecipeCount = useMemo(() => allDishes.filter(dish => !dish.isCommunityRecipe && !dish.isPersonal).length, [allDishes]);
   const activeCreator = creators.find(creator => creator.key === selectedCreator);
@@ -105,7 +108,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   };
 
   const resetFilters = () => {
-    setSearchTerm(''); setSelectedCreator('all'); setSelectedCategory('all'); setSelectedCountryId('all'); setSortMode('default'); setCurrentPage(1);
+    setSearchTerm(''); setSelectedCreator('all'); setSelectedCategory('all'); setSelectedCountryId('all'); setSortMode('default'); setBudgetInput(''); setCurrentPage(1);
   };
 
   const flagsScrollRef = useRef<HTMLDivElement>(null);
@@ -149,18 +152,39 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
     return options.sort((a, b) => a.label.localeCompare(b.label, 'fa'));
   }, [allDishes]);
 
+  const budgetCosts = useMemo(() => {
+    const estimates = new Map<string, ReturnType<typeof estimateRecipeBudgetCost>>();
+    if (!(budgetLimit > 0) && sortMode !== 'cost-low') return estimates;
+    for (const dish of allDishes) estimates.set(dish.id, estimateRecipeBudgetCost(dish, user.familySize || 4, user.inventory || [], user.purchaseHistory || []));
+    return estimates;
+  }, [allDishes, budgetLimit, sortMode, user.familySize, user.inventory, user.purchaseHistory]);
+
   const filteredDishes = useMemo(() => {
-    const matching = filterRecipeSearchDishes(allDishes, { searchTerm, selectedCreator, selectedCategory, selectedCountryId }, user, countryOptions);
-    if (sortMode === 'default') return matching;
+    let matching = filterRecipeSearchDishes(allDishes, { searchTerm, selectedCreator, selectedCategory, selectedCountryId }, user, countryOptions);
+    if (budgetLimit > 0) matching = matching.filter(dish => {
+      const estimate = budgetCosts.get(dish.id);
+      return Boolean(estimate && estimate.eligibleRows > 0 && estimate.pricedRows === estimate.eligibleRows && estimate.missingIngredients.length === 0 && estimate.pricedSubtotal <= budgetLimit);
+    });
+    if (sortMode === 'default' && !(budgetLimit > 0)) return matching;
     const originalOrder = new Map(matching.map((dish, index) => [dish.id, index]));
     return matching.slice().sort((a, b) => {
-      const ratingA = user.recipeReviews?.[a.id]?.rating || 0;
-      const ratingB = user.recipeReviews?.[b.id]?.rating || 0;
-      if (Boolean(ratingA) !== Boolean(ratingB)) return ratingA ? -1 : 1;
-      if (ratingA !== ratingB) return sortMode === 'rating-high' ? ratingB - ratingA : ratingA - ratingB;
+      if (sortMode === 'cost-low' || (budgetLimit > 0 && sortMode === 'default')) {
+        const estimateA = budgetCosts.get(a.id);
+        const estimateB = budgetCosts.get(b.id);
+        const completeA = Boolean(estimateA && estimateA.eligibleRows > 0 && estimateA.pricedRows === estimateA.eligibleRows && estimateA.missingIngredients.length === 0);
+        const completeB = Boolean(estimateB && estimateB.eligibleRows > 0 && estimateB.pricedRows === estimateB.eligibleRows && estimateB.missingIngredients.length === 0);
+        if (completeA !== completeB) return completeA ? -1 : 1;
+        if (completeA && completeB && estimateA!.pricedSubtotal !== estimateB!.pricedSubtotal) return estimateA!.pricedSubtotal - estimateB!.pricedSubtotal;
+      }
+      if (sortMode === 'rating-high' || sortMode === 'rating-low') {
+        const ratingA = user.recipeReviews?.[a.id]?.rating || 0;
+        const ratingB = user.recipeReviews?.[b.id]?.rating || 0;
+        if (Boolean(ratingA) !== Boolean(ratingB)) return ratingA ? -1 : 1;
+        if (ratingA !== ratingB) return sortMode === 'rating-high' ? ratingB - ratingA : ratingA - ratingB;
+      }
       return (originalOrder.get(a.id) || 0) - (originalOrder.get(b.id) || 0);
     });
-  }, [searchTerm, selectedCategory, selectedCountryId, allDishes, countryOptions, user.dislikedIngredients, user.recipeReviews, selectedCreator, sortMode]);
+  }, [searchTerm, selectedCategory, selectedCountryId, allDishes, countryOptions, user.dislikedIngredients, user.recipeReviews, user, selectedCreator, sortMode, budgetLimit, budgetCosts]);
 
   const searchSuggestions = useMemo(() => suggestRecipeNames(allDishes, searchTerm), [allDishes, searchTerm]);
   const showSearchSuggestions = searchFocused && searchTerm.trim().length > 0 && searchSuggestions.length > 0;
@@ -275,11 +299,12 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <RecipeCreatorFilter creators={creators} nooshCount={nooshRecipeCount} value={selectedCreator} onChange={selectCreator} />
               <div className="flex flex-col gap-2 sm:items-end">
-                <label className="flex min-h-10 items-center gap-2 text-xs font-bold text-slate-600"><span className="shrink-0">مرتب‌سازی</span><select value={sortMode} onChange={event => { setSortMode(event.target.value as typeof sortMode); setCurrentPage(1); }} className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-800 outline-none focus:border-[#276556] focus:ring-2 focus:ring-[#276556]/10"><option value="default">ترتیب پیش‌فرض</option><option value="rating-high">امتیاز من · زیاد به کم</option><option value="rating-low">امتیاز من · کم به زیاد</option></select></label>
+                <label className="flex min-h-10 items-center gap-2 text-xs font-bold text-slate-600"><span className="shrink-0">مرتب‌سازی</span><select value={sortMode} onChange={event => { setSortMode(event.target.value as typeof sortMode); setCurrentPage(1); }} className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-800 outline-none focus:border-[#276556] focus:ring-2 focus:ring-[#276556]/10"><option value="default">ترتیب پیش‌فرض</option><option value="rating-high">امتیاز من · زیاد به کم</option><option value="rating-low">امتیاز من · کم به زیاد</option><option value="cost-low">هزینهٔ کمتر برای خانواده</option></select></label>
+                <label className="flex min-h-10 items-center gap-2 text-xs font-bold text-slate-600"><span className="shrink-0">حداکثر بودجهٔ غذا برای {toPersian(user.familySize || 4)} نفر (تومان)</span><input type="number" min="1" step="10000" inputMode="numeric" value={budgetInput} onChange={event => { setBudgetInput(event.target.value); setCurrentPage(1); }} placeholder="مثلاً ۸۰۰٬۰۰۰" className="h-10 w-36 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-800 outline-none focus:border-[#276556] focus:ring-2 focus:ring-[#276556]/10" /></label>
                 <p role="status" className="text-xs leading-6 text-slate-600">{activeCreator ? <><strong className="text-[#276556]">{activeCreator.name}</strong> · {toPersian(activeCreator.count)} رسپی منتشرشده · {toPersian(filteredDishes.length)} نتیجه با فیلترهای فعلی</> : `${toPersian(filteredDishes.length)} غذا مطابق جست‌وجو و فیلترهای شما`}</p>
               </div>
             </div>
-            {sortMode !== 'default' && <p className="-mt-1 text-[11px] leading-5 text-slate-500">غذاهایی که به آن‌ها امتیاز داده‌ای اول می‌آیند؛ غذاهای امتیازنداده‌شده بعد از آن‌ها می‌مانند.</p>}
+            {budgetLimit > 0 ? <p className="-mt-1 text-[11px] leading-5 text-slate-500">فقط دستورهایی نمایش داده می‌شوند که برآورد کامل هزینه‌شان با قیمت‌های ثبت‌شده برای همهٔ مواد، زیر این بودجه باشد؛ دستورهای دارای قیمت یا تبدیل نامعلوم کنار گذاشته می‌شوند.</p> : sortMode === 'rating-high' || sortMode === 'rating-low' ? <p className="-mt-1 text-[11px] leading-5 text-slate-500">غذاهایی که به آن‌ها امتیاز داده‌ای اول می‌آیند؛ غذاهای امتیازنداده‌شده بعد از آن‌ها می‌مانند.</p> : sortMode === 'cost-low' ? <p className="-mt-1 text-[11px] leading-5 text-slate-500">دستورهایی که برآورد کامل دارند از کم‌هزینه‌تر به پرهزینه‌تر مرتب می‌شوند.</p> : null}
             {activeCreator && <p className="text-xs leading-6 text-slate-600">همهٔ دستورهای این آشپز قابل مشاهده‌اند؛ غذاهای دارای مواد ممنوع شما با هشدار مشخص می‌شوند و همچنان از پیشنهادها و برنامهٔ غذایی کنار گذاشته می‌شوند.</p>}
             {selectedCategory === 'international' && (
               <div className="relative pt-2 sm:pt-4 border-t border-white/40 animate-enter flex items-center group/flags">
@@ -325,9 +350,13 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
 
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
           <div className="max-w-7xl mx-auto py-4 sm:py-6 space-y-6 sm:space-y-10">
-              {!filteredDishes.length && <div role="status" className="rounded-3xl bg-white p-6 text-center ring-1 ring-[#276556]/15 sm:p-10"><Search className="mx-auto mb-3 text-[#276556]" size={28}/><h2 className="text-lg font-black text-slate-800">رسپی‌ای با این ترکیب فیلترها پیدا نشد</h2><p className="mx-auto mt-2 max-w-lg text-sm leading-7 text-slate-500">نام غذا، دسته و کشور را بررسی کن. غذاهای دارای مواد ممنوع یا حساسیت‌زا نیز قابل مشاهده‌اند و روی کارتشان هشدار دارند.</p><button type="button" onClick={resetFilters} className="mt-4 min-h-11 rounded-xl bg-[#276556] px-5 text-sm font-bold text-white">پاک کردن فیلترهای جست‌وجو</button></div>}
+              {!filteredDishes.length && <div role="status" className="rounded-3xl bg-white p-6 text-center ring-1 ring-[#276556]/15 sm:p-10"><Search className="mx-auto mb-3 text-[#276556]" size={28}/><h2 className="text-lg font-black text-slate-800">{budgetLimit > 0 ? 'غذای قابل محاسبه‌ای در این بودجه پیدا نشد' : 'رسپی‌ای با این ترکیب فیلترها پیدا نشد'}</h2><p className="mx-auto mt-2 max-w-lg text-sm leading-7 text-slate-500">{budgetLimit > 0 ? 'برای پیشنهاد بودجه‌ای، قیمت آخرین خرید و تبدیل واحد همهٔ مواد لازم باید ثبت شده باشد. قیمت اقلام را هنگام خرید در انبار وارد کن یا بودجه را افزایش بده.' : 'نام غذا، دسته و کشور را بررسی کن. غذاهای دارای مواد ممنوع یا حساسیت‌زا نیز قابل مشاهده‌اند و روی کارتشان هشدار دارند.'}</p><button type="button" onClick={resetFilters} className="mt-4 min-h-11 rounded-xl bg-[#276556] px-5 text-sm font-bold text-white">پاک کردن فیلترهای جست‌وجو</button></div>}
               <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {paginatedDishes.map(dish => <MealCard key={dish.id} plan={{ dayName: CATEGORY_LABELS[dish.category] || 'غذای برتر', dish }} user={user} onUpdateUser={onUpdateUser} />)}
+                {paginatedDishes.map(dish => {
+                  const estimate = budgetCosts.get(dish.id);
+                  const hasFullEstimate = Boolean(estimate && estimate.eligibleRows > 0 && estimate.pricedRows === estimate.eligibleRows && estimate.missingIngredients.length === 0);
+                  return <MealCard key={dish.id} plan={{ dayName: CATEGORY_LABELS[dish.category] || 'غذای برتر', dish }} user={user} onUpdateUser={onUpdateUser} estimatedCost={hasFullEstimate ? { amount: estimate!.pricedSubtotal, servings: user.familySize || 4, approximate: estimate!.approximate } : undefined} />;
+                })}
               </div>
               
               {totalPages > 1 && (

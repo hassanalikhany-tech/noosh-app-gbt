@@ -388,7 +388,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
                 {user && costEstimate.eligibleRows > 0 && <section className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4" aria-label="برآورد هزینهٔ تمام‌شدهٔ غذا">
                   <div className="flex items-center gap-2 font-black text-amber-950"><ReceiptText size={18} /><h4>برآورد هزینهٔ تمام‌شدهٔ غذا</h4></div>
                   {costEstimate.pricedRows > 0 ? <>
-                    <p className="mt-2 text-xl font-black text-[#276556]">حدود {toPersianDigits(Math.round(costEstimate.pricedSubtotal).toLocaleString('fa-IR'))} تومان</p>
+                    <p className="mt-2 text-xl font-black text-[#276556]">حدود {toPersianDigits(Math.round(costEstimate.pricedSubtotal).toLocaleString('fa-IR'))} تومان · برای {toPersianDigits(servings)} نفر</p>
                     <p className="mt-1 text-xs font-bold leading-6 text-amber-900">مصرف به ترتیب سری‌های موجود و قیمت ثبت‌شدهٔ همان سری حساب شده است؛ قیمت {toPersianDigits(costEstimate.pricedRows)} از {toPersianDigits(costEstimate.eligibleRows)} قلم کامل در دسترس است{costEstimate.approximate ? ' و بخشی از تبدیل‌ها تقریبی است.' : '.'}</p>
                     {costEstimate.missingIngredients.length > 0 && <p className="mt-1 text-xs leading-5 text-amber-900">قیمت ثبت‌نشده: {costEstimate.missingIngredients.slice(0, 4).join('، ')}{costEstimate.missingIngredients.length > 4 ? ' و چند قلم دیگر' : ''}</p>}
                   </> : <p className="mt-2 text-xs font-bold leading-6 text-amber-900">برای برآورد، هنگام افزودن مواد به انبار یا در مدیریت سری‌های خرید، قیمت هر واحد را ثبت کن. قیمت یا مقدار نامشخص حدس زده نمی‌شود.</p>}

@@ -1,4 +1,4 @@
-import { Dish, InventoryItem } from '../types';
+import { Dish, InventoryItem, PurchaseRecord } from '../types';
 import { compareBatchConsumptionOrder, getInventoryBatches } from './inventoryBatches';
 import { convertIngredientQuantity, isInventoryIngredientMatch, normalizeUnit, parseQuantity, splitIngredientAlternatives } from './recipeHelpers';
 
@@ -54,5 +54,48 @@ export const estimateRecipeCost = (dish: Dish, servings: number, inventory: Inve
     if (ingredientFullyPriced) pricedRows++;
     else missingIngredients.push(ingredient.item);
   }
+  return { pricedSubtotal, pricedRows, eligibleRows, missingIngredients: [...new Set(missingIngredients)], approximate };
+};
+
+/** Estimate the full recipe from the user's latest recorded purchase prices, without requiring those quantities to remain in stock. */
+export const estimateRecipeBudgetCost = (dish: Dish, servings: number, inventory: InventoryItem[] = [], purchaseHistory: PurchaseRecord[] = []): RecipeCostEstimate => {
+  const targetServings = Number.isFinite(servings) && servings > 0 ? servings : dish.servings || 4;
+  const baseServings = dish.servings || 4;
+  const records = [...purchaseHistory];
+  const knownIds = new Set(records.map(row => row.id));
+  for (const item of inventory) for (const batch of getInventoryBatches(item)) {
+    if (!batch.unitPrice || batch.unitPrice <= 0 || batch.purchaseAmount === undefined || knownIds.has(batch.id)) continue;
+    records.push({ id: batch.id, inventoryId: item.id, ingredientId: item.ingredientId || '', name: item.name, amount: batch.purchaseAmount, unit: item.unit, unitPrice: batch.unitPrice, totalPrice: batch.purchaseAmount * batch.unitPrice, purchasedAt: batch.receivedAt, lastPurchasedAt: batch.lastPurchasedAt, approximate: batch.costApproximate });
+  }
+
+  let pricedSubtotal = 0;
+  let pricedRows = 0;
+  let eligibleRows = 0;
+  let approximate = false;
+  const missingIngredients: string[] = [];
+
+  for (const ingredient of dish.ingredients || []) {
+    const amount = parseQuantity(ingredient.amount) * targetServings / baseServings;
+    const recipeUnit = normalizeUnit(ingredient.unit || '');
+    if (!Number.isFinite(amount) || amount <= 0 || recipeUnit === 'به میزان لازم') continue;
+    eligibleRows++;
+
+    const candidates = splitIngredientAlternatives(ingredient.item).flatMap(option => {
+      const matches = records.filter(record => Number(record.unitPrice) > 0 && (ingredient.ingredientId && record.ingredientId ? ingredient.ingredientId === record.ingredientId : isInventoryIngredientMatch(record.name, option)));
+      const latest = matches.sort((a, b) => (b.lastPurchasedAt || b.purchasedAt) - (a.lastPurchasedAt || a.purchasedAt))[0];
+      if (!latest) return [];
+      const conversion = convertIngredientQuantity(amount, ingredient.unit, latest.unit, ingredient.item, latest.name);
+      if (!conversion || conversion.amount <= 0) return [];
+      return [{ cost: conversion.amount * latest.unitPrice!, estimated: conversion.estimated || Boolean(latest.approximate), purchasedAt: latest.lastPurchasedAt || latest.purchasedAt }];
+    });
+
+    if (!candidates.length) { missingIngredients.push(ingredient.item); continue; }
+    // Alternative ingredients are estimated using the least costly recorded option.
+    candidates.sort((a, b) => a.cost - b.cost || b.purchasedAt - a.purchasedAt);
+    pricedSubtotal += candidates[0].cost;
+    pricedRows++;
+    approximate ||= candidates[0].estimated;
+  }
+
   return { pricedSubtotal, pricedRows, eligibleRows, missingIngredients: [...new Set(missingIngredients)], approximate };
 };
