@@ -255,11 +255,12 @@ console.log(`Full catalog search audit passed for ${completeCatalog.length} reci
 
 const profileBackup = { ...GuestService.get(), weeklyPlan: [], cookingTransactions: [], inventory: [], customShoppingList: [] };
 assert.equal(validBackupProfile(profileBackup), true, 'A normal full-device profile remains restorable');
-const featureBackup = { ...profileBackup, inventory:[{ id:'dated-rice', name:'برنج', amount:1, unit:'کیلوگرم', minThreshold:0, lastUpdated:1, stockBatches:[{ id:'rice-lot', amount:1, expiresOn:'2027-01-10', receivedAt:1 }] }], ingredientPrices:{ برنج:{ ingredientId:'برنج', name:'برنج', quantity:1, unit:'کیلوگرم', totalPrice:100000, updatedAt:1 } }, recipeReviews:{ recipe:{ rating:5, note:'خوب شد', updatedAt:1 } } };
+const featureBackup = { ...profileBackup, inventory:[{ id:'dated-rice', name:'برنج', amount:1, unit:'کیلوگرم', minThreshold:0, lastUpdated:1, stockBatches:[{ id:'rice-lot', amount:1, purchaseAmount:1, unitPrice:100000, expiresOn:'2027-01-10', receivedAt:1 }] }], purchaseHistory:[{ id:'rice-lot', inventoryId:'dated-rice', ingredientId:'برنج', name:'برنج', amount:1, unit:'کیلوگرم', unitPrice:100000, totalPrice:100000, purchasedAt:1, expiresOn:'2027-01-10' }], recipeReviews:{ recipe:{ rating:5, note:'خوب شد', updatedAt:1 } } };
 assert.equal(validBackupProfile(featureBackup), true, 'Expiry dates, local prices and personal recipe reviews are valid in a full device backup');
 assert.equal(validBackupProfile({ ...featureBackup, inventory:[{ ...featureBackup.inventory[0], stockBatches:[{ id:'bad-date', amount:1, expiresOn:'2027-02-31', receivedAt:1 }] }] }), false, 'Impossible calendar expiry dates are rejected');
 assert.equal(validBackupProfile({ ...featureBackup, inventory:[{ ...featureBackup.inventory[0], amount:2 }] }), false, 'Backup stock lot totals must match the inventory total');
 assert.equal(validBackupProfile({ ...featureBackup, recipeReviews:{ recipe:{ rating:6, updatedAt:1 } } }), false, 'Personal ratings must stay within one to five stars');
+assert.equal(validBackupProfile({ ...featureBackup, purchaseHistory:[{ ...featureBackup.purchaseHistory[0], unitPrice:-10 }] }), false, 'Purchase reports reject negative unit prices during backup restore');
 assert.equal(validBackupProfile({ ...profileBackup, inventory: [null] }), false);
 assert.equal(validBackupProfile({ ...profileBackup, dislikedIngredients: [null] }), false);
 assert.equal(validBackupProfile({ ...profileBackup, weeklyPlan: [{ dayName: 'شنبه', dish: {} }] }), false);

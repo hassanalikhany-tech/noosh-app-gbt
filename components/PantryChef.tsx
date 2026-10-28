@@ -14,7 +14,8 @@ import InventoryHistory from './InventoryHistory';
 import MealCard from './MealCard';
 import PantryFoodThumbnail from './PantryFoodThumbnail';
 import InventoryBatchManager from './InventoryBatchManager';
-import { appendInventoryBatch, earliestExpiry, getInventoryBatches, inventoryExpiryState, sumInventoryBatches, resizeInventoryBatches } from '../utils/inventoryBatches';
+import { activePurchaseBatchCount, appendInventoryBatch, earliestExpiry, getInventoryBatches, inventoryExpiryState, MAX_ACTIVE_PURCHASE_BATCHES, sumInventoryBatches, resizeInventoryBatches } from '../utils/inventoryBatches';
+import { mergePurchaseHistory } from '../utils/purchaseHistory';
 
 interface PantryChefProps {
   user: UserProfile;
@@ -141,6 +142,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('1');
   const [newItemExpiry, setNewItemExpiry] = useState('');
+  const [newItemUnitPrice, setNewItemUnitPrice] = useState('');
   const [addMessage, setAddMessage] = useState('');
   const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
   const [pendingUnitCorrection, setPendingUnitCorrection] = useState<{ id: string; name: string; oldAmount: number; oldUnit: string; nextUnit: string; oldThreshold: number; oldThresholdUnit: string; amount: string; threshold: string } | null>(null);
@@ -316,11 +318,10 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
       const nextAmount = updates.amount ?? item.amount;
       const nextUnit = updates.unit ?? item.unit;
       if (!stockBatches && item.stockBatches?.length) {
-        stockBatches = resizeInventoryBatches(item, nextAmount);
-        if (nextUnit !== item.unit && item.amount > 0 && stockBatches) {
+        if (nextUnit !== item.unit && item.amount > 0) {
           const factor = nextAmount / item.amount;
-          stockBatches = stockBatches.map(batch => ({ ...batch, amount: roundQuantity(batch.amount * factor) }));
-        }
+          stockBatches = getInventoryBatches(item).map(batch => ({ ...batch, amount: roundQuantity(batch.amount * factor), ...(factor > 0 ? { ...(batch.purchaseAmount !== undefined ? { purchaseAmount: roundQuantity(batch.purchaseAmount * factor) } : {}), ...(batch.unitPrice !== undefined ? { unitPrice: batch.unitPrice / factor } : {}) } : { purchaseAmount: undefined, unitPrice: undefined }) }));
+        } else stockBatches = resizeInventoryBatches(item, nextAmount);
       }
       return { ...item, ...updates, ...(stockBatches ? { stockBatches } : {}), lastUpdated: Date.now() };
     });
@@ -344,13 +345,14 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     setAddMessage(converted.estimated ? `مقدار ${item.name} با وزن مرجع متوسط تبدیل شد؛ برای دقت کامل، وزن واقعی را وارد کن.` : `واحد ${item.name} با حفظ مقدار واقعی تغییر کرد.`);
   };
 
-  const addToInventory = async (itemName: string, amount = 1, unit?: string, focusNext = false, expiresOn = '') => {
+  const addToInventory = async (itemName: string, amount = 1, unit?: string, focusNext = false, expiresOn = '', unitPrice?: number) => {
     const cleanName = itemName.trim();
     if (!cleanName || !Number.isFinite(amount) || amount <= 0) return;
     const prepareNextEntry = () => {
       setNewItemName('');
       setNewItemAmount('1');
       setNewItemExpiry('');
+      setNewItemUnitPrice('');
       if (focusNext) window.requestAnimationFrame(() => newItemNameRef.current?.focus());
     };
     const existingItem = inventory.find(item => isInventoryIngredientMatch(item.name, cleanName));
@@ -361,8 +363,15 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
         setAddMessage(`واحد ورودی ${inputUnit} با موجودی ${existingItem.unit} تبدیل دقیق ندارد. ابتدا واحد و مقدار واقعی موجودی قبلی را از بخش ویرایش اصلاح کن؛ موجودی دست‌نخورده ماند.`);
         return;
       }
-      const appended = appendInventoryBatch(existingItem, incoming.amount, expiresOn || undefined);
-      updateInventoryItem(existingItem.id, { amount: appended.amount, stockBatches: appended.stockBatches });
+      let appended: InventoryItem;
+      const priceInInventoryUnit = unitPrice && incoming.amount > 0 ? unitPrice * amount / incoming.amount : undefined;
+      try { appended = appendInventoryBatch(existingItem, incoming.amount, expiresOn || undefined, priceInInventoryUnit); }
+      catch (error) { setAddMessage(error instanceof Error ? error.message : 'سری خرید تازه ثبت نشد.'); return; }
+      const newBatch = appended.stockBatches![appended.stockBatches!.length - 1];
+      const newInventory = inventory.map(row => row.id === existingItem.id ? { ...appended, lastUpdated: Date.now() } : row);
+      const purchaseHistory = mergePurchaseHistory(user.purchaseHistory || [], existingItem, [newBatch]);
+      onUpdateUser({ ...user, inventory: newInventory, purchaseHistory });
+      UserService.updateProfile(user.username, { inventory: newInventory, purchaseHistory }).catch(error => console.error('Failed to save purchase:', error));
       setAddMessage(`${cleanName} به موجودی اضافه شد؛ واحد قبلی ${existingItem.unit} حفظ شد.`);
       prepareNextEntry();
       return;
@@ -370,6 +379,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
 
     const defaultThreshold = 0;
     const selectedUnit = unit || suggestPantryUnit(cleanName);
+    const newBatch = { id: globalThis.crypto?.randomUUID?.() || `lot-${Date.now()}`, amount, purchaseAmount: amount, ...(Number.isFinite(unitPrice) && unitPrice! > 0 ? { unitPrice } : {}), ...(expiresOn ? { expiresOn } : {}), receivedAt: Date.now() };
     const newItem: InventoryItem = {
       id: crypto.randomUUID?.() || Math.random().toString(36).slice(2, 11),
       name: cleanName,
@@ -378,14 +388,15 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
       minThreshold: defaultThreshold,
       minThresholdUnit: selectedUnit,
       lastUpdated: Date.now(),
-      stockBatches: [{ id: globalThis.crypto?.randomUUID?.() || `lot-${Date.now()}`, amount, ...(expiresOn ? { expiresOn } : {}), receivedAt: Date.now() }]
+      stockBatches: [newBatch]
     };
     const newInventory = [...inventory, newItem];
 
     // Optimistic update
-    onUpdateUser({ ...user, inventory: newInventory });
+    const purchaseHistory = mergePurchaseHistory(user.purchaseHistory || [], newItem, [newBatch]);
+    onUpdateUser({ ...user, inventory: newInventory, purchaseHistory });
     // Sync in background
-    UserService.updateInventory(user.username, newInventory).catch(err => {
+    UserService.updateProfile(user.username, { inventory: newInventory, purchaseHistory }).catch(err => {
       console.error("Failed to sync inventory add:", err);
     });
     setAddMessage(`${cleanName} به انبار اضافه شد.`);
@@ -433,6 +444,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     }
   };
   const isInventoryMode = user.kitchenMode !== 'without-inventory';
+  const selectedPurchaseItem = inventory.find(item => newItemName.trim() && isInventoryIngredientMatch(item.name, newItemName.trim()));
+  const purchaseLimitReached = Boolean(selectedPurchaseItem && activePurchaseBatchCount(getInventoryBatches(selectedPurchaseItem)) >= MAX_ACTIVE_PURCHASE_BATCHES);
 
   const renderOverviewQuantity = (item: InventoryItem) => selectedInventoryItemId === item.id ? (
     <div className="flex items-center gap-1 rounded-xl border border-emerald-100 bg-emerald-50 p-1" onClick={event => event.stopPropagation()}>
@@ -451,12 +464,14 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     </div>
   ) : <span className="whitespace-nowrap font-black text-emerald-800">{toPersian(item.amount)} <small className="font-semibold text-slate-500">{item.unit}</small></span>;
 
-  const renderInlineInventoryForm = (compact = false) => <form onSubmit={event => { event.preventDefault(); void addToInventory(newItemName, Number(newItemAmount), undefined, false, newItemExpiry); }} className={`grid gap-2 ${compact ? 'grid-cols-1 sm:grid-cols-[minmax(160px,1fr)_90px_auto_145px_auto_auto]' : 'grid-cols-1 md:grid-cols-[minmax(220px,1fr)_110px_auto_160px_auto_auto]'}`}>
+  const renderInlineInventoryForm = (compact = false) => <form onSubmit={event => { event.preventDefault(); const price = Number(newItemUnitPrice); void addToInventory(newItemName, Number(newItemAmount), undefined, false, newItemExpiry, Number.isFinite(price) && price > 0 ? price : undefined); }} className={`grid gap-2 ${compact ? 'grid-cols-1 sm:grid-cols-[minmax(160px,1fr)_90px_auto_140px_150px_auto_auto]' : 'grid-cols-1 md:grid-cols-[minmax(220px,1fr)_110px_auto_145px_160px_auto_auto]'}`}>
     <FoodIngredientCombobox id={`inline-pantry-name-${compact ? 'modal' : 'list'}`} inputRef={newItemNameRef} value={newItemName} onChange={setNewItemName} placeholder="نام ماده را جست‌وجو یا وارد کن…" />
     <input aria-label="مقدار قلم تازه" type="number" min="0" step="any" value={newItemAmount} onChange={event => setNewItemAmount(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-center text-sm font-black outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" />
     <span className="flex min-h-11 items-center justify-center rounded-xl bg-emerald-50 px-3 text-xs font-black text-emerald-800">{newItemName.trim() ? `واحد: ${suggestPantryUnit(newItemName)}` : 'واحد پس از انتخاب ماده'}</span>
     <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-500"><CalendarDays size={15} className="shrink-0 text-[#276556]"/><span className="sr-only">تاریخ انقضا (اختیاری)</span><input aria-label="تاریخ انقضای سری خرید" title="تاریخ انقضا (اختیاری)" type="date" value={newItemExpiry} onChange={event => setNewItemExpiry(event.target.value)} className="min-w-0 w-full bg-transparent text-xs text-slate-700 outline-none" /></label>
-    <button type="submit" disabled={!newItemName.trim() || Number(newItemAmount) <= 0} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17} /> افزودن</button>
+    <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-500"><span className="shrink-0">تومان / {newItemName.trim() ? suggestPantryUnit(newItemName) : 'واحد'}</span><input aria-label={`قیمت هر ${newItemName.trim() ? suggestPantryUnit(newItemName) : 'واحد'} به تومان (اختیاری)`} type="number" min="0.01" step="any" value={newItemUnitPrice} onChange={event => setNewItemUnitPrice(event.target.value)} placeholder="اختیاری" className="min-w-0 w-full bg-transparent text-xs text-slate-700 outline-none" /></label>
+    {purchaseLimitReached && <p role="status" className="sm:col-span-full rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">دو سری خرید فعال برای این ماده ثبت شده؛ پس از مصرف بخشی از آن‌ها، خرید بعدی را اضافه کن.</p>}
+    <button type="submit" disabled={!newItemName.trim() || Number(newItemAmount) <= 0 || purchaseLimitReached} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17} /> افزودن</button>
     <button type="button" aria-label="بستن ردیف افزودن" onClick={() => setIsInlineAddingInventory(false)} className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-3 py-3 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={17} /></button>
   </form>;
 
@@ -865,7 +880,11 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
       )}
       {selectedBatchItem && <InventoryBatchManager item={inventory.find(item => item.id === selectedBatchItem.id) || selectedBatchItem} onClose={() => setSelectedBatchItem(null)} onSave={batches => {
         const item = inventory.find(row => row.id === selectedBatchItem.id) || selectedBatchItem;
-        updateInventoryItem(item.id, { stockBatches: batches, amount: sumInventoryBatches(batches) });
+        const nextItem = { ...item, stockBatches: batches, amount: sumInventoryBatches(batches), lastUpdated: Date.now() };
+        const nextInventory = inventory.map(row => row.id === item.id ? nextItem : row);
+        const purchaseHistory = mergePurchaseHistory(user.purchaseHistory || [], item, batches);
+        onUpdateUser({ ...user, inventory: nextInventory, purchaseHistory });
+        UserService.updateProfile(user.username, { inventory: nextInventory, purchaseHistory }).catch(error => console.error('Failed to save inventory batches:', error));
         setSelectedBatchItem(null);
       }} />}
       {selectedDish && <RecipeModal dish={selectedDish} isOpen={!!selectedDish} onClose={() => setSelectedDish(null)} user={user} onUpdateUser={onUpdateUser} />}

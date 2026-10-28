@@ -11,7 +11,7 @@ import { CHALLENGES } from '../data/challenges';
 import DishVisual from './DishVisual';
 import FeedbackModal from './FeedbackModal';
 import UserGuide from './UserGuide';
-import IngredientPriceBook from './IngredientPriceBook';
+import PurchaseReport from './PurchaseReport';
 
 interface PreferencesProps {
   user: UserProfile;
@@ -45,7 +45,7 @@ const ToggleSwitch = ({ isActive, onChange, label }: { isActive: boolean; onChan
 
 const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout, onNotify, onToggleFilter, installPrompt, isAppInstalled, onInstallPromptConsumed }) => {
   const [ingredientSearch, setIngredientSearch] = useState('');
-  const [settingsTab, setSettingsTab] = useState<'planning' | 'taste' | 'recipes' | 'costs' | 'device'>('planning');
+  const [settingsTab, setSettingsTab] = useState<'planning' | 'taste' | 'recipes' | 'purchases' | 'device'>('planning');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isUserGuideOpen, setIsUserGuideOpen] = useState(false);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
@@ -232,7 +232,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
     { id: 'planning', label: 'برنامه و فیلترها', icon: Sparkles },
     { id: 'taste', label: 'سلیقه و پرهیزها', icon: Heart },
     { id: 'recipes', label: 'رسپی‌های من', icon: ChefHat },
-    { id: 'costs', label: 'هزینهٔ غذا', icon: ReceiptText },
+    { id: 'purchases', label: 'گزارش خریدها', icon: ReceiptText },
     { id: 'device', label: 'دستگاه و پشتیبان', icon: Smartphone },
   ] as const;
 
@@ -314,7 +314,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
               })}
             </div>
             {settingsTab === 'recipes' && <div id="settings-panel-recipes" role="tabpanel" aria-labelledby="settings-tab-recipes"><PersonalRecipes user={user} onUpdateUser={nextUser => onUpdateUser(nextUser)} /></div>}
-            {settingsTab === 'costs' && <div id="settings-panel-costs" role="tabpanel" aria-labelledby="settings-tab-costs"><IngredientPriceBook user={user} onUpdateUser={onUpdateUser} /></div>}
+            {settingsTab === 'purchases' && <div id="settings-panel-purchases" role="tabpanel" aria-labelledby="settings-tab-purchases"><PurchaseReport user={user} /></div>}
             {settingsTab === 'device' && <div id="settings-panel-device" role="tabpanel" aria-labelledby="settings-tab-device" className="space-y-3"><BackupManager personalOnly />
               <nav aria-label="اطلاعات و پشتیبانی" className="grid gap-2 rounded-2xl border border-emerald-100 bg-white p-3 sm:grid-cols-2">
                 <a href="/privacy.html" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#f1f6f0] px-4 text-sm font-bold text-[#276556] transition hover:bg-[#e5efe5]">حریم خصوصی و داده‌های شما</a>

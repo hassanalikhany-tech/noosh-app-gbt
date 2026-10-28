@@ -2,12 +2,15 @@ import { InventoryBatch, InventoryItem } from '../types';
 import { roundQuantity } from './recipeHelpers';
 
 const makeId = () => globalThis.crypto?.randomUUID?.() || `lot-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-const compareExpiry = (a: InventoryBatch, b: InventoryBatch) => {
+export const MAX_ACTIVE_PURCHASE_BATCHES = 2;
+export const compareBatchConsumptionOrder = (a: InventoryBatch, b: InventoryBatch) => {
   if (a.expiresOn && b.expiresOn) return a.expiresOn.localeCompare(b.expiresOn) || a.receivedAt - b.receivedAt;
   if (a.expiresOn) return -1;
   if (b.expiresOn) return 1;
   return a.receivedAt - b.receivedAt;
 };
+
+export const activePurchaseBatchCount = (batches: InventoryBatch[]) => batches.filter(batch => batch.amount > 1e-9 && batch.purchaseAmount !== undefined).length;
 
 export const getInventoryBatches = (item: InventoryItem): InventoryBatch[] => {
   if (Array.isArray(item.stockBatches) && item.stockBatches.length) return item.stockBatches.map(batch => ({ ...batch }));
@@ -16,12 +19,14 @@ export const getInventoryBatches = (item: InventoryItem): InventoryBatch[] => {
 
 export const sumInventoryBatches = (batches: InventoryBatch[]) => roundQuantity(batches.reduce((sum, batch) => sum + batch.amount, 0));
 
-export const appendInventoryBatch = (item: InventoryItem, amount: number, expiresOn?: string): InventoryItem => {
+export const appendInventoryBatch = (item: InventoryItem, amount: number, expiresOn?: string, unitPrice?: number): InventoryItem => {
   const existing = getInventoryBatches(item);
+  if (activePurchaseBatchCount(existing) >= MAX_ACTIVE_PURCHASE_BATCHES) throw new Error('برای این ماده دو سری خرید فعال داری. پس از مصرف بخشی از موجودی و آزاد شدن یک سری، خرید بعدی را ثبت کن.');
+  const purchasedAt = Date.now();
   return {
     ...item,
     amount: roundQuantity(item.amount + amount),
-    stockBatches: [...existing, { id: makeId(), amount, ...(expiresOn ? { expiresOn } : {}), receivedAt: Date.now() }],
+    stockBatches: [...existing, { id: makeId(), amount, purchaseAmount: amount, ...(Number.isFinite(unitPrice) && unitPrice! > 0 ? { unitPrice } : {}), ...(expiresOn ? { expiresOn } : {}), receivedAt: purchasedAt }],
   };
 };
 
@@ -39,7 +44,7 @@ export const deductInventoryBatches = (batches: InventoryBatch[], amount: number
   let remaining = roundQuantity(amount);
   const next = batches.map(batch => ({ ...batch }));
   const deductions: InventoryBatch[] = [];
-  for (const batch of [...next].sort(compareExpiry)) {
+  for (const batch of [...next].sort(compareBatchConsumptionOrder)) {
     if (remaining <= 1e-9) break;
     const live = next.find(row => row.id === batch.id);
     if (!live || live.amount <= 0) continue;
@@ -50,7 +55,7 @@ export const deductInventoryBatches = (batches: InventoryBatch[], amount: number
     deductions.push({ ...live, amount: consumed });
   }
   if (remaining > 1e-7) throw new Error('جمع مقدار سری‌های خرید از موجودی کل کمتر است؛ تاریخچهٔ انبار را بررسی کن.');
-  return { batches: next.filter(batch => batch.amount > 1e-9), deductions };
+  return { batches: next.filter(batch => batch.amount > 1e-9 || batch.purchaseAmount !== undefined || batch.unitPrice !== undefined), deductions };
 };
 
 export const restoreInventoryBatches = (batches: InventoryBatch[], deductions: InventoryBatch[]): InventoryBatch[] => {

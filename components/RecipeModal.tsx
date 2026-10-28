@@ -50,7 +50,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
   const time = dish.cookTime || estimateCookTime(dish);
   const difficulty = dish.difficulty || getDifficulty(dish);
   const natureInfo = getDishNature(dish);
-  const costEstimate = estimateRecipeCost(dish, servings, user?.ingredientPrices || {});
+  const costEstimate = estimateRecipeCost(dish, servings, user?.inventory || []);
 
   useEffect(() => {
     const saved = user?.recipeReviews?.[dish.id];
@@ -389,9 +389,9 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
                   <div className="flex items-center gap-2 font-black text-amber-950"><ReceiptText size={18} /><h4>برآورد هزینهٔ مواد</h4></div>
                   {costEstimate.pricedRows > 0 ? <>
                     <p className="mt-2 text-xl font-black text-[#276556]">حدود {toPersianDigits(Math.round(costEstimate.pricedSubtotal).toLocaleString('fa-IR'))} تومان</p>
-                    <p className="mt-1 text-xs font-bold leading-6 text-amber-900">قیمت {toPersianDigits(costEstimate.pricedRows)} از {toPersianDigits(costEstimate.eligibleRows)} قلم ثبت‌شده در دفتر قیمت محاسبه شده است{costEstimate.approximate ? '؛ بخشی از تبدیل‌ها تقریبی است.' : '؛ این مبلغ برآوردی است.'}</p>
+                    <p className="mt-1 text-xs font-bold leading-6 text-amber-900">مصرف به ترتیب سری‌های موجود و قیمت ثبت‌شدهٔ همان سری حساب شده است؛ قیمت {toPersianDigits(costEstimate.pricedRows)} از {toPersianDigits(costEstimate.eligibleRows)} قلم کامل در دسترس است{costEstimate.approximate ? ' و بخشی از تبدیل‌ها تقریبی است.' : '.'}</p>
                     {costEstimate.missingIngredients.length > 0 && <p className="mt-1 text-xs leading-5 text-amber-900">قیمت ثبت‌نشده: {costEstimate.missingIngredients.slice(0, 4).join('، ')}{costEstimate.missingIngredients.length > 4 ? ' و چند قلم دیگر' : ''}</p>}
-                  </> : <p className="mt-2 text-xs font-bold leading-6 text-amber-900">برای دیدن برآورد، قیمت بسته و مقدار آن را در برگهٔ «هزینهٔ غذا» در تنظیمات وارد کن. قیمت نامشخص حدس زده نمی‌شود.</p>}
+                  </> : <p className="mt-2 text-xs font-bold leading-6 text-amber-900">برای برآورد، هنگام افزودن مواد به انبار یا در مدیریت سری‌های خرید، قیمت هر واحد را ثبت کن. قیمت یا مقدار نامشخص حدس زده نمی‌شود.</p>}
                 </section>}
 
                 {user && hasIngredients && (

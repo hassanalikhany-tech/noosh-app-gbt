@@ -266,9 +266,28 @@ export interface InventoryItem {
 
 export interface InventoryBatch {
   id: string;
+  /** Current remaining amount in the inventory item's current unit. */
   amount: number;
+  /** Original purchased amount and per-unit purchase price; retained after consumption. */
+  purchaseAmount?: number;
+  unitPrice?: number;
   expiresOn?: string;
   receivedAt: number;
+}
+
+export interface PurchaseRecord {
+  id: string;
+  inventoryId: string;
+  ingredientId: string;
+  name: string;
+  amount: number;
+  unit: string;
+  unitPrice?: number;
+  totalPrice?: number;
+  purchasedAt: number;
+  expiresOn?: string;
+  legacy?: boolean;
+  approximate?: boolean;
 }
 
 export interface IngredientPrice {
@@ -325,6 +344,8 @@ export interface UserProfile {
   activeChallengeId?: string | null; 
   customShoppingList?: ShoppingItem[]; 
   inventory?: InventoryItem[];
+  purchaseHistory?: PurchaseRecord[];
+  /** @deprecated Migrated to purchaseHistory from earlier builds. */
   ingredientPrices?: Record<string, IngredientPrice>;
   recipeReviews?: Record<string, RecipePersonalReview>;
   cookingTransactions?: CookingTransaction[];

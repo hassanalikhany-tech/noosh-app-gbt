@@ -18,10 +18,13 @@ assert.deepEqual(lotConsumption.deductions.map(batch => [batch.id, batch.amount]
 assert.deepEqual(restoreInventoryBatches(lotConsumption.batches, lotConsumption.deductions), datedRice.stockBatches, 'Undo restores the exact original purchase lots and expiry dates');
 assert.equal(resizeInventoryBatches(datedRice, 0.8)!.reduce((sum, batch) => sum + batch.amount, 0), 0.8, 'Manual stock reductions resize purchase lots to preserve total balance');
 const costDish = dish(500, 'گرم', 'برنج');
-const ricePriceBook = { برنج: { ingredientId:'برنج', name:'برنج', quantity:1, unit:'کیلوگرم', totalPrice:100000, updatedAt:1 } };
-assert.equal(estimateRecipeCost(costDish, 4, ricePriceBook).pricedSubtotal, 50000, 'Cost estimation converts recipe grams into the user-entered kilogram purchase price');
-assert.equal(estimateRecipeCost(costDish, 2, ricePriceBook).pricedSubtotal, 25000, 'Cost estimation scales with the chosen servings');
-assert.equal(estimateRecipeCost({ ...costDish, ingredients:[...costDish.ingredients, { item:'زعفران', amount:1, unit:'گرم' }] }, 4, ricePriceBook).pricedRows, 1, 'Unpriced ingredients stay excluded instead of receiving invented prices');
+const ricePriceInventory = [{ ...stock(1), stockBatches:[{ id:'rice-first', amount:0.4, purchaseAmount:0.4, unitPrice:100000, expiresOn:'2027-01-10', receivedAt:1 }, { id:'rice-second', amount:0.6, purchaseAmount:0.6, unitPrice:120000, expiresOn:'2027-01-20', receivedAt:2 }] }];
+assert.equal(estimateRecipeCost(costDish, 4, ricePriceInventory).pricedSubtotal, 52000, 'A 500 g recipe uses 400 g from the first purchase lot and 100 g from the second, at their own prices');
+assert.equal(estimateRecipeCost(costDish, 2, ricePriceInventory).pricedSubtotal, 25000, 'Cost estimation scales with chosen servings and consumes the earlier expiry lot first');
+assert.equal(estimateRecipeCost({ ...costDish, ingredients:[...costDish.ingredients, { item:'زعفران', amount:1, unit:'گرم' }] }, 4, ricePriceInventory).pricedRows, 1, 'Unpriced ingredients stay excluded instead of receiving invented prices');
+const twoPurchaseBatches = appendInventoryBatch(appendInventoryBatch(stock(0), 1, undefined, 100000), 0.5, undefined, 120000);
+assert.equal(twoPurchaseBatches.stockBatches?.filter(batch => batch.purchaseAmount !== undefined && batch.amount > 0).length, 2, 'Two separately priced purchase series remain active together');
+assert.throws(() => appendInventoryBatch(twoPurchaseBatches, 0.5, undefined, 130000), /دو سری خرید فعال/, 'A third purchase is blocked while both priced series still have stock');
 assert.equal(parseQuantity('۱٫۲۵'),1.25);
 assert.equal(parseQuantity('١/٢'),0.5);
 assert.equal(parseQuantity('1 ½'),1.5);
