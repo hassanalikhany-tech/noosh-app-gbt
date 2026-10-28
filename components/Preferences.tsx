@@ -159,8 +159,8 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
     } catch (err) {}
   };
 
-  const favoritesList = useMemo(() => RecipeService.getAllDishes().filter(d => (user.favoriteDishIds || []).includes(d.id)), [user.favoriteDishIds]);
-  const blacklistedList = useMemo(() => RecipeService.getAllDishes().filter(d => (user.blacklistedDishIds || []).includes(d.id)), [user.blacklistedDishIds]);
+  const favoritesList = useMemo(() => RecipeService.getAllDishes(user).filter(d => (user.favoriteDishIds || []).includes(d.id)), [user.favoriteDishIds, user.personalRecipeEdits]);
+  const blacklistedList = useMemo(() => RecipeService.getAllDishes(user).filter(d => (user.blacklistedDishIds || []).includes(d.id)), [user.blacklistedDishIds, user.personalRecipeEdits]);
   
   const commonIngredients = useMemo(() => {
     const all = PANTRY_ITEMS.flatMap(c => c.items);

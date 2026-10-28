@@ -111,7 +111,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   const flagsScrollRef = useRef<HTMLDivElement>(null);
 
   const loadDishes = (event?: Event) => {
-    setAllDishes(RecipeService.getAllDishes());
+    setAllDishes(RecipeService.getAllDishes(user));
     void event;
   };
 
@@ -119,7 +119,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
     loadDishes();
     window.addEventListener('recipes-updated', loadDishes);
     return () => window.removeEventListener('recipes-updated', loadDishes);
-  }, []);
+  }, [user.personalRecipeEdits]);
 
   const scrollFlags = (direction: 'right' | 'left') => {
     if (flagsScrollRef.current) {

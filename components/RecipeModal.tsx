@@ -13,6 +13,7 @@ import { showCreatorRecipes } from '../utils/recipeCreators';
 import { formatCommunityAttribution } from '../utils/communityAttribution';
 import { useDialogFocus } from '../utils/useDialogFocus';
 import { estimateRecipeCost } from '../utils/recipeCosts';
+import PersonalRecipeEditModal from './PersonalRecipeEditModal';
 
 interface RecipeModalProps {
   dish: Dish;
@@ -33,6 +34,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
   const [personalNote, setPersonalNote] = useState('');
   const [reviewMessage, setReviewMessage] = useState('');
   const [reviewSaving, setReviewSaving] = useState(false);
+  const [isPersonalEditOpen, setIsPersonalEditOpen] = useState(false);
   const [checkedSteps, setCheckedSteps] = useState<number[]>([]);
   const [isTimerOverlayOpen, setIsTimerOverlayOpen] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
@@ -225,6 +227,15 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
     }
   };
 
+  const savePersonalRecipeEdit = async (edit: NonNullable<UserProfile['personalRecipeEdits']>[string]) => {
+    if (!user) return;
+    const personalRecipeEdits = { ...(user.personalRecipeEdits || {}), [dish.id]: edit };
+    const savedUser = await UserService.updateProfile(user.username, { personalRecipeEdits });
+    onUpdateUser?.(savedUser);
+    window.dispatchEvent(new CustomEvent('recipes-updated'));
+    onClose();
+  };
+
   const handleCookDish = async () => {
     if (!user || !dish.ingredients) return;
     if (user.kitchenMode === 'without-inventory') { setCooked(true); return; }
@@ -292,6 +303,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
             </h2>
             {user && isDishProhibited(dish, user) && <p role="note" className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-bold leading-6 text-amber-900">این دستور حاوی مواد ممنوع یا نامطلوب شماست. پیش از پخت، مواد لازم و حساسیت‌های خود را بررسی کنید؛ این غذا در پیشنهادها و برنامهٔ غذایی شما قرار نمی‌گیرد.</p>}
             {dish.isCommunityRecipe && dish.creatorName && <p className="mt-2 max-w-2xl rounded-xl border border-emerald-100 bg-emerald-50/80 px-3 py-2 text-xs leading-6 font-bold text-[#276556]">{formatCommunityAttribution(dish)} <button type="button" onClick={() => { onClose(); showCreatorRecipes(dish.creatorName!); }} className="mt-1 block min-h-10 rounded-lg px-2 text-xs font-black text-[#276556] underline underline-offset-4 hover:bg-emerald-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#276556]">همهٔ رسپی‌های {dish.creatorName} ←</button></p>}
+            {user && !dish.isPersonal && <button type="button" onClick={() => setIsPersonalEditOpen(true)} className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#276556]/20 bg-emerald-50 px-4 py-2 text-xs font-black text-[#276556] hover:bg-emerald-100"><span aria-hidden="true">✎</span> ویرایش برای خودم</button>}
           </div>
 
           {/* Row 2: Info & Timer */}
@@ -588,6 +600,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
           </div>
         </div>
       )}
+      {isPersonalEditOpen && user && <PersonalRecipeEditModal dish={dish} initial={user.personalRecipeEdits?.[dish.id]} onSave={savePersonalRecipeEdit} onClose={() => setIsPersonalEditOpen(false)} />}
     </div>,
     document.body
   );

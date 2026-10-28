@@ -40,6 +40,7 @@ export interface Dish {
   servings?: number;
   imageReviewStatus?: 'approved' | 'replace' | 'create' | 'removed' | 'completed';
   isPersonal?: boolean;
+  isLocallyEdited?: boolean;
   creatorName?: string;
   creatorTitle?: 'lady' | 'gentleman' | 'none';
   isCommunityRecipe?: boolean;
@@ -47,6 +48,9 @@ export interface Dish {
   communityShareStatus?: 'pending' | 'approved' | 'rejected';
   communityShareFeedback?: string;
 }
+
+/** Local-only changes a person makes to a published recipe on this device. */
+export type PersonalRecipeEdit = Partial<Pick<Dish, 'name' | 'description' | 'ingredients' | 'recipeSteps' | 'servings' | 'cookTime' | 'difficulty'>>;
 
 export interface DayPlan {
   dayName: string;
@@ -352,6 +356,7 @@ export interface UserProfile {
   /** @deprecated Migrated to purchaseHistory from earlier builds. */
   ingredientPrices?: Record<string, IngredientPrice>;
   recipeReviews?: Record<string, RecipePersonalReview>;
+  personalRecipeEdits?: Record<string, PersonalRecipeEdit>;
   cookingTransactions?: CookingTransaction[];
   inventorySchemaVersion?: number;
   inventoryNeedsReview?: boolean;

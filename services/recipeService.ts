@@ -345,7 +345,10 @@ export const RecipeService = {
     return cachedDishes.filter(d => hiddenIds.has(d.id) && !restoredIds.has(d.id));
   },
 
-  getAllDishes: (): Dish[] => [...RecipeService.getCatalogDishes(), ...personalDishes],
+  getAllDishes: (user?: Pick<UserProfile, 'personalRecipeEdits'>): Dish[] => {
+    const edits = user?.personalRecipeEdits || {};
+    return [...RecipeService.getCatalogDishes().map(dish => edits[dish.id] ? { ...dish, ...edits[dish.id], isLocallyEdited: true } : dish), ...personalDishes];
+  },
 
   getRawDishes: (): Dish[] => cachedDishes,
 

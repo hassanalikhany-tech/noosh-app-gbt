@@ -16,6 +16,7 @@ import PantryFoodThumbnail from './PantryFoodThumbnail';
 import InventoryBatchManager from './InventoryBatchManager';
 import { activePurchaseBatchCount, appendInventoryBatch, earliestExpiry, getInventoryBatches, inventoryExpiryState, MAX_ACTIVE_PURCHASE_BATCHES, sumInventoryBatches, resizeInventoryBatches } from '../utils/inventoryBatches';
 import { mergePurchaseHistory } from '../utils/purchaseHistory';
+import { PANTRY_UNIT_OPTIONS } from '../utils/pantryUnits';
 
 interface PantryChefProps {
   user: UserProfile;
@@ -122,6 +123,7 @@ const FoodIngredientCombobox: React.FC<FoodIngredientComboboxProps> = ({ id, val
           })}</div>
         </div>)}
       </section>)}
+      {query && !flatOptions.some(option => normalizePersian(option.item).trim() === query) && <button type="button" role="option" aria-selected="false" onClick={() => { onChange(value.trim()); onSelect?.(value.trim(), 'custom'); setIsOpen(false); }} className="flex w-full items-center justify-between border-t border-emerald-100 bg-emerald-50 px-4 py-3 text-right text-sm font-black text-[#276556] hover:bg-emerald-100"><span>+ افزودن مادهٔ دلخواه «{value.trim()}»</span><small className="font-bold">فقط در انبار شما</small></button>}
       {!flatOptions.length && <p className="pantry-food-combobox-empty">ماده‌ای در فهرست نیست؛ همین نام را می‌توانی دستی ثبت کنی.</p>}
     </div>, document.body)}
   </div>;
@@ -141,6 +143,7 @@ interface ProcessedResult {
 const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate, onKitchenModeChange }) => {
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('1');
+  const [newItemUnit, setNewItemUnit] = useState('');
   const [newItemExpiry, setNewItemExpiry] = useState('');
   const [newItemUnitPrice, setNewItemUnitPrice] = useState('');
   const [addMessage, setAddMessage] = useState('');
@@ -241,7 +244,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     if (items.length === 0) { setRawResults([]); return; }
     setIsSearching(true);
     setTimeout(() => {
-      const all = RecipeService.getAllDishes().filter(dish => !isDishProhibited(dish, user));
+      const all = RecipeService.getAllDishes(user).filter(dish => !isDishProhibited(dish, user));
       const processed: ProcessedResult[] = all.map(dish => {
         const evaluation = evaluateInventory(inventory, dish.ingredients, user.familySize || 4, dish.servings || 4);
         const matched = evaluation.lines.filter(line => line.allocations.length > 0).map(line => line.item);
@@ -351,6 +354,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     const prepareNextEntry = () => {
       setNewItemName('');
       setNewItemAmount('1');
+      setNewItemUnit('');
       setNewItemExpiry('');
       setNewItemUnitPrice('');
       if (focusNext) window.requestAnimationFrame(() => newItemNameRef.current?.focus());
@@ -465,12 +469,12 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
     </div>
   ) : <span className="whitespace-nowrap font-black text-emerald-800">{toPersian(item.amount)} <small className="font-semibold text-slate-500">{item.unit}</small></span>;
 
-  const renderInlineInventoryForm = (compact = false) => <form onSubmit={event => { event.preventDefault(); const price = Number(newItemUnitPrice); void addToInventory(newItemName, Number(newItemAmount), undefined, false, newItemExpiry, Number.isFinite(price) && price > 0 ? price : undefined); }} className={`grid gap-2 ${compact ? 'grid-cols-1 sm:grid-cols-[minmax(160px,1fr)_90px_auto_140px_150px_auto_auto]' : 'grid-cols-1 md:grid-cols-[minmax(220px,1fr)_110px_auto_145px_160px_auto_auto]'}`}>
-    <FoodIngredientCombobox id={`inline-pantry-name-${compact ? 'modal' : 'list'}`} inputRef={newItemNameRef} value={newItemName} onChange={setNewItemName} placeholder="نام ماده را جست‌وجو یا وارد کن…" />
+  const renderInlineInventoryForm = (compact = false) => <form onSubmit={event => { event.preventDefault(); const price = Number(newItemUnitPrice); void addToInventory(newItemName, Number(newItemAmount), newItemUnit || suggestPantryUnit(newItemName), false, newItemExpiry, Number.isFinite(price) && price > 0 ? price : undefined); }} className={`grid gap-2 ${compact ? 'grid-cols-1 sm:grid-cols-[minmax(160px,1fr)_90px_130px_140px_150px_auto_auto]' : 'grid-cols-1 md:grid-cols-[minmax(220px,1fr)_110px_135px_145px_160px_auto_auto]'}`}>
+    <FoodIngredientCombobox id={`inline-pantry-name-${compact ? 'modal' : 'list'}`} inputRef={newItemNameRef} value={newItemName} onChange={value => { setNewItemName(value); setNewItemUnit(value.trim() ? suggestPantryUnit(value) : ''); }} onSelect={value => setNewItemUnit(suggestPantryUnit(value))} placeholder="نام ماده را جست‌وجو یا وارد کن…" />
     <input aria-label="مقدار قلم تازه" type="number" min="0" step="any" value={newItemAmount} onChange={event => setNewItemAmount(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-center text-sm font-black outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" />
-    <span className="flex min-h-11 items-center justify-center rounded-xl bg-emerald-50 px-3 text-xs font-black text-emerald-800">{newItemName.trim() ? `واحد: ${suggestPantryUnit(newItemName)}` : 'واحد پس از انتخاب ماده'}</span>
+    {newItemName.trim() && !PANTRY_ITEMS.some(category => category.subcategories.some(group => group.items.some(item => normalizePersian(item).trim() === normalizePersian(newItemName).trim()))) ? <><label className="sr-only" htmlFor={`inline-pantry-unit-${compact ? 'modal' : 'list'}`}>واحد مادهٔ دلخواه</label><select id={`inline-pantry-unit-${compact ? 'modal' : 'list'}`} aria-label="واحد مادهٔ دلخواه" value={newItemUnit || suggestPantryUnit(newItemName)} onChange={event => setNewItemUnit(event.target.value)} className="min-h-11 min-w-0 rounded-xl border border-slate-200 bg-white px-2 text-xs font-black text-slate-700 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100">{PANTRY_UNIT_OPTIONS.map(unit => <option key={unit} value={unit}>{unit}</option>)}</select></> : <span className="flex min-h-11 items-center justify-center rounded-xl bg-emerald-50 px-3 text-xs font-black text-emerald-800">{newItemName.trim() ? `واحد استاندارد: ${suggestPantryUnit(newItemName)}` : 'واحد پس از انتخاب ماده'}</span>}
     <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-500"><CalendarDays size={15} className="shrink-0 text-[#276556]"/><span className="sr-only">تاریخ انقضا (اختیاری)</span><input aria-label="تاریخ انقضای سری خرید" title="تاریخ انقضا (اختیاری)" type="date" value={newItemExpiry} onChange={event => setNewItemExpiry(event.target.value)} className="min-w-0 w-full bg-transparent text-xs text-slate-700 outline-none" /></label>
-    <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-500"><span className="shrink-0">تومان / {newItemName.trim() ? suggestPantryUnit(newItemName) : 'واحد'}</span><input aria-label={`قیمت هر ${newItemName.trim() ? suggestPantryUnit(newItemName) : 'واحد'} به تومان (اختیاری)`} type="number" min="0.01" step="any" value={newItemUnitPrice} onChange={event => setNewItemUnitPrice(event.target.value)} placeholder="اختیاری" className="min-w-0 w-full bg-transparent text-xs text-slate-700 outline-none" /></label>
+    <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-500"><span className="shrink-0">تومان / {newItemUnit || (newItemName.trim() ? suggestPantryUnit(newItemName) : 'واحد')}</span><input aria-label={`قیمت هر ${newItemUnit || (newItemName.trim() ? suggestPantryUnit(newItemName) : 'واحد')} به تومان (اختیاری)`} type="number" min="0.01" step="any" value={newItemUnitPrice} onChange={event => setNewItemUnitPrice(event.target.value)} placeholder="اختیاری" className="min-w-0 w-full bg-transparent text-xs text-slate-700 outline-none" /></label>
     {purchaseLimitReached && <p role="status" className="sm:col-span-full rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">دو سری خرید فعال برای این ماده ثبت شده؛ پس از مصرف بخشی از آن‌ها، خرید بعدی را اضافه کن.</p>}
     <button type="submit" disabled={!newItemName.trim() || Number(newItemAmount) <= 0 || purchaseLimitReached} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17} /> افزودن</button>
     <button type="button" aria-label="بستن ردیف افزودن" onClick={() => setIsInlineAddingInventory(false)} className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-3 py-3 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={17} /></button>

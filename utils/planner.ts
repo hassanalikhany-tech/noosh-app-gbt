@@ -21,7 +21,7 @@ const toPersianDigits = (num: number | string) => num.toString().replace(/\d/g, 
  * فیلتر کردن غذاها بر اساس تنظیمات کاربر
  */
 export const filterDishes = (user: UserProfile) => {
-  let pool = RecipeService.getAllDishes();
+  let pool = RecipeService.getAllDishes(user);
   
   if (pool.length === 0) return [];
 
