@@ -38,7 +38,7 @@ const PersonalRecipeEditModal: React.FC<Props> = ({ dish, initial, onSave, onClo
     finally { setBusy(false); }
   };
 
-  return createPortal(<div className="fixed inset-0 z-[11000] flex items-center justify-center bg-slate-950/70 p-2 backdrop-blur-sm sm:p-6" onMouseDown={event => { if (event.target === event.currentTarget && !busy) onClose(); }}>
+  return createPortal(<div className="fixed inset-0 z-[11000] flex items-center justify-center bg-slate-950/70 p-2 backdrop-blur-sm sm:p-6" onClick={event => event.stopPropagation()} onMouseDown={event => { if (event.target === event.currentTarget && !busy) onClose(); }}>
     <form onSubmit={submit} role="dialog" aria-modal="true" aria-labelledby="personal-recipe-edit-title" className="flex max-h-[96dvh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
       <header className="flex items-center justify-between gap-4 border-b border-emerald-100 bg-emerald-50 px-5 py-4 sm:px-7"><div><h2 id="personal-recipe-edit-title" className="text-lg font-black text-[#184d40]">ویرایش نسخهٔ شخصی رسپی</h2><p className="mt-1 text-xs font-bold text-slate-600">تغییرات فقط روی همین دستگاه ذخیره می‌شود؛ رسپی اصلی برای دیگران ثابت می‌ماند.</p></div><button type="button" onClick={onClose} disabled={busy} className="min-h-10 rounded-xl px-3 font-bold text-slate-600 hover:bg-white">بستن</button></header>
       <div className="flex-1 space-y-5 overflow-y-auto p-5 sm:p-7">
