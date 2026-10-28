@@ -80,6 +80,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   const [selectedCountryId, setSelectedCountryId] = useState<string | 'all'>('all');
   const [allDishes, setAllDishes] = useState<Dish[]>([]);
   const [selectedCreator, setSelectedCreator] = useState('all');
+  const [sortMode, setSortMode] = useState<'default' | 'rating-high' | 'rating-low'>('default');
   const creators = useMemo(() => getRecipeCreators(allDishes), [allDishes]);
   const nooshRecipeCount = useMemo(() => allDishes.filter(dish => !dish.isCommunityRecipe && !dish.isPersonal).length, [allDishes]);
   const activeCreator = creators.find(creator => creator.key === selectedCreator);
@@ -104,7 +105,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   };
 
   const resetFilters = () => {
-    setSearchTerm(''); setSelectedCreator('all'); setSelectedCategory('all'); setSelectedCountryId('all'); setCurrentPage(1);
+    setSearchTerm(''); setSelectedCreator('all'); setSelectedCategory('all'); setSelectedCountryId('all'); setSortMode('default'); setCurrentPage(1);
   };
 
   const flagsScrollRef = useRef<HTMLDivElement>(null);
@@ -149,8 +150,17 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   }, [allDishes]);
 
   const filteredDishes = useMemo(() => {
-    return filterRecipeSearchDishes(allDishes, { searchTerm, selectedCreator, selectedCategory, selectedCountryId }, user, countryOptions);
-  }, [searchTerm, selectedCategory, selectedCountryId, allDishes, countryOptions, user.dislikedIngredients, selectedCreator]);
+    const matching = filterRecipeSearchDishes(allDishes, { searchTerm, selectedCreator, selectedCategory, selectedCountryId }, user, countryOptions);
+    if (sortMode === 'default') return matching;
+    const originalOrder = new Map(matching.map((dish, index) => [dish.id, index]));
+    return matching.slice().sort((a, b) => {
+      const ratingA = user.recipeReviews?.[a.id]?.rating || 0;
+      const ratingB = user.recipeReviews?.[b.id]?.rating || 0;
+      if (Boolean(ratingA) !== Boolean(ratingB)) return ratingA ? -1 : 1;
+      if (ratingA !== ratingB) return sortMode === 'rating-high' ? ratingB - ratingA : ratingA - ratingB;
+      return (originalOrder.get(a.id) || 0) - (originalOrder.get(b.id) || 0);
+    });
+  }, [searchTerm, selectedCategory, selectedCountryId, allDishes, countryOptions, user.dislikedIngredients, user.recipeReviews, selectedCreator, sortMode]);
 
   const searchSuggestions = useMemo(() => suggestRecipeNames(allDishes, searchTerm), [allDishes, searchTerm]);
   const showSearchSuggestions = searchFocused && searchTerm.trim().length > 0 && searchSuggestions.length > 0;
@@ -264,8 +274,12 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <RecipeCreatorFilter creators={creators} nooshCount={nooshRecipeCount} value={selectedCreator} onChange={selectCreator} />
-              <p role="status" className="text-xs leading-6 text-slate-600">{activeCreator ? <><strong className="text-[#276556]">{activeCreator.name}</strong> · {toPersian(activeCreator.count)} رسپی منتشرشده · {toPersian(filteredDishes.length)} نتیجه با فیلترهای فعلی</> : `${toPersian(filteredDishes.length)} غذا مطابق جست‌وجو و فیلترهای شما`}</p>
+              <div className="flex flex-col gap-2 sm:items-end">
+                <label className="flex min-h-10 items-center gap-2 text-xs font-bold text-slate-600"><span className="shrink-0">مرتب‌سازی</span><select value={sortMode} onChange={event => { setSortMode(event.target.value as typeof sortMode); setCurrentPage(1); }} className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-800 outline-none focus:border-[#276556] focus:ring-2 focus:ring-[#276556]/10"><option value="default">ترتیب پیش‌فرض</option><option value="rating-high">امتیاز من · زیاد به کم</option><option value="rating-low">امتیاز من · کم به زیاد</option></select></label>
+                <p role="status" className="text-xs leading-6 text-slate-600">{activeCreator ? <><strong className="text-[#276556]">{activeCreator.name}</strong> · {toPersian(activeCreator.count)} رسپی منتشرشده · {toPersian(filteredDishes.length)} نتیجه با فیلترهای فعلی</> : `${toPersian(filteredDishes.length)} غذا مطابق جست‌وجو و فیلترهای شما`}</p>
+              </div>
             </div>
+            {sortMode !== 'default' && <p className="-mt-1 text-[11px] leading-5 text-slate-500">غذاهایی که به آن‌ها امتیاز داده‌ای اول می‌آیند؛ غذاهای امتیازنداده‌شده بعد از آن‌ها می‌مانند.</p>}
             {activeCreator && <p className="text-xs leading-6 text-slate-600">همهٔ دستورهای این آشپز قابل مشاهده‌اند؛ غذاهای دارای مواد ممنوع شما با هشدار مشخص می‌شوند و همچنان از پیشنهادها و برنامهٔ غذایی کنار گذاشته می‌شوند.</p>}
             {selectedCategory === 'international' && (
               <div className="relative pt-2 sm:pt-4 border-t border-white/40 animate-enter flex items-center group/flags">

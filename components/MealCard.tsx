@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { Utensils, ChevronLeft, Flame, Clock, Leaf, Heart, ThumbsDown, Lock, RefreshCw } from 'lucide-react';
+import { Utensils, ChevronLeft, Flame, Clock, Leaf, Heart, ThumbsDown, Lock, RefreshCw, Star } from 'lucide-react';
 import { DayPlan, UserProfile } from '../types';
 const RecipeModal = lazy(() => import('./RecipeModal'));
 import DishVisual from './DishVisual';
@@ -35,6 +35,7 @@ const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh
   const calories = plan.dish.calories || estimateCalories(plan.dish);
   const time = plan.dish.cookTime || estimateCookTime(plan.dish);
   const natureInfo = getDishNature(plan.dish);
+  const personalRating = user?.recipeReviews?.[plan.dish.id]?.rating || 0;
   
   const toPersianDigits = (num: number) => num.toString().replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'['0123456789'.indexOf(d)]);
 
@@ -137,6 +138,7 @@ const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh
         <div className="p-3 flex flex-col flex-grow text-right bg-white relative">
           {isDishProhibited(plan.dish, user) && <p role="note" className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold leading-6 text-amber-900">حاوی مواد ممنوع یا نامطلوب ثبت‌شده در تنظیمات شما؛ مناسب پیشنهاد و برنامهٔ غذایی شما نیست.</p>}
           <h3 className={`text-base font-bold transition-all duration-500 mb-1.5 ${isLocked ? 'text-slate-300' : 'text-slate-800 group-hover:text-teal-600'}`}>{plan.dish.name}</h3>
+          {personalRating > 0 && <div className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-lg bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-800" aria-label={`امتیاز شخصی شما ${toPersianDigits(personalRating)} از ۵`} title="امتیاز شخصی شما"><span>امتیاز شما</span><span className="inline-flex items-center gap-0.5"><Star size={12} className="fill-amber-400 text-amber-500" />{toPersianDigits(personalRating)} از ۵</span></div>}
           {plan.dish.isCommunityRecipe && plan.dish.creatorName && <p className="-mt-1 mb-2 text-[10px] leading-5 font-bold text-[#276556]">{formatCommunityAttribution(plan.dish)} <button type="button" onClick={event => { event.stopPropagation(); showCreatorRecipes(plan.dish.creatorName!); }} className="mt-1 inline-flex min-h-9 items-center rounded-lg bg-[#edf4f0] px-2 text-xs font-black text-[#276556] hover:bg-[#dcebe3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#276556]" aria-label={`دیدن همهٔ رسپی‌های ${plan.dish.creatorName}`}>همهٔ رسپی‌های {plan.dish.creatorName} ←</button></p>}
           
           <div className="flex gap-1.5 mb-2">
