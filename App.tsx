@@ -17,7 +17,6 @@ import { NotificationService } from './services/notificationService';
 import { DayPlan, KitchenMode, UserProfile, CATEGORY_LABELS, DishCategory, Notification } from './types';
 import { filterDishes, generateDailyPlan, generateWeeklyPlan, generateMonthlyPlan, generateSingleReplacement } from './utils/planner';
 import { getShoppingShortages, parseQuantity } from './utils/recipeHelpers';
-import { CHALLENGES } from './data/challenges';
 import { getBaseIngredientName } from './data/pantry';
 import { getRelevantInventory } from './utils/kitchenMode';
 import metadata from './metadata.json';
@@ -267,7 +266,6 @@ const AppContent: React.FC = () => {
     currentUser?.onlyFavoritesMode,
     currentUser?.meatlessMode,
     currentUser?.quickMealsMode,
-    currentUser?.activeChallengeId,
   ]);
 
   useEffect(() => {
@@ -471,11 +469,6 @@ const AppContent: React.FC = () => {
     
     const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
     if (diffDays <= 5) return `⏳ فقط ${toPersian(diffDays)} روز تا پایان اشتراک ویژه باقی مانده است.`;
-
-    if (currentUser.activeChallengeId) {
-        const challenge = CHALLENGES.find(c => c.id === currentUser.activeChallengeId);
-        if (challenge) return `🏆 چالش «${challenge.title}» فعال است؛ پیشنهادات بر این اساس تنظیم شده‌اند.`;
-    }
 
     const activeFilters = [];
     if (currentUser.meatlessMode) activeFilters.push("گیاهی");

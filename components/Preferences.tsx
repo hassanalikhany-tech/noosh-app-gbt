@@ -4,10 +4,9 @@ import PersonalRecipes from './PersonalRecipes';
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { UserProfile, DishCategory, CATEGORY_LABELS, NatureType, VisitorProfile } from '../types';
 import { UserService } from '../services/userService';
-import { LogOut, User, Sun, Snowflake, Scale, Heart, Plus, ThumbsDown, RotateCcw, ShieldCheck, Award, Info, Layers, Minus, FilterX, X, Check, CheckCircle, AlertTriangle, UserX, Search, MessageSquare, Camera, Leaf, Zap, Trophy, ChefHat, Sparkles, Smartphone, Share, Download, ExternalLink, ReceiptText } from 'lucide-react';
+import { LogOut, User, Sun, Snowflake, Scale, Heart, Plus, ThumbsDown, RotateCcw, ShieldCheck, Award, Info, Layers, Minus, FilterX, X, Check, CheckCircle, AlertTriangle, UserX, Search, MessageSquare, Camera, Leaf, Zap, ChefHat, Sparkles, Smartphone, Share, Download, ExternalLink, ReceiptText } from 'lucide-react';
 import { RecipeService } from '../services/recipeService';
 import { PANTRY_ITEMS } from '../data/pantry';
-import { CHALLENGES } from '../data/challenges';
 import DishVisual from './DishVisual';
 import FeedbackModal from './FeedbackModal';
 import PurchaseReport from './PurchaseReport';
@@ -166,66 +165,6 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
     return all.filter(i => i.includes(ingredientSearch)).slice(0, 20);
   }, [ingredientSearch]);
 
-  const handleToggleChallenge = async (challengeId: string) => {
-    const isCurrentlyActive = user.activeChallengeId === challengeId;
-    const nextActiveId = isCurrentlyActive ? null : challengeId;
-    const selectedChallenge = CHALLENGES.find(c => c.id === challengeId);
-    
-    try {
-      const updatedUser = await UserService.updateProfile(user.username, { activeChallengeId: nextActiveId });
-      onUpdateUser(updatedUser);
-      if (onNotify && selectedChallenge) {
-        if (isCurrentlyActive) {
-          onNotify(
-            'چالش غیرفعال شد',
-            'برنامه غذایی شما به حالت عادی بازگشت.',
-            'bg-slate-600',
-            Trophy
-          );
-        } else {
-          onNotify(
-            `چالش ${selectedChallenge.title} فعال شد`,
-            selectedChallenge.description,
-            'emerald',
-            selectedChallenge.icon
-          );
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleMainChallengeToggle = async () => {
-    try {
-      if (user.activeChallengeId) {
-        const updatedUser = await UserService.updateProfile(user.username, { activeChallengeId: null });
-        onUpdateUser(updatedUser);
-        if (onNotify) {
-          onNotify(
-            'چالش غیرفعال شد',
-            'برنامه غذایی شما به حالت عادی بازگشت.',
-            'bg-slate-600',
-            Trophy
-          );
-        }
-      } else {
-        const updatedUser = await UserService.updateProfile(user.username, { activeChallengeId: 'vegan-week' });
-        onUpdateUser(updatedUser);
-        if (onNotify) {
-          onNotify(
-            'چالش هفته گیاه‌خواری فعال شد',
-            'یک هفته بدون گوشت قرمز، مرغ و ماهی. تمرکز روی سبزیجات و حبوبات.',
-            'emerald',
-            Leaf
-          );
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const settingsTabs = [
     { id: 'planning', label: 'برنامه و فیلترها', icon: Sparkles },
     { id: 'taste', label: 'سلیقه و پرهیزها', icon: Heart },
@@ -363,7 +302,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                     </div>
                     <div>
                        <h2 className="text-sm sm:text-base font-black text-slate-800">تنظیمات برنامه‌ریزی و فیلترهای سریع</h2>
-                       <p className="text-[10px] text-slate-500 font-medium mt-1">رژیم، پیشنهادهای شخصی و چالش‌ها را تنظیم کن.</p>
+                       <p className="text-[10px] text-slate-500 font-medium mt-1">رژیم و پیشنهادهای شخصی را تنظیم کن.</p>
                     </div>
                  </div>
 
@@ -419,59 +358,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                        />
                     </div>
 
-                    {/* چالش‌های هفتگی */}
-                    <div className="flex items-center justify-between gap-3 p-3 sm:p-4 bg-slate-50/50 hover:bg-slate-50/80 border border-slate-100/80 rounded-xl transition-all">
-                       <div className="flex min-w-0 items-center gap-2.5 text-right">
-                          <div className="p-2 bg-violet-50 text-violet-600 rounded-lg shrink-0">
-                             <Trophy size={20} className="sm:w-6 sm:h-6" />
-                          </div>
-                          <div>
-                             <h3 className="text-xs sm:text-sm font-black text-slate-800">چالش‌های هفتگی فعال</h3>
-                             <p className="text-[10px] text-slate-400 font-semibold mt-0.5 leading-normal">
-                                {user.activeChallengeId 
-                                   ? `چالش فعال: ${CHALLENGES.find(c => c.id === user.activeChallengeId)?.title || "هفته گیاه‌خواری"}` 
-                                   : 'بدون چالش هفتگی فعال'}
-                             </p>
-                          </div>
-                       </div>
-                       <ToggleSwitch label="چالش‌های هفتگی"
-                          isActive={!!user.activeChallengeId} 
-                          onChange={handleMainChallengeToggle} 
-                       />
-                    </div>
                  </div>
-
-                 {/* انتخاب و تغییر مستقیم چالش در صورت فعال بودن */}
-                 {user.activeChallengeId && (
-                    <div className="mt-4 pt-4 border-t border-slate-100/80 animate-enter text-right">
-                       <p className="text-xs font-bold text-slate-600 mb-3 block">شما می‌توانید چالش فعال خود را از بین گزینه‌های زیر تغییر دهید:</p>
-                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                          {CHALLENGES.map(ch => {
-                             const isCurrent = user.activeChallengeId === ch.id;
-                             const ChIcon = ch.icon;
-                             return (
-                                <button
-                                   key={ch.id}
-                                   onClick={() => handleToggleChallenge(ch.id)}
-                                   className={`flex items-center gap-3 p-3.5 rounded-xl border border-slate-200/80 transition-all text-right ${
-                                      isCurrent 
-                                         ? 'bg-violet-600 border-violet-600 text-white shadow-md' 
-                                         : 'bg-white hover:bg-slate-50 text-slate-700'
-                                   }`}
-                                >
-                                   <div className={`p-1.5 rounded-lg shrink-0 ${isCurrent ? 'bg-white/20 text-white' : `${ch.color} text-white`}`}>
-                                      <ChIcon size={16} />
-                                   </div>
-                                   <div className="min-w-0 flex-1">
-                                      <h4 className="text-xs font-black truncate">{ch.title}</h4>
-                                      <p className={`text-[9px] truncate ${isCurrent ? 'text-violet-100' : 'text-slate-400'}`}>{ch.description}</p>
-                                   </div>
-                                </button>
-                             );
-                          })}
-                       </div>
-                    </div>
-                 )}
               </div>
             </div>}
 

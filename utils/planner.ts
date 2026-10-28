@@ -1,9 +1,7 @@
-import { CHALLENGES } from '../data/challenges';
-
 import { Dish, DayPlan, UserProfile } from '../types';
 import { RecipeService } from '../services/recipeService';
 import { UserService } from '../services/userService';
-import { normalizeItemName, isDishProhibited, estimateCookTime, getDishNature, getShoppingShortages, evaluateInventory } from './recipeHelpers';
+import { isDishProhibited, estimateCookTime, getDishNature, getShoppingShortages, evaluateInventory } from './recipeHelpers';
 import { getRelevantInventory, usesInventory } from './kitchenMode';
 
 const shuffleArray = <T>(array: T[]): T[] => {
@@ -77,13 +75,6 @@ export const filterDishes = (user: UserProfile) => {
   }
   
   if (user.excludedNationalities?.length) pool = pool.filter(d => !user.excludedNationalities!.includes(d.nationality || ''));
-  const challenge = CHALLENGES.find(c => c.id === user.activeChallengeId);
-  if (challenge) pool = pool.filter(d => {
-    const text = normalizeItemName([d.name, ...d.ingredients.map(i => i.item)].join(' '));
-    return !challenge.bannedCategories?.includes(d.category)
-      && !challenge.bannedKeywords?.some(word => text.includes(normalizeItemName(word)))
-      && (!challenge.requiredKeywords?.length || challenge.requiredKeywords.some(word => text.includes(normalizeItemName(word))));
-  });
   return pool;
 };
 

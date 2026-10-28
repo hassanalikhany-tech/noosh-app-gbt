@@ -50,7 +50,6 @@ assert.deepEqual(filterDishes({...base, quickMealsMode:true}).map(d=>d.id), ['ve
 assert.deepEqual(filterDishes({...base, preferredNatures:['hot']}).map(d=>d.id), ['veg'], 'Persian nature values must normalize');
 assert.ok(!filterDishes({...base, meatlessMode:true}).some(d=>d.id==='meat'));
 assert.ok(!filterDishes({...base, dislikedIngredients:['هویج']}).some(d=>d.id==='veg'));
-assert.ok(!filterDishes({...base, activeChallengeId:'vegan-week'}).some(d => d.id === 'meat'));
 const trackedUser = { ...base, kitchenMode:'with-inventory' as const, inventory:[{id:'carrot',name:'هویج',amount:1,unit:'کیلوگرم',minThreshold:0,lastUpdated:0}] };
 assert.equal(usesInventory(trackedUser), true, 'Tracked mode reads pantry stock');
 assert.equal(getRelevantInventory({...trackedUser, kitchenMode:'without-inventory'}).length, 0, 'Flexible mode ignores even stale pantry stock');
