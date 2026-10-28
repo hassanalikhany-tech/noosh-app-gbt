@@ -13,7 +13,9 @@ export const purchaseRecordFromBatch = (item: InventoryItem, batch: InventoryBat
     unit: item.unit,
     ...(unitPrice ? { unitPrice, totalPrice: batch.purchaseAmount * unitPrice } : {}),
     purchasedAt: batch.receivedAt,
+    ...(batch.lastPurchasedAt ? { lastPurchasedAt: batch.lastPurchasedAt } : {}),
     ...(batch.expiresOn ? { expiresOn: batch.expiresOn } : {}),
+    ...(batch.costApproximate ? { approximate: true } : {}),
   };
 };
 
@@ -29,7 +31,8 @@ export const mergePurchaseHistory = (history: PurchaseRecord[], item: InventoryI
       const previous = next[index];
       const toPreviousUnit = convertIngredientQuantity(1, item.unit, previous.unit, item.name, previous.name);
       const adjustedPrice = record.unitPrice && toPreviousUnit?.amount ? record.unitPrice / toPreviousUnit.amount : undefined;
-      next[index] = { ...previous, ...(record.unitPrice ? adjustedPrice ? { unitPrice: adjustedPrice, totalPrice: previous.amount * adjustedPrice, approximate: Boolean(toPreviousUnit?.estimated) } : {} : { unitPrice: undefined, totalPrice: undefined }), expiresOn: record.expiresOn };
+      const adjustedAmount = toPreviousUnit?.amount ? record.amount * toPreviousUnit.amount : previous.amount;
+      next[index] = { ...previous, amount: adjustedAmount, ...(record.unitPrice ? adjustedPrice ? { unitPrice: adjustedPrice, totalPrice: adjustedAmount * adjustedPrice, approximate: Boolean(toPreviousUnit?.estimated) || record.approximate } : {} : { unitPrice: undefined, totalPrice: undefined }), ...(record.lastPurchasedAt ? { lastPurchasedAt: record.lastPurchasedAt } : {}), expiresOn: record.expiresOn };
     }
   }
   return next;

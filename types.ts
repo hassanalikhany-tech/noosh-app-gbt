@@ -271,6 +271,9 @@ export interface InventoryBatch {
   /** Original purchased amount and per-unit purchase price; retained after consumption. */
   purchaseAmount?: number;
   unitPrice?: number;
+  /** Indicates that this merged series inherited a price across previously unpriced stock. */
+  costApproximate?: boolean;
+  lastPurchasedAt?: number;
   expiresOn?: string;
   receivedAt: number;
 }
@@ -285,6 +288,7 @@ export interface PurchaseRecord {
   unitPrice?: number;
   totalPrice?: number;
   purchasedAt: number;
+  lastPurchasedAt?: number;
   expiresOn?: string;
   legacy?: boolean;
   approximate?: boolean;

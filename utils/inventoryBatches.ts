@@ -26,7 +26,7 @@ export const appendInventoryBatch = (item: InventoryItem, amount: number, expire
   return {
     ...item,
     amount: roundQuantity(item.amount + amount),
-    stockBatches: [...existing, { id: makeId(), amount, purchaseAmount: amount, ...(Number.isFinite(unitPrice) && unitPrice! > 0 ? { unitPrice } : {}), ...(expiresOn ? { expiresOn } : {}), receivedAt: purchasedAt }],
+    stockBatches: [...existing, { id: makeId(), amount, purchaseAmount: amount, ...(Number.isFinite(unitPrice) && unitPrice! > 0 ? { unitPrice } : {}), ...(expiresOn ? { expiresOn } : {}), receivedAt: purchasedAt, lastPurchasedAt: purchasedAt }],
   };
 };
 

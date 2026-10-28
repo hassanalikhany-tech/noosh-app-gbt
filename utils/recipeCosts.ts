@@ -46,7 +46,7 @@ export const estimateRecipeCost = (dish: Dish, servings: number, inventory: Inve
       const consumedInStockUnits = consumedInRecipeUnits * source.stockUnitsPerRecipeUnit;
       if (source.batch.unitPrice && source.batch.unitPrice > 0) pricedSubtotal += consumedInStockUnits * source.batch.unitPrice;
       else ingredientFullyPriced = false;
-      if (source.estimated) approximate = true;
+      if (source.estimated || source.batch.costApproximate) approximate = true;
       remainingStock.set(source.batch.id, Math.max(0, (remainingStock.get(source.batch.id) ?? source.batch.amount) - consumedInStockUnits));
       remaining -= consumedInRecipeUnits;
     }

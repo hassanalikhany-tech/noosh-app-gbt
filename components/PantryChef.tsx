@@ -379,7 +379,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
 
     const defaultThreshold = 0;
     const selectedUnit = unit || suggestPantryUnit(cleanName);
-    const newBatch = { id: globalThis.crypto?.randomUUID?.() || `lot-${Date.now()}`, amount, purchaseAmount: amount, ...(Number.isFinite(unitPrice) && unitPrice! > 0 ? { unitPrice } : {}), ...(expiresOn ? { expiresOn } : {}), receivedAt: Date.now() };
+    const receivedAt = Date.now();
+    const newBatch = { id: globalThis.crypto?.randomUUID?.() || `lot-${receivedAt}`, amount, purchaseAmount: amount, ...(Number.isFinite(unitPrice) && unitPrice! > 0 ? { unitPrice } : {}), ...(expiresOn ? { expiresOn } : {}), receivedAt, lastPurchasedAt: receivedAt };
     const newItem: InventoryItem = {
       id: crypto.randomUUID?.() || Math.random().toString(36).slice(2, 11),
       name: cleanName,
