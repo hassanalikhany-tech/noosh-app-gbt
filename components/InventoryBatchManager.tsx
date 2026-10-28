@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { CalendarDays, Plus, Trash2, X } from 'lucide-react';
 import { InventoryBatch, InventoryItem } from '../types';
 import { activePurchaseBatchCount, getInventoryBatches, MAX_ACTIVE_PURCHASE_BATCHES, sumInventoryBatches } from '../utils/inventoryBatches';
@@ -18,7 +19,7 @@ export default function InventoryBatchManager({ item, onClose, onSave }: { item:
   const activePurchases = activePurchaseBatchCount(batches);
   const update = (id: string, patch: Partial<InventoryBatch>) => setBatches(current => current.map(row => row.id === id ? { ...row, ...patch } : row));
 
-  return <div className="fixed inset-0 z-[12000] grid place-items-center bg-slate-950/55 p-2 backdrop-blur-sm sm:p-5" onMouseDown={onClose}>
+  return createPortal(<div className="fixed inset-0 z-[12000] grid place-items-center bg-slate-950/55 p-2 backdrop-blur-sm sm:p-5" onMouseDown={onClose}>
     <section ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="inventory-batches-title" onMouseDown={event => event.stopPropagation()} className="flex max-h-[94dvh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-[#f6f8f4] shadow-2xl sm:rounded-[2rem]">
       <header className="flex items-center justify-between gap-3 bg-[#276556] px-4 py-4 text-white sm:px-6">
         <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-white/15"><CalendarDays size={20}/></span><div><h2 id="inventory-batches-title" className="font-black">سری‌های خرید {item.name}</h2><p className="mt-1 text-xs text-white/75">موجودی فعلی: {fa(total)} {item.unit}</p></div></div>
@@ -48,5 +49,5 @@ export default function InventoryBatchManager({ item, onClose, onSave }: { item:
       </div>
       <footer className="flex justify-end gap-2 border-t border-slate-200 bg-white px-4 py-3 sm:px-6"><button type="button" onClick={onClose} className="rounded-xl px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100">انصراف</button><button type="button" disabled={batches.some(batch => !Number.isFinite(batch.amount) || batch.amount < 0)} onClick={() => onSave(batches)} className="rounded-xl bg-[#276556] px-5 py-2.5 text-sm font-black text-white disabled:opacity-40">ذخیره سری‌ها</button></footer>
     </section>
-  </div>;
+  </div>, document.body);
 }
