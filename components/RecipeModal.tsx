@@ -23,7 +23,10 @@ interface RecipeModalProps {
   onUpdateUser?: (user: UserProfile) => void;
 }
 
-const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, onUpdateUser }) => {
+const RecipeModal: React.FC<RecipeModalProps> = ({ dish: sourceDish, isOpen, onClose, user, onUpdateUser }) => {
+  const dish = user?.personalRecipeEdits?.[sourceDish.id]
+    ? { ...sourceDish, ...user.personalRecipeEdits[sourceDish.id], isLocallyEdited: true }
+    : sourceDish;
   const dialogRef = useDialogFocus(onClose);
   const [addedToCart, setAddedToCart] = useState(false);
   const [cooked, setCooked] = useState(false);
@@ -233,7 +236,6 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
     const savedUser = await UserService.updateProfile(user.username, { personalRecipeEdits });
     onUpdateUser?.(savedUser);
     window.dispatchEvent(new CustomEvent('recipes-updated'));
-    onClose();
   };
 
   const handleCookDish = async () => {
