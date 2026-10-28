@@ -2,9 +2,9 @@
 import React, { useState } from 'react';
 import { 
   X, ChevronLeft, ChevronDown, BookOpen, Calendar, ChefHat, Search, 
-  Trophy, ShoppingCart, Bell, Settings, Info, Sparkles, RefreshCw, 
+  ShoppingCart, Bell, Settings, Info, Sparkles, RefreshCw,
   Printer, Share2, Heart, ThumbsDown, Filter, User, ShieldCheck, 
-  MessageSquare, Camera, CheckCircle2, AlertTriangle, Wand2, Maximize,
+  MessageSquare, Camera, AlertTriangle, Wand2, Maximize,
   Award, Plus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -85,22 +85,6 @@ const GUIDE_DATA: GuideSection[] = [
           { name: 'شناسنامه کامل غذا', description: 'مشاهده طبع غذا (گرم/سرد)، میزان کالری تقریبی، زمان آماده‌سازی و مراحل دقیق پخت.', icon: Info },
           { name: 'محبوب‌های شخصی', description: 'ایجاد یک کتابخانه شخصی از غذاهایی که عاشقشان هستید برای دسترسی در کمتر از یک ثانیه.', icon: Heart },
           { name: 'لیست سیاه شخصی', description: 'حذف دائمی غذاهایی که به هر دلیل دوست ندارید از کل پیشنهادات اپلیکیشن.', icon: ThumbsDown }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'challenges',
-    title: 'چالش‌ها',
-    icon: Trophy,
-    color: 'amber',
-    content: [
-      {
-        title: 'آشپزی با طعم هیجان',
-        description: 'با شرکت در چالش‌های دوره‌ای، مهارت‌های خود را ارتقا دهید و به یک سرآشپز حرفه‌ای تبدیل شوید.',
-        features: [
-          { name: 'ماموریت‌های روزانه', description: 'چالش‌های کوچک برای امتحان کردن طعم‌های جدید یا روش‌های پخت متفاوت.', icon: Trophy },
-          { name: 'تغییر سبک زندگی', description: 'چالش‌های سلامتی‌محور مانند «هفته بدون قند» یا «ماه گیاه‌خواری» جهت بهبود رژیم غذایی.', icon: CheckCircle2 }
         ]
       }
     ]

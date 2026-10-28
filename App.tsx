@@ -1,6 +1,5 @@
-import { CalendarDays, RefreshCw, ChefHat, Search, Settings, Trophy, X, ShoppingCart, Heart, Clock, Trash2, Calendar, Leaf, Sparkles, Utensils, ShieldCheck, ArrowRight, CloudDownload, UserX, Info, CheckCircle2, Wand2, Loader2, ScanFace, Printer, Share2, MessageCircle, Smartphone, Database, ShieldAlert, FilterX, Check, AlertTriangle, Shield, LayoutDashboard, Bell, Zap, Maximize, Minimize, Package } from 'lucide-react';
+import { CalendarDays, RefreshCw, ChefHat, Search, Settings, X, ShoppingCart, Heart, Clock, Trash2, Calendar, Leaf, Sparkles, Utensils, ShieldCheck, ArrowRight, CloudDownload, UserX, Info, CheckCircle2, Wand2, Loader2, ScanFace, Printer, Share2, MessageCircle, Smartphone, Database, ShieldAlert, FilterX, Check, AlertTriangle, Shield, LayoutDashboard, Bell, Zap, Maximize, Minimize, Package } from 'lucide-react';
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
-import Challenges from './components/Challenges';
 import MealCard from './components/MealCard';
 const PlanDashboard = lazy(() => import('./components/PlanDashboard'));
 const AdminAccessGate = import.meta.env.MODE === 'native'
@@ -24,7 +23,7 @@ import { getRelevantInventory } from './utils/kitchenMode';
 import metadata from './metadata.json';
 import { markApplicationReady } from './utils/startup';
 
-type ViewMode = 'plan' | 'pantry' | 'search' | 'challenges' | 'inventory' | 'settings';
+type ViewMode = 'plan' | 'pantry' | 'search' | 'inventory' | 'settings';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -334,22 +333,6 @@ const AppContent: React.FC = () => {
     }
   };
 
-  const handleChallengeNotify = (title: string, message: string, colorClass: string, icon: any) => {
-    if (!currentUser) return;
-    const isHidden = currentUser.hiddenGuidanceKeys?.includes('challenge');
-    if (isHidden) return;
-
-    setFilterNotif({
-      show: true,
-      message: `${title}: ${message}`,
-      active: true,
-      icon: icon,
-      color: colorClass.includes('emerald') ? 'emerald' : colorClass.includes('rose') ? 'rose' : colorClass.includes('blue') ? 'blue' : colorClass.includes('green') ? 'emerald' : 'purple',
-      exiting: false,
-      filterKey: 'challenge'
-    });
-  };
-
   const handleGeneratePlan = async (type: 'daily' | 'weekly' | 'monthly') => {
     if (!currentUser) return;
 
@@ -553,7 +536,6 @@ const AppContent: React.FC = () => {
     { id: 'pantry', label: 'آشپزخانه من', icon: ChefHat },
     { id: 'plan', label: 'برنامه غذایی', icon: CalendarDays },
     { id: 'search', label: 'جستجو', icon: Search },
-    { id: 'challenges', label: 'چالش‌ها', icon: Trophy },
     { id: 'inventory', label: 'انبار', icon: Package, disabled: currentUser?.kitchenMode === 'without-inventory' }
   ];
 
@@ -739,7 +721,6 @@ const AppContent: React.FC = () => {
         {viewMode === 'pantry' && <PantryChef page="home" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} />}
         {viewMode === 'inventory' && <PantryChef page="inventory" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} />}
         {viewMode === 'search' && <RecipeSearch user={currentUser!} onUpdateUser={setCurrentUser} externalSearchTerm={globalSearchTerm} creatorRequest={creatorRequest} onCreatorRequestHandled={() => setCreatorRequest(null)} />}
-        {viewMode === 'challenges' && <Challenges user={currentUser!} onUpdateUser={setCurrentUser} onNotify={handleChallengeNotify} />}
         {viewMode === 'settings' && (
           <Preferences 
             user={currentUser!} 
