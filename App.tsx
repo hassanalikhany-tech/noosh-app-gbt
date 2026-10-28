@@ -24,7 +24,7 @@ import { getRelevantInventory } from './utils/kitchenMode';
 import metadata from './metadata.json';
 import { markApplicationReady } from './utils/startup';
 
-type ViewMode = 'plan' | 'pantry' | 'search' | 'challenges' | 'settings';
+type ViewMode = 'plan' | 'pantry' | 'search' | 'challenges' | 'inventory' | 'settings';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -64,6 +64,9 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     if (!isInitializing && currentUser) markApplicationReady();
   }, [isInitializing, currentUser]);
+  useEffect(() => {
+    if (viewMode === 'inventory' && currentUser?.kitchenMode === 'without-inventory') setViewMode('pantry');
+  }, [viewMode, currentUser?.kitchenMode]);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [appVersion, setAppVersion] = useState(metadata.name.split(' ').pop() || "V16.2");
   const [planLoading, setPlanLoading] = useState<'daily' | 'weekly' | 'monthly' | null>(null);
@@ -550,7 +553,8 @@ const AppContent: React.FC = () => {
     { id: 'pantry', label: 'آشپزخانه من', icon: ChefHat },
     { id: 'plan', label: 'برنامه غذایی', icon: CalendarDays },
     { id: 'search', label: 'جستجو', icon: Search },
-    { id: 'challenges', label: 'چالش‌ها', icon: Trophy }
+    { id: 'challenges', label: 'چالش‌ها', icon: Trophy },
+    { id: 'inventory', label: 'انبار', icon: Package, disabled: currentUser?.kitchenMode === 'without-inventory' }
   ];
 
   const FilterIcon = filterNotif.icon;
@@ -681,7 +685,7 @@ const AppContent: React.FC = () => {
 
           <nav className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-full border border-slate-200">
             {navItems.map(nav => (
-              <button key={nav.id} onClick={() => setViewMode(nav.id as ViewMode)} className={`px-5 py-2.5 rounded-full flex items-center gap-2 transition-all ${viewMode === nav.id ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:bg-white/50'}`}>
+              <button key={nav.id} disabled={'disabled' in nav && nav.disabled} aria-disabled={'disabled' in nav && nav.disabled || undefined} title={'disabled' in nav && nav.disabled ? 'برای دسترسی به انبار، کلید استفاده از انبار را در صفحهٔ اصلی روشن کن.' : undefined} onClick={() => setViewMode(nav.id as ViewMode)} className={`px-5 py-2.5 rounded-full flex items-center gap-2 transition-all ${'disabled' in nav && nav.disabled ? 'cursor-not-allowed text-slate-300 opacity-60' : viewMode === nav.id ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:bg-white/50'}`}>
                 <nav.icon size={18} />
                 <span className="text-sm font-black">{nav.label}</span>
               </button>
@@ -732,7 +736,8 @@ const AppContent: React.FC = () => {
             setDisplayPlan(previousPlan); setCurrentUser(updated); setPreviousPlan(null);
           }}
         />}
-        {viewMode === 'pantry' && <PantryChef user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} />}
+        {viewMode === 'pantry' && <PantryChef page="home" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} />}
+        {viewMode === 'inventory' && <PantryChef page="inventory" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} />}
         {viewMode === 'search' && <RecipeSearch user={currentUser!} onUpdateUser={setCurrentUser} externalSearchTerm={globalSearchTerm} creatorRequest={creatorRequest} onCreatorRequestHandled={() => setCreatorRequest(null)} />}
         {viewMode === 'challenges' && <Challenges user={currentUser!} onUpdateUser={setCurrentUser} onNotify={handleChallengeNotify} />}
         {viewMode === 'settings' && (
@@ -751,7 +756,7 @@ const AppContent: React.FC = () => {
       <div className="fixed bottom-0 left-0 right-0 z-[1000] no-print h-12 sm:h-auto">
         <div className="md:hidden landscape:hidden bg-white/95 backdrop-blur-2xl border-t border-slate-100 flex items-center justify-around h-12 px-2 pb-safe shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.15)]">
            {navItems.map(nav => (
-              <button key={nav.id} onClick={() => setViewMode(nav.id as ViewMode)} className={`flex flex-col items-center justify-center gap-1 flex-1 transition-all ${viewMode === nav.id ? 'text-teal-600' : 'text-slate-400'}`}>
+              <button key={nav.id} disabled={'disabled' in nav && nav.disabled} aria-disabled={'disabled' in nav && nav.disabled || undefined} title={'disabled' in nav && nav.disabled ? 'برای دسترسی به انبار، کلید استفاده از انبار را در صفحهٔ اصلی روشن کن.' : undefined} onClick={() => setViewMode(nav.id as ViewMode)} className={`flex flex-col items-center justify-center gap-1 flex-1 transition-all ${'disabled' in nav && nav.disabled ? 'cursor-not-allowed text-slate-300 opacity-50' : viewMode === nav.id ? 'text-teal-600' : 'text-slate-400'}`}>
                  <div className={`p-1.5 rounded-lg transition-all ${viewMode === nav.id ? 'bg-teal-50' : ''}`}><nav.icon size={20} strokeWidth={viewMode === nav.id ? 2.5 : 2} /></div>
                  <span className="text-[9px] font-black">{nav.label}</span>
               </button>

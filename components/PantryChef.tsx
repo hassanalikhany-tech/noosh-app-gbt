@@ -19,6 +19,7 @@ import { mergePurchaseHistory } from '../utils/purchaseHistory';
 import { PANTRY_UNIT_OPTIONS } from '../utils/pantryUnits';
 
 interface PantryChefProps {
+  page: 'home' | 'inventory';
   user: UserProfile;
   onUpdateUser: (user: UserProfile) => void;
   onNavigate: (view: 'plan' | 'search') => void;
@@ -140,7 +141,7 @@ interface ProcessedResult {
   proteinMatchScore: number;
 }
 
-const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate, onKitchenModeChange }) => {
+const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNavigate, onKitchenModeChange }) => {
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('1');
   const [newItemUnit, setNewItemUnit] = useState('');
@@ -482,7 +483,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
 
   return (
     <div className="pantry-page flex flex-col h-full [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter">
-      <section className="pantry-hero" aria-label="پیشنهاد غذا بر پایهٔ موجودی آشپزخانه">
+      {page === 'home' && <section className="pantry-hero" aria-label="پیشنهاد غذا بر پایهٔ موجودی آشپزخانه">
         <div className="pantry-hero-copy"><span className="pantry-hero-label"><ChefHat size={15}/> آشپزخانهٔ تو</span>
           <h1>امروز چی بپزم؟</h1>
           <p>{user.kitchenMode === 'without-inventory' ? 'در حالت مستقل از انبار، پیشنهادها بدون توجه به موجودی ثبت‌شده چیده می‌شوند؛ هر زمان خواستی از کلید پایین حالت را عوض کن.' : 'موجودی ثبت‌شده‌ات را به‌روز کن تا پیشنهادها با مواد خانه جور باشند و کسری‌های خرید دقیق حساب شوند.'}</p>
@@ -538,11 +539,12 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
             <span className={lowStockItems.length ? 'stock-alert' : ''}><AlertTriangle size={14}/><strong>{toPersian(lowStockItems.length)}</strong> نیازمند توجه</span>
           </div>}
         </div>
-      </section>
-      {isInventoryMode ? <>
+      </section>}
+      {page === 'inventory' && <section className="mx-4 mb-2 mt-4 flex items-center gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3 shadow-sm sm:mx-10"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-50 text-[#276556]"><Package size={20}/></span><div><h1 className="text-base font-black text-slate-900 sm:text-xl">انبار مواد غذایی آشپزخانه</h1><p className="text-xs font-semibold text-slate-500">ثبت و به‌روزرسانی موجودی شخصی شما · {toPersian(inventory.length)} قلم</p></div></section>}
+      {(page === 'inventory' && isInventoryMode) || (page === 'home' && isInventoryMode && rawResults) ? <>
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
           <div className="max-w-7xl mx-auto py-4 sm:py-6 space-y-6 sm:space-y-10">
-              <div className="space-y-6 animate-enter">
+              {page === 'inventory' && <div className="space-y-6 animate-enter">
                   {/* بخش هشدار موجودی کم */}
                   {lowStockItems.length > 0 && (
                     <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
@@ -734,9 +736,9 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
                     </div>
 
                   </div>
-              </div>
+              </div>}
 
-              {rawResults && (
+              {page === 'home' && rawResults && (
                 <div ref={resultsAreaRef} className="space-y-6 sm:space-y-10 animate-enter pt-6 sm:pt-10 border-t border-slate-100 scroll-mt-24">
                   <div className="pantry-result-filters bg-white border border-slate-200 p-2 sm:p-4 rounded-2xl sm:rounded-[2.5rem] flex flex-wrap items-center gap-2 sm:gap-3 shadow-lg max-w-5xl mx-auto">
                      {[
@@ -781,7 +783,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ user, onUpdateUser, onNavigate,
               )}
           </div>
       </div>
-      </> : <section className="pantry-discovery-card" aria-label="پیشنهاد و برنامه‌ریزی بدون انبار">
+      </> : page === 'inventory' ? <section className="mx-4 mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm font-bold leading-7 text-amber-900 sm:mx-10">برای باز کردن انبار، به صفحهٔ «آشپزخانه من» برو و کلید «استفاده از موجودی انبار» را روشن کن.</section> : !isInventoryMode && <section className="pantry-discovery-card" aria-label="پیشنهاد و برنامه‌ریزی بدون انبار">
         <div className="pantry-discovery-mark"><Sparkles size={21} /></div>
         <div className="pantry-discovery-copy">
           <strong>بدون ثبت موجودی هم آشپزی کن</strong>
