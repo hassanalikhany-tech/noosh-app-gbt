@@ -385,8 +385,8 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish, isOpen, onClose, user, 
                   <p className="text-slate-400 font-bold italic">لیست مواد لازم ثبت نشده است.</p>
                 )}
 
-                {user && costEstimate.eligibleRows > 0 && <section className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4" aria-label="برآورد هزینهٔ مواد">
-                  <div className="flex items-center gap-2 font-black text-amber-950"><ReceiptText size={18} /><h4>برآورد هزینهٔ مواد</h4></div>
+                {user && costEstimate.eligibleRows > 0 && <section className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4" aria-label="برآورد هزینهٔ تمام‌شدهٔ غذا">
+                  <div className="flex items-center gap-2 font-black text-amber-950"><ReceiptText size={18} /><h4>برآورد هزینهٔ تمام‌شدهٔ غذا</h4></div>
                   {costEstimate.pricedRows > 0 ? <>
                     <p className="mt-2 text-xl font-black text-[#276556]">حدود {toPersianDigits(Math.round(costEstimate.pricedSubtotal).toLocaleString('fa-IR'))} تومان</p>
                     <p className="mt-1 text-xs font-bold leading-6 text-amber-900">مصرف به ترتیب سری‌های موجود و قیمت ثبت‌شدهٔ همان سری حساب شده است؛ قیمت {toPersianDigits(costEstimate.pricedRows)} از {toPersianDigits(costEstimate.eligibleRows)} قلم کامل در دسترس است{costEstimate.approximate ? ' و بخشی از تبدیل‌ها تقریبی است.' : '.'}</p>
