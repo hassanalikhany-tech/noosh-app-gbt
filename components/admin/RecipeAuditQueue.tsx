@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Check, ChefHat, ChevronLeft, ChevronRight, Clock3, Globe2, Image as ImageIcon, Loader2, PackageCheck, Pencil, Search, Send, Users, Utensils, X } from 'lucide-react';
 import { Dish, CATEGORY_LABELS } from '../../types';
-import { RecipeService } from '../../services/recipeService';
+import { confirmRecipeCatalogDeployment, RecipeService } from '../../services/recipeService';
 import { normalizePersian } from '../../utils/text';
 import DishEditor from './DishEditor';
 
@@ -27,6 +27,8 @@ export default function RecipeAuditQueue() {
   const [selectedDishId, setSelectedDishId] = useState<string | null>(null);
   const [editingDish, setEditingDish] = useState<Dish | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isCheckingDeployment, setIsCheckingDeployment] = useState(false);
+  const [publishReceipt, setPublishReceipt] = useState<{ commit: string; revision: string; deployed: boolean } | null>(null);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -82,6 +84,7 @@ export default function RecipeAuditQueue() {
   const publishApproved = async () => {
     if (!newReviewedIds.length || isPublishing) return;
     setIsPublishing(true);
+    setPublishReceipt(null);
     setMessage('در حال ثبت همهٔ تأییدها و ویرایش‌ها در GitHub…');
     const edits = Object.keys(work.editedDishes).map(id => work.editedDishes[id]).filter(dish => newReviewedIds.includes(dish.id));
     const result = await RecipeService.publishRecipeAuditBatch(newReviewedIds, edits);
@@ -92,9 +95,33 @@ export default function RecipeAuditQueue() {
       persistWork(next);
       setPublishedReviewIds(RecipeService.getQuantityReviewedDishIds());
       setDishes(RecipeService.getCatalogDishes());
-      setMessage(`${newReviewedIds.length.toLocaleString('fa-IR')} رسپی تأییدشده (${edits.length.toLocaleString('fa-IR')} ویرایش) در GitHub ثبت شد؛ Netlify انتشار را شروع می‌کند. شناسه: ${result.commit?.slice(0, 7) || 'ثبت موفق'}`);
+      if (result.commit && result.revision) {
+        setPublishReceipt({ commit: result.commit, revision: result.revision, deployed: Boolean(result.deployed) });
+        setMessage(`${newReviewedIds.length.toLocaleString('fa-IR')} رسپی در GitHub ثبت شد. Netlify در حال انتشار است و پنل به‌صورت خودکار سایت زنده را برای تأیید همین نسخه بررسی می‌کند.`);
+        setIsCheckingDeployment(true);
+        void confirmRecipeCatalogDeployment(result.revision).then(deployed => {
+          setPublishReceipt(current => current ? { ...current, deployed } : current);
+          setMessage(deployed
+            ? 'تأیید نهایی: تغییرات در GitHub ثبت شد و فایل رسپی‌های سایت زندهٔ Netlify با همان نسخه تطبیق داده شد.'
+            : 'GitHub ثبت را تأیید کرده است؛ Netlify هنوز نسخهٔ تازه را ارائه نکرده. از دکمهٔ بررسی دوبارهٔ انتشار استفاده کن.');
+        }).finally(() => setIsCheckingDeployment(false));
+      } else {
+        setMessage('ثبت در GitHub تأیید نشد؛ صف تأییدها و ویرایش‌ها روی این دستگاه حفظ شد.');
+      }
     } else setMessage(result.error || 'انتشار انجام نشد؛ صف تأییدها و ویرایش‌ها روی همین دستگاه حفظ شد.');
     setIsPublishing(false);
+  };
+
+  const checkDeploymentAgain = async () => {
+    if (!publishReceipt || isCheckingDeployment) return;
+    setIsCheckingDeployment(true);
+    setMessage('در حال بررسی فایل زندهٔ رسپی‌ها در Netlify…');
+    const deployed = await confirmRecipeCatalogDeployment(publishReceipt.revision);
+    setPublishReceipt(current => current ? { ...current, deployed } : current);
+    setMessage(deployed
+      ? 'تأیید شد: نسخهٔ دارای همین تغییرات از سایت زندهٔ Netlify دریافت شد.'
+      : 'GitHub ثبت را تأیید کرده است؛ Netlify هنوز همین نسخه را ارائه نمی‌کند. چند دقیقهٔ دیگر دوباره بررسی کن.');
+    setIsCheckingDeployment(false);
   };
 
   return <section className="space-y-5 rounded-[28px] bg-white p-4 shadow-sm ring-1 ring-emerald-950/5 sm:p-7" dir="rtl">
@@ -116,7 +143,16 @@ export default function RecipeAuditQueue() {
       </div>
     </header>
 
-    {message && <p role="status" aria-live="polite" className={`rounded-xl px-4 py-3 text-sm font-bold leading-6 ${message.includes('انجام نشد') || message.includes('نشد؛') ? 'bg-rose-50 text-rose-800' : 'bg-emerald-50 text-emerald-900'}`}>{message}</p>}
+    {message && <p role="status" aria-live="polite" className={`rounded-xl px-4 py-3 text-sm font-bold leading-6 ${message.includes('انجام نشد') || message.includes('نشد؛') || message.includes('هنوز') || message.includes('ارائه نکرد') ? 'bg-amber-50 text-amber-900' : 'bg-emerald-50 text-emerald-900'}`}>{message}</p>}
+    {publishReceipt && <section aria-live="polite" className={`rounded-2xl border p-4 ${publishReceipt.deployed ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50'}`}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className={`font-black ${publishReceipt.deployed ? 'text-emerald-950' : 'text-amber-950'}`}>{publishReceipt.deployed ? 'انتشار در هر دو مقصد تأیید شد' : 'ثبت GitHub تأیید شد؛ بررسی Netlify ادامه دارد'}</h3>
+          <p className="mt-1 text-xs leading-6 text-slate-700">GitHub commit: <code dir="ltr" className="rounded bg-white/70 px-1.5 py-0.5">{publishReceipt.commit.slice(0, 12)}</code> · {publishReceipt.deployed ? 'فایل زندهٔ سایت با همین نسخه تطبیق داده شد.' : 'هنوز نسخهٔ حاوی این تغییرات از سایت زنده دریافت نشده است.'}</p>
+        </div>
+        {!publishReceipt.deployed && <button type="button" onClick={() => void checkDeploymentAgain()} disabled={isCheckingDeployment} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#276556] px-4 text-xs font-black text-white disabled:opacity-60">{isCheckingDeployment && <Loader2 size={15} className="animate-spin"/>}{isCheckingDeployment ? 'در حال بررسی…' : 'بررسی دوبارهٔ انتشار'}</button>}
+      </div>
+    </section>}
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-xs leading-6 text-slate-500">فهرست بدون دسته‌بندی آمده است؛ کارت را باز کن تا عکس، مواد و مقدارها، مراحل و سایر اطلاعات کامل نمایش داده شوند.</p>
       <label className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-slate-50 px-3 ring-1 ring-slate-200 focus-within:ring-2 focus-within:ring-[#276556]/30"><Search size={16} className="text-slate-400"/><input value={query} onChange={event => setQuery(event.target.value)} placeholder="جستجو برای رفتن به یک رسپی" className="min-w-0 bg-transparent text-sm outline-none sm:w-56"/></label>

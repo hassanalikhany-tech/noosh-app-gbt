@@ -9,6 +9,30 @@ let recipeOverrides: { dishes: Dish[]; hiddenDishIds: string[]; quantityReviewed
 let bundledCatalogPromise: Promise<void> | null = null;
 let catalogRevision = '';
 
+const PUBLIC_CATALOG_URL = 'https://noosh-app-gbt.netlify.app/data/recipes_overrides.json';
+
+const catalogDigest = async (catalog: unknown): Promise<string> => {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(catalog)));
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+};
+
+const waitForPublicCatalog = async (revision: string, timeoutMs = 180_000): Promise<boolean> => {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(`${PUBLIC_CATALOG_URL}?publish-check=${Date.now()}`, { cache: 'no-store' });
+      if (response.ok) {
+        const catalog = await response.json();
+        if (await catalogDigest(catalog) === revision) return true;
+      }
+    } catch { /* Netlify may still be building or deploying. */ }
+    await new Promise(resolve => window.setTimeout(resolve, 5000));
+  }
+  return false;
+};
+
+export const confirmRecipeCatalogDeployment = (revision: string): Promise<boolean> => waitForPublicCatalog(revision);
+
 const loadBundledCatalog = () => {
   if (!bundledCatalogPromise) {
     bundledCatalogPromise = fetch('/data/recipes_overrides.json', { cache: 'no-cache' }).then(async response => {
@@ -414,7 +438,7 @@ export const RecipeService = {
     dishes: Dish[] = cachedDishes,
     hiddenDishIds: string[] = [...new Set([...getHiddenDishIds(), ...recipeOverrides.hiddenDishIds])].filter(id => !getRestoredDishIds().includes(id)),
     quantityReviewedDishIds: string[] = [...(recipeOverrides.quantityReviewedDishIds || [])],
-  ): Promise<{ success: boolean; commit?: string; error?: string }> => {
+  ): Promise<{ success: boolean; commit?: string; revision?: string; error?: string }> => {
     try {
       const response = await fetch('/.netlify/functions/publish-catalog', {
         method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' },
@@ -422,16 +446,17 @@ export const RecipeService = {
       });
       const result = await response.json();
       if (!response.ok) return { success: false, error: result.error || 'ثبت در GitHub انجام نشد.' };
+      if (typeof result.commit !== 'string' || typeof result.revision !== 'string') return { success: false, error: 'GitHub ثبت را با شناسهٔ نسخه تأیید نکرد؛ صف روی این دستگاه حفظ شد.' };
       if (result.revision) catalogRevision = result.revision;
       recipeOverrides = { ...recipeOverrides, quantityReviewedDishIds };
       window.dispatchEvent(new CustomEvent('recipes-published', { detail: { commit: result.commit, count: result.count } }));
-      return { success: true, commit: result.commit };
+      return { success: true, commit: result.commit, revision: result.revision };
     } catch {
       return { success: false, error: 'ارتباط با سرویس انتشار برقرار نشد؛ تغییر روی این دستگاه مانده است.' };
     }
   },
 
-  publishRecipeAuditBatch: async (reviewedIds: string[], editedDishes: Dish[]): Promise<{ success: boolean; commit?: string; error?: string }> => {
+  publishRecipeAuditBatch: async (reviewedIds: string[], editedDishes: Dish[]): Promise<{ success: boolean; commit?: string; revision?: string; deployed?: boolean; error?: string }> => {
     const editsById = new Map<string, Dish>(editedDishes.map(dish => [dish.id, { ...dish, localEdited: true }]));
     const next = cachedDishes.map(dish => editsById.get(dish.id) || dish);
     if (editsById.size !== editedDishes.length || [...editsById.keys()].some(id => !cachedDishes.some(dish => dish.id === id))) {
@@ -446,7 +471,8 @@ export const RecipeService = {
       catch { console.warn('Published recipe review batch could not be cached on this device.'); }
     }
     notifyRecipesUpdate(cachedDishes.length);
-    return result;
+    if (!result.commit || !result.revision) return { success: false, error: 'پاسخ GitHub شناسهٔ ثبت و نسخهٔ منتشرشده را برنگرداند؛ صف روی این دستگاه حفظ شد.' };
+    return { ...result, deployed: false };
   },
 
   isDishAccessible: (dishId: string, user: UserProfile | null): boolean => {
