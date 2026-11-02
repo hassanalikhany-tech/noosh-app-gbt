@@ -11,7 +11,7 @@ import { recipeQuantityProblem } from '../../utils/quantitySanity.mjs';
 interface DishEditorProps {
   dish: Dish;
   onClose: () => void;
-  onSave: (dish?: Dish) => void;
+  onSave: (dish?: Dish) => void | boolean;
   saveMode?: 'publish' | 'draft';
 }
 
@@ -90,8 +90,13 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave, saveMode
 
   const handleSave = async () => {
     setError('');
-    const quantityProblem = formData.ingredients.map(ingredient => recipeQuantityProblem(ingredient, Number(formData.servings) || 4)).find(Boolean);
-    if (quantityProblem) { setError(quantityProblem); return; }
+    // Quantity sanity checks apply to direct publishing. In the audit draft flow,
+    // reviewers must still be able to fix spelling in recipes whose old amounts
+    // are exactly what they are auditing; publication validates approved recipes.
+    if (saveMode === 'publish') {
+      const quantityProblem = formData.ingredients.map(ingredient => recipeQuantityProblem(ingredient, Number(formData.servings) || 4)).find(Boolean);
+      if (quantityProblem) { setError(quantityProblem); return; }
+    }
     if (pendingUnits.length) { setError('برای واحدهای تغییرکردهٔ بدون تبدیل قطعی، مقدار واقعی جدید را هم وارد کن.'); return; }
     if (!formData.name.trim() || !formData.category || !Array.isArray(formData.recipeSteps) || formData.recipeSteps.length === 0 || formData.recipeSteps.some(step => !step.trim())) { setError('نام غذا و دست‌کم یک مرحلهٔ کامل برای دستور پخت لازم است.'); return; }
     if (!Number.isFinite(Number(formData.servings)) || Number(formData.servings) <= 0 || formData.ingredients.some(ingredient => !ingredient.item.trim() || !Number.isFinite(parseQuantity(ingredient.amount)) || parseQuantity(ingredient.amount) < 0)) { setError('نام مواد، مقدارهای غیرمنفی و تعداد نفرات پایه را بررسی کن.'); return; }
@@ -99,7 +104,11 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave, saveMode
     try {
       const rawBasisDish = { ...formData, ingredients: formData.ingredients.map(ingredient => ({ ...ingredient, state: 'raw' as const })) };
       if (saveMode === 'draft') {
-        onSave(rawBasisDish);
+        const saved = onSave(rawBasisDish);
+        if (saved === false) {
+          setError('ویرایش در صف این دستگاه ذخیره نشد؛ فضای ذخیره‌سازی مرورگر را بررسی کن و دوباره تلاش کن.');
+          return;
+        }
         onClose();
         return;
       }
@@ -286,6 +295,8 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave, saveMode
         {/* Footer Actions */}
         <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-end gap-3 shrink-0">
           <button onClick={onClose} className="px-8 py-3.5 bg-white border border-slate-200 rounded-2xl font-black text-slate-500 hover:bg-slate-100 transition-all">انصراف</button>
+          <div className="flex min-w-0 flex-col items-end gap-2">
+          {error && <p role="alert" className="max-w-xl text-right text-xs font-bold leading-5 text-rose-700">{error}</p>}
           <button 
             onClick={handleSave} 
             disabled={isSaving}
@@ -294,6 +305,7 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave, saveMode
             {isSaving ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> : <Save size={20} />}
             {saveMode === 'draft' ? 'ذخیرهٔ ویرایش و تأیید رسپی' : 'ذخیره و انتشار تغییرات'}
           </button>
+          </div>
         </div>
       </div>
     </div>

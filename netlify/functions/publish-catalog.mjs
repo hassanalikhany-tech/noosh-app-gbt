@@ -15,8 +15,6 @@ export const handler = async (event) => {
   try {
     const payload = parseBody(event, 5_500_000);
     if (!Array.isArray(payload.dishes) || payload.dishes.length < 600 || payload.dishes.length > 2000 || !payload.dishes.every(validDish)) return response(400, { error: 'فهرست غذاها کامل نیست یا ساختار نامعتبر دارد؛ انتشار لغو شد.' });
-    const quantityProblem = payload.dishes.flatMap(dish => dish.ingredients.map(item => recipeQuantityProblem(item, dish.servings))).find(Boolean);
-    if (quantityProblem) return response(400, { error: quantityProblem });
     if (!Array.isArray(payload.hiddenDishIds) || !payload.hiddenDishIds.every((id) => typeof id === 'string' && id.length < 180)) return response(400, { error: 'فهرست غذاهای پنهان نامعتبر است.' });
     const owner = process.env.GITHUB_OWNER || 'hassanalikhany-tech';
     const repo = process.env.GITHUB_REPO || 'noosh-app-gbt';
@@ -52,6 +50,13 @@ export const handler = async (event) => {
     const submittedReviewIds = payload.quantityReviewedDishIds ?? existingCatalog?.quantityReviewedDishIds ?? [];
     if (!Array.isArray(submittedReviewIds) || submittedReviewIds.length > 2000 || !submittedReviewIds.every(id => typeof id === 'string' && id.length > 0 && id.length < 180)) return response(400, { error: 'فهرست رسپی‌های ممیزی‌شده معتبر نیست.' });
     const quantityReviewedDishIds = [...new Set(submittedReviewIds.filter(id => dishes.has(id)))];
+    // Only audit the recipes this admin is approving in this batch. A known
+    // quantity issue in an unreviewed recipe must not block publishing clean
+    // work in smaller daily batches.
+    const previouslyReviewed = new Set(Array.isArray(existingCatalog?.quantityReviewedDishIds) ? existingCatalog.quantityReviewedDishIds : []);
+    const newlyReviewed = new Set(quantityReviewedDishIds.filter(id => !previouslyReviewed.has(id)));
+    const quantityProblem = [...dishes.values()].filter(dish => newlyReviewed.has(dish.id)).flatMap(dish => dish.ingredients.map(item => recipeQuantityProblem(item, dish.servings))).find(Boolean);
+    if (quantityProblem) return response(400, { error: quantityProblem });
     const catalog = { version: 1, dishes: [...dishes.values()], hiddenDishIds: [...new Set(payload.hiddenDishIds)], quantityReviewedDishIds };
     const content = JSON.stringify(catalog, null, 2) + '\n';
     const committed = await fetch(base, { method: 'PUT', headers: { ...headers, 'content-type': 'application/json' }, body: JSON.stringify({ message: 'Update Noosh recipes from admin panel', content: Buffer.from(content).toString('base64'), branch, ...(sha ? { sha } : {}) }) });

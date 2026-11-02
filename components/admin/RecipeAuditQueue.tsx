@@ -71,14 +71,15 @@ export default function RecipeAuditQueue() {
     setSelectedDishId(nextDish?.id || null);
   };
 
-  const approveDish = (dish: Dish, edited?: Dish) => {
+  const approveDish = (dish: Dish, edited?: Dish): boolean => {
     const next: ReviewWork = {
       reviewedIds: [...new Set([...work.reviewedIds, dish.id])],
       editedDishes: edited ? { ...work.editedDishes, [dish.id]: edited } : work.editedDishes,
     };
-    if (!persistWork(next)) return;
+    if (!persistWork(next)) return false;
     setMessage(edited ? `ویرایش «${dish.name}» ذخیره و برای انتشار آماده شد.` : `«${dish.name}» تأیید شد و از صف بازبینی کنار رفت.`);
     advanceFrom(dish.id);
+    return true;
   };
 
   const publishApproved = async () => {
@@ -182,6 +183,6 @@ export default function RecipeAuditQueue() {
         </footer>
       </section>
     </div>}
-    {editingDish && <DishEditor dish={editingDish} saveMode="draft" onClose={() => setEditingDish(null)} onSave={edited => { if (edited) approveDish(edited, edited); }}/ >}
+    {editingDish && <DishEditor dish={editingDish} saveMode="draft" onClose={() => setEditingDish(null)} onSave={edited => edited ? approveDish(edited, edited) : false}/ >}
   </section>;
 }
