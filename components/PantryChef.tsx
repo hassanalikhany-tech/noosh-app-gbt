@@ -17,6 +17,7 @@ import InventoryBatchManager from './InventoryBatchManager';
 import { activePurchaseBatchCount, appendInventoryBatch, earliestExpiry, getInventoryBatches, inventoryExpiryState, MAX_ACTIVE_PURCHASE_BATCHES, sumInventoryBatches, resizeInventoryBatches } from '../utils/inventoryBatches';
 import { mergePurchaseHistory } from '../utils/purchaseHistory';
 import { PANTRY_UNIT_OPTIONS } from '../utils/pantryUnits';
+import { mergeShoppingNeeds } from '../utils/shoppingQuantities';
 
 interface PantryChefProps {
   page: 'home' | 'inventory';
@@ -237,6 +238,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   const starterItemsToAdd = PANTRY_STARTER_ITEMS.filter(name => !inventory.some(item => isInventoryIngredientMatch(item.name, name)));
 
   const isBelowThreshold = (item: InventoryItem) => {
+    if (item.amount <= 0) return true;
     const current = convertToBase(item.amount, item.unit, item.name);
     const threshold = convertToBase(item.minThreshold, item.minThresholdUnit || item.unit, item.name);
     return areUnitsComparable(current, threshold) ? current.value <= threshold.value : false;
@@ -245,6 +247,31 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   const lowStockItems = useMemo(() => {
     return inventory.filter(isBelowThreshold);
   }, [inventory]);
+
+  const addLowStockToShoppingList = () => {
+    const needs = lowStockItems.map(item => {
+      const thresholdUnit = item.minThresholdUnit || item.unit;
+      const threshold = Math.max(0, item.minThreshold || 0);
+      const stockInThresholdUnit = convertAmountBetweenUnits(item.amount, item.unit, thresholdUnit, item.name);
+      const targetAmount = threshold > 0 ? threshold * 2 : 1;
+      const amountToBuy = Math.max(0, targetAmount - (stockInThresholdUnit?.amount ?? 0));
+      return {
+        item: item.name,
+        amount: roundQuantity(amountToBuy),
+        unit: threshold > 0 ? thresholdUnit : item.unit,
+        category: getIngredientCategoryId(item.name) || undefined,
+        estimated: stockInThresholdUnit?.estimated,
+      };
+    }).filter(need => need.amount > 0);
+
+    const currentList = user.customShoppingList || [];
+    const updatedList = mergeShoppingNeeds(currentList, needs, 'inventory-low-stock', 'هشدار انبار');
+    onUpdateUser({ ...user, customShoppingList: updatedList });
+    void UserService.updateShoppingList(user.username, updatedList);
+    setAddMessage(needs.length
+      ? `${toPersian(needs.length)} قلم از اقلام هشدار به سبد خرید اضافه شد.`
+      : 'برای این اقلام مقدار خریدی لازم نبود.');
+  };
 
   const expiringItems = useMemo(() => inventory.map(item => ({ item, date: earliestExpiry(item) })).filter(entry => entry.date && inventoryExpiryState(entry.date) !== 'fresh').sort((a, b) => String(a.date).localeCompare(String(b.date))), [inventory]);
 
@@ -582,53 +609,20 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                       <AlertTriangle className="text-rose-500 shrink-0 mt-1" size={20} />
                       <div className="flex-grow">
                         <h4 className="text-rose-800 font-black text-xs sm:text-sm">هشدار موجودی رو به اتمام!</h4>
-                        <p className="text-rose-600 text-[10px] sm:text-xs mt-1">مواد زیر در آستانه تمام شدن هستند، پیشنهاد می‌شود به لیست خرید اضافه کنید:</p>
-                        <div className="flex flex-wrap gap-2 mt-3">
+                        <p className="text-rose-600 text-[10px] sm:text-xs mt-1">مواد تمام‌شده و زیر آستانه اینجا فهرست شده‌اند؛ مقدار خرید تا رسیدن به حدود دو برابر آستانه محاسبه می‌شود.</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
                           {lowStockItems.map(item => (
-                            <div key={item.id} className="px-2 py-1 bg-white border border-rose-200 text-rose-700 rounded-lg text-[10px] font-black flex items-center gap-2">
-                              {item.name} ({toPersian(item.amount)} {item.unit})
-                                <button onClick={() => {
-                                  const currentList = [...(user.customShoppingList || [])];
-
-                                  // Strictly allow only 3 categories: proteins, grains, vegetables
-                                  const categoryId = getIngredientCategoryId(item.name);
-                                  const allowedCategories = ['proteins', 'grains', 'vegetables'];
-                                  if (!categoryId || !allowedCategories.includes(categoryId)) return;
-
-                                  const existingIdx = currentList.findIndex(i => i.name === item.name);
-                                  let amountToAdd = item.minThreshold * 2;
-                                  const amountUnit = item.minThresholdUnit || item.unit;
-
-                                  if (existingIdx !== -1) {
-                                    const existingUnit = currentList[existingIdx].unit || amountUnit;
-                                    if (existingUnit !== amountUnit) {
-                                      const amountBase = convertToBase(amountToAdd, amountUnit, item.name);
-                                      const existingBase = convertToBase(1, existingUnit, item.name);
-                                      if (!areUnitsComparable(amountBase, existingBase) || existingBase.value <= 0) {
-                                        setAddMessage(`واحد ${amountUnit} با واحد ${existingUnit} قابل تبدیل مطمئن نیست؛ مقدار به فهرست خرید افزوده نشد.`);
-                                        return;
-                                      }
-                                      amountToAdd = amountBase.value / existingBase.value;
-                                    }
-                                    currentList[existingIdx] = {
-                                      ...currentList[existingIdx],
-                                      amount: (currentList[existingIdx].amount || 0) + amountToAdd
-                                    };
-                                  } else {
-                                    currentList.push({
-                                      id: Math.random().toString(),
-                                      name: item.name,
-                                      checked: false,
-                                      amount: amountToAdd,
-                                      unit: amountUnit
-                                    });
-                                  }
-
-                                  onUpdateUser({ ...user, customShoppingList: currentList });
-                                  UserService.updateShoppingList(user.username, currentList);
-                                }} className="text-teal-600 hover:text-teal-700"><ShoppingCart size={14} /></button>
-                            </div>
+                            <span key={item.id} className={`rounded-lg border px-2 py-1 text-[10px] font-black ${item.amount <= 0 ? 'border-rose-300 bg-rose-100 text-rose-800' : 'border-rose-200 bg-white text-rose-700'}`}>
+                              {item.name} · {item.amount <= 0 ? 'تمام‌شده' : `${toPersian(item.amount)} ${item.unit}`}
+                            </span>
                           ))}
+                        </div>
+                        <div className="mt-4 flex flex-wrap items-center gap-3">
+                          <button type="button" onClick={addLowStockToShoppingList} className="noosh-cta-3d inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-black">
+                            <ShoppingCart size={17} />
+                            به سبد خرید اضافه کن
+                          </button>
+                          {addMessage && <span role="status" className="text-xs font-bold text-emerald-800">{addMessage}</span>}
                         </div>
                       </div>
                     </div>
@@ -860,7 +854,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                             <td className="whitespace-nowrap px-4 py-3 sm:px-6">{editing ? <label className="inline-flex items-center gap-2"><input autoFocus type="number" min="0" step="any" value={inventoryOverviewDraft.amount} aria-label={`موجودی ${item.name}`} onChange={event => setInventoryOverviewDraft(current => current ? { ...current, amount: event.target.value } : current)} onKeyDown={event => { if (event.key === 'Enter') saveInventoryOverviewEdit(); if (event.key === 'Escape') { setInventoryOverviewDraft(null); setInventoryOverviewMessage(null); } }} className="w-24 rounded-lg border border-emerald-200 bg-white px-2 py-2 text-center text-sm font-black text-emerald-900 outline-none focus:border-[#276556] focus:ring-2 focus:ring-emerald-100"/><span className="text-xs font-bold text-slate-600">{item.unit}</span></label> : <span className={`whitespace-nowrap font-black ${isEmpty ? 'text-slate-400' : 'text-emerald-800'}`}>{toPersian(item.amount)} <small className="font-semibold text-slate-500">{item.unit}</small></span>}</td>
                             <td className="whitespace-nowrap px-4 py-3 text-slate-600 sm:px-6">{editing ? <label className="inline-flex items-center gap-2"><input type="number" min="0" step="any" value={inventoryOverviewDraft.threshold} aria-label={`آستانه هشدار ${item.name}`} onChange={event => setInventoryOverviewDraft(current => current ? { ...current, threshold: event.target.value } : current)} onKeyDown={event => { if (event.key === 'Enter') saveInventoryOverviewEdit(); if (event.key === 'Escape') { setInventoryOverviewDraft(null); setInventoryOverviewMessage(null); } }} className="w-24 rounded-lg border border-emerald-200 bg-white px-2 py-2 text-center text-sm font-black text-slate-800 outline-none focus:border-[#276556] focus:ring-2 focus:ring-emerald-100"/><span className="text-xs font-bold text-slate-600">{item.minThresholdUnit || item.unit}</span></label> : <span>{toPersian(item.minThreshold)} {item.minThresholdUnit || item.unit}</span>}</td>
                             <td className="whitespace-nowrap px-4 py-3 sm:px-6"><div className="flex items-center gap-2"><span className={`text-xs font-bold ${expiry ? expiryState === 'expired' ? 'text-rose-700' : expiryState === 'soon' ? 'text-amber-800' : 'text-slate-700' : 'text-slate-400'}`}>{expiry ? new Date(`${expiry}T00:00:00`).toLocaleDateString('fa-IR') : 'ثبت نشده'}</span><button type="button" onClick={() => setSelectedBatchItem(item)} aria-label={`ویرایش تاریخ انقضای اجناس ${item.name}`} title={`مدیریت سری خرید و تاریخ انقضای ${item.name}`} className="rounded-lg bg-amber-50 p-2 text-amber-800 hover:bg-amber-100"><CalendarDays size={15}/></button></div></td>
-                            <td className="px-4 py-3 sm:px-6"><span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-black ${isEmpty ? 'bg-slate-100 text-slate-600' : isLow ? 'bg-rose-50 text-rose-700' : editing ? 'bg-white/15 text-white' : 'bg-emerald-50 text-emerald-800'}`}><i className={`h-1.5 w-1.5 rounded-full ${isEmpty ? 'bg-slate-400' : isLow ? 'bg-rose-500' : editing ? 'bg-emerald-200' : 'bg-emerald-500'}`} />{isEmpty ? 'تمام‌شده' : isLow ? 'نیازمند خرید' : 'موجود'}</span></td>
+                            <td className="px-4 py-3 sm:px-6"><span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs ${isEmpty ? 'bg-rose-100 font-black text-rose-800' : isLow ? 'bg-rose-50 font-black text-rose-700' : editing ? 'bg-white/15 font-black text-white' : 'bg-emerald-50 font-black text-emerald-800'}`}><i className={`h-1.5 w-1.5 rounded-full ${isEmpty ? 'bg-rose-600' : isLow ? 'bg-rose-500' : editing ? 'bg-emerald-200' : 'bg-emerald-500'}`} />{isEmpty ? 'تمام‌شده' : isLow ? 'نیازمند خرید' : 'موجود'}</span></td>
                           </tr>;
                         })}
                         {isInlineAddingInventory ? <tr><td colSpan={6} className="bg-emerald-50/60 p-3 sm:p-4">{renderInlineInventoryForm(true)}</td></tr> : <tr><td colSpan={6} className="p-2 sm:p-3"><button type="button" onClick={() => setIsInlineAddingInventory(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/70 px-4 py-3 text-sm font-black text-emerald-800 transition hover:border-emerald-500 hover:bg-emerald-100"><Plus size={18} /> افزودن ردیف جدید</button></td></tr>}
