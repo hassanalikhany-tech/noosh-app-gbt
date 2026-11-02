@@ -11,10 +11,11 @@ import { recipeQuantityProblem } from '../../utils/quantitySanity.mjs';
 interface DishEditorProps {
   dish: Dish;
   onClose: () => void;
-  onSave: () => void;
+  onSave: (dish?: Dish) => void;
+  saveMode?: 'publish' | 'draft';
 }
 
-const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
+const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave, saveMode = 'publish' }) => {
   const [formData, setFormData] = useState<Dish>({ ...dish });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -97,6 +98,11 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
     setIsSaving(true);
     try {
       const rawBasisDish = { ...formData, ingredients: formData.ingredients.map(ingredient => ({ ...ingredient, state: 'raw' as const })) };
+      if (saveMode === 'draft') {
+        onSave(rawBasisDish);
+        onClose();
+        return;
+      }
       const success = await RecipeService.updateDish(formData.id, rawBasisDish);
       if (success) {
         onSave();
@@ -286,7 +292,7 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave }) => {
             className="px-12 py-3.5 bg-emerald-600 text-white rounded-2xl font-black shadow-xl shadow-emerald-100 flex items-center gap-2 hover:bg-emerald-700 active:scale-95 transition-all disabled:opacity-50"
           >
             {isSaving ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> : <Save size={20} />}
-            ذخیره و انتشار تغییرات
+            {saveMode === 'draft' ? 'ذخیرهٔ ویرایش و تأیید رسپی' : 'ذخیره و انتشار تغییرات'}
           </button>
         </div>
       </div>

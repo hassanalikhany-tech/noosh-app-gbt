@@ -32,7 +32,8 @@ export const applyCatalogAction = (source, { action, dish, dishId }) => {
   const catalog = {
     version: 1,
     dishes: Array.isArray(source?.dishes) ? [...source.dishes] : [],
-    hiddenDishIds: Array.isArray(source?.hiddenDishIds) ? [...new Set(source.hiddenDishIds.filter(id => typeof id === 'string'))] : []
+    hiddenDishIds: Array.isArray(source?.hiddenDishIds) ? [...new Set(source.hiddenDishIds.filter(id => typeof id === 'string'))] : [],
+    quantityReviewedDishIds: Array.isArray(source?.quantityReviewedDishIds) ? [...new Set(source.quantityReviewedDishIds.filter(id => typeof id === 'string'))] : []
   };
 
   if (action === 'edit') {

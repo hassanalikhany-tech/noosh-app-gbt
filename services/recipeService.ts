@@ -5,7 +5,7 @@ import { DEFAULT_DISHES } from '../data/recipes';
 import { getHiddenDishIds, getRenamedDishes, getRestoredDishIds, hideDishIds, unhideDishIds } from '../utils/dishStorage';
 import { publicFunctionUrl } from './publicFunctionUrl';
 
-let recipeOverrides: { dishes: Dish[]; hiddenDishIds: string[] } = { dishes: [], hiddenDishIds: [] };
+let recipeOverrides: { dishes: Dish[]; hiddenDishIds: string[]; quantityReviewedDishIds?: string[] } = { dishes: [], hiddenDishIds: [] };
 let bundledCatalogPromise: Promise<void> | null = null;
 let catalogRevision = '';
 
@@ -408,20 +408,45 @@ export const RecipeService = {
     notifyRecipesUpdate(RecipeService.getAllDishes().length);
   },
 
-  publishCatalog: async (dishes = cachedDishes, hiddenDishIds = [...new Set([...getHiddenDishIds(), ...recipeOverrides.hiddenDishIds])].filter(id => !getRestoredDishIds().includes(id))): Promise<{ success: boolean; commit?: string; error?: string }> => {
+  getQuantityReviewedDishIds: (): string[] => [...(recipeOverrides.quantityReviewedDishIds || [])],
+
+  publishCatalog: async (
+    dishes: Dish[] = cachedDishes,
+    hiddenDishIds: string[] = [...new Set([...getHiddenDishIds(), ...recipeOverrides.hiddenDishIds])].filter(id => !getRestoredDishIds().includes(id)),
+    quantityReviewedDishIds: string[] = [...(recipeOverrides.quantityReviewedDishIds || [])],
+  ): Promise<{ success: boolean; commit?: string; error?: string }> => {
     try {
       const response = await fetch('/.netlify/functions/publish-catalog', {
         method: 'POST', credentials: 'same-origin', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ dishes, hiddenDishIds, baseRevision: catalogRevision }),
+        body: JSON.stringify({ dishes, hiddenDishIds, quantityReviewedDishIds, baseRevision: catalogRevision }),
       });
       const result = await response.json();
       if (!response.ok) return { success: false, error: result.error || 'ثبت در GitHub انجام نشد.' };
       if (result.revision) catalogRevision = result.revision;
+      recipeOverrides = { ...recipeOverrides, quantityReviewedDishIds };
       window.dispatchEvent(new CustomEvent('recipes-published', { detail: { commit: result.commit, count: result.count } }));
       return { success: true, commit: result.commit };
     } catch {
       return { success: false, error: 'ارتباط با سرویس انتشار برقرار نشد؛ تغییر روی این دستگاه مانده است.' };
     }
+  },
+
+  publishRecipeAuditBatch: async (reviewedIds: string[], editedDishes: Dish[]): Promise<{ success: boolean; commit?: string; error?: string }> => {
+    const editsById = new Map<string, Dish>(editedDishes.map(dish => [dish.id, { ...dish, localEdited: true }]));
+    const next = cachedDishes.map(dish => editsById.get(dish.id) || dish);
+    if (editsById.size !== editedDishes.length || [...editsById.keys()].some(id => !cachedDishes.some(dish => dish.id === id))) {
+      return { success: false, error: 'یکی از رسپی‌های ویرایش‌شده دیگر در فهرست فعلی نیست؛ صفحه را تازه کن و دوباره بررسی کن.' };
+    }
+    const reviewed = [...new Set([...RecipeService.getQuantityReviewedDishIds(), ...reviewedIds])].filter(id => next.some(dish => dish.id === id));
+    const result = await RecipeService.publishCatalog(next, undefined, reviewed);
+    if (!result.success) return result;
+    cachedDishes = next;
+    if (editedDishes.length) {
+      try { await DB.putMany('dishes', editedDishes.map(dish => next.find(row => row.id === dish.id)!)); }
+      catch { console.warn('Published recipe review batch could not be cached on this device.'); }
+    }
+    notifyRecipesUpdate(cachedDishes.length);
+    return result;
   },
 
   isDishAccessible: (dishId: string, user: UserProfile | null): boolean => {

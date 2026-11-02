@@ -49,12 +49,15 @@ export const handler = async (event) => {
     const dishes = new Map(payload.dishes.map(dish => [dish.id, dish]));
     // An older browser cache must not erase community recipes accepted by an admin.
     for (const dish of existingCatalog?.dishes || []) if (dish?.isCommunityRecipe && !dishes.has(dish.id)) dishes.set(dish.id, dish);
-    const catalog = { version: 1, dishes: [...dishes.values()], hiddenDishIds: [...new Set(payload.hiddenDishIds)] };
+    const submittedReviewIds = payload.quantityReviewedDishIds ?? existingCatalog?.quantityReviewedDishIds ?? [];
+    if (!Array.isArray(submittedReviewIds) || submittedReviewIds.length > 2000 || !submittedReviewIds.every(id => typeof id === 'string' && id.length > 0 && id.length < 180)) return response(400, { error: 'فهرست رسپی‌های ممیزی‌شده معتبر نیست.' });
+    const quantityReviewedDishIds = [...new Set(submittedReviewIds.filter(id => dishes.has(id)))];
+    const catalog = { version: 1, dishes: [...dishes.values()], hiddenDishIds: [...new Set(payload.hiddenDishIds)], quantityReviewedDishIds };
     const content = JSON.stringify(catalog, null, 2) + '\n';
     const committed = await fetch(base, { method: 'PUT', headers: { ...headers, 'content-type': 'application/json' }, body: JSON.stringify({ message: 'Update Noosh recipes from admin panel', content: Buffer.from(content).toString('base64'), branch, ...(sha ? { sha } : {}) }) });
     const result = await committed.json().catch(() => ({}));
     if (!committed.ok) return response(502, { error: committed.status === 409 ? 'همزمان نسخهٔ دیگری تغییر کرده؛ صفحه را تازه کن و دوباره ذخیره کن.' : 'ثبت تغییرات در GitHub انجام نشد. دسترسی توکن و شاخهٔ main را بررسی کن.' });
-    return response(200, { commit: result.commit?.sha, revision: createHash('sha256').update(JSON.stringify(catalog)).digest('hex'), count: payload.dishes.length, deploy: 'Netlify deploy will start after the GitHub commit.' });
+    return response(200, { commit: result.commit?.sha, revision: createHash('sha256').update(JSON.stringify(catalog)).digest('hex'), count: payload.dishes.length, reviewedCount: quantityReviewedDishIds.length, deploy: 'Netlify deploy will start after the GitHub commit.' });
   } catch (error) {
     if ([400, 413].includes(error?.statusCode)) return response(error.statusCode, { error: error.message });
     return response(500, { error: 'ارتباط امن با GitHub انجام نشد؛ نسخهٔ اصلی دست‌نخورده ماند.' });

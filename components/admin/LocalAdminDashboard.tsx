@@ -14,6 +14,7 @@ const PantryUnitManager = lazy(() => import('./PantryUnitManager'));
 const CsvToJsonConverter = lazy(() => import('./CsvToJsonConverter'));
 const BackupManager = lazy(() => import('./BackupManager'));
 const DatabaseManager = lazy(() => import('./DatabaseManager'));
+const RecipeAuditQueue = lazy(() => import('./RecipeAuditQueue'));
 
 interface LocalAdminDashboardProps {
   onExit: () => void;
@@ -122,13 +123,14 @@ const LocalAdminDashboard: React.FC<LocalAdminDashboardProps> = ({ onExit, onLog
 
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-8 sm:py-9">
         <nav aria-label="بخش‌های مدیریت" className="flex flex-wrap gap-2">{[
-          ['catalog','فهرست و ویرایش غذاها'], ['images','مدیریت عکس‌ها'], ['database','ورود و خروجی غذاها'],
+          ['catalog','فهرست و ویرایش غذاها'], ['recipe-audit','ممیزی رسپی‌ها'], ['images','مدیریت عکس‌ها'], ['database','ورود و خروجی غذاها'],
           ['duplicates','اصلاح غذاهای تکراری'], ['pantry-units','واحدهای انبار'], ['units','مغایرت واحد رسپی‌ها'], ['converter','مبدل اکسل'], ['backup','پشتیبان و بازیابی'], ['unavailable','بخش‌های وابسته به سرور'],
           ['community','رسپی‌های ارسالی کاربران'], ['feedback','بازخورد همراهان'], ['notifications','اعلان همگانی'],
         ].map(([id,label]) => <button key={id} onClick={() => setTab(id)} aria-pressed={tab === id} className={`rounded-xl px-4 py-3 text-sm font-bold ${tab === id ? 'bg-emerald-900 text-white' : 'bg-white text-slate-700'}`}>{label}</button>)}</nav>
         <p role="status" aria-live="polite" className={`rounded-xl p-3 text-sm leading-7 ${publishMessage.includes('انجام نشد') ? 'bg-rose-50 text-rose-800' : 'bg-emerald-50 text-emerald-900'}`}>{publishMessage || 'تغییرهای کتابخانهٔ غذا در GitHub منتشر می‌شوند؛ بازخورد کاربران و اعلان‌های همگانی در فضای خصوصی Netlify ثبت می‌شوند.'}</p>
         <Suspense fallback={<p role="status">در حال آماده‌سازی ابزار…</p>}>
           {tab === 'community' && <CommunityRecipeReview />}
+          {tab === 'recipe-audit' && <RecipeAuditQueue />}
           {tab === 'images' && <ImageGuide />}
           {tab === 'database' && <DatabaseManager />}
           {tab === 'duplicates' && <DuplicateResolver />}
