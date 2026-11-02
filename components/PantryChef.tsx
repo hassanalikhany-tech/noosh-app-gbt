@@ -151,6 +151,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('1');
   const [newItemUnit, setNewItemUnit] = useState('');
+  const [newItemThreshold, setNewItemThreshold] = useState('0');
+  const [newItemThresholdUnit, setNewItemThresholdUnit] = useState('');
   const [newItemExpiry, setNewItemExpiry] = useState('');
   const [newItemUnitPrice, setNewItemUnitPrice] = useState('');
   const [addMessage, setAddMessage] = useState('');
@@ -388,16 +390,21 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     setAddMessage(converted.estimated ? `مقدار ${item.name} با وزن مرجع متوسط تبدیل شد؛ برای دقت کامل، وزن واقعی را وارد کن.` : `واحد ${item.name} با حفظ مقدار واقعی تغییر کرد.`);
   };
 
-  const addToInventory = async (itemName: string, amount = 1, unit?: string, focusNext = false, expiresOn = '', unitPrice?: number) => {
+  const addToInventory = async (itemName: string, amount = 1, unit?: string, focusNext = false, expiresOn = '', unitPrice?: number, minThreshold = 0, minThresholdUnit?: string) => {
     const cleanName = itemName.trim();
     if (!cleanName || !Number.isFinite(amount) || amount <= 0) return;
-    const prepareNextEntry = () => {
+    const prepareNextEntry = (nextColumn = inventory.length % 2) => {
       setNewItemName('');
       setNewItemAmount('1');
       setNewItemUnit('');
+      setNewItemThreshold('0');
+      setNewItemThresholdUnit('');
       setNewItemExpiry('');
       setNewItemUnitPrice('');
-      if (focusNext) window.requestAnimationFrame(() => newItemNameRef.current?.focus());
+      if (focusNext) {
+        setInventoryFormColumn(nextColumn);
+        window.requestAnimationFrame(() => newItemNameRef.current?.focus());
+      }
     };
     const existingItem = inventory.find(item => isInventoryIngredientMatch(item.name, cleanName));
     if (existingItem) {
@@ -417,11 +424,10 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       onUpdateUser({ ...user, inventory: newInventory, purchaseHistory });
       UserService.updateProfile(user.username, { inventory: newInventory, purchaseHistory }).catch(error => console.error('Failed to save purchase:', error));
       setAddMessage(`${cleanName} به موجودی اضافه شد؛ واحد قبلی ${existingItem.unit} حفظ شد.`);
-      prepareNextEntry();
+      prepareNextEntry(inventory.length % 2);
       return;
     }
 
-    const defaultThreshold = 0;
     const selectedUnit = unit || suggestPantryUnit(cleanName);
     const receivedAt = Date.now();
     const newBatch = { id: globalThis.crypto?.randomUUID?.() || `lot-${receivedAt}`, amount, purchaseAmount: amount, ...(Number.isFinite(unitPrice) && unitPrice! > 0 ? { unitPrice } : {}), ...(expiresOn ? { expiresOn } : {}), receivedAt, lastPurchasedAt: receivedAt };
@@ -430,8 +436,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       name: cleanName,
       amount,
       unit: selectedUnit,
-      minThreshold: defaultThreshold,
-      minThresholdUnit: selectedUnit,
+      minThreshold: Number.isFinite(minThreshold) && minThreshold >= 0 ? minThreshold : 0,
+      minThresholdUnit: minThresholdUnit || selectedUnit,
       lastUpdated: Date.now(),
       stockBatches: [newBatch]
     };
@@ -445,7 +451,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       console.error("Failed to sync inventory add:", err);
     });
     setAddMessage(`${cleanName} به انبار اضافه شد.`);
-    prepareNextEntry();
+    prepareNextEntry((inventory.length + 1) % 2);
   };
 
   const updatePurchaseDraft = (id: string, patch: Partial<PurchasedItemDraft>) => {
@@ -611,21 +617,30 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   const selectedPurchaseItem = inventory.find(item => newItemName.trim() && isInventoryIngredientMatch(item.name, newItemName.trim()));
   const purchaseLimitReached = Boolean(selectedPurchaseItem && activePurchaseBatchCount(getInventoryBatches(selectedPurchaseItem)) >= MAX_ACTIVE_PURCHASE_BATCHES);
 
-  const toggleInventoryForm = (column: number) => {
+  const nextInventoryColumn = inventory.length % 2;
+  const toggleInventoryForm = () => {
     setAddMessage('');
-    setInventoryFormColumn(current => current === column ? null : column);
+    setInventoryFormColumn(current => current === null ? nextInventoryColumn : null);
   };
 
-  const renderInlineInventoryForm = (compact = false) => <form onSubmit={event => { event.preventDefault(); const price = Number(newItemUnitPrice); void addToInventory(newItemName, Number(newItemAmount), newItemUnit || suggestPantryUnit(newItemName), true, newItemExpiry, Number.isFinite(price) && price > 0 ? price : undefined); }} className={`grid gap-2 ${compact ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-4'}`}>
-    <FoodIngredientCombobox id={`inline-pantry-name-${compact ? 'modal' : 'list'}`} inputRef={newItemNameRef} value={newItemName} onChange={value => { setNewItemName(value); setNewItemUnit(value.trim() ? suggestPantryUnit(value) : ''); }} onSelect={value => setNewItemUnit(suggestPantryUnit(value))} placeholder="نام ماده را جست‌وجو یا وارد کن…" />
-    <input aria-label="مقدار قلم تازه" title="مقدار" placeholder="مقدار" type="number" min="0" step="any" value={newItemAmount} onChange={event => setNewItemAmount(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-center text-sm font-black outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" />
-    {newItemName.trim() && !PANTRY_ITEMS.some(category => category.subcategories.some(group => group.items.some(item => normalizePersian(item).trim() === normalizePersian(newItemName).trim()))) ? <><label className="sr-only" htmlFor={`inline-pantry-unit-${compact ? 'modal' : 'list'}`}>واحد مادهٔ دلخواه</label><select id={`inline-pantry-unit-${compact ? 'modal' : 'list'}`} aria-label="واحد مادهٔ دلخواه" value={newItemUnit || suggestPantryUnit(newItemName)} onChange={event => setNewItemUnit(event.target.value)} className="min-h-11 min-w-0 rounded-xl border border-slate-200 bg-white px-2 text-xs font-black text-slate-700 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100">{PANTRY_UNIT_OPTIONS.map(unit => <option key={unit} value={unit}>{unit}</option>)}</select></> : <span className="flex min-h-11 items-center justify-center rounded-xl bg-emerald-50 px-3 text-xs font-black text-emerald-800">{newItemName.trim() ? `واحد استاندارد: ${suggestPantryUnit(newItemName)}` : 'واحد پس از انتخاب ماده'}</span>}
-    <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-500"><CalendarDays size={15} className="shrink-0 text-[#276556]"/><span className="sr-only">تاریخ انقضا (اختیاری)</span><input aria-label="تاریخ انقضای سری خرید" title="تاریخ انقضا (اختیاری)" type="date" value={newItemExpiry} onChange={event => setNewItemExpiry(event.target.value)} className="min-w-0 w-full bg-transparent text-xs text-slate-700 outline-none" /></label>
-    <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-500"><span className="shrink-0">تومان / {newItemUnit || (newItemName.trim() ? suggestPantryUnit(newItemName) : 'واحد')}</span><input aria-label={`قیمت هر ${newItemUnit || (newItemName.trim() ? suggestPantryUnit(newItemName) : 'واحد')} به تومان (اختیاری)`} type="number" min="0.01" step="any" value={newItemUnitPrice} onChange={event => setNewItemUnitPrice(event.target.value)} placeholder="اختیاری" className="min-w-0 w-full bg-transparent text-xs text-slate-700 outline-none" /></label>
-    {purchaseLimitReached && <p role="status" className="sm:col-span-full rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">دو سری خرید فعال برای این ماده ثبت شده؛ پس از مصرف بخشی از آن‌ها، خرید بعدی را اضافه کن.</p>}
-    <button type="submit" disabled={!newItemName.trim() || !Number.isFinite(Number(newItemAmount)) || Number(newItemAmount) <= 0 || purchaseLimitReached} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-xs font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Save size={16} /> ذخیره در انبار</button>
-    <button type="button" aria-label="بستن ردیف افزودن" onClick={() => setInventoryFormColumn(null)} className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-3 py-3 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={17} /></button>
-  </form>;
+  const renderInlineInventoryForm = (compact = false) => {
+    const customItem = newItemName.trim() && !PANTRY_ITEMS.some(category => category.subcategories.some(group => group.items.some(item => normalizePersian(item).trim() === normalizePersian(newItemName).trim())));
+    const suggestedUnit = newItemUnit || suggestPantryUnit(newItemName);
+    const submit = (event: React.FormEvent) => {
+      event.preventDefault();
+      const price = Number(newItemUnitPrice);
+      void addToInventory(newItemName, Number(newItemAmount), suggestedUnit, true, newItemExpiry, Number.isFinite(price) && price > 0 ? price : undefined, Number(newItemThreshold) || 0, newItemThresholdUnit || suggestedUnit);
+    };
+    return <form id={`inventory-add-row-${inventoryFormColumn ?? 0}`} onSubmit={submit} className={`grid items-stretch gap-1.5 ${compact ? 'min-w-[500px] grid-cols-[27%_17%_18%_16%_10%_12%]' : 'grid-cols-1 sm:grid-cols-2'}`}>
+      <div className="min-w-0 p-1"><FoodIngredientCombobox id={`inline-pantry-name-${compact ? inventoryFormColumn ?? 0 : 'empty'}`} inputRef={newItemNameRef} value={newItemName} onChange={value => { const unit = value.trim() ? suggestPantryUnit(value) : ''; setNewItemName(value); setNewItemUnit(unit); setNewItemThresholdUnit(unit); }} onSelect={value => { const unit = suggestPantryUnit(value); setNewItemUnit(unit); setNewItemThresholdUnit(unit); }} placeholder="نام ماده را جست‌وجو یا وارد کن…" /></div>
+      <div className="flex min-w-0 flex-col justify-center gap-1 p-1"><input aria-label="موجودی اولیه" title="موجودی اولیه" placeholder="مقدار" type="number" min="0" step="any" value={newItemAmount} onChange={event => setNewItemAmount(event.target.value)} className="w-full rounded-lg border border-emerald-200 bg-white px-1.5 py-2 text-center text-[11px] font-black outline-none focus:ring-2 focus:ring-emerald-100"/>{customItem ? <select aria-label="واحد موجودی" value={suggestedUnit} onChange={event => { setNewItemUnit(event.target.value); setNewItemThresholdUnit(event.target.value); }} className="w-full rounded-lg border border-slate-200 bg-white px-1 py-1 text-[9px]">{PANTRY_UNIT_OPTIONS.map(unit => <option key={unit} value={unit}>{unit}</option>)}</select> : <span className="truncate text-center text-[9px] font-bold text-emerald-800">{newItemName ? suggestPantryUnit(newItemName) : 'واحد'}</span>}</div>
+      <div className="flex min-w-0 flex-col justify-center gap-1 p-1"><input aria-label="آستانهٔ هشدار اولیه" title="آستانهٔ هشدار" placeholder="آستانه" type="number" min="0" step="any" value={newItemThreshold} onChange={event => setNewItemThreshold(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-1.5 py-2 text-center text-[10px] font-bold"/><select aria-label="واحد آستانهٔ هشدار" value={newItemThresholdUnit || suggestedUnit} onChange={event => setNewItemThresholdUnit(event.target.value)} className="w-full rounded-lg border border-slate-200 bg-white px-1 py-1 text-[9px]">{PANTRY_UNIT_OPTIONS.map(unit => <option key={unit} value={unit}>{unit}</option>)}</select></div>
+      <div className="flex min-w-0 flex-col justify-center gap-1 p-1"><input aria-label="تاریخ انقضا" title="تاریخ انقضا" type="date" value={newItemExpiry} onChange={event => setNewItemExpiry(event.target.value)} className="w-full min-w-0 rounded-lg border border-slate-200 bg-white px-1 py-2 text-[9px] text-slate-700"/><input aria-label="قیمت واحد به تومان (اختیاری)" title="قیمت واحد به تومان (اختیاری)" type="number" min="0.01" step="any" value={newItemUnitPrice} onChange={event => setNewItemUnitPrice(event.target.value)} placeholder="قیمت (تومان)" className="w-full min-w-0 rounded-lg border border-slate-200 bg-white px-1.5 py-1.5 text-center text-[9px]"/></div>
+      <div className="flex items-center justify-center p-1"><span className="rounded-full bg-emerald-50 px-1.5 py-1 text-center text-[9px] font-black text-emerald-800">قلم تازه</span></div>
+      <div className="flex flex-col items-center justify-center gap-1 p-1"><button type="submit" form={`inventory-add-row-${inventoryFormColumn ?? 0}`} disabled={!newItemName.trim() || !Number.isFinite(Number(newItemAmount)) || Number(newItemAmount) <= 0 || !Number.isFinite(Number(newItemThreshold)) || Number(newItemThreshold) < 0 || purchaseLimitReached} title="ذخیره در انبار" aria-label="ذخیره در انبار" className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-700 text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Save size={14}/></button><button type="button" aria-label="لغو افزودن ماده" title="لغو" onClick={() => setInventoryFormColumn(null)} className="grid h-7 w-7 place-items-center rounded-lg bg-slate-100 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={13}/></button></div>
+      {purchaseLimitReached && <p role="status" className="col-span-6 rounded-lg bg-amber-50 px-2 py-1.5 text-[9px] font-bold text-amber-900">دو سری خرید فعال برای این ماده ثبت شده؛ تا مصرف بخشی از آن‌ها، خرید تازه را اضافه نکن.</p>}
+    </form>;
+  };
 
   const sortedInventory = useMemo(() => [...inventory].sort((a, b) => a.name.localeCompare(b.name, 'fa')), [inventory]);
   const inventoryColumns = useMemo(() => [sortedInventory.filter((_, index) => index % 2 === 0), sortedInventory.filter((_, index) => index % 2 === 1)], [sortedInventory]);
@@ -635,7 +650,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       <table className="w-full min-w-[500px] table-fixed border-collapse text-right text-[11px]">
         <colgroup><col className="w-[27%]"/><col className="w-[17%]"/><col className="w-[18%]"/><col className="w-[16%]"/><col className="w-[10%]"/><col className="w-[12%]"/></colgroup>
         <thead className="sticky top-0 z-10 bg-[#eaf3ed] text-[10px] font-black text-[#214e3d] sm:text-[11px]">
-          <tr><th className="px-2 py-3">مادهٔ غذایی</th><th className="px-1.5 py-3">موجودی</th><th className="px-1.5 py-3">آستانه</th><th className="px-1.5 py-3">تاریخ انقضا</th><th className="px-1 py-3">وضعیت</th><th className="px-1 py-3">عملیات</th></tr>
+          <tr><th className="px-2 py-3">مادهٔ غذایی</th><th className="px-1.5 py-3">موجودی</th><th className="px-1.5 py-3">آستانهٔ هشدار</th><th className="px-1 py-3">انقضا / قیمت</th><th className="px-1 py-3">وضعیت</th><th className="px-1 py-3">عملیات</th></tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
           {items.map(item => {
@@ -653,8 +668,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
               <td className="px-1 py-2.5"><div className="flex items-center justify-center gap-1"><button type="button" onClick={() => setSelectedInventoryItemId(editing ? null : item.id)} aria-label={`${editing ? 'پایان ویرایش' : 'ویرایش'} ${item.name}`} title="ویرایش" className={`grid h-7 w-7 place-items-center rounded-md ${editing ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-emerald-100'}`}><Pencil size={12}/></button><button type="button" onClick={() => removeFromInventory(item.id)} aria-label={`حذف ${item.name} از انبار`} title="حذف" className="grid h-7 w-7 place-items-center rounded-md bg-rose-50 text-rose-600 hover:bg-rose-100"><Trash2 size={12}/></button></div></td>
             </tr>;
           })}
-          {inventoryFormColumn === column && <tr><td colSpan={6} className="bg-emerald-50/60 p-2"><div className="min-w-[500px]">{renderInlineInventoryForm(true)}</div></td></tr>}
-          <tr><td colSpan={6} className="p-2"><button type="button" onClick={() => toggleInventoryForm(column)} className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-emerald-300 bg-emerald-50/70 px-3 py-2 text-xs font-black text-emerald-800 transition hover:bg-emerald-100"><Plus size={15}/>{inventoryFormColumn === column ? 'بستن ردیف افزودن' : 'افزودن مادهٔ غذایی'}</button></td></tr>
+          {inventoryFormColumn === column && <tr><td colSpan={6} className="bg-emerald-50/60 p-1">{renderInlineInventoryForm(true)}</td></tr>}
         </tbody>
       </table>
     </div>
@@ -798,16 +812,16 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-[10px] text-slate-400 font-black">{toPersian(inventory.length)} قلم در انبار</span>
                           <InventoryHistory user={user} onUpdateUser={onUpdateUser}/>
-                          <button type="button" onClick={() => toggleInventoryForm(0)} className="noosh-cta-3d inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black">
-                            <Plus size={16} /> {inventoryFormColumn === 0 ? 'بستن فرم افزودن' : 'افزودن مادهٔ غذایی'}
+                          <button type="button" onClick={toggleInventoryForm} className="noosh-cta-3d inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black">
+                            <Plus size={16} /> {inventoryFormColumn !== null ? 'بستن فرم افزودن' : 'افزودن مادهٔ غذایی'}
                           </button>
                         </div>
                       </div>
 
                       <div className="bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm">
                         {inventory.length > 0 ? (
-                          <div className={`grid items-start gap-3 p-3 sm:gap-4 sm:p-4 ${inventory.length > 1 ? 'xl:grid-cols-2' : 'grid-cols-1'}`}>
-                            {inventoryColumns.map((items, column) => (items.length > 0 || column === 0) && renderInventoryColumn(items, column))}
+                          <div className="grid items-start gap-3 p-3 sm:gap-4 sm:p-4 xl:grid-cols-2">
+                            {inventoryColumns.map((items, column) => renderInventoryColumn(items, column))}
                           </div>
                         ) : (
                           <div className="pantry-empty-state">
