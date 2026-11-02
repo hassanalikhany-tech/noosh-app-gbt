@@ -42,7 +42,7 @@ const ToggleSwitch = ({ isActive, onChange, label }: { isActive: boolean; onChan
   );
 };
 
-const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout, onNotify, onToggleFilter, installPrompt, isAppInstalled, onInstallPromptConsumed }) => {
+const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout, onNotify, onToggleFilter, installPrompt, isAppInstalled, onInstallPromptConsumed, onOpenInventory }) => {
   const [ingredientSearch, setIngredientSearch] = useState('');
   const [settingsTab, setSettingsTab] = useState<'planning' | 'taste' | 'recipes' | 'purchases' | 'device'>('planning');
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
