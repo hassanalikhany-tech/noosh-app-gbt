@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowLeft, CalendarDays, ChefHat, Clock3, Heart, Leaf, Loader2, Printer, ShoppingBag, Sparkles, Undo2, Zap, ReceiptText } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { CalendarDays, ChefHat, Clock3, Heart, Leaf, Loader2, Printer, ShoppingBag, Sparkles, Undo2, Zap, ReceiptText } from 'lucide-react';
 import { DayPlan, UserProfile } from '../types';
 import MealCard from './MealCard';
 import { estimateRecipeCost } from '../utils/recipeCosts';
@@ -37,7 +38,7 @@ export default function PlanDashboard(props: Props) {
       missingIngredients: [...total.missingIngredients, ...estimate.missingIngredients],
       approximate: total.approximate || estimate.approximate,
     }), { pricedSubtotal: 0, pricedRows: 0, eligibleRows: 0, missingIngredients: [] as string[], approximate: false });
-  return <div className="plan-dashboard">
+  return <div className={`plan-dashboard${plan.length ? ' has-plan' : ''}`}>
     <div className="dashboard-inner">
       <section className="planner-hero planner-hero-with-controls" aria-labelledby="planner-title">
         <div className="planner-hero-title-row"><div><span className="planner-hero-eyebrow">کمتر فکر کن، متنوع‌تر بپز</span><h2 id="planner-title">برنامهٔ غذایی من</h2></div>
@@ -52,8 +53,8 @@ export default function PlanDashboard(props: Props) {
         </figure>
         </div>
         <div className="planner-controls planner-hero-controls"><div className="period-switch" aria-label="بازه برنامه">
-          {([{ id: 'daily', label: 'امروز' }, { id: 'weekly', label: 'یک هفته' }, { id: 'monthly', label: '۳۰ روز' }] as const).map(item => <button key={item.id} aria-pressed={period === item.id} onClick={() => setPeriod(item.id)} className={period === item.id ? 'selected' : ''}>{item.label}</button>)}
-        </div><div className="diet-filters">{filters.map(({ key, label, icon: Icon }) => <button key={key} aria-pressed={!!user[key]} className={user[key] ? 'active' : ''} onClick={() => props.onToggleFilter(key)}><Icon size={16} />{label}</button>)}</div>
+          {([{ id: 'daily', label: 'امروز' }, { id: 'weekly', label: 'یک هفته' }, { id: 'monthly', label: '۳۰ روز' }] as const).map(item => <button key={item.id} aria-pressed={period === item.id} onClick={() => setPeriod(item.id)} className={period === item.id ? 'selected noosh-cta-3d' : ''}>{item.label}</button>)}
+        </div><div className="diet-filters">{filters.map(({ key, label, icon: Icon }) => <button key={key} aria-pressed={!!user[key]} className={user[key] ? 'active noosh-cta-3d' : ''} onClick={() => props.onToggleFilter(key)}><Icon size={16} />{label}</button>)}</div>
           <button className="generate-button noosh-cta-3d" disabled={!!loading} onClick={() => props.onGenerate(period)}>{loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}{loading ? 'در حال چیدن برنامه…' : plan.length ? 'برنامهٔ تازه بچین' : 'برنامه‌ام را بچین'}</button>
         </div>
       </section>
@@ -71,9 +72,9 @@ export default function PlanDashboard(props: Props) {
             <button type="button" className="price-update-cta noosh-cta-3d inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2 text-xs font-black" onClick={props.onOpenInventory}><ReceiptText size={16}/>به‌روزرسانی قیمت‌ها</button>
           </section>}
           <div className="meal-grid">{plan.map((item, index) => <MealCard key={`${index}-${item.dish.id}`} plan={item} user={user} onUpdateUser={props.onUpdateUser} onRefresh={() => props.onRefresh(index)} onOpenInventory={props.onOpenInventory} />)}</div>
-          <button className="shopping-banner" onClick={props.onShopping} disabled={props.shoppingLoading}>{props.shoppingLoading ? <Loader2 className="animate-spin" /> : <ShoppingBag />}<span><strong>مواد لازم را به لیست خرید اضافه کن</strong><small>{user.kitchenMode === 'without-inventory' ? 'مقدار کامل مواد لازم برای دستورهای برنامه' : 'مقدار کسری پس از کسر موجودی ثبت‌شده'}</small></span><ArrowLeft size={20} /></button>
         </> : <div className="plan-empty"><div><CalendarDays size={34} /></div><h3>این‌جا جای برنامهٔ خوشمزهٔ توست</h3><p>بازه و سلیقه‌ات را انتخاب کن و «برنامه‌ام را بچین» را بزن.<br />هر غذایی را هم نپسندیدی، با یک لمس عوضش کن.</p></div>}
       </section>
+      {plan.length > 0 && createPortal(<button type="button" className="shopping-banner noosh-cta-3d" onClick={props.onShopping} disabled={props.shoppingLoading}>{props.shoppingLoading ? <Loader2 className="animate-spin" /> : <ShoppingBag />}<span><strong>{user.kitchenMode === 'without-inventory' ? 'مواد لازم را به سبد خرید اضافه کن' : 'کسری مواد را به سبد خرید اضافه کن'}</strong><small>{user.kitchenMode === 'without-inventory' ? 'مقدار کامل مواد لازم برای دستورهای برنامه' : 'پس از کسر موجودی ثبت‌شده'}</small></span></button>, document.body)}
       <p className="dashboard-signoff">با حوصله انتخاب کن. با عشق بپز. نوش جان ♡</p>
     </div>
   </div>;
