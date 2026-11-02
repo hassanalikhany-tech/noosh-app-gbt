@@ -267,7 +267,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                       <p className="mt-1 text-[11px] leading-5 text-slate-600">با افزودن به صفحهٔ اصلی، بدون نوار آدرس باز می‌شود.</p>
                     </div>
                   </div>
-                  <button type="button" onClick={() => isAppInstalled ? setShowInstallHelp(value => !value) : void installApp()} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#276556] px-3.5 py-2 text-[11px] font-black text-white transition hover:bg-[#347866]">
+                  <button type="button" onClick={() => isAppInstalled ? setShowInstallHelp(value => !value) : void installApp()} className="noosh-cta-3d inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black sm:text-sm">
                     {isAppInstalled ? <CheckCircle size={17}/> : installPrompt ? <Download size={17}/> : <Share size={17}/>}
                     {isAppInstalled ? 'نوش نصب شده است' : installPrompt ? 'نصب نوش' : 'راهنمای افزودن به صفحهٔ اصلی'}
                   </button>

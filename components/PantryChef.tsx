@@ -778,7 +778,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                          <button
                           key={filter.id}
                           onClick={() => setActiveFilter(filter.id as ResultFilter)}
-                          className={`flex-grow px-3 py-2.5 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl text-[9px] sm:text-xs font-black flex items-center justify-center gap-1.5 sm:gap-2 transition-all border-2 ${activeFilter === filter.id ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white border-transparent text-slate-500 hover:border-slate-200'}`}
+                          className={`flex-grow px-3 py-2.5 sm:px-6 sm:py-4 rounded-xl sm:rounded-2xl text-[9px] sm:text-xs font-black flex items-center justify-center gap-1.5 sm:gap-2 transition-all border-2 ${activeFilter === filter.id ? 'noosh-cta-3d' : 'bg-white border-transparent text-slate-500 hover:border-slate-200'}`}
                          >
                            <filter.icon size={12} sm:size={16} />
                            {filter.label}
