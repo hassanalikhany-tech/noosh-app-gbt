@@ -14,7 +14,7 @@ import NotificationCenter from './components/NotificationCenter';
 import { RecipeService } from './services/recipeService';
 import { UserService } from './services/userService';
 import { NotificationService } from './services/notificationService';
-import { DayPlan, KitchenMode, UserProfile, CATEGORY_LABELS, DishCategory, Notification } from './types';
+import { DayPlan, KitchenMode, ShoppingItem, UserProfile, CATEGORY_LABELS, DishCategory, Notification } from './types';
 import { filterDishes, generateDailyPlan, generateWeeklyPlan, generateMonthlyPlan, generateSingleReplacement } from './utils/planner';
 import { getShoppingShortages, parseQuantity } from './utils/recipeHelpers';
 import { getBaseIngredientName } from './data/pantry';
@@ -334,6 +334,40 @@ const AppContent: React.FC = () => {
   const openInventoryForPrices = async () => {
     if (currentUser?.kitchenMode === 'without-inventory') await handleKitchenModeChange('with-inventory');
     setViewMode('inventory');
+  };
+
+  const handleReceivePurchasedItems = async (items: ShoppingItem[]) => {
+    if (!currentUser || !items.length) return;
+    const selectedIds = new Set(items.map(item => item.id));
+    const remainingShopping = (currentUser.customShoppingList || []).filter(item => !selectedIds.has(item.id));
+    const updatedUser = {
+      ...currentUser,
+      customShoppingList: remainingShopping,
+      pendingPurchasedItems: [...(currentUser.pendingPurchasedItems || []), ...items.map(item => ({ ...item, checked: false }))],
+    };
+    setCurrentUser(updatedUser);
+    await UserService.updateProfile(currentUser.username, {
+      customShoppingList: remainingShopping,
+      pendingPurchasedItems: updatedUser.pendingPurchasedItems,
+    });
+    setIsShoppingListOpen(false);
+    await openInventoryForPrices();
+  };
+
+  const handleCancelPurchasedItems = async (items: ShoppingItem[]) => {
+    if (!currentUser || !items.length) return;
+    const restored = items.map(item => ({ ...item, checked: false }));
+    const updatedUser = {
+      ...currentUser,
+      customShoppingList: [...(currentUser.customShoppingList || []), ...restored],
+      pendingPurchasedItems: [],
+    };
+    setCurrentUser(updatedUser);
+    await UserService.updateProfile(currentUser.username, {
+      customShoppingList: updatedUser.customShoppingList,
+      pendingPurchasedItems: [],
+    });
+    setIsShoppingListOpen(true);
   };
 
   const handleGeneratePlan = async (type: 'daily' | 'weekly' | 'monthly') => {
@@ -714,7 +748,7 @@ const AppContent: React.FC = () => {
           }}
         />}
         {viewMode === 'pantry' && <PantryChef page="home" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} />}
-        {viewMode === 'inventory' && <PantryChef page="inventory" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} />}
+        {viewMode === 'inventory' && <PantryChef page="inventory" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} pendingPurchasedItems={currentUser?.pendingPurchasedItems || []} onPurchasedItemsCancel={handleCancelPurchasedItems} />}
         {viewMode === 'search' && <RecipeSearch user={currentUser!} onUpdateUser={setCurrentUser} onOpenInventory={openInventoryForPrices} externalSearchTerm={globalSearchTerm} creatorRequest={creatorRequest} onCreatorRequestHandled={() => setCreatorRequest(null)} />}
         {viewMode === 'settings' && (
           <Preferences 
@@ -770,6 +804,7 @@ const AppContent: React.FC = () => {
                   weeklyPlan={displayPlan} 
                   onUpdateUser={setCurrentUser} 
                   onPrintInternal={() => window.print()}
+                  onPurchased={handleReceivePurchasedItems}
                 />
               </div>
            </div>

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ShoppingCart, CheckCircle2, Printer, Trash2, Plus, MessageCircle, AlertTriangle, Smartphone, X, Ruler, Pencil, Check } from 'lucide-react';
+import { ShoppingCart, CheckCircle2, Printer, Trash2, Plus, MessageCircle, AlertTriangle, Smartphone, X, Ruler, Pencil, Check, PackageCheck, Loader2 } from 'lucide-react';
 import { ShoppingItem, UserProfile, DayPlan } from '../types';
 import { UserService } from '../services/userService';
 import { getIngredientCategoryId, getBaseIngredientName } from '../data/pantry';
@@ -10,6 +10,7 @@ interface ShoppingListProps {
   user: UserProfile;
   onUpdateUser: (user: UserProfile) => void;
   onPrintInternal?: () => void;
+  onPurchased: (items: ShoppingItem[]) => Promise<void> | void;
 }
 
 const TelegramIcon = () => (
@@ -18,7 +19,7 @@ const TelegramIcon = () => (
   </svg>
 );
 
-const ShoppingList: React.FC<ShoppingListProps> = ({ user, weeklyPlan, onUpdateUser, onPrintInternal }) => {
+const ShoppingList: React.FC<ShoppingListProps> = ({ user, weeklyPlan, onUpdateUser, onPrintInternal, onPurchased }) => {
   const [customItems, setCustomItems] = useState<ShoppingItem[]>(user.customShoppingList || []);
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('');
@@ -28,6 +29,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ user, weeklyPlan, onUpdateU
   const [draftAmount, setDraftAmount] = useState('');
   const [draftUnit, setDraftUnit] = useState('');
   const [quantityError, setQuantityError] = useState('');
+  const [isReceivingPurchases, setIsReceivingPurchases] = useState(false);
   
   useEffect(() => {
     setCustomItems(user.customShoppingList || []);
@@ -38,6 +40,14 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ user, weeklyPlan, onUpdateU
   }, [customItems]);
 
   const activeItems = useMemo(() => uniqueItems.filter(i => !i.checked), [uniqueItems]);
+  const checkedItems = useMemo(() => uniqueItems.filter(item => item.checked), [uniqueItems]);
+
+  const receiveCheckedItems = async () => {
+    if (!checkedItems.length || isReceivingPurchases) return;
+    setIsReceivingPurchases(true);
+    try { await onPurchased(checkedItems); }
+    finally { setIsReceivingPurchases(false); }
+  };
 
   const groupedItems = useMemo(() => {
     const groups: Record<string, ShoppingItem[]> = {
@@ -397,6 +407,13 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ user, weeklyPlan, onUpdateU
             </div>
           </div>
         </div>
+        {checkedItems.length > 0 && <footer className="no-print flex flex-col gap-2 border-t border-emerald-100 bg-white px-4 py-3 shadow-[0_-8px_24px_rgba(39,101,86,.08)] sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <p className="text-xs font-bold text-slate-600">{toPersianDigits(checkedItems.length)} قلم انتخاب شده · اقلام انتخاب‌نشده در سبد می‌مانند</p>
+          <button type="button" onClick={() => void receiveCheckedItems()} disabled={isReceivingPurchases} className="noosh-cta-3d inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-black disabled:cursor-wait">
+            {isReceivingPurchases ? <Loader2 size={18} className="animate-spin" /> : <PackageCheck size={18} />}
+            {isReceivingPurchases ? 'در حال انتقال…' : 'خریداری شدند'}
+          </button>
+        </footer>}
       </div>
     </div>
   );

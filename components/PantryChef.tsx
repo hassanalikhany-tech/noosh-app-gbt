@@ -2,10 +2,10 @@ import { normalizePersian } from '../utils/text';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChefHat, Sparkles, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, Check, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Minus, Save, ShoppingCart, Pencil, CalendarDays } from 'lucide-react';
+import { ChefHat, Sparkles, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, Check, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Minus, Save, ShoppingCart, Pencil, CalendarDays, PackageCheck } from 'lucide-react';
 import { PANTRY_ITEMS, getIngredientCategoryId } from '../data/pantry';
 import { RecipeService } from '../services/recipeService';
-import { Dish, KitchenMode, UserProfile, InventoryItem } from '../types';
+import { Dish, KitchenMode, UserProfile, InventoryItem, InventoryBatch, ShoppingItem } from '../types';
 import { isIngredientMatch, isInventoryIngredientMatch, getStandardUnit, convertToBase, convertAmountBetweenUnits, areUnitsComparable, isDishProhibited, evaluateInventory, roundQuantity, getIngredientIdentity } from '../utils/recipeHelpers';
 import { UserService } from '../services/userService';
 import { getPantryUnitPreference, suggestPantryUnit } from '../utils/pantryUnits';
@@ -25,7 +25,11 @@ interface PantryChefProps {
   onUpdateUser: (user: UserProfile) => void;
   onNavigate: (view: 'plan' | 'search' | 'inventory') => void;
   onKitchenModeChange: (mode: KitchenMode) => Promise<void> | void;
+  pendingPurchasedItems?: ShoppingItem[];
+  onPurchasedItemsCancel?: (items: ShoppingItem[]) => Promise<void> | void;
 }
+
+interface PurchasedItemDraft { id: string; amount: string; unit: string; unitPrice: string; expiresOn: string; mergeBatchId: string }
 
 type ResultFilter = 'all' | 'perfect' | 'near' | 'cookable' | 'quick' | 'favorites';
 
@@ -142,7 +146,7 @@ interface ProcessedResult {
   proteinMatchScore: number;
 }
 
-const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNavigate, onKitchenModeChange }) => {
+const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNavigate, onKitchenModeChange, pendingPurchasedItems = [], onPurchasedItemsCancel = (_items: ShoppingItem[]) => undefined }) => {
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('1');
   const [newItemUnit, setNewItemUnit] = useState('');
@@ -157,6 +161,21 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   const [inventoryOverviewMessage, setInventoryOverviewMessage] = useState<{ text: string; isError: boolean } | null>(null);
   const [selectedBatchItem, setSelectedBatchItem] = useState<InventoryItem | null>(null);
   const [dishCount, setDishCount] = useState(() => RecipeService.getAllDishes().length);
+  const [purchaseDrafts, setPurchaseDrafts] = useState<PurchasedItemDraft[]>([]);
+  const [purchaseReviewError, setPurchaseReviewError] = useState('');
+  const [isSavingPurchasedItems, setIsSavingPurchasedItems] = useState(false);
+
+  useEffect(() => {
+    setPurchaseDrafts(pendingPurchasedItems.map(item => ({
+      id: item.id,
+      amount: item.amount !== undefined && item.amount > 0 ? String(item.amount) : '',
+      unit: item.unit || suggestPantryUnit(item.name),
+      unitPrice: '',
+      expiresOn: '',
+      mergeBatchId: '',
+    })));
+    setPurchaseReviewError('');
+  }, [pendingPurchasedItems]);
 
   useEffect(() => {
     const syncCount = (event: Event) => setDishCount((event as CustomEvent<{count: number}>).detail?.count ?? RecipeService.getAllDishes().length);
@@ -443,6 +462,125 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     prepareNextEntry();
   };
 
+  const updatePurchaseDraft = (id: string, patch: Partial<PurchasedItemDraft>) => {
+    setPurchaseDrafts(current => current.map(draft => draft.id === id ? { ...draft, ...patch } : draft));
+    setPurchaseReviewError('');
+  };
+
+  const savePurchasedItems = async () => {
+    if (!pendingPurchasedItems.length || isSavingPurchasedItems) return;
+    setPurchaseReviewError('');
+    const draftsById = new Map<string, PurchasedItemDraft>(purchaseDrafts.map(draft => [draft.id, draft]));
+    for (const item of pendingPurchasedItems) {
+      const draft = draftsById.get(item.id);
+      const amount = Number(draft?.amount);
+      if (!draft || !Number.isFinite(amount) || amount <= 0) {
+        setPurchaseReviewError(`مقدار خرید «${item.name}» را به‌صورت عددی بزرگ‌تر از صفر وارد کن.`);
+        return;
+      }
+      const priceText = draft.unitPrice.trim();
+      if (priceText && (!Number.isFinite(Number(priceText)) || Number(priceText) <= 0)) {
+        setPurchaseReviewError(`قیمت هر واحد «${item.name}» باید عددی بزرگ‌تر از صفر باشد یا خالی بماند.`);
+        return;
+      }
+    }
+
+    setIsSavingPurchasedItems(true);
+    try {
+      let nextInventory = [...inventory];
+      let nextPurchaseHistory = [...(user.purchaseHistory || [])];
+      const now = Date.now();
+
+      for (const shoppingItem of pendingPurchasedItems) {
+        const draft = draftsById.get(shoppingItem.id)!;
+        const enteredAmount = Number(draft.amount);
+        const enteredPrice = draft.unitPrice.trim() ? Number(draft.unitPrice) : undefined;
+        const matchIndex = nextInventory.findIndex(row => isInventoryIngredientMatch(row.name, shoppingItem.name));
+
+        if (matchIndex < 0) {
+          const batch: InventoryBatch = {
+            id: globalThis.crypto?.randomUUID?.() || `lot-${now}-${Math.random().toString(36).slice(2, 8)}`,
+            amount: enteredAmount,
+            purchaseAmount: enteredAmount,
+            ...(enteredPrice ? { unitPrice: enteredPrice } : {}),
+            ...(draft.expiresOn ? { expiresOn: draft.expiresOn } : {}),
+            receivedAt: now,
+            lastPurchasedAt: now,
+          };
+          const newItem: InventoryItem = {
+            id: globalThis.crypto?.randomUUID?.() || `inv-${now}-${Math.random().toString(36).slice(2, 8)}`,
+            name: shoppingItem.name.trim(),
+            amount: enteredAmount,
+            unit: draft.unit,
+            minThreshold: 0,
+            minThresholdUnit: draft.unit,
+            lastUpdated: now,
+            stockBatches: [batch],
+          };
+          nextInventory.push(newItem);
+          nextPurchaseHistory = mergePurchaseHistory(nextPurchaseHistory, newItem, [batch]);
+          continue;
+        }
+
+        const existing = nextInventory[matchIndex];
+        const converted = convertAmountBetweenUnits(enteredAmount, draft.unit, existing.unit, existing.name);
+        if (!converted || !Number.isFinite(converted.amount) || converted.amount <= 0) {
+          throw new Error(`واحد «${draft.unit}» برای ${shoppingItem.name} به واحد انبار «${existing.unit}» تبدیل نمی‌شود. واحد سازگار را انتخاب کن.`);
+        }
+        const priceInInventoryUnit = enteredPrice ? enteredPrice * enteredAmount / converted.amount : undefined;
+        const batches = getInventoryBatches(existing);
+        const activeCount = activePurchaseBatchCount(batches);
+        const shouldMerge = Boolean(draft.mergeBatchId) || activeCount >= MAX_ACTIVE_PURCHASE_BATCHES;
+        let updatedItem: InventoryItem;
+        let changedBatch: InventoryBatch;
+
+        if (shouldMerge) {
+          const targetId = draft.mergeBatchId || '';
+          const target = batches.find(batch => batch.id === targetId && batch.amount > 0);
+          if (!target) {
+            throw new Error(`برای «${shoppingItem.name}» دو سری خرید فعال است؛ یکی از سری‌ها را برای افزودن خرید انتخاب کن.`);
+          }
+          const previousPurchased = target.purchaseAmount ?? target.amount;
+          const nextPurchased = previousPurchased + converted.amount;
+          const nextPrice = priceInInventoryUnit
+            ? target.unitPrice ? (previousPurchased * target.unitPrice + converted.amount * priceInInventoryUnit) / nextPurchased : priceInInventoryUnit
+            : target.unitPrice;
+          changedBatch = {
+            ...target,
+            amount: target.amount + converted.amount,
+            purchaseAmount: nextPurchased,
+            ...(nextPrice ? { unitPrice: nextPrice } : {}),
+            ...(!target.unitPrice && priceInInventoryUnit && target.amount > 0 ? { costApproximate: true } : {}),
+            ...(converted.estimated ? { costApproximate: true } : {}),
+            lastPurchasedAt: now,
+          };
+          const updatedBatches = batches.map(batch => batch.id === target.id ? changedBatch : batch);
+          updatedItem = { ...existing, amount: sumInventoryBatches(updatedBatches), lastUpdated: now, stockBatches: updatedBatches };
+        } else {
+          updatedItem = appendInventoryBatch(existing, converted.amount, draft.expiresOn || undefined, priceInInventoryUnit);
+          const appended = updatedItem.stockBatches![updatedItem.stockBatches!.length - 1];
+          changedBatch = converted.estimated ? { ...appended, costApproximate: true } : appended;
+          if (converted.estimated) updatedItem = { ...updatedItem, stockBatches: updatedItem.stockBatches!.map(batch => batch.id === changedBatch.id ? changedBatch : batch) };
+        }
+
+        nextInventory[matchIndex] = updatedItem;
+        nextPurchaseHistory = mergePurchaseHistory(nextPurchaseHistory, existing, [changedBatch]);
+      }
+
+      const updatedUser = await UserService.updateProfile(user.username, {
+        inventory: nextInventory,
+        purchaseHistory: nextPurchaseHistory,
+        pendingPurchasedItems: [],
+      });
+      onUpdateUser(updatedUser);
+      setAddMessage(`${toPersian(pendingPurchasedItems.length)} قلم خرید در انبار ثبت شد؛ قیمت‌ها و تاریخ‌های سری‌ها را هر زمان خواستی از مدیریت سری‌های خرید تکمیل کن.`);
+    } catch (error) {
+      setPurchaseReviewError(error instanceof Error ? error.message : 'ثبت خریدها انجام نشد؛ اطلاعات واردشده را بررسی کن.');
+    } finally {
+      setIsSavingPurchasedItems(false);
+    }
+  };
+
   const removeFromInventory = (itemId: string) => {
     const newInventory = inventory.filter(item => item.id !== itemId);
     // Optimistic update
@@ -603,6 +741,37 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
           <div className="max-w-7xl mx-auto py-4 sm:py-6 space-y-6 sm:space-y-10">
               {page === 'inventory' && <div className="space-y-6 animate-enter">
+                  {pendingPurchasedItems.length > 0 && <section aria-labelledby="purchased-review-title" className="overflow-hidden rounded-3xl border border-emerald-200 bg-white shadow-lg shadow-emerald-950/5">
+                    <header className="flex items-start gap-3 border-b border-emerald-100 bg-emerald-50/80 p-4 sm:p-6">
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#276556] text-white"><PackageCheck size={22}/></span>
+                      <div className="min-w-0"><h2 id="purchased-review-title" className="text-base font-black text-slate-900 sm:text-lg">خریدهای تازه را به انبار اضافه کن</h2><p className="mt-1 text-xs leading-6 text-slate-600">مقدار واقعی خرید را تأیید کن؛ قیمت هر واحد و تاریخ انقضا اختیاری‌اند. تا ثبت نهایی، این اقلام در انتظار بررسی می‌مانند.</p></div>
+                    </header>
+                    <div className="space-y-3 p-3 sm:p-5">
+                      {pendingPurchasedItems.map(item => {
+                        const draft = purchaseDrafts.find(row => row.id === item.id);
+                        const match = inventory.find(row => isInventoryIngredientMatch(row.name, item.name));
+                        const batches = match ? getInventoryBatches(match) : [];
+                        const activeBatches = batches.filter(batch => batch.amount > 0);
+                        const mustChooseBatch = activePurchaseBatchCount(batches) >= MAX_ACTIVE_PURCHASE_BATCHES;
+                        const isMerging = Boolean(draft?.mergeBatchId) || mustChooseBatch;
+                        return <article key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4">
+                          <div className="mb-3 flex items-center justify-between gap-3"><strong className="text-sm font-black text-slate-900">{item.name}</strong>{item.fromRecipe && <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-slate-500">{item.fromRecipe}</span>}</div>
+                          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                            <label className="text-[11px] font-bold text-slate-600">مقدار خرید <span className="text-rose-600">الزامی</span><input type="number" min="0.001" step="any" value={draft?.amount || ''} onChange={event => updatePurchaseDraft(item.id, { amount: event.target.value })} placeholder="مقدار واقعی" className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-slate-800 outline-none focus:border-[#276556] focus:ring-2 focus:ring-emerald-100" /></label>
+                            <label className="text-[11px] font-bold text-slate-600">واحد خرید<select value={draft?.unit || item.unit || suggestPantryUnit(item.name)} onChange={event => updatePurchaseDraft(item.id, { unit: event.target.value })} className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none focus:border-[#276556]">{Array.from(new Set([...(item.unit ? [item.unit] : []), ...PANTRY_UNIT_OPTIONS])).map(unit => <option key={unit} value={unit}>{unit}</option>)}</select></label>
+                            <label className="text-[11px] font-bold text-slate-600">قیمت هر واحد (تومان، اختیاری)<input type="number" min="0.01" step="any" value={draft?.unitPrice || ''} onChange={event => updatePurchaseDraft(item.id, { unitPrice: event.target.value })} placeholder="مثلاً ۸۵۰۰۰" className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none focus:border-[#276556]" /></label>
+                            <label className="text-[11px] font-bold text-slate-600">تاریخ انقضا (اختیاری)<input type="date" value={draft?.expiresOn || ''} disabled={isMerging} onChange={event => updatePurchaseDraft(item.id, { expiresOn: event.target.value })} className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none focus:border-[#276556] disabled:bg-slate-100 disabled:text-slate-400" />{isMerging && <small className="mt-1 block text-[10px] font-medium text-amber-800">این خرید به سری موجود اضافه می‌شود و تاریخ همان سری حفظ می‌شود.</small>}</label>
+                          </div>
+                          {match && activeBatches.length > 0 && <label className="mt-3 block max-w-xl text-[11px] font-bold text-slate-600">{mustChooseBatch ? 'این ماده دو سری فعال دارد؛ خرید را به کدام سری اضافه کنیم؟' : 'در صورت تمایل، خرید را به یکی از سری‌های موجود اضافه کن'}<select value={draft?.mergeBatchId || ''} onChange={event => updatePurchaseDraft(item.id, { mergeBatchId: event.target.value, ...(event.target.value ? { expiresOn: '' } : {}) })} className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none focus:border-[#276556]"><option value="">{mustChooseBatch ? 'انتخاب سری خرید الزامی است' : 'ثبت به‌عنوان سری خرید تازه'}</option>{activeBatches.map((batch, index) => <option key={batch.id} value={batch.id}>سری {toPersian(index + 1)} · {toPersian(batch.amount)} {match.unit}{batch.expiresOn ? ` · انقضا ${new Date(`${batch.expiresOn}T00:00:00`).toLocaleDateString('fa-IR')}` : ''}</option>)}</select></label>}
+                        </article>;
+                      })}
+                      {purchaseReviewError && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-bold leading-6 text-rose-800">{purchaseReviewError}</p>}
+                      <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:justify-between">
+                        <button type="button" disabled={isSavingPurchasedItems} onClick={() => void onPurchasedItemsCancel(pendingPurchasedItems)} className="min-h-11 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50">برگرداندن اقلام به سبد خرید</button>
+                        <button type="button" disabled={isSavingPurchasedItems} onClick={() => void savePurchasedItems()} className="noosh-cta-3d inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-black disabled:cursor-wait disabled:opacity-60"><PackageCheck size={17}/>{isSavingPurchasedItems ? 'در حال ثبت در انبار…' : 'تأیید و ثبت در انبار'}</button>
+                      </div>
+                    </div>
+                  </section>}
                   {/* بخش هشدار موجودی کم */}
                   {lowStockItems.length > 0 && (
                     <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4 flex items-start gap-3 shadow-sm">

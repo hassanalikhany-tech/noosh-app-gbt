@@ -351,6 +351,8 @@ export interface UserProfile {
   dietMode?: boolean; 
   activeChallengeId?: string | null; 
   customShoppingList?: ShoppingItem[]; 
+  /** Selected shopping rows awaiting confirmation into pantry stock. Kept locally so a refresh cannot lose purchased items. */
+  pendingPurchasedItems?: ShoppingItem[];
   inventory?: InventoryItem[];
   purchaseHistory?: PurchaseRecord[];
   /** @deprecated Migrated to purchaseHistory from earlier builds. */
