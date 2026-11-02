@@ -331,6 +331,11 @@ const AppContent: React.FC = () => {
     }
   };
 
+  const openInventoryForPrices = async () => {
+    if (currentUser?.kitchenMode === 'without-inventory') await handleKitchenModeChange('with-inventory');
+    setViewMode('inventory');
+  };
+
   const handleGeneratePlan = async (type: 'daily' | 'weekly' | 'monthly') => {
     if (!currentUser) return;
 
@@ -704,6 +709,7 @@ const AppContent: React.FC = () => {
           onGenerate={handleGeneratePlan} onToggleFilter={handleToggleFilter}
           onRefresh={handleRefreshSingleMeal} onUpdateUser={setCurrentUser}
           onShopping={handleSyncPlanToShoppingList} shoppingLoading={isSyncingPlan}
+          onOpenInventory={openInventoryForPrices}
           onNavigate={setViewMode} onSearch={term => { setGlobalSearchTerm(term); setViewMode('search'); }}
           onUndo={async () => {
             if (!previousPlan) return;
@@ -713,7 +719,7 @@ const AppContent: React.FC = () => {
         />}
         {viewMode === 'pantry' && <PantryChef page="home" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} />}
         {viewMode === 'inventory' && <PantryChef page="inventory" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} />}
-        {viewMode === 'search' && <RecipeSearch user={currentUser!} onUpdateUser={setCurrentUser} externalSearchTerm={globalSearchTerm} creatorRequest={creatorRequest} onCreatorRequestHandled={() => setCreatorRequest(null)} />}
+        {viewMode === 'search' && <RecipeSearch user={currentUser!} onUpdateUser={setCurrentUser} onOpenInventory={openInventoryForPrices} externalSearchTerm={globalSearchTerm} creatorRequest={creatorRequest} onCreatorRequestHandled={() => setCreatorRequest(null)} />}
         {viewMode === 'settings' && (
           <Preferences 
             user={currentUser!} 
@@ -723,6 +729,7 @@ const AppContent: React.FC = () => {
             installPrompt={installPrompt}
             isAppInstalled={isAppInstalled}
             onInstallPromptConsumed={() => setInstallPrompt(null)}
+            onOpenInventory={openInventoryForPrices}
           />
         )}
       </main></Suspense>

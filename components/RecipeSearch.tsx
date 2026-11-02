@@ -17,6 +17,7 @@ interface RecipeSearchProps {
   externalSearchTerm?: string;
   creatorRequest?: { name: string; token: number } | null;
   onCreatorRequestHandled?: () => void;
+  onOpenInventory: () => void;
 }
 
 const ITEMS_PER_PAGE = 24;
@@ -75,7 +76,7 @@ const CountryFlag: React.FC<{ country: { id: string; label: string } }> = ({ cou
   return <img src={sources[sourceIndex]} alt={country.label} className="w-full h-full object-cover" onError={() => setSourceIndex(index => index + 1)} loading="lazy" decoding="async" />;
 };
 
-const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externalSearchTerm = '', creatorRequest, onCreatorRequestHandled }) => {
+const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externalSearchTerm = '', creatorRequest, onCreatorRequestHandled, onOpenInventory }) => {
   const [selectedCategory, setSelectedCategory] = useState<DishCategory | 'all'>('all');
   const [selectedCountryId, setSelectedCountryId] = useState<string | 'all'>('all');
   const [allDishes, setAllDishes] = useState<Dish[]>([]);
@@ -327,7 +328,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
           <div className="max-w-7xl mx-auto py-4 sm:py-6 space-y-6 sm:space-y-10">
               {!filteredDishes.length && <div role="status" className="rounded-3xl bg-white p-6 text-center ring-1 ring-[#276556]/15 sm:p-10"><Search className="mx-auto mb-3 text-[#276556]" size={28}/><h2 className="text-lg font-black text-slate-800">رسپی‌ای با این ترکیب فیلترها پیدا نشد</h2><p className="mx-auto mt-2 max-w-lg text-sm leading-7 text-slate-500">نام غذا، دسته و کشور را بررسی کن. غذاهای دارای مواد ممنوع یا حساسیت‌زا نیز قابل مشاهده‌اند و روی کارتشان هشدار دارند.</p><button type="button" onClick={resetFilters} className="mt-4 min-h-11 rounded-xl bg-[#276556] px-5 text-sm font-bold text-white">پاک کردن فیلترهای جست‌وجو</button></div>}
               <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                {paginatedDishes.map(dish => <MealCard key={dish.id} plan={{ dayName: CATEGORY_LABELS[dish.category] || 'غذای برتر', dish }} user={user} onUpdateUser={onUpdateUser} />)}
+                {paginatedDishes.map(dish => <MealCard key={dish.id} plan={{ dayName: CATEGORY_LABELS[dish.category] || 'غذای برتر', dish }} user={user} onUpdateUser={onUpdateUser} onOpenInventory={onOpenInventory} />)}
               </div>
               
               {totalPages > 1 && (

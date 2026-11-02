@@ -20,6 +20,7 @@ interface PreferencesProps {
   installPrompt?: { prompt: () => Promise<void>; userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }> } | null;
   isAppInstalled?: boolean;
   onInstallPromptConsumed?: () => void;
+  onOpenInventory: () => void;
 }
 
 const ToggleSwitch = ({ isActive, onChange, label }: { isActive: boolean; onChange: () => void; label: string }) => {
@@ -249,7 +250,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                 </button>;
               })}
             </div>
-            {settingsTab === 'recipes' && <div id="settings-panel-recipes" role="tabpanel" aria-labelledby="settings-tab-recipes"><PersonalRecipes user={user} onUpdateUser={nextUser => onUpdateUser(nextUser)} /></div>}
+            {settingsTab === 'recipes' && <div id="settings-panel-recipes" role="tabpanel" aria-labelledby="settings-tab-recipes"><PersonalRecipes user={user} onUpdateUser={nextUser => onUpdateUser(nextUser)} onOpenInventory={onOpenInventory} /></div>}
             {settingsTab === 'purchases' && <div id="settings-panel-purchases" role="tabpanel" aria-labelledby="settings-tab-purchases"><PurchaseReport user={user} /></div>}
             {settingsTab === 'device' && <div id="settings-panel-device" role="tabpanel" aria-labelledby="settings-tab-device" className="space-y-3"><BackupManager personalOnly />
               <nav aria-label="اطلاعات و پشتیبانی" className="grid gap-2 rounded-2xl border border-emerald-100 bg-white p-3 sm:grid-cols-2">

@@ -12,6 +12,7 @@ interface Props {
   onRefresh: (index: number) => Promise<void>; onUpdateUser: (user: UserProfile) => void;
   onShopping: () => void; shoppingLoading: boolean; onUndo: () => Promise<void>;
   onNavigate: (view: 'pantry' | 'search' | 'settings') => void; onSearch: (term: string) => void;
+  onOpenInventory: () => void;
 }
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const filters = [
@@ -66,8 +67,8 @@ export default function PlanDashboard(props: Props) {
           {planCost.pricedRows > 0 && <section className="my-4 flex flex-col gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between" aria-label="برآورد هزینهٔ برنامه">
             <div><p className="flex items-center gap-2 font-black text-amber-950"><ReceiptText size={17} />برآورد هزینهٔ مواد قیمت‌گذاری‌شده: حدود {fa(Math.round(planCost.pricedSubtotal))} تومان</p><p className="mt-1 text-xs font-bold leading-5 text-amber-900">{fa(planCost.pricedRows)} از {fa(planCost.eligibleRows)} قلم محاسبه شده{planCost.approximate ? '؛ بخشی از تبدیل‌ها تقریبی است.' : '.'} این مبلغ هزینهٔ کامل برنامه را تضمین نمی‌کند.</p>{planCost.missingIngredients.length > 0 && <p className="mt-1 text-xs text-amber-900">بدون قیمت یا تبدیل مطمئن: {[...new Set(planCost.missingIngredients)].slice(0, 5).join('، ')}{planCost.missingIngredients.length > 5 ? ' و موارد دیگر' : ''}</p>}</div>
           </section>}
-          {planCost.eligibleRows > 0 && planCost.pricedRows === 0 && <button className="my-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-right text-sm font-bold leading-6 text-amber-950 hover:bg-amber-100" onClick={() => props.onNavigate('pantry')}><ReceiptText size={17} className="ml-2 inline" />برای برآورد هزینه، قیمت هر واحد را هنگام خرید یا در مدیریت سری‌های انبار ثبت کن.</button>}
-          <div className="meal-grid">{plan.map((item, index) => <MealCard key={`${index}-${item.dish.id}`} plan={item} user={user} onUpdateUser={props.onUpdateUser} onRefresh={() => props.onRefresh(index)} />)}</div>
+          {planCost.eligibleRows > 0 && planCost.pricedRows === 0 && <button className="my-4 inline-flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-right text-sm font-bold leading-6 text-amber-950 hover:bg-amber-100" onClick={props.onOpenInventory}><ReceiptText size={17} />برای برآورد دقیق، قیمت اقلام انبار را به‌روز کن</button>}
+          <div className="meal-grid">{plan.map((item, index) => <MealCard key={`${index}-${item.dish.id}`} plan={item} user={user} onUpdateUser={props.onUpdateUser} onRefresh={() => props.onRefresh(index)} onOpenInventory={props.onOpenInventory} />)}</div>
           <button className="shopping-banner" onClick={props.onShopping} disabled={props.shoppingLoading}>{props.shoppingLoading ? <Loader2 className="animate-spin" /> : <ShoppingBag />}<span><strong>مواد لازم را به لیست خرید اضافه کن</strong><small>{user.kitchenMode === 'without-inventory' ? 'مقدار کامل مواد لازم برای دستورهای برنامه' : 'مقدار کسری پس از کسر موجودی ثبت‌شده'}</small></span><ArrowLeft size={20} /></button>
         </> : <div className="plan-empty"><div><CalendarDays size={34} /></div><h3>این‌جا جای برنامهٔ خوشمزهٔ توست</h3><p>بازه و سلیقه‌ات را انتخاب کن و «برنامه‌ام را بچین» را بزن.<br />هر غذایی را هم نپسندیدی، با یک لمس عوضش کن.</p></div>}
       </section>

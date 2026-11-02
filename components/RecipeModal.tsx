@@ -21,9 +21,10 @@ interface RecipeModalProps {
   onClose: () => void;
   user: UserProfile | null;
   onUpdateUser?: (user: UserProfile) => void;
+  onOpenInventory?: () => void;
 }
 
-const RecipeModal: React.FC<RecipeModalProps> = ({ dish: sourceDish, isOpen, onClose, user, onUpdateUser }) => {
+const RecipeModal: React.FC<RecipeModalProps> = ({ dish: sourceDish, isOpen, onClose, user, onUpdateUser, onOpenInventory }) => {
   const dish = user?.personalRecipeEdits?.[sourceDish.id]
     ? { ...sourceDish, ...user.personalRecipeEdits[sourceDish.id], isLocallyEdited: true }
     : sourceDish;
@@ -399,13 +400,17 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish: sourceDish, isOpen, onC
                   <p className="text-slate-400 font-bold italic">لیست مواد لازم ثبت نشده است.</p>
                 )}
 
-                {user && costEstimate.eligibleRows > 0 && <section className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4" aria-label="برآورد هزینهٔ تمام‌شدهٔ غذا">
+                {user && hasIngredients && <section className="rounded-2xl border border-amber-200 bg-amber-50/80 p-4" aria-label="برآورد هزینهٔ تمام‌شدهٔ غذا">
                   <div className="flex items-center gap-2 font-black text-amber-950"><ReceiptText size={18} /><h4>برآورد هزینهٔ تمام‌شدهٔ غذا</h4></div>
                   {costEstimate.pricedRows > 0 ? <>
                     <p className="mt-2 text-xl font-black text-[#276556]">حدود {toPersianDigits(Math.round(costEstimate.pricedSubtotal).toLocaleString('fa-IR'))} تومان · برای {toPersianDigits(servings)} نفر</p>
                     <p className="mt-1 text-xs font-bold leading-6 text-amber-900">مصرف به ترتیب سری‌های موجود و قیمت ثبت‌شدهٔ همان سری حساب شده است؛ قیمت {toPersianDigits(costEstimate.pricedRows)} از {toPersianDigits(costEstimate.eligibleRows)} قلم کامل در دسترس است{costEstimate.approximate ? ' و بخشی از تبدیل‌ها تقریبی است.' : '.'}</p>
                     {costEstimate.missingIngredients.length > 0 && <p className="mt-1 text-xs leading-5 text-amber-900">قیمت ثبت‌نشده: {costEstimate.missingIngredients.slice(0, 4).join('، ')}{costEstimate.missingIngredients.length > 4 ? ' و چند قلم دیگر' : ''}</p>}
-                  </> : <p className="mt-2 text-xs font-bold leading-6 text-amber-900">برای برآورد، هنگام افزودن مواد به انبار یا در مدیریت سری‌های خرید، قیمت هر واحد را ثبت کن. قیمت یا مقدار نامشخص حدس زده نمی‌شود.</p>}
+                  </> : <p className="mt-2 text-xs font-bold leading-6 text-amber-900">برای برآورد هزینهٔ تمام‌شدهٔ دقیق، قیمت خرید اقلام را در انبار به‌روز کن. تا وقتی قیمت ثبت نشود، هزینه‌ای حدس زده نمی‌شود.</p>}
+                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-[11px] font-semibold leading-5 text-amber-900">قیمت‌های تازه را برای هر ماده در بخش سری‌های خرید ثبت یا ویرایش کن.</p>
+                    {onOpenInventory && <button type="button" onClick={onOpenInventory} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#276556] px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-[#1f5145] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200"><ReceiptText size={15}/>رفتن به به‌روزرسانی قیمت‌ها</button>}
+                  </div>
                 </section>}
 
                 {user && hasIngredients && (

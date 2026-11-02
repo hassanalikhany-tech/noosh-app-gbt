@@ -15,9 +15,10 @@ interface MealCardProps {
   user: UserProfile;
   onUpdateUser?: (user: UserProfile) => void;
   onRefresh?: () => void | Promise<void>;
+  onOpenInventory?: () => void;
 }
 
-const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh }) => {
+const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh, onOpenInventory }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const dish = user.personalRecipeEdits?.[plan.dish.id]
@@ -163,7 +164,7 @@ const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh
         </div>
       </div>
 
-      {isModalOpen && <Suspense fallback={<div role="status" className="fixed inset-0 z-[3000] bg-white/90 flex items-center justify-center">در حال باز کردن دستور پخت…</div>}><RecipeModal dish={dish} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} user={user} onUpdateUser={onUpdateUser} /></Suspense>}
+      {isModalOpen && <Suspense fallback={<div role="status" className="fixed inset-0 z-[3000] bg-white/90 flex items-center justify-center">در حال باز کردن دستور پخت…</div>}><RecipeModal dish={dish} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} user={user} onUpdateUser={onUpdateUser} onOpenInventory={onOpenInventory} /></Suspense>}
     </>
   );
 };

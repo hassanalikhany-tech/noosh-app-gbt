@@ -22,7 +22,7 @@ interface PantryChefProps {
   page: 'home' | 'inventory';
   user: UserProfile;
   onUpdateUser: (user: UserProfile) => void;
-  onNavigate: (view: 'plan' | 'search') => void;
+  onNavigate: (view: 'plan' | 'search' | 'inventory') => void;
   onKitchenModeChange: (mode: KitchenMode) => Promise<void> | void;
 }
 
@@ -450,6 +450,11 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     }
   };
   const isInventoryMode = user.kitchenMode !== 'without-inventory';
+  const openInventoryForPrices = async () => {
+    setSelectedDish(null);
+    if (!isInventoryMode) await onKitchenModeChange('with-inventory');
+    onNavigate('inventory');
+  };
   const selectedPurchaseItem = inventory.find(item => newItemName.trim() && isInventoryIngredientMatch(item.name, newItemName.trim()));
   const purchaseLimitReached = Boolean(selectedPurchaseItem && activePurchaseBatchCount(getInventoryBatches(selectedPurchaseItem)) >= MAX_ACTIVE_PURCHASE_BATCHES);
 
@@ -770,7 +775,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                       <div key={dish.id} className="relative animate-enter">
                         {isFullyCookable && <div className="absolute -top-2 -right-2 z-20 bg-teal-500 text-white px-3 py-1 rounded-lg shadow-xl border-2 border-white font-black text-[8px] sm:text-[10px]">موجود در انبار</div>}
                         {!isFullyCookable && isPerfect && <div className="absolute -top-2 -right-2 z-20 bg-emerald-500 text-white px-3 py-1 rounded-lg shadow-xl border-2 border-white font-black text-[8px] sm:text-[10px]">آماده طبخ</div>}
-                        <MealCard plan={{ dayName: isFullyCookable ? 'کامل' : isPerfect ? 'آماده' : `${toPersian(missingCount)} کسری`, dish }} user={user} onUpdateUser={onUpdateUser} />
+                        <MealCard plan={{ dayName: isFullyCookable ? 'کامل' : isPerfect ? 'آماده' : `${toPersian(missingCount)} کسری`, dish }} user={user} onUpdateUser={onUpdateUser} onOpenInventory={openInventoryForPrices} />
                       </div>
                     )) : (
                       <div className="col-span-full py-20 text-center bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100 flex flex-col items-center gap-3">
@@ -894,7 +899,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
         UserService.updateProfile(user.username, { inventory: nextInventory, purchaseHistory }).catch(error => console.error('Failed to save inventory batches:', error));
         setSelectedBatchItem(null);
       }} />}
-      {selectedDish && <RecipeModal dish={selectedDish} isOpen={!!selectedDish} onClose={() => setSelectedDish(null)} user={user} onUpdateUser={onUpdateUser} />}
+      {selectedDish && <RecipeModal dish={selectedDish} isOpen={!!selectedDish} onClose={() => setSelectedDish(null)} user={user} onUpdateUser={onUpdateUser} onOpenInventory={openInventoryForPrices} />}
     </div>
   );
 };

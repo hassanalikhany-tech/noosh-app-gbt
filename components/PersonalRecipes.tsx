@@ -63,7 +63,7 @@ const preparePublicImage = async (source: string | undefined): Promise<string | 
   throw new Error('حجم عکس هنوز زیاد است. عکس کوچک‌تری انتخاب کن یا رسپی را بدون عکس بفرست.');
 };
 
-const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserProfile) => void }> = ({ user, onUpdateUser }) => {
+const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserProfile) => void; onOpenInventory: () => void }> = ({ user, onUpdateUser, onOpenInventory }) => {
   const [recipes, setRecipes] = useState<Dish[]>(() => RecipeService.getPersonalDishes());
   const [draftDish, setDraftDish] = useState<Dish | null | 'new'>(null);
   const [viewing, setViewing] = useState<Dish | null>(null);
@@ -143,7 +143,7 @@ const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserPr
       try { await RecipeService.savePersonalDish(dish); setDraftDish(null); setMessage(`رسپی «${dish.name}» روی همین دستگاه ذخیره شد و به فهرست غذاها اضافه شد.`); }
       catch (error) { throw error instanceof Error ? error : new Error('رسپی ذخیره نشد؛ فضای دستگاه را بررسی کن.'); }
     }}/>} 
-    {viewing && <RecipeModal dish={viewing} isOpen onClose={() => setViewing(null)} user={user} onUpdateUser={onUpdateUser}/>}
+    {viewing && <RecipeModal dish={viewing} isOpen onClose={() => setViewing(null)} user={user} onUpdateUser={onUpdateUser} onOpenInventory={onOpenInventory}/>}
     {sharing && <ShareRecipeDialog dish={sharing} onClose={() => setSharing(null)} onSubmit={async (name, title) => {
       const imageData = await preparePublicImage(sharing.imageUrl);
       await RecipeService.requestPublicRecipe(sharing.id, name, title, imageData);
