@@ -17,7 +17,7 @@ interface Props {
 const fa = (n: number) => n.toLocaleString('fa-IR');
 const filters = [
   { key: 'meatlessMode' as const, label: 'گیاهی', icon: Leaf },
-  { key: 'quickMealsMode' as const, label: 'تا ۴۵ دقیقه', icon: Zap },
+  { key: 'quickMealsMode' as const, label: 'پخت سریع', icon: Zap },
   { key: 'onlyFavoritesMode' as const, label: 'علاقه‌مندی‌ها', icon: Heart },
 ];
 export default function PlanDashboard(props: Props) {

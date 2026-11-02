@@ -272,7 +272,7 @@ const AppContent: React.FC = () => {
     if (filterNotif.show && !filterNotif.exiting) {
       const timer = setTimeout(() => {
         closeNotif();
-      }, 15000);
+      }, 30000);
       return () => clearTimeout(timer);
     }
   }, [filterNotif.show, filterNotif.exiting, filterNotif.filterKey, dontShowAgain, currentUser]);
@@ -284,7 +284,7 @@ const AppContent: React.FC = () => {
       });
     }
     setFilterNotif(prev => ({ ...prev, exiting: true }));
-    setTimeout(() => setFilterNotif(prev => ({ ...prev, show: false, exiting: false })), 800);
+    setTimeout(() => setFilterNotif(prev => ({ ...prev, show: false, exiting: false })), 700);
     setDontShowAgain(false);
   };
 
@@ -306,7 +306,7 @@ const AppContent: React.FC = () => {
         msg = newVal ? "حالت محبوب‌ها فعال شد. فقط غذاهای مورد علاقه شما پیشنهاد می‌شوند." : "حالت محبوب‌ها غیرفعال شد. تمام غذاها نمایش داده می‌شوند.";
         icon = Heart; color = "rose";
       } else {
-        msg = newVal ? "حالت غذای سریع فعال شد. غذاهای زیر ۴۵ دقیقه در اولویت هستند." : "حالت غذای سریع غیرفعال شد.";
+        msg = newVal ? "حالت پخت سریع فعال شد. غذاهای زیر ۴۵ دقیقه در اولویت هستند." : "حالت پخت سریع غیرفعال شد.";
         icon = Zap; color = "amber";
       }
 
@@ -544,11 +544,7 @@ const AppContent: React.FC = () => {
       
       {filterNotif.show && (
         <div 
-          className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[5000] w-[92%] max-w-md bg-white/95 backdrop-blur-md border border-slate-200/80 p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex items-start gap-3.5 text-right dir-rtl pointer-events-auto transition-all duration-500 ease-out transform ${
-            filterNotif.exiting 
-              ? 'translate-y-32 opacity-0 scale-90' 
-              : 'translate-y-0 opacity-100 scale-100'
-          }`}
+          className={`filter-notif-toast fixed bottom-6 left-1/2 z-[5000] w-[92%] max-w-md bg-white/95 backdrop-blur-md border border-slate-200/80 p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex items-start gap-3.5 text-right dir-rtl pointer-events-auto ${filterNotif.exiting ? 'is-exiting' : ''}`}
         >
           <div className={`p-2.5 rounded-xl text-white shadow-md shrink-0 bg-${filterNotif.color === 'purple' ? 'indigo' : filterNotif.color}-500`}>
              <FilterIcon size={20} strokeWidth={2.5} />

@@ -518,14 +518,14 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                 type="button"
                 onClick={suggestFromInventory}
                 disabled={inventory.length === 0 || isSearching}
-                className="pantry-hero-stock-cta pantry-hero-stock-cta-3d"
+                className="pantry-hero-stock-cta pantry-hero-stock-cta-primary"
               >
                 {isSearching ? <RefreshCw className="animate-spin" size={16} /> : <Sparkles size={16} />}
                 <span>{isSearching ? 'در حال بررسی…' : 'پیشنهاد غذا با موجودی'}</span>
               </button> : <button
                 type="button"
                 onClick={() => void onKitchenModeChange('with-inventory')}
-                className="pantry-hero-stock-cta pantry-hero-stock-cta-3d"
+                className="pantry-hero-stock-cta pantry-hero-stock-cta-primary"
               >
                 <Package size={16} />
                 <span>روشن‌کردن انبار</span>
