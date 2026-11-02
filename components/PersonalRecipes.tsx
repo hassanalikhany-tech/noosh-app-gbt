@@ -116,7 +116,7 @@ const PersonalRecipes: React.FC<{ user: UserProfile; onUpdateUser: (user: UserPr
             <p className="mt-1 max-w-2xl text-xs leading-6 text-slate-600">رسپی و عکس‌ها به‌طور عادی فقط روی همین دستگاه ذخیره می‌شوند و در جستجو، برنامه‌ریزی و پیشنهاد غذا در دسترس‌اند. با انتخاب اشتراک‌گذاری، یک نسخه فقط برای بررسی مدیر فرستاده می‌شود؛ انتشار عمومی نیاز به تأیید شما و مدیر دارد.</p>
           </div>
         </div>
-        <button type="button" onClick={() => setDraftDish('new')} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#276556] px-4 py-2.5 text-sm font-black text-white shadow-sm hover:bg-[#347866]"><Plus size={18}/> افزودن رسپی شخصی</button>
+        <button type="button" onClick={() => setDraftDish('new')} className="noosh-cta-3d inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-black"><Plus size={18}/> افزودن رسپی شخصی</button>
       </div>
 
       <p className="mt-4 border-t border-slate-100 pt-3 text-[11px] leading-6 text-slate-500">پشتیبان رسپی‌ها و عکس‌هایشان از بخش «تنظیمات شما روی همین دستگاه» در بالای این صفحه گرفته و بازیابی می‌شود.</p>

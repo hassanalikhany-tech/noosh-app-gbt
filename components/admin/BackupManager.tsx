@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { Download, Upload } from 'lucide-react';
 import { GuestService } from '../../services/guestService';
 import { RecipeService, validPersonalRecipes } from '../../services/recipeService';
 import { CATEGORY_LABELS, Dish } from '../../types';
@@ -49,7 +50,7 @@ const BackupManager: React.FC<{personalOnly?: boolean}> = ({personalOnly = false
   return <section className="rounded-2xl bg-white p-4 text-right ring-1 ring-slate-200 sm:p-5" dir="rtl">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div><h2 className="font-black text-slate-800">{personalOnly ? 'پشتیبان و تنظیمات دستگاه' : 'پشتیبان کامل و بازیابی'}</h2>{personalOnly && <p className="mt-1 text-xs text-slate-500">اطلاعات شخصی فقط روی همین دستگاه ذخیره می‌شود.</p>}</div>
-      <div className="flex flex-wrap gap-2"><button onClick={download} className="rounded-xl bg-emerald-900 px-3.5 py-2.5 text-xs font-bold text-white">دریافت پشتیبان</button><button disabled={busy} onClick={() => input.current?.click()} className="rounded-xl bg-slate-100 px-3.5 py-2.5 text-xs font-bold disabled:opacity-40">بازیابی پشتیبان</button></div>
+      <div className="flex flex-wrap gap-2"><button type="button" onClick={download} className="noosh-cta-3d inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black sm:text-sm"><Download size={16}/>دریافت پشتیبان</button><button type="button" disabled={busy} onClick={() => input.current?.click()} className="noosh-cta-3d inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black sm:text-sm"><Upload size={16}/>{busy ? 'در حال بازیابی…' : 'بازیابی پشتیبان'}</button></div>
     </div>
     <details className="mt-3 border-t border-slate-100 pt-2">
       <summary className="cursor-pointer text-xs font-bold text-emerald-800">اطلاعات بیشتر دربارهٔ ذخیره‌سازی</summary>
