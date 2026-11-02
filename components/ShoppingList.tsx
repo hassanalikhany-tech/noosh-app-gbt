@@ -41,12 +41,19 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ user, weeklyPlan, onUpdateU
 
   const activeItems = useMemo(() => uniqueItems.filter(i => !i.checked), [uniqueItems]);
   const checkedItems = useMemo(() => uniqueItems.filter(item => item.checked), [uniqueItems]);
+  const areAllSelected = uniqueItems.length > 0 && checkedItems.length === uniqueItems.length;
 
   const receiveCheckedItems = async () => {
     if (!checkedItems.length || isReceivingPurchases) return;
     setIsReceivingPurchases(true);
     try { await onPurchased(checkedItems); }
     finally { setIsReceivingPurchases(false); }
+  };
+
+  const toggleSelectAll = () => {
+    if (!uniqueItems.length) return;
+    const nextChecked = !areAllSelected;
+    void updateCustomItems(customItems.map(item => ({ ...item, checked: nextChecked })));
   };
 
   const groupedItems = useMemo(() => {
@@ -315,6 +322,19 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ user, weeklyPlan, onUpdateU
              </div>
           </div>
         )}
+        {uniqueItems.length > 0 && <div className="no-print mb-3 flex flex-col gap-2 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" onClick={toggleSelectAll} aria-pressed={areAllSelected} className={`inline-flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 text-xs font-black transition ${areAllSelected ? 'border-[#276556] bg-[#276556] text-white' : 'border-emerald-200 bg-white text-[#276556] hover:bg-emerald-50'}`}>
+              <span className={`grid h-5 w-5 place-items-center rounded-md border ${areAllSelected ? 'border-white/70 bg-white/15' : 'border-slate-300 bg-white'}`}>{areAllSelected && <Check size={14}/>}</span>
+              {areAllSelected ? 'لغو انتخاب همه' : 'انتخاب همهٔ اقلام'}
+            </button>
+            <span className="text-[11px] font-bold text-slate-600">{toPersianDigits(checkedItems.length)} از {toPersianDigits(uniqueItems.length)} قلم انتخاب شده</span>
+          </div>
+          <button type="button" onClick={() => void receiveCheckedItems()} disabled={!checkedItems.length || isReceivingPurchases} className="noosh-cta-3d inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-black disabled:cursor-not-allowed disabled:opacity-50">
+            {isReceivingPurchases ? <Loader2 size={18} className="animate-spin" /> : <PackageCheck size={18} />}
+            {isReceivingPurchases ? 'در حال انتقال…' : 'خریداری شدند'}
+          </button>
+        </div>}
         <div className="flex-grow overflow-y-auto">
           <div className="shopping-list-content space-y-5 max-w-3xl mx-auto pb-8 pr-1">
             <div className="sticky top-0 bg-white z-10 py-3 space-y-2">
@@ -365,7 +385,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ user, weeklyPlan, onUpdateU
                       <div className="space-y-2">
                         {items.map((item) => (
                           <div key={item.id} className={`shopping-item group flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl border transition-all ${item.checked ? 'bg-slate-50 border-slate-100 opacity-50' : 'bg-white border-slate-200 shadow-sm hover:border-teal-200'}`}>
-                            <div className="flex items-center gap-3 cursor-pointer flex-grow min-w-0" onClick={() => toggleCheck(item.id)}>
+                            <div role="checkbox" aria-checked={item.checked} tabIndex={0} onKeyDown={event => { if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); toggleCheck(item.id); } }} className="flex items-center gap-3 cursor-pointer flex-grow min-w-0 outline-none focus-visible:ring-2 focus-visible:ring-[#276556] focus-visible:ring-offset-2 rounded-lg" onClick={() => toggleCheck(item.id)}>
                               <div className={`w-6 h-6 rounded-lg border-2 flex-shrink-0 flex items-center justify-center transition-all ${item.checked ? 'bg-emerald-500 border-emerald-500' : 'border-slate-200 group-hover:border-teal-400'}`}>
                                 {item.checked && <CheckCircle2 size={18} className="text-white" />}
                               </div>
@@ -407,13 +427,6 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ user, weeklyPlan, onUpdateU
             </div>
           </div>
         </div>
-        {checkedItems.length > 0 && <footer className="no-print flex flex-col gap-2 border-t border-emerald-100 bg-white px-4 py-3 shadow-[0_-8px_24px_rgba(39,101,86,.08)] sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <p className="text-xs font-bold text-slate-600">{toPersianDigits(checkedItems.length)} قلم انتخاب شده · اقلام انتخاب‌نشده در سبد می‌مانند</p>
-          <button type="button" onClick={() => void receiveCheckedItems()} disabled={isReceivingPurchases} className="noosh-cta-3d inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-black disabled:cursor-wait">
-            {isReceivingPurchases ? <Loader2 size={18} className="animate-spin" /> : <PackageCheck size={18} />}
-            {isReceivingPurchases ? 'در حال انتقال…' : 'خریداری شدند'}
-          </button>
-        </footer>}
       </div>
     </div>
   );
