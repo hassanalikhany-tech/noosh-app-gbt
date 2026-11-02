@@ -408,8 +408,8 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish: sourceDish, isOpen, onC
                     {costEstimate.missingIngredients.length > 0 && <p className="mt-1 text-xs leading-5 text-amber-900">قیمت ثبت‌نشده: {costEstimate.missingIngredients.slice(0, 4).join('، ')}{costEstimate.missingIngredients.length > 4 ? ' و چند قلم دیگر' : ''}</p>}
                   </> : <p className="mt-2 text-xs font-bold leading-6 text-amber-900">برای برآورد هزینهٔ تمام‌شدهٔ دقیق، قیمت خرید اقلام را در انبار به‌روز کن. تا وقتی قیمت ثبت نشود، هزینه‌ای حدس زده نمی‌شود.</p>}
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-[11px] font-semibold leading-5 text-amber-900">قیمت‌های تازه را برای هر ماده در بخش سری‌های خرید ثبت یا ویرایش کن.</p>
-                    {onOpenInventory && <button type="button" onClick={onOpenInventory} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#276556] px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-[#1f5145] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200"><ReceiptText size={15}/>رفتن به به‌روزرسانی قیمت‌ها</button>}
+                    <p className="text-xs font-bold leading-6 text-amber-950">برای برآورد درست و دقیقِ هزینهٔ تمام‌شدهٔ غذا، لازم است قیمت اقلام غذایی را به‌روز کنی.</p>
+                    {onOpenInventory && <button type="button" onClick={onOpenInventory} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#276556] px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-[#1f5145] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200"><ReceiptText size={15}/>به‌روزرسانی قیمت‌ها</button>}
                   </div>
                 </section>}
 
