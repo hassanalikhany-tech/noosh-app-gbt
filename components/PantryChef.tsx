@@ -514,22 +514,18 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
               </button>
             </div>
             <div className="pantry-hero-inventory">
-              <div className="pantry-toolbar-title">
-                <div className="pantry-toolbar-icon"><Package size={18} /></div>
-                <div><strong>انبار مواد غذایی آشپزخانه</strong><span>{toPersian(inventory.length)} قلم ثبت‌شده</span></div>
-              </div>
               {isInventoryMode ? <button
                 type="button"
                 onClick={suggestFromInventory}
                 disabled={inventory.length === 0 || isSearching}
-                className="pantry-hero-stock-cta"
+                className="pantry-hero-stock-cta pantry-hero-stock-cta-3d"
               >
                 {isSearching ? <RefreshCw className="animate-spin" size={16} /> : <Sparkles size={16} />}
                 <span>{isSearching ? 'در حال بررسی…' : 'پیشنهاد غذا با موجودی'}</span>
               </button> : <button
                 type="button"
                 onClick={() => void onKitchenModeChange('with-inventory')}
-                className="pantry-hero-stock-cta"
+                className="pantry-hero-stock-cta pantry-hero-stock-cta-3d"
               >
                 <Package size={16} />
                 <span>روشن‌کردن انبار</span>
@@ -744,8 +740,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
               </div>}
 
               {page === 'home' && rawResults && (
-                <div ref={resultsAreaRef} className="space-y-6 sm:space-y-10 animate-enter pt-6 sm:pt-10 border-t border-slate-100 scroll-mt-24">
-                  <div className="pantry-result-filters bg-white border border-slate-200 p-2 sm:p-4 rounded-2xl sm:rounded-[2.5rem] flex flex-wrap items-center gap-2 sm:gap-3 shadow-lg max-w-5xl mx-auto">
+                <div ref={resultsAreaRef} className="space-y-4 sm:space-y-6 animate-enter pt-2 sm:pt-4 border-t border-slate-100 scroll-mt-3">
+                  <div className="pantry-result-filters sticky top-0 z-30 bg-white border border-slate-200 p-2 sm:p-4 rounded-2xl sm:rounded-[2.5rem] flex flex-wrap items-center gap-2 sm:gap-3 shadow-lg max-w-5xl mx-auto">
                      {[
                        { id: 'all', label: 'همه پیشنهادات', icon: Sparkles },
                        { id: 'cookable', label: 'قابل پخت', icon: UtensilsCrossed },
