@@ -370,6 +370,14 @@ const AppContent: React.FC = () => {
     setIsShoppingListOpen(true);
   };
 
+  const handleRemovePendingPurchasedItem = async (itemId: string) => {
+    if (!currentUser) return;
+    const pendingPurchasedItems = (currentUser.pendingPurchasedItems || []).filter(item => item.id !== itemId);
+    const updatedUser = { ...currentUser, pendingPurchasedItems };
+    setCurrentUser(updatedUser);
+    await UserService.updateProfile(currentUser.username, { pendingPurchasedItems });
+  };
+
   const handleGeneratePlan = async (type: 'daily' | 'weekly' | 'monthly') => {
     if (!currentUser) return;
 
@@ -748,7 +756,7 @@ const AppContent: React.FC = () => {
           }}
         />}
         {viewMode === 'pantry' && <PantryChef page="home" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} />}
-        {viewMode === 'inventory' && <PantryChef page="inventory" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} pendingPurchasedItems={currentUser?.pendingPurchasedItems || []} onPurchasedItemsCancel={handleCancelPurchasedItems} />}
+        {viewMode === 'inventory' && <PantryChef page="inventory" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} pendingPurchasedItems={currentUser?.pendingPurchasedItems || []} onPurchasedItemsCancel={handleCancelPurchasedItems} onPurchasedItemRemove={handleRemovePendingPurchasedItem} />}
         {viewMode === 'search' && <RecipeSearch user={currentUser!} onUpdateUser={setCurrentUser} onOpenInventory={openInventoryForPrices} externalSearchTerm={globalSearchTerm} creatorRequest={creatorRequest} onCreatorRequestHandled={() => setCreatorRequest(null)} />}
         {viewMode === 'settings' && (
           <Preferences 

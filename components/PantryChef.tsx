@@ -27,6 +27,7 @@ interface PantryChefProps {
   onKitchenModeChange: (mode: KitchenMode) => Promise<void> | void;
   pendingPurchasedItems?: ShoppingItem[];
   onPurchasedItemsCancel?: (items: ShoppingItem[]) => Promise<void> | void;
+  onPurchasedItemRemove?: (itemId: string) => Promise<void> | void;
 }
 
 interface PurchasedItemDraft { id: string; amount: string; unit: string; unitPrice: string; expiresOn: string; mergeBatchId: string }
@@ -146,7 +147,7 @@ interface ProcessedResult {
   proteinMatchScore: number;
 }
 
-const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNavigate, onKitchenModeChange, pendingPurchasedItems = [], onPurchasedItemsCancel = (_items: ShoppingItem[]) => undefined }) => {
+const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNavigate, onKitchenModeChange, pendingPurchasedItems = [], onPurchasedItemsCancel = (_items: ShoppingItem[]) => undefined, onPurchasedItemRemove = (_itemId: string) => undefined }) => {
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('1');
   const [newItemUnit, setNewItemUnit] = useState('');
@@ -753,7 +754,10 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                         const mustChooseBatch = activePurchaseBatchCount(batches) >= MAX_ACTIVE_PURCHASE_BATCHES;
                         const isMerging = Boolean(draft?.mergeBatchId) || mustChooseBatch;
                         return <article key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4">
-                          <div className="mb-3 flex items-center justify-between gap-3"><strong className="text-sm font-black text-slate-900">{item.name}</strong>{item.fromRecipe && <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-slate-500">{item.fromRecipe}</span>}</div>
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <div className="flex min-w-0 items-center gap-2"><strong className="truncate text-sm font-black text-slate-900">{item.name}</strong>{item.fromRecipe && <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-slate-500">{item.fromRecipe}</span>}</div>
+                            <button type="button" disabled={isSavingPurchasedItems} onClick={() => void onPurchasedItemRemove(item.id)} aria-label={`حذف ${item.name} از فهرست خریدهای آمادهٔ انبار`} title="حذف این ردیف از فهرست خریدهای آمادهٔ انبار" className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-rose-100 bg-white px-2.5 text-[10px] font-black text-rose-600 transition hover:border-rose-200 hover:bg-rose-50 disabled:opacity-50"><Trash2 size={15}/><span>حذف ردیف</span></button>
+                          </div>
                           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                             <label className="text-[11px] font-bold text-slate-600">مقدار خرید <span className="text-rose-600">الزامی</span><input type="number" min="0.001" step="any" value={draft?.amount || ''} onChange={event => updatePurchaseDraft(item.id, { amount: event.target.value })} placeholder="مقدار واقعی" className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-slate-800 outline-none focus:border-[#276556] focus:ring-2 focus:ring-emerald-100" /></label>
                             <label className="text-[11px] font-bold text-slate-600">واحد خرید<select value={draft?.unit || item.unit || suggestPantryUnit(item.name)} onChange={event => updatePurchaseDraft(item.id, { unit: event.target.value })} className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none focus:border-[#276556]">{Array.from(new Set([...(item.unit ? [item.unit] : []), ...PANTRY_UNIT_OPTIONS])).map(unit => <option key={unit} value={unit}>{unit}</option>)}</select></label>
