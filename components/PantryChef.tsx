@@ -679,6 +679,39 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     <button type="button" aria-label="بستن ردیف افزودن" onClick={() => setIsInlineAddingInventory(false)} className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-3 py-3 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={17} /></button>
   </form>;
 
+  const sortedInventory = useMemo(() => [...inventory].sort((a, b) => a.name.localeCompare(b.name, 'fa')), [inventory]);
+  const inventoryColumns = useMemo(() => [sortedInventory.filter((_, index) => index % 2 === 0), sortedInventory.filter((_, index) => index % 2 === 1)], [sortedInventory]);
+
+  const renderInventoryColumn = (items: InventoryItem[], column: number) => <div key={`inventory-column-${column}`} className="min-w-0 overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm">
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[500px] table-fixed border-collapse text-right text-[11px]">
+        <colgroup><col className="w-[27%]"/><col className="w-[17%]"/><col className="w-[18%]"/><col className="w-[16%]"/><col className="w-[10%]"/><col className="w-[12%]"/></colgroup>
+        <thead className="sticky top-0 z-10 bg-[#eaf3ed] text-[10px] font-black text-[#214e3d] sm:text-[11px]">
+          <tr><th className="px-2 py-3">مادهٔ غذایی</th><th className="px-1.5 py-3">موجودی</th><th className="px-1.5 py-3">آستانه</th><th className="px-1.5 py-3">تاریخ انقضا</th><th className="px-1 py-3">وضعیت</th><th className="px-1 py-3">عملیات</th></tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          {items.map(item => {
+            const editing = selectedInventoryItemId === item.id;
+            const empty = item.amount <= 0;
+            const low = !empty && isBelowThreshold(item);
+            const expiry = earliestExpiry(item);
+            const expiryState = inventoryExpiryState(expiry);
+            return <tr key={item.id} className={`pantry-dense-row ${editing ? 'is-selected' : ''}`}>
+              <td className="px-2 py-2.5"><div className="flex min-w-0 items-center gap-1.5"><PantryFoodThumbnail item={item.name}/><strong className="line-clamp-2 min-w-0 text-[10px] leading-4 sm:text-[11px]">{item.name}</strong></div></td>
+              <td className="px-1.5 py-2.5">{editing ? <div className="flex flex-col gap-1"><input type="number" min="0" step="any" value={item.amount} aria-label={`موجودی ${item.name}`} onChange={event => updateInventoryItem(item.id, { amount: Math.max(0, Number(event.target.value) || 0) })} className="w-full rounded-md border border-emerald-200 bg-white px-1 py-1.5 text-center text-[10px] font-black text-emerald-900"/><select value={item.unit} aria-label={`واحد موجودی ${item.name}`} onChange={event => changeInventoryUnit(item, event.target.value)} className="w-full rounded-md border border-slate-200 bg-white px-1 py-1 text-[9px]">{['کیلوگرم','گرم','عدد','بسته','لیتر','میلی‌لیتر'].map(unit => <option key={unit} value={unit}>{unit}</option>)}</select></div> : <span className="whitespace-nowrap font-black text-emerald-800">{toPersian(item.amount)} <small className="font-semibold text-slate-500">{item.unit}</small></span>}</td>
+              <td className="px-1.5 py-2.5">{editing ? <div className="flex flex-col gap-1"><input type="number" min="0" step="any" value={item.minThreshold} aria-label={`آستانهٔ هشدار ${item.name}`} onChange={event => updateInventoryItem(item.id, { minThreshold: Math.max(0, Number(event.target.value) || 0) })} className="w-full rounded-md border border-slate-200 bg-white px-1 py-1.5 text-center text-[10px] font-bold"/><select value={item.minThresholdUnit || item.unit} aria-label={`واحد آستانه ${item.name}`} onChange={event => { const nextUnit = event.target.value; const converted = convertAmountBetweenUnits(item.minThreshold, item.minThresholdUnit || item.unit, nextUnit, item.name); if (!converted) { setAddMessage('واحد آستانه باید از همان بُعد موجودی باشد؛ مثلاً کیلوگرم با گرم.'); return; } updateInventoryItem(item.id, { minThreshold: converted.amount, minThresholdUnit: nextUnit }); }} className="w-full rounded-md border border-slate-200 bg-white px-1 py-1 text-[9px]">{['کیلوگرم','گرم','عدد','بسته','لیتر','میلی‌لیتر'].map(unit => <option key={unit} value={unit}>{unit}</option>)}</select></div> : <span className="whitespace-nowrap text-slate-600">{toPersian(item.minThreshold)} {item.minThresholdUnit || item.unit}</span>}</td>
+              <td className="px-1 py-2.5"><div className="flex items-center justify-center gap-1"><span className={`text-[9px] leading-4 ${expiry ? expiryState === 'expired' ? 'font-black text-rose-700' : expiryState === 'soon' ? 'font-black text-amber-800' : 'text-slate-600' : 'text-slate-400'}`}>{expiry ? new Date(`${expiry}T00:00:00`).toLocaleDateString('fa-IR') : 'ندارد'}</span><button type="button" onClick={() => setSelectedBatchItem(item)} aria-label={`ویرایش سری خرید و تاریخ انقضای ${item.name}`} title={`تاریخ انقضا و سری‌های ${item.name}`} className="shrink-0 rounded-md bg-amber-50 p-1.5 text-amber-800 hover:bg-amber-100"><CalendarDays size={13}/></button></div></td>
+              <td className="px-1 py-2.5 text-center"><span className={`whitespace-nowrap text-[9px] font-black ${empty || low ? 'text-rose-700' : 'text-emerald-800'}`}>{empty ? 'تمام‌شده' : low ? 'کم' : 'موجود'}</span></td>
+              <td className="px-1 py-2.5"><div className="flex items-center justify-center gap-1"><button type="button" onClick={() => setSelectedInventoryItemId(editing ? null : item.id)} aria-label={`${editing ? 'پایان ویرایش' : 'ویرایش'} ${item.name}`} title="ویرایش" className={`grid h-7 w-7 place-items-center rounded-md ${editing ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-emerald-100'}`}><Pencil size={12}/></button><button type="button" onClick={() => removeFromInventory(item.id)} aria-label={`حذف ${item.name} از انبار`} title="حذف" className="grid h-7 w-7 place-items-center rounded-md bg-rose-50 text-rose-600 hover:bg-rose-100"><Trash2 size={12}/></button></div></td>
+            </tr>;
+          })}
+          {column === 0 && isInlineAddingInventory && <tr><td colSpan={6} className="p-2"><div className="min-w-[500px]">{renderInlineInventoryForm(true)}</div></td></tr>}
+          {column === 0 && <tr><td colSpan={6} className="p-2"><button type="button" onClick={() => setIsInlineAddingInventory(current => !current)} className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-emerald-300 bg-emerald-50/70 px-3 py-2 text-xs font-black text-emerald-800 transition hover:bg-emerald-100"><Plus size={15}/>{isInlineAddingInventory ? 'بستن ردیف افزودن' : 'افزودن مادهٔ غذایی'}</button></td></tr>}
+        </tbody>
+      </table>
+    </div>
+  </div>;
+
   return (
     <div className="pantry-page flex flex-col h-full [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter">
       {page === 'home' && <section className="pantry-hero" aria-label="پیشنهاد غذا بر پایهٔ موجودی آشپزخانه">
@@ -825,88 +858,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
 
                       <div className="bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm">
                         {inventory.length > 0 ? (
-                          <div className="pantry-inventory-list">
-                            {[...inventory].sort((a, b) => a.name.localeCompare(b.name, 'fa')).map(item => (
-                              <div key={item.id} className={`pantry-inventory-row p-4 flex items-center justify-between hover:bg-slate-50 transition-colors ${selectedInventoryItemId === item.id ? 'is-selected' : ''}`} role="group" aria-label={`قلم ${item.name}`} aria-current={selectedInventoryItemId === item.id ? 'true' : undefined}>
-                                <div className="flex items-center gap-3">
-                                  <button type="button" onClick={() => setSelectedInventoryItemId(selectedInventoryItemId === item.id ? null : item.id)} aria-label={`${selectedInventoryItemId === item.id ? 'پایان ویرایش' : 'ویرایش'} ${item.name}`} aria-pressed={selectedInventoryItemId === item.id} className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition ${selectedInventoryItemId === item.id ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-500 hover:bg-emerald-100 hover:text-emerald-800'}`}><Pencil size={15} /></button>
-                                  <PantryFoodThumbnail item={item.name} />
-                                  <div>
-                                    <h4 className="text-slate-800 font-black text-xs sm:text-sm">{item.name}</h4>
-                                    <span className={`pantry-stock-state ${isBelowThreshold(item) ? 'is-low' : ''}`}>{isBelowThreshold(item) ? `کم · ${toPersian(item.amount)} ${item.unit}` : `موجود: ${toPersian(item.amount)} ${item.unit}`}</span>
-                                    {earliestExpiry(item) && <small className={`mt-1 block text-[10px] font-bold ${inventoryExpiryState(earliestExpiry(item)) === 'expired' ? 'text-rose-700' : inventoryExpiryState(earliestExpiry(item)) === 'soon' ? 'text-amber-800' : 'text-slate-500'}`}>نزدیک‌ترین انقضا: {new Date(`${earliestExpiry(item)}T00:00:00`).toLocaleDateString('fa-IR')}</small>}
-                                  </div>
-                                </div>
-                                  <div className="pantry-item-actions flex items-center gap-3">
-                                    <button type="button" onClick={() => setSelectedBatchItem(item)} title={`مدیریت سری‌های خرید و تاریخ انقضای ${item.name}`} aria-label={`تاریخ‌ها و سری‌های خرید ${item.name}`} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 text-[10px] font-black text-amber-800 hover:bg-amber-100"><CalendarDays size={15}/><span className="hidden sm:inline">تاریخ‌ها</span></button>
-                                    <div className="pantry-control-stack flex flex-col items-end gap-1">
-                                      {selectedInventoryItemId === item.id ? <div className="pantry-quantity-control flex items-center bg-slate-100 rounded-lg p-1">
-                                        <div className="flex items-center gap-1">
-                                          <button onClick={() => {
-                                            const step = item.unit === 'کیلوگرم' ? 0.1 : 1;
-                                            updateInventoryItem(item.id, { amount: Math.max(0, roundQuantity(item.amount - step)) });
-                                          }} className="p-1 hover:bg-white rounded-md text-slate-500 transition-all"><Minus size={14} /></button>
-                                          <div className="px-2 min-w-[100px] flex items-center justify-center gap-1">
-                                            <input
-                                              type="number" min="0"
-                                              step="any"
-                                              value={item.amount}
-                                              onBlur={e => updateInventoryItem(item.id, { amount: Math.max(0, Number(e.target.value) || 0) })}
-                                              onChange={(e) => updateInventoryItem(item.id, { amount: parseFloat(e.target.value) || 0 })}
-                                              className={`w-14 bg-white/50 rounded px-1 py-0.5 text-xs font-black outline-none text-center border border-transparent focus:border-teal-300 transition-all ${isBelowThreshold(item) ? 'text-rose-600' : 'text-slate-700'}`}
-                                            />
-                                            <select
-                                              value={item.unit}
-                                              onChange={(e) => changeInventoryUnit(item, e.target.value)}
-                                              className="text-[9px] text-slate-400 bg-transparent outline-none cursor-pointer hover:text-teal-500"
-                                            >
-                                              <option value="کیلوگرم">کیلوگرم</option>
-                                              <option value="عدد">عدد</option>
-                                              <option value="بسته">بسته</option>
-                                              <option value="لیتر">لیتر</option>
-                                              <option value="گرم">گرم</option>
-                                              <option value="میلی‌لیتر">میلی‌لیتر</option>
-                                            </select>
-                                          </div>
-                                          <button onClick={() => {
-                                            const step = item.unit === 'کیلوگرم' ? 0.1 : 1;
-                                            updateInventoryItem(item.id, { amount: roundQuantity(item.amount + step) });
-                                          }} className="p-1 hover:bg-white rounded-md text-slate-500 transition-all"><Plus size={14} /></button>
-                                        </div>
-                                      </div> : <span className="px-2 py-2 text-xs font-black text-emerald-800">{toPersian(item.amount)} {item.unit}</span>}
-                                      <label className="pantry-threshold-control">
-                                        <span>هشدار در</span>
-                                        <input
-                                          type="number" min="0" step="any"
-                                          value={item.minThreshold}
-                                          onBlur={e => updateInventoryItem(item.id, { minThreshold: Math.max(0, Number(e.target.value) || 0) })}
-                                          onChange={(e) => updateInventoryItem(item.id, { minThreshold: parseFloat(e.target.value) || 0 })}
-                                          aria-label={`مقدار هشدار برای ${item.name}`}
-                                        />
-                                        <select
-                                          aria-label={`واحد هشدار برای ${item.name}`}
-                                          value={item.minThresholdUnit || item.unit}
-                                          onChange={e => {
-                                            const previousUnit = item.minThresholdUnit || item.unit;
-                                            const nextUnit = e.target.value;
-                                            const converted = convertAmountBetweenUnits(item.minThreshold, previousUnit, nextUnit, item.name);
-                                            if (!converted) {
-                                              setAddMessage('واحد آستانه باید از همان بُعد موجودی باشد؛ مثلاً کیلوگرم با گرم.');
-                                              return;
-                                            }
-                                            updateInventoryItem(item.id, { minThreshold: converted.amount, minThresholdUnit: nextUnit });
-                                            if (converted.estimated) setAddMessage(`آستانهٔ ${item.name} با وزن مرجع متوسط تبدیل شد؛ اگر وزن دقیق داری، آن را ثبت کن.`);
-                                          }}
-                                        >
-                                          <option value="کیلوگرم">کیلوگرم</option><option value="عدد">عدد</option><option value="بسته">بسته</option><option value="لیتر">لیتر</option><option value="گرم">گرم</option><option value="میلی‌لیتر">میلی‌لیتر</option>
-                                        </select>
-                                      </label>
-                                    </div>
-                                    <button onClick={event => { event.stopPropagation(); if (selectedInventoryItemId === item.id) setSelectedInventoryItemId(null); removeFromInventory(item.id); }} className="p-2 text-slate-300 hover:text-rose-500 transition-colors"><Trash2 size={16} /></button>
-                                  </div>
-                              </div>
-                            ))}
-                            <button type="button" onClick={() => { setIsInlineAddingInventory(true); setIsInventoryOverviewOpen(true); }} className="flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-dashed border-emerald-300 bg-emerald-50/70 px-4 py-3 text-sm font-black text-emerald-800 transition hover:border-emerald-500 hover:bg-emerald-100"><Plus size={18} /> افزودن قلم جدید به انبار</button>
+                          <div className={`grid items-start gap-3 p-3 sm:gap-4 sm:p-4 ${inventory.length > 1 ? 'xl:grid-cols-2' : 'grid-cols-1'}`}>
+                            {inventoryColumns.map((items, column) => (items.length > 0 || column === 0) && renderInventoryColumn(items, column))}
                           </div>
                         ) : (
                           <div className="pantry-empty-state">
