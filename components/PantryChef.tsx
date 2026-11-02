@@ -2,7 +2,7 @@ import { normalizePersian } from '../utils/text';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChefHat, Sparkles, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, Check, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Minus, Save, ShoppingCart, Pencil, CalendarDays, PackageCheck } from 'lucide-react';
+import { ChefHat, Sparkles, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Save, ShoppingCart, Pencil, CalendarDays, PackageCheck } from 'lucide-react';
 import { PANTRY_ITEMS, getIngredientCategoryId } from '../data/pantry';
 import { RecipeService } from '../services/recipeService';
 import { Dish, KitchenMode, UserProfile, InventoryItem, InventoryBatch, ShoppingItem } from '../types';
@@ -156,10 +156,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   const [addMessage, setAddMessage] = useState('');
   const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
   const [pendingUnitCorrection, setPendingUnitCorrection] = useState<{ id: string; name: string; oldAmount: number; oldUnit: string; nextUnit: string; oldThreshold: number; oldThresholdUnit: string; amount: string; threshold: string } | null>(null);
-  const [isInventoryOverviewOpen, setIsInventoryOverviewOpen] = useState(false);
-  const [isInlineAddingInventory, setIsInlineAddingInventory] = useState(false);
-  const [inventoryOverviewDraft, setInventoryOverviewDraft] = useState<{ id: string; amount: string; threshold: string } | null>(null);
-  const [inventoryOverviewMessage, setInventoryOverviewMessage] = useState<{ text: string; isError: boolean } | null>(null);
+  const [inventoryFormColumn, setInventoryFormColumn] = useState<number | null>(null);
   const [selectedBatchItem, setSelectedBatchItem] = useState<InventoryItem | null>(null);
   const [dishCount, setDishCount] = useState(() => RecipeService.getAllDishes().length);
   const [purchaseDrafts, setPurchaseDrafts] = useState<PurchasedItemDraft[]>([]);
@@ -240,23 +237,9 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   }, [inventory, rawInventory.length, user, onUpdateUser]);
 
   useEffect(() => {
-    if (!isInventoryOverviewOpen) return;
-    document.body.style.overflow = 'hidden';
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsInventoryOverviewOpen(false);
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('keydown', handleEscape);
-    };
-  }, [isInventoryOverviewOpen]);
-  useEffect(() => {
-    if (!isInventoryOverviewOpen) {
-      setInventoryOverviewDraft(null);
-      setInventoryOverviewMessage(null);
-    }
-  }, [isInventoryOverviewOpen]);
+    if (inventoryFormColumn === null) return;
+    window.requestAnimationFrame(() => newItemNameRef.current?.focus());
+  }, [inventoryFormColumn]);
   const starterItemsToAdd = PANTRY_STARTER_ITEMS.filter(name => !inventory.some(item => isInventoryIngredientMatch(item.name, name)));
 
   const isBelowThreshold = (item: InventoryItem) => {
@@ -628,55 +611,20 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   const selectedPurchaseItem = inventory.find(item => newItemName.trim() && isInventoryIngredientMatch(item.name, newItemName.trim()));
   const purchaseLimitReached = Boolean(selectedPurchaseItem && activePurchaseBatchCount(getInventoryBatches(selectedPurchaseItem)) >= MAX_ACTIVE_PURCHASE_BATCHES);
 
-  const renderOverviewQuantity = (item: InventoryItem) => selectedInventoryItemId === item.id ? (
-    <div className="flex items-center gap-1 rounded-xl border border-emerald-100 bg-emerald-50 p-1" onClick={event => event.stopPropagation()}>
-      <button type="button" aria-label={`کم کردن ${item.name}`} onClick={() => {
-        const step = item.unit === 'کیلوگرم' ? 0.1 : 1;
-        updateInventoryItem(item.id, { amount: Math.max(0, roundQuantity(item.amount - step)) });
-      }} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-rose-600"><Minus size={15} /></button>
-      <input type="number" min="0" step="any" value={item.amount} aria-label={`مقدار ${item.name}`} onChange={event => updateInventoryItem(item.id, { amount: Math.max(0, Number(event.target.value) || 0) })} className="w-20 rounded-lg bg-white px-2 py-2 text-center text-sm font-black text-emerald-900 outline-none focus:ring-2 focus:ring-emerald-200" />
-      <select aria-label={`واحد ${item.name}`} value={item.unit} onChange={event => changeInventoryUnit(item, event.target.value)} className="max-w-28 rounded-lg bg-white px-2 py-2 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-emerald-200">
-        <option value="کیلوگرم">کیلوگرم</option><option value="عدد">عدد</option><option value="بسته">بسته</option><option value="لیتر">لیتر</option><option value="گرم">گرم</option><option value="میلی‌لیتر">میلی‌لیتر</option>
-      </select>
-      <button type="button" aria-label={`زیاد کردن ${item.name}`} onClick={() => {
-        const step = item.unit === 'کیلوگرم' ? 0.1 : 1;
-        updateInventoryItem(item.id, { amount: roundQuantity(item.amount + step) });
-      }} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-emerald-700"><Plus size={15} /></button>
-    </div>
-  ) : <span className="whitespace-nowrap font-black text-emerald-800">{toPersian(item.amount)} <small className="font-semibold text-slate-500">{item.unit}</small></span>;
-
-  const beginInventoryOverviewEdit = (item: InventoryItem) => {
-    setInventoryOverviewMessage(null);
-    setInventoryOverviewDraft({ id: item.id, amount: String(item.amount), threshold: String(item.minThreshold) });
+  const toggleInventoryForm = (column: number) => {
+    setAddMessage('');
+    setInventoryFormColumn(current => current === column ? null : column);
   };
 
-  const saveInventoryOverviewEdit = () => {
-    if (!inventoryOverviewDraft) return;
-    const amount = Number(inventoryOverviewDraft.amount);
-    const threshold = Number(inventoryOverviewDraft.threshold);
-    if (!inventoryOverviewDraft.amount.trim() || !inventoryOverviewDraft.threshold.trim() || !Number.isFinite(amount) || amount < 0 || !Number.isFinite(threshold) || threshold < 0) {
-      setInventoryOverviewMessage({ text: 'موجودی و آستانهٔ هشدار باید عدد معتبر و صفر یا بیشتر باشند.', isError: true });
-      return;
-    }
-    const item = inventory.find(row => row.id === inventoryOverviewDraft.id);
-    if (!item) {
-      setInventoryOverviewDraft(null);
-      return;
-    }
-    updateInventoryItem(item.id, { amount, minThreshold: threshold, minThresholdUnit: item.minThresholdUnit || item.unit });
-    setInventoryOverviewMessage({ text: amount === 0 ? `${item.name} تمام‌شده ثبت شد.` : `تغییرات ${item.name} ذخیره شد.`, isError: false });
-    setInventoryOverviewDraft(null);
-  };
-
-  const renderInlineInventoryForm = (compact = false) => <form onSubmit={event => { event.preventDefault(); const price = Number(newItemUnitPrice); void addToInventory(newItemName, Number(newItemAmount), newItemUnit || suggestPantryUnit(newItemName), false, newItemExpiry, Number.isFinite(price) && price > 0 ? price : undefined); }} className={`grid gap-2 ${compact ? 'grid-cols-1 sm:grid-cols-[minmax(160px,1fr)_90px_130px_140px_150px_auto_auto]' : 'grid-cols-1 md:grid-cols-[minmax(220px,1fr)_110px_135px_145px_160px_auto_auto]'}`}>
+  const renderInlineInventoryForm = (compact = false) => <form onSubmit={event => { event.preventDefault(); const price = Number(newItemUnitPrice); void addToInventory(newItemName, Number(newItemAmount), newItemUnit || suggestPantryUnit(newItemName), true, newItemExpiry, Number.isFinite(price) && price > 0 ? price : undefined); }} className={`grid gap-2 ${compact ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-4'}`}>
     <FoodIngredientCombobox id={`inline-pantry-name-${compact ? 'modal' : 'list'}`} inputRef={newItemNameRef} value={newItemName} onChange={value => { setNewItemName(value); setNewItemUnit(value.trim() ? suggestPantryUnit(value) : ''); }} onSelect={value => setNewItemUnit(suggestPantryUnit(value))} placeholder="نام ماده را جست‌وجو یا وارد کن…" />
-    <input aria-label="مقدار قلم تازه" type="number" min="0" step="any" value={newItemAmount} onChange={event => setNewItemAmount(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-center text-sm font-black outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" />
+    <input aria-label="مقدار قلم تازه" title="مقدار" placeholder="مقدار" type="number" min="0" step="any" value={newItemAmount} onChange={event => setNewItemAmount(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-center text-sm font-black outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100" />
     {newItemName.trim() && !PANTRY_ITEMS.some(category => category.subcategories.some(group => group.items.some(item => normalizePersian(item).trim() === normalizePersian(newItemName).trim()))) ? <><label className="sr-only" htmlFor={`inline-pantry-unit-${compact ? 'modal' : 'list'}`}>واحد مادهٔ دلخواه</label><select id={`inline-pantry-unit-${compact ? 'modal' : 'list'}`} aria-label="واحد مادهٔ دلخواه" value={newItemUnit || suggestPantryUnit(newItemName)} onChange={event => setNewItemUnit(event.target.value)} className="min-h-11 min-w-0 rounded-xl border border-slate-200 bg-white px-2 text-xs font-black text-slate-700 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100">{PANTRY_UNIT_OPTIONS.map(unit => <option key={unit} value={unit}>{unit}</option>)}</select></> : <span className="flex min-h-11 items-center justify-center rounded-xl bg-emerald-50 px-3 text-xs font-black text-emerald-800">{newItemName.trim() ? `واحد استاندارد: ${suggestPantryUnit(newItemName)}` : 'واحد پس از انتخاب ماده'}</span>}
     <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-500"><CalendarDays size={15} className="shrink-0 text-[#276556]"/><span className="sr-only">تاریخ انقضا (اختیاری)</span><input aria-label="تاریخ انقضای سری خرید" title="تاریخ انقضا (اختیاری)" type="date" value={newItemExpiry} onChange={event => setNewItemExpiry(event.target.value)} className="min-w-0 w-full bg-transparent text-xs text-slate-700 outline-none" /></label>
     <label className="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-[11px] font-bold text-slate-500"><span className="shrink-0">تومان / {newItemUnit || (newItemName.trim() ? suggestPantryUnit(newItemName) : 'واحد')}</span><input aria-label={`قیمت هر ${newItemUnit || (newItemName.trim() ? suggestPantryUnit(newItemName) : 'واحد')} به تومان (اختیاری)`} type="number" min="0.01" step="any" value={newItemUnitPrice} onChange={event => setNewItemUnitPrice(event.target.value)} placeholder="اختیاری" className="min-w-0 w-full bg-transparent text-xs text-slate-700 outline-none" /></label>
     {purchaseLimitReached && <p role="status" className="sm:col-span-full rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">دو سری خرید فعال برای این ماده ثبت شده؛ پس از مصرف بخشی از آن‌ها، خرید بعدی را اضافه کن.</p>}
-    <button type="submit" disabled={!newItemName.trim() || Number(newItemAmount) <= 0 || purchaseLimitReached} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Plus size={17} /> افزودن</button>
-    <button type="button" aria-label="بستن ردیف افزودن" onClick={() => setIsInlineAddingInventory(false)} className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-3 py-3 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={17} /></button>
+    <button type="submit" disabled={!newItemName.trim() || !Number.isFinite(Number(newItemAmount)) || Number(newItemAmount) <= 0 || purchaseLimitReached} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-3 text-xs font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Save size={16} /> ذخیره در انبار</button>
+    <button type="button" aria-label="بستن ردیف افزودن" onClick={() => setInventoryFormColumn(null)} className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-3 py-3 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={17} /></button>
   </form>;
 
   const sortedInventory = useMemo(() => [...inventory].sort((a, b) => a.name.localeCompare(b.name, 'fa')), [inventory]);
@@ -705,8 +653,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
               <td className="px-1 py-2.5"><div className="flex items-center justify-center gap-1"><button type="button" onClick={() => setSelectedInventoryItemId(editing ? null : item.id)} aria-label={`${editing ? 'پایان ویرایش' : 'ویرایش'} ${item.name}`} title="ویرایش" className={`grid h-7 w-7 place-items-center rounded-md ${editing ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-emerald-100'}`}><Pencil size={12}/></button><button type="button" onClick={() => removeFromInventory(item.id)} aria-label={`حذف ${item.name} از انبار`} title="حذف" className="grid h-7 w-7 place-items-center rounded-md bg-rose-50 text-rose-600 hover:bg-rose-100"><Trash2 size={12}/></button></div></td>
             </tr>;
           })}
-          {column === 0 && isInlineAddingInventory && <tr><td colSpan={6} className="p-2"><div className="min-w-[500px]">{renderInlineInventoryForm(true)}</div></td></tr>}
-          {column === 0 && <tr><td colSpan={6} className="p-2"><button type="button" onClick={() => setIsInlineAddingInventory(current => !current)} className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-emerald-300 bg-emerald-50/70 px-3 py-2 text-xs font-black text-emerald-800 transition hover:bg-emerald-100"><Plus size={15}/>{isInlineAddingInventory ? 'بستن ردیف افزودن' : 'افزودن مادهٔ غذایی'}</button></td></tr>}
+          {inventoryFormColumn === column && <tr><td colSpan={6} className="bg-emerald-50/60 p-2"><div className="min-w-[500px]">{renderInlineInventoryForm(true)}</div></td></tr>}
+          <tr><td colSpan={6} className="p-2"><button type="button" onClick={() => toggleInventoryForm(column)} className="flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-emerald-300 bg-emerald-50/70 px-3 py-2 text-xs font-black text-emerald-800 transition hover:bg-emerald-100"><Plus size={15}/>{inventoryFormColumn === column ? 'بستن ردیف افزودن' : 'افزودن مادهٔ غذایی'}</button></td></tr>
         </tbody>
       </table>
     </div>
@@ -850,8 +798,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-[10px] text-slate-400 font-black">{toPersian(inventory.length)} قلم در انبار</span>
                           <InventoryHistory user={user} onUpdateUser={onUpdateUser}/>
-                          <button type="button" onClick={() => setIsInventoryOverviewOpen(true)} className="noosh-cta-3d inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black" aria-haspopup="dialog">
-                            <Plus size={16} /> افزودن / مدیریت موجودی
+                          <button type="button" onClick={() => toggleInventoryForm(0)} className="noosh-cta-3d inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black">
+                            <Plus size={16} /> {inventoryFormColumn === 0 ? 'بستن فرم افزودن' : 'افزودن مادهٔ غذایی'}
                           </button>
                         </div>
                       </div>
@@ -870,6 +818,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                                 <button type="button" key={item} onClick={() => addToInventory(item)}><PantryFoodThumbnail item={item} /><span>{item}</span><Plus size={14}/></button>
                               ))}
                             </div>
+                            {inventoryFormColumn === 0 && <div className="mt-3 w-full max-w-3xl">{renderInlineInventoryForm()}</div>}
                           </div>
                         )}
                         {inventory.length > 0 && starterItemsToAdd.length > 0 && (
@@ -944,55 +893,6 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
           <button type="button" onClick={() => onNavigate('search')}>جستجوی غذا</button>
         </div>
       </section>}
-      {isInventoryOverviewOpen && createPortal(
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/55 p-2 text-slate-800 backdrop-blur-md animate-enter sm:p-4" dir="rtl" role="presentation" onClick={() => setIsInventoryOverviewOpen(false)}>
-          <section role="dialog" aria-modal="true" aria-labelledby="inventory-overview-title" className="flex h-[calc(100dvh-16px)] max-h-[calc(100dvh-16px)] w-full max-w-[1500px] flex-col overflow-hidden rounded-2xl border border-white/70 bg-[#f4f7f4] shadow-2xl shadow-slate-950/30 sm:h-[calc(100dvh-40px)] sm:max-h-[calc(100dvh-40px)] sm:rounded-[2rem]" onClick={event => event.stopPropagation()}>
-            <header className="relative flex shrink-0 items-center justify-between gap-4 border-b border-emerald-100 bg-white/95 px-4 py-4 shadow-sm backdrop-blur-xl sm:px-8 sm:py-5">
-              <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700"><Package size={22} /></span>
-                <div className="min-w-0">
-                  <h2 id="inventory-overview-title" className="truncate text-lg font-black text-slate-900 sm:text-2xl">موجودی انبار آشپزخانه</h2>
-                  <p className="mt-1 text-xs text-slate-500">{toPersian(inventory.length)} قلم غذایی · مرتب‌شده بر اساس نام</p>
-                </div>
-              </div>
-              <button type="button" onClick={() => setIsInventoryOverviewOpen(false)} aria-label="بستن مدیریت موجودی" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition hover:bg-emerald-100 hover:text-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-100"><X size={20} /></button>
-            </header>
-            {inventoryOverviewMessage && <p role={inventoryOverviewMessage.isError ? 'alert' : 'status'} className={`shrink-0 px-5 py-2 text-xs font-bold sm:px-8 ${inventoryOverviewMessage.isError ? 'bg-rose-50 text-rose-800' : 'bg-emerald-50 text-emerald-800'}`}>{inventoryOverviewMessage.text}</p>}
-            <div className="min-h-0 flex-1 overflow-auto p-3 sm:p-6">
-              <div className="mx-auto max-w-[1380px] overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-lg shadow-emerald-950/5 sm:rounded-3xl">
-                {inventory.length ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[900px] border-collapse text-right">
-                      <thead className="bg-emerald-50 text-xs font-black text-emerald-900 sm:text-sm">
-                        <tr><th className="w-24 px-4 py-4 sm:px-6">ویرایش</th><th className="px-4 py-4 sm:px-6">مادهٔ غذایی</th><th className="px-4 py-4 sm:px-6">موجودی</th><th className="px-4 py-4 sm:px-6">آستانهٔ هشدار</th><th className="px-4 py-4 sm:px-6">تاریخ انقضا اجناس</th><th className="px-4 py-4 sm:px-6">وضعیت</th></tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {[...inventory].sort((a, b) => a.name.localeCompare(b.name, 'fa')).map(item => {
-                          const editing = inventoryOverviewDraft?.id === item.id;
-                          const isEmpty = item.amount <= 0;
-                          const isLow = !isEmpty && isBelowThreshold(item);
-                          const expiry = earliestExpiry(item);
-                          const expiryState = inventoryExpiryState(expiry);
-                          return <tr key={item.id} className={`pantry-overview-table-row transition hover:bg-emerald-50/40 ${editing ? 'is-selected' : ''}`}>
-                            <td className="px-4 py-3 sm:px-6">{editing ? <div className="flex items-center gap-1.5"><button type="button" onClick={saveInventoryOverviewEdit} aria-label={`ذخیره تغییرات ${item.name}`} title="ذخیره" className="flex h-9 items-center justify-center gap-1 rounded-lg bg-emerald-700 px-2.5 text-xs font-black text-white hover:bg-emerald-800"><Check size={15}/>ذخیره</button><button type="button" onClick={() => { setInventoryOverviewDraft(null); setInventoryOverviewMessage(null); }} aria-label={`لغو ویرایش ${item.name}`} title="لغو" className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 text-white hover:bg-white/25"><X size={15}/></button></div> : <button type="button" onClick={() => beginInventoryOverviewEdit(item)} aria-label={`ویرایش ${item.name}`} className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-emerald-100 hover:text-emerald-800"><Pencil size={15} /></button>}</td>
-                            <td className="px-4 py-3 font-bold text-slate-800 sm:px-6">{item.name}</td>
-                            <td className="whitespace-nowrap px-4 py-3 sm:px-6">{editing ? <label className="inline-flex items-center gap-2"><input autoFocus type="number" min="0" step="any" value={inventoryOverviewDraft.amount} aria-label={`موجودی ${item.name}`} onChange={event => setInventoryOverviewDraft(current => current ? { ...current, amount: event.target.value } : current)} onKeyDown={event => { if (event.key === 'Enter') saveInventoryOverviewEdit(); if (event.key === 'Escape') { setInventoryOverviewDraft(null); setInventoryOverviewMessage(null); } }} className="w-24 rounded-lg border border-emerald-200 bg-white px-2 py-2 text-center text-sm font-black text-emerald-900 outline-none focus:border-[#276556] focus:ring-2 focus:ring-emerald-100"/><span className="text-xs font-bold text-slate-600">{item.unit}</span></label> : <span className={`whitespace-nowrap font-black ${isEmpty ? 'text-slate-400' : 'text-emerald-800'}`}>{toPersian(item.amount)} <small className="font-semibold text-slate-500">{item.unit}</small></span>}</td>
-                            <td className="whitespace-nowrap px-4 py-3 text-slate-600 sm:px-6">{editing ? <label className="inline-flex items-center gap-2"><input type="number" min="0" step="any" value={inventoryOverviewDraft.threshold} aria-label={`آستانه هشدار ${item.name}`} onChange={event => setInventoryOverviewDraft(current => current ? { ...current, threshold: event.target.value } : current)} onKeyDown={event => { if (event.key === 'Enter') saveInventoryOverviewEdit(); if (event.key === 'Escape') { setInventoryOverviewDraft(null); setInventoryOverviewMessage(null); } }} className="w-24 rounded-lg border border-emerald-200 bg-white px-2 py-2 text-center text-sm font-black text-slate-800 outline-none focus:border-[#276556] focus:ring-2 focus:ring-emerald-100"/><span className="text-xs font-bold text-slate-600">{item.minThresholdUnit || item.unit}</span></label> : <span>{toPersian(item.minThreshold)} {item.minThresholdUnit || item.unit}</span>}</td>
-                            <td className="whitespace-nowrap px-4 py-3 sm:px-6"><div className="flex items-center gap-2"><span className={`text-xs font-bold ${expiry ? expiryState === 'expired' ? 'text-rose-700' : expiryState === 'soon' ? 'text-amber-800' : 'text-slate-700' : 'text-slate-400'}`}>{expiry ? new Date(`${expiry}T00:00:00`).toLocaleDateString('fa-IR') : 'ثبت نشده'}</span><button type="button" onClick={() => setSelectedBatchItem(item)} aria-label={`ویرایش تاریخ انقضای اجناس ${item.name}`} title={`مدیریت سری خرید و تاریخ انقضای ${item.name}`} className="rounded-lg bg-amber-50 p-2 text-amber-800 hover:bg-amber-100"><CalendarDays size={15}/></button></div></td>
-                            <td className="px-4 py-3 sm:px-6"><span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs ${isEmpty ? 'bg-rose-100 font-black text-rose-800' : isLow ? 'bg-rose-50 font-black text-rose-700' : editing ? 'bg-white/15 font-black text-white' : 'bg-emerald-50 font-black text-emerald-800'}`}><i className={`h-1.5 w-1.5 rounded-full ${isEmpty ? 'bg-rose-600' : isLow ? 'bg-rose-500' : editing ? 'bg-emerald-200' : 'bg-emerald-500'}`} />{isEmpty ? 'تمام‌شده' : isLow ? 'نیازمند خرید' : 'موجود'}</span></td>
-                          </tr>;
-                        })}
-                        {isInlineAddingInventory ? <tr><td colSpan={6} className="bg-emerald-50/60 p-3 sm:p-4">{renderInlineInventoryForm(true)}</td></tr> : <tr><td colSpan={6} className="p-2 sm:p-3"><button type="button" onClick={() => setIsInlineAddingInventory(true)} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/70 px-4 py-3 text-sm font-black text-emerald-800 transition hover:border-emerald-500 hover:bg-emerald-100"><Plus size={18} /> افزودن ردیف جدید</button></td></tr>}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : <div className="flex min-h-64 flex-col items-center justify-center gap-3 p-8 text-center"><Package size={34} className="text-emerald-300" /><strong className="text-slate-700">هنوز قلمی در انبار ثبت نشده است</strong><span className="text-sm text-slate-500">با ردیف افزودن، موجودی آشپزخانه‌ات را ثبت کن.</span><button type="button" onClick={() => setIsInlineAddingInventory(true)} className="mt-2 inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-black text-white"><Plus size={17} /> افزودن مادهٔ غذایی</button>{isInlineAddingInventory && <div className="mt-3 w-full max-w-3xl">{renderInlineInventoryForm()}</div>}</div>}
-              </div>
-            </div>
-          </section>
-        </div>,
-        document.body
-      )}
       {pendingUnitCorrection && createPortal(
         <div className="fixed inset-0 z-[11000] grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm" dir="rtl" role="presentation" onClick={() => setPendingUnitCorrection(null)}>
           <section role="dialog" aria-modal="true" aria-labelledby="unit-correction-title" className="w-full max-w-lg rounded-[28px] border border-white/70 bg-[#f7f9f6] p-5 shadow-2xl sm:p-7" onClick={event => event.stopPropagation()}>
