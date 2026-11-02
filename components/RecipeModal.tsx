@@ -409,7 +409,7 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish: sourceDish, isOpen, onC
                   </> : <p className="mt-2 text-xs font-bold leading-6 text-amber-900">برای برآورد هزینهٔ تمام‌شدهٔ دقیق، قیمت خرید اقلام را در انبار به‌روز کن. تا وقتی قیمت ثبت نشود، هزینه‌ای حدس زده نمی‌شود.</p>}
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-xs font-bold leading-6 text-amber-950">برای برآورد درست و دقیقِ هزینهٔ تمام‌شدهٔ غذا، لازم است قیمت اقلام غذایی را به‌روز کنی.</p>
-                    {onOpenInventory && <button type="button" onClick={onOpenInventory} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#276556] px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-[#1f5145] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-200"><ReceiptText size={15}/>به‌روزرسانی قیمت‌ها</button>}
+                    {onOpenInventory && <button type="button" onClick={onOpenInventory} className="price-update-cta noosh-cta-3d inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2 text-xs font-black"><ReceiptText size={15}/>به‌روزرسانی قیمت‌ها</button>}
                   </div>
                 </section>}
 

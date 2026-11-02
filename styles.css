@@ -131,6 +131,13 @@ button{cursor:pointer}button:disabled{cursor:wait;opacity:.55}button:hover:not(:
 @media(max-width:760px){.planner-hero-controls .diet-filters button{flex:1 1 0;min-width:0;min-height:46px;justify-content:center;gap:5px;padding:8px 6px;font-size:12px;white-space:normal}.planner-hero-controls .diet-filters button svg{width:16px;height:16px}}
 @media(max-width:380px){.planner-hero-controls .diet-filters button{font-size:11px;gap:4px;padding-inline:4px}}
 
+/* Keep the pantry recommendation CTA centered independently of the inventory switch. */
+.pantry-hero-controls{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;justify-content:stretch}
+.pantry-mode-switch-wrap{grid-column:1;justify-self:start}
+.pantry-hero-inventory{grid-column:2;justify-self:center}
+.price-update-cta.noosh-cta-3d{min-height:44px;padding:10px 16px;font-size:11px}
+@media(max-width:640px){.pantry-hero-controls{grid-template-columns:minmax(0,1fr);gap:8px}.pantry-mode-switch-wrap,.pantry-hero-inventory{grid-column:1;justify-self:stretch}.pantry-hero-inventory .pantry-hero-stock-cta{width:100%}}
+
 /* Compact ingredient pictograms: recognizable choices without widening the pantry menu. */
 .pantry-food-combobox-option{display:flex;align-items:center;gap:8px;min-height:42px;padding:5px 7px;text-align:right;line-height:1.55}
 .pantry-food-thumbnail{display:block;width:32px;height:32px;flex:0 0 32px;border-radius:10px}
