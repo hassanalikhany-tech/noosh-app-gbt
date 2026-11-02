@@ -21,6 +21,8 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave, saveMode
   const [error, setError] = useState('');
   const [pendingUnits, setPendingUnits] = useState<number[]>([]);
 
+  const isToTasteUnit = (unit: string) => /^(?:به\s*(?:میزان|مقدار)\s*لازم|دلخواه)$/u.test(String(unit || '').trim());
+
   if (!formData || !formData.id) {
     return (
       <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4" onClick={onClose}>
@@ -94,15 +96,21 @@ const DishEditor: React.FC<DishEditorProps> = ({ dish, onClose, onSave, saveMode
     // reviewers must still be able to fix spelling in recipes whose old amounts
     // are exactly what they are auditing; publication validates approved recipes.
     if (saveMode === 'publish') {
-      const quantityProblem = formData.ingredients.map(ingredient => recipeQuantityProblem(ingredient, Number(formData.servings) || 4)).find(Boolean);
+      const quantityProblem = formData.ingredients.map(ingredient => recipeQuantityProblem(
+        isToTasteUnit(ingredient.unit) && !Number.isFinite(parseQuantity(ingredient.amount)) ? { ...ingredient, amount: 0 } : ingredient,
+        parseQuantity(formData.servings) || 4,
+      )).find(Boolean);
       if (quantityProblem) { setError(quantityProblem); return; }
     }
     if (pendingUnits.length) { setError('برای واحدهای تغییرکردهٔ بدون تبدیل قطعی، مقدار واقعی جدید را هم وارد کن.'); return; }
     if (!formData.name.trim() || !formData.category || !Array.isArray(formData.recipeSteps) || formData.recipeSteps.length === 0 || formData.recipeSteps.some(step => !step.trim())) { setError('نام غذا و دست‌کم یک مرحلهٔ کامل برای دستور پخت لازم است.'); return; }
-    if (!Number.isFinite(Number(formData.servings)) || Number(formData.servings) <= 0 || formData.ingredients.some(ingredient => !ingredient.item.trim() || !Number.isFinite(parseQuantity(ingredient.amount)) || parseQuantity(ingredient.amount) < 0)) { setError('نام مواد، مقدارهای غیرمنفی و تعداد نفرات پایه را بررسی کن.'); return; }
+    const servings = parseQuantity(formData.servings);
+    if (!Number.isFinite(servings) || servings <= 0) { setError('تعداد نفرات پایه باید عددی مثبت باشد.'); return; }
+    if (formData.ingredients.some(ingredient => !ingredient.item.trim())) { setError('نام همهٔ مواد لازم را وارد کن؛ ردیف خالی را حذف کن یا نام ماده را بنویس.'); return; }
+    if (formData.ingredients.some(ingredient => !isToTasteUnit(ingredient.unit) && (!Number.isFinite(parseQuantity(ingredient.amount)) || parseQuantity(ingredient.amount) < 0))) { setError('مقدار هر ماده باید عددی غیرمنفی باشد؛ برای نمک و فلفلِ چشمی، واحد «به میزان لازم» را انتخاب کن.'); return; }
     setIsSaving(true);
     try {
-      const rawBasisDish = { ...formData, ingredients: formData.ingredients.map(ingredient => ({ ...ingredient, state: 'raw' as const })) };
+      const rawBasisDish = { ...formData, servings, ingredients: formData.ingredients.map(ingredient => ({ ...ingredient, amount: isToTasteUnit(ingredient.unit) && !Number.isFinite(parseQuantity(ingredient.amount)) ? 0 : parseQuantity(ingredient.amount), state: 'raw' as const })) };
       if (saveMode === 'draft') {
         const saved = onSave(rawBasisDish);
         if (saved === false) {
