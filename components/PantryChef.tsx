@@ -721,7 +721,14 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     </form>;
   };
 
-  const sortedInventory = useMemo(() => [...inventory].sort((a, b) => a.name.localeCompare(b.name, 'fa')), [inventory]);
+  const sortedInventory = useMemo(() => [...inventory].sort((a, b) => {
+    const expiryA = earliestExpiry(a);
+    const expiryB = earliestExpiry(b);
+    if (expiryA && expiryB) return expiryA.localeCompare(expiryB) || a.name.localeCompare(b.name, 'fa');
+    if (expiryA) return -1;
+    if (expiryB) return 1;
+    return a.name.localeCompare(b.name, 'fa');
+  }), [inventory]);
   const getInventoryPriceSummary = (item: InventoryItem) => {
     const liveBatches = getInventoryBatches(item).filter(batch => batch.amount > 1e-9);
     const pricedBatches = liveBatches.filter(batch => Number.isFinite(batch.unitPrice) && batch.unitPrice! > 0);
