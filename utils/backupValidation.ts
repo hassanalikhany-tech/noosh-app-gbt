@@ -10,7 +10,7 @@ const validDateOnly = (value: unknown) => {
   const date = new Date(year, month - 1, day);
   return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
 };
-const validBatch = (row: any) => text(row.id, 180) && nonnegative(row.amount) && (row.purchaseAmount === undefined || nonnegative(row.purchaseAmount) && row.purchaseAmount > 0) && (row.unitPrice === undefined || nonnegative(row.unitPrice) && row.unitPrice > 0) && (row.costApproximate === undefined || typeof row.costApproximate === 'boolean') && (row.lastPurchasedAt === undefined || nonnegative(row.lastPurchasedAt)) && nonnegative(row.receivedAt) && (row.expiresOn === undefined || validDateOnly(row.expiresOn));
+const validBatch = (row: any) => text(row.id, 180) && nonnegative(row.amount) && (row.purchaseAmount === undefined || nonnegative(row.purchaseAmount) && row.purchaseAmount > 0) && (row.unitPrice === undefined || nonnegative(row.unitPrice) && row.unitPrice > 0) && (row.purchaseUnitPrice === undefined || nonnegative(row.purchaseUnitPrice) && row.purchaseUnitPrice > 0) && (row.costApproximate === undefined || typeof row.costApproximate === 'boolean') && (row.lastPurchasedAt === undefined || nonnegative(row.lastPurchasedAt)) && nonnegative(row.receivedAt) && (row.expiresOn === undefined || validDateOnly(row.expiresOn));
 const rows = (value: unknown, check: (item: any) => boolean, max = 20000) => Array.isArray(value) && value.length <= max && value.every(item => record(item) && check(item));
 
 export const validBackupDish = (dish: unknown): boolean => record(dish) && text(dish.id, 180) && text(dish.name, 120) &&

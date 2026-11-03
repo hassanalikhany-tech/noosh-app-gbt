@@ -275,6 +275,8 @@ export interface InventoryBatch {
   /** Original purchased amount and per-unit purchase price; retained after consumption. */
   purchaseAmount?: number;
   unitPrice?: number;
+  /** Historical weighted purchase price, separate from the remaining stock's moving average. */
+  purchaseUnitPrice?: number;
   /** Indicates that this merged series inherited a price across previously unpriced stock. */
   costApproximate?: boolean;
   lastPurchasedAt?: number;

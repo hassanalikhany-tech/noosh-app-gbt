@@ -3,7 +3,8 @@ import { convertIngredientQuantity, getIngredientIdentity } from './recipeHelper
 
 export const purchaseRecordFromBatch = (item: InventoryItem, batch: InventoryBatch): PurchaseRecord | null => {
   if (batch.purchaseAmount === undefined || batch.purchaseAmount <= 0) return null;
-  const unitPrice = Number.isFinite(batch.unitPrice) && batch.unitPrice! > 0 ? batch.unitPrice : undefined;
+  const historicalPrice = batch.purchaseUnitPrice ?? batch.unitPrice;
+  const unitPrice = Number.isFinite(historicalPrice) && historicalPrice! > 0 ? historicalPrice : undefined;
   return {
     id: batch.id,
     inventoryId: item.id,

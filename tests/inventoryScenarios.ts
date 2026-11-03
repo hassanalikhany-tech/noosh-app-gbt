@@ -4,7 +4,8 @@ import { applyCookingTransaction, inventoryFingerprint, normalizeInventoryStorag
 import { mergeShoppingNeeds } from '../utils/shoppingQuantities';
 import { deductInventoryBatches, restoreInventoryBatches, resizeInventoryBatches } from '../utils/inventoryBatches';
 import { estimateRecipeCost } from '../utils/recipeCosts';
-import { appendInventoryBatch } from '../utils/inventoryBatches';
+import { mergePurchaseHistory } from '../utils/purchaseHistory';
+import { appendInventoryBatch, findCompatiblePurchaseBatch, mergeInventoryPurchase } from '../utils/inventoryBatches';
 import { Dish, InventoryItem, UserProfile } from '../types';
 const stock = (amount=5, unit='کیلوگرم', name='برنج', id='rice'): InventoryItem => ({ id,name,amount,unit,minThreshold:0,lastUpdated:0 });
 const dish = (amount=2, unit='پیمانه', item='برنج', servings=4): Dish => ({ id:'test',name:'آزمایش پخت',category:'polo',description:'',servings,ingredients:[{item,amount,unit}],recipeSteps:[] });
@@ -24,7 +25,42 @@ assert.equal(estimateRecipeCost(costDish, 2, ricePriceInventory).pricedSubtotal,
 assert.equal(estimateRecipeCost({ ...costDish, ingredients:[...costDish.ingredients, { item:'زعفران', amount:1, unit:'گرم' }] }, 4, ricePriceInventory).pricedRows, 1, 'Unpriced ingredients stay excluded instead of receiving invented prices');
 const twoPurchaseBatches = appendInventoryBatch(appendInventoryBatch(stock(0), 1, undefined, 100000), 0.5, undefined, 120000);
 assert.equal(twoPurchaseBatches.stockBatches?.filter(batch => batch.purchaseAmount !== undefined && batch.amount > 0).length, 2, 'Two separately priced purchase series remain active together');
-assert.throws(() => appendInventoryBatch(twoPurchaseBatches, 0.5, undefined, 130000), /دو سری خرید فعال/, 'A third purchase is blocked while both priced series still have stock');
+const thirdUndated = appendInventoryBatch(twoPurchaseBatches, 0.5, undefined, 130000);
+assert.equal(thirdUndated.amount, 2, 'Third purchase is accepted without losing stock');
+assert.equal(thirdUndated.stockBatches?.length, 3, 'Unknown expiry keeps purchases separate');
+const compatibleStock = { ...stock(3), stockBatches: [
+  { id:'older-compatible', amount:1, purchaseAmount:1, unitPrice:100000, expiresOn:'2027-01-12', receivedAt:1 },
+  { id:'latest-compatible', amount:2, purchaseAmount:2, unitPrice:105000, expiresOn:'2027-01-15', receivedAt:2 },
+] };
+const autoMerged = appendInventoryBatch(compatibleStock, 1, '2027-01-10', 110000);
+assert.equal(autoMerged.stockBatches!.length, 2, 'Compatible third purchase merges without a new series');
+assert.equal(autoMerged.stockBatches![0].amount, 1, 'Older matching series stays unchanged');
+assert.equal(autoMerged.stockBatches![1].amount, 3, 'Latest matching series receives the new amount');
+assert.equal(autoMerged.stockBatches![1].purchaseAmount, 3);
+assert.equal(autoMerged.stockBatches![1].unitPrice, (2 * 105000 + 110000) / 3, 'Merged price is weighted by purchase quantities');
+assert.equal(autoMerged.stockBatches![1].expiresOn, '2027-01-10', 'Earlier incoming expiry is retained');
+assert.equal(autoMerged.amount, 4, 'Aggregate agrees with merged batch quantities');
+assert.equal(compatibleStock.stockBatches[1].amount, 2, 'Merge does not mutate original stock');
+assert.equal(appendInventoryBatch(compatibleStock, 1, '2027-03-10', 110000).stockBatches!.length, 3, 'Distant expiry is recorded separately');
+assert.equal(appendInventoryBatch(compatibleStock, 1, '2027-01-15', 200000).stockBatches!.length, 3, 'Distant price is recorded separately');
+assert.equal(appendInventoryBatch(compatibleStock, 1, '2027-01-15').stockBatches!.length, 3, 'Unknown price is recorded separately');
+assert.equal(findCompatiblePurchaseBatch(compatibleStock.stockBatches, '2027-01-22', 115500)?.id, 'latest-compatible', 'Similarity includes 7 days and 10 percent boundaries');
+assert.equal(mergeInventoryPurchase(compatibleStock.stockBatches[0], 1, '2027-02-01', 110000).expiresOn, '2027-01-12', 'Later incoming expiry never delays existing expiry');
+assert.equal(mergeInventoryPurchase(compatibleStock.stockBatches[0], 1).costApproximate, true, 'Unknown incoming price marks inherited estimates approximate');
+assert.throws(() => appendInventoryBatch(compatibleStock, -1), /مقدار خرید/);
+const manualMerge = appendInventoryBatch(compatibleStock, 1, '2027-01-01', 120000, 'older-compatible');
+assert.equal(manualMerge.stockBatches![0].amount, 2, 'Explicit series selection is honored');
+assert.equal(manualMerge.stockBatches![0].expiresOn, '2027-01-01');
+const partiallyConsumed = { ...compatibleStock.stockBatches[0], amount:1, purchaseAmount:10 };
+const movingAverage = mergeInventoryPurchase(partiallyConsumed, 1, '2027-01-13', 110000);
+assert.equal(movingAverage.unitPrice, 105000, 'Remaining stock, not already consumed stock, weights inventory cost');
+assert.equal(movingAverage.purchaseUnitPrice, 1110000 / 11, 'Historical purchases keep their full original value');
+const mergedHistory = mergePurchaseHistory([], stock(2), [movingAverage]);
+assert.equal(mergedHistory[0].amount, 11);
+assert.equal(mergedHistory[0].totalPrice, 1110000, 'Historical cost is preserved after a partially consumed lot receives a purchase');
+const remixed = mergeInventoryPurchase({ ...movingAverage, amount:0.5 }, 0.5, '2027-01-12', 100000);
+assert.equal(remixed.unitPrice, 102500);
+assert.ok(Math.abs(mergePurchaseHistory(mergedHistory, stock(1), [remixed])[0].totalPrice! - 1160000) < 1e-6, 'Repeated merges retain all purchase costs');
 assert.equal(parseQuantity('۱٫۲۵'),1.25);
 assert.equal(parseQuantity('١/٢'),0.5);
 assert.equal(parseQuantity('1 ½'),1.5);

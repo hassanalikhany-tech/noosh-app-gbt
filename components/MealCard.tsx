@@ -16,9 +16,10 @@ interface MealCardProps {
   onUpdateUser?: (user: UserProfile) => void;
   onRefresh?: () => void | Promise<void>;
   onOpenInventory?: () => void;
+  missingItems?: string[];
 }
 
-const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh, onOpenInventory }) => {
+const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh, onOpenInventory, missingItems }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const dish = user.personalRecipeEdits?.[plan.dish.id]
@@ -142,6 +143,16 @@ const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh
         <div className="p-3 flex flex-col flex-grow text-right bg-white relative">
           {isDishProhibited(dish, user) && <p role="note" className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold leading-6 text-amber-900">حاوی مواد ممنوع یا نامطلوب ثبت‌شده در تنظیمات شما؛ مناسب پیشنهاد و برنامهٔ غذایی شما نیست.</p>}
           <h3 className={`text-base font-bold transition-all duration-500 mb-1.5 ${isLocked ? 'text-slate-300' : 'text-slate-800 group-hover:text-teal-600'}`}>{dish.name}</h3>
+          {missingItems && missingItems.length > 0 && (
+            <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-950" dir="rtl">
+              <p className="mb-2 text-xs font-bold">موادِ کسری</p>
+              <ul aria-label="موادِ کسری این غذا" className="flex flex-wrap gap-1.5 text-xs leading-5">
+                {[...new Set(missingItems)].map(item => (
+                  <li key={item} className="max-w-full break-words rounded-lg border border-amber-200 bg-white px-2 py-1">{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           {dish.isLocallyEdited && <span className="mb-2 inline-flex w-fit rounded-lg bg-emerald-50 px-2 py-1 text-[10px] font-black text-[#276556]">نسخهٔ شخصی شما</span>}
           {personalRating > 0 && <div className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-lg bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-800" aria-label={`امتیاز شخصی شما ${toPersianDigits(personalRating)} از ۵`} title="امتیاز شخصی شما"><span>امتیاز شما</span><span className="inline-flex items-center gap-0.5"><Star size={12} className="fill-amber-400 text-amber-500" />{toPersianDigits(personalRating)} از ۵</span></div>}
           {dish.isCommunityRecipe && dish.creatorName && <p className="-mt-1 mb-2 text-[10px] leading-5 font-bold text-[#276556]">{formatCommunityAttribution(dish)} <button type="button" onClick={event => { event.stopPropagation(); showCreatorRecipes(dish.creatorName!); }} className="mt-1 inline-flex min-h-9 items-center rounded-lg bg-[#edf4f0] px-2 text-xs font-black text-[#276556] hover:bg-[#dcebe3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#276556]" aria-label={`دیدن همهٔ رسپی‌های ${dish.creatorName}`}>همهٔ رسپی‌های {dish.creatorName} ←</button></p>}

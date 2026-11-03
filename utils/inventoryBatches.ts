@@ -19,9 +19,47 @@ export const getInventoryBatches = (item: InventoryItem): InventoryBatch[] => {
 
 export const sumInventoryBatches = (batches: InventoryBatch[]) => roundQuantity(batches.reduce((sum, batch) => sum + batch.amount, 0));
 
-export const appendInventoryBatch = (item: InventoryItem, amount: number, expiresOn?: string, unitPrice?: number): InventoryItem => {
+/** Latest active purchase with expiry within 7 days and price within 10%. Unknown values stay separate. */
+export const findCompatiblePurchaseBatch = (batches: InventoryBatch[], expiresOn?: string, unitPrice?: number) => {
+  if (!expiresOn || !Number.isFinite(unitPrice) || unitPrice! <= 0) return undefined;
+  const expiry = Date.parse(`${expiresOn}T00:00:00Z`);
+  return batches.filter(batch => batch.amount > 0 && batch.purchaseAmount !== undefined && batch.expiresOn && batch.unitPrice &&
+    Math.abs(Date.parse(`${batch.expiresOn}T00:00:00Z`) - expiry) <= 7 * 86400000 &&
+    Math.abs(batch.unitPrice - unitPrice!) / batch.unitPrice <= 0.1 + 1e-9)
+    .sort((a, b) => (b.lastPurchasedAt ?? b.receivedAt) - (a.lastPurchasedAt ?? a.receivedAt))[0];
+};
+
+export const mergeInventoryPurchase = (batch: InventoryBatch, amount: number, expiresOn?: string, unitPrice?: number): InventoryBatch => {
+  if (!Number.isFinite(amount) || amount <= 0) throw new Error('مقدار خرید باید بیشتر از صفر باشد.');
+  const previousPurchased = batch.purchaseAmount ?? batch.amount;
+  const purchaseAmount = previousPurchased + amount;
+  const hasPrice = Number.isFinite(unitPrice) && unitPrice! > 0;
+  const nextPrice = hasPrice ? batch.unitPrice ? (batch.amount * batch.unitPrice + amount * unitPrice!) / (batch.amount + amount) : unitPrice : batch.unitPrice;
+  const previousPurchasePrice = batch.purchaseUnitPrice ?? batch.unitPrice;
+  const purchaseUnitPrice = hasPrice ? previousPurchasePrice ? (previousPurchased * previousPurchasePrice + amount * unitPrice!) / purchaseAmount : unitPrice : previousPurchasePrice;
+  return {
+    ...batch,
+    amount: roundQuantity(batch.amount + amount),
+    purchaseAmount,
+    ...(nextPrice ? { unitPrice: nextPrice } : {}),
+    ...(purchaseUnitPrice ? { purchaseUnitPrice } : {}),
+    ...((!batch.unitPrice || !hasPrice) && batch.amount > 0 ? { costApproximate: true } : {}),
+    expiresOn: batch.expiresOn && expiresOn ? [batch.expiresOn, expiresOn].sort()[0] : batch.expiresOn || expiresOn,
+    lastPurchasedAt: Date.now(),
+  };
+};
+
+export const appendInventoryBatch = (item: InventoryItem, amount: number, expiresOn?: string, unitPrice?: number, mergeBatchId?: string): InventoryItem => {
+  if (!Number.isFinite(amount) || amount <= 0) throw new Error('مقدار خرید باید بیشتر از صفر باشد.');
   const existing = getInventoryBatches(item);
-  if (activePurchaseBatchCount(existing) >= MAX_ACTIVE_PURCHASE_BATCHES) throw new Error('برای این ماده دو سری خرید فعال داری. پس از مصرف بخشی از موجودی و آزاد شدن یک سری، خرید بعدی را ثبت کن.');
+  const target = mergeBatchId ? existing.find(batch => batch.id === mergeBatchId && batch.amount > 0)
+    : activePurchaseBatchCount(existing) >= MAX_ACTIVE_PURCHASE_BATCHES ? findCompatiblePurchaseBatch(existing, expiresOn, unitPrice) : undefined;
+  if (mergeBatchId && !target) throw new Error('سری انتخاب‌شده دیگر موجودی ندارد؛ سری دیگری انتخاب کن.');
+  if (target) {
+    const merged = mergeInventoryPurchase(target, amount, expiresOn, unitPrice);
+    const stockBatches = existing.map(batch => batch.id === target.id ? merged : batch);
+    return { ...item, amount: sumInventoryBatches(stockBatches), stockBatches };
+  }
   const purchasedAt = Date.now();
   return {
     ...item,

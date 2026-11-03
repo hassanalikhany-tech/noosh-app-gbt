@@ -415,7 +415,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       if (!stockBatches && item.stockBatches?.length) {
         if (nextUnit !== item.unit && item.amount > 0) {
           const factor = nextAmount / item.amount;
-          stockBatches = getInventoryBatches(item).map(batch => ({ ...batch, amount: roundQuantity(batch.amount * factor), ...(factor > 0 ? { ...(batch.purchaseAmount !== undefined ? { purchaseAmount: roundQuantity(batch.purchaseAmount * factor) } : {}), ...(batch.unitPrice !== undefined ? { unitPrice: batch.unitPrice / factor } : {}) } : { purchaseAmount: undefined, unitPrice: undefined }) }));
+          stockBatches = getInventoryBatches(item).map(batch => ({ ...batch, amount: roundQuantity(batch.amount * factor), ...(factor > 0 ? { ...(batch.purchaseAmount !== undefined ? { purchaseAmount: roundQuantity(batch.purchaseAmount * factor) } : {}), ...(batch.unitPrice !== undefined ? { unitPrice: batch.unitPrice / factor } : {}), ...(batch.purchaseUnitPrice !== undefined ? { purchaseUnitPrice: batch.purchaseUnitPrice / factor } : {}) } : { purchaseAmount: undefined, unitPrice: undefined, purchaseUnitPrice: undefined }) }));
         } else stockBatches = resizeInventoryBatches(item, nextAmount);
       }
       return { ...item, ...updates, ...(stockBatches ? { stockBatches } : {}), lastUpdated: Date.now() };
@@ -468,9 +468,12 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       const priceInInventoryUnit = unitPrice && incoming.amount > 0 ? unitPrice * amount / incoming.amount : undefined;
       try { appended = appendInventoryBatch(existingItem, incoming.amount, expiresOn || undefined, priceInInventoryUnit); }
       catch (error) { setAddMessage(error instanceof Error ? error.message : 'سری خرید تازه ثبت نشد.'); return false; }
-      const newBatch = appended.stockBatches![appended.stockBatches!.length - 1];
+      const changedBatches = appended.stockBatches!.filter(batch => {
+        const previous = getInventoryBatches(existingItem).find(row => row.id === batch.id);
+        return !previous || previous.purchaseAmount !== batch.purchaseAmount;
+      });
       const newInventory = inventory.map(row => row.id === existingItem.id ? { ...appended, lastUpdated: Date.now() } : row);
-      const purchaseHistory = mergePurchaseHistory(user.purchaseHistory || [], existingItem, [newBatch]);
+      const purchaseHistory = mergePurchaseHistory(user.purchaseHistory || [], existingItem, changedBatches);
       onUpdateUser({ ...user, inventory: newInventory, purchaseHistory });
       UserService.updateProfile(user.username, { inventory: newInventory, purchaseHistory }).catch(error => console.error('Failed to save purchase:', error));
       setAddMessage(`${cleanName} به موجودی اضافه شد؛ واحد قبلی ${existingItem.unit} حفظ شد.`);
@@ -565,43 +568,15 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
           throw new Error(`واحد «${draft.unit}» برای ${shoppingItem.name} به واحد انبار «${existing.unit}» تبدیل نمی‌شود. واحد سازگار را انتخاب کن.`);
         }
         const priceInInventoryUnit = enteredPrice ? enteredPrice * enteredAmount / converted.amount : undefined;
-        const batches = getInventoryBatches(existing);
-        const activeCount = activePurchaseBatchCount(batches);
-        const shouldMerge = Boolean(draft.mergeBatchId) || activeCount >= MAX_ACTIVE_PURCHASE_BATCHES;
-        let updatedItem: InventoryItem;
-        let changedBatch: InventoryBatch;
-
-        if (shouldMerge) {
-          const targetId = draft.mergeBatchId || '';
-          const target = batches.find(batch => batch.id === targetId && batch.amount > 0);
-          if (!target) {
-            throw new Error(`برای «${shoppingItem.name}» دو سری خرید فعال است؛ یکی از سری‌ها را برای افزودن خرید انتخاب کن.`);
-          }
-          const previousPurchased = target.purchaseAmount ?? target.amount;
-          const nextPurchased = previousPurchased + converted.amount;
-          const nextPrice = priceInInventoryUnit
-            ? target.unitPrice ? (previousPurchased * target.unitPrice + converted.amount * priceInInventoryUnit) / nextPurchased : priceInInventoryUnit
-            : target.unitPrice;
-          changedBatch = {
-            ...target,
-            amount: target.amount + converted.amount,
-            purchaseAmount: nextPurchased,
-            ...(nextPrice ? { unitPrice: nextPrice } : {}),
-            ...(!target.unitPrice && priceInInventoryUnit && target.amount > 0 ? { costApproximate: true } : {}),
-            ...(converted.estimated ? { costApproximate: true } : {}),
-            lastPurchasedAt: now,
-          };
-          const updatedBatches = batches.map(batch => batch.id === target.id ? changedBatch : batch);
-          updatedItem = { ...existing, amount: sumInventoryBatches(updatedBatches), lastUpdated: now, stockBatches: updatedBatches };
-        } else {
-          updatedItem = appendInventoryBatch(existing, converted.amount, draft.expiresOn || undefined, priceInInventoryUnit);
-          const appended = updatedItem.stockBatches![updatedItem.stockBatches!.length - 1];
-          changedBatch = converted.estimated ? { ...appended, costApproximate: true } : appended;
-          if (converted.estimated) updatedItem = { ...updatedItem, stockBatches: updatedItem.stockBatches!.map(batch => batch.id === changedBatch.id ? changedBatch : batch) };
-        }
+        let updatedItem = appendInventoryBatch(existing, converted.amount, draft.expiresOn || undefined, priceInInventoryUnit, draft.mergeBatchId || undefined);
+        const changedBatches = updatedItem.stockBatches!.filter(batch => {
+          const previous = getInventoryBatches(existing).find(row => row.id === batch.id);
+          return !previous || previous.purchaseAmount !== batch.purchaseAmount;
+        }).map(batch => converted.estimated ? { ...batch, costApproximate: true } : batch);
+        updatedItem = { ...updatedItem, lastUpdated: now, stockBatches: updatedItem.stockBatches!.map(batch => changedBatches.find(row => row.id === batch.id) || batch) };
 
         nextInventory[matchIndex] = updatedItem;
-        nextPurchaseHistory = mergePurchaseHistory(nextPurchaseHistory, existing, [changedBatch]);
+        nextPurchaseHistory = mergePurchaseHistory(nextPurchaseHistory, existing, changedBatches);
         }
       }
 
@@ -706,7 +681,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     const suggestedUnit = newItemUnit || suggestPantryUnit(newItemName);
     const submit = (event: React.FormEvent) => {
       event.preventDefault();
-      if (!newItemName.trim() || !Number.isFinite(Number(newItemAmount)) || Number(newItemAmount) <= 0 || !Number.isFinite(Number(newItemThreshold)) || Number(newItemThreshold) < 0 || purchaseLimitReached) return;
+      if (!newItemName.trim() || !Number.isFinite(Number(newItemAmount)) || Number(newItemAmount) <= 0 || !Number.isFinite(Number(newItemThreshold)) || Number(newItemThreshold) < 0) return;
       setShowInventoryAddConfirm(true);
     };
     return <form id={`inventory-add-row-${inventoryFormColumn ?? 0}`} onSubmit={submit} className={`grid items-stretch gap-2 ${compact ? 'min-w-[850px] grid-cols-[1.8fr_1fr_1.1fr_1fr_1.1fr_.8fr_1fr]' : 'grid-cols-1 sm:grid-cols-2'}`}>
@@ -716,8 +691,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       <div className="min-w-0 p-1"><JalaliDateInput value={newItemExpiry} onChange={setNewItemExpiry} ariaLabel="تاریخ انقضا به شمسی" className="h-11 w-full rounded-lg border border-slate-200 bg-white px-2 text-center text-xs text-slate-700 outline-none focus:border-[#276556]"/></div>
       <div className="flex min-w-0 items-center justify-center p-1"><input aria-label={`قیمت هر ${suggestedUnit} به تومان (اختیاری)`} title={`قیمت هر ${suggestedUnit} به تومان (اختیاری)`} type="number" min="0.01" step="any" value={newItemUnitPrice} onChange={event => setNewItemUnitPrice(event.target.value)} placeholder="قیمت (تومان)" className="w-full min-w-0 rounded-lg border border-slate-200 bg-white px-2 py-2.5 text-center text-xs"/></div>
       <div className="flex items-center justify-center p-1"><span className="rounded-full bg-emerald-50 px-2 py-1.5 text-center text-[10px] font-black text-emerald-800">قلم تازه</span></div>
-      <div className="flex flex-col items-center justify-center gap-2 p-1"><button type="submit" form={`inventory-add-row-${inventoryFormColumn ?? 0}`} disabled={!newItemName.trim() || !Number.isFinite(Number(newItemAmount)) || Number(newItemAmount) <= 0 || !Number.isFinite(Number(newItemThreshold)) || Number(newItemThreshold) < 0 || purchaseLimitReached} title="ثبت مادهٔ غذایی" aria-label="ثبت مادهٔ غذایی" className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-700 text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Save size={17}/></button><button type="button" aria-label="انصراف و حذف ردیف افزودن" title="انصراف" onClick={cancelInlineInventoryAdd} className="grid h-9 w-9 place-items-center rounded-xl bg-slate-100 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={15}/></button></div>
-      {purchaseLimitReached && <p role="status" className="col-span-7 rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">دو سری خرید فعال برای این ماده ثبت شده؛ تا مصرف بخشی از آن‌ها، خرید تازه را اضافه نکن.</p>}
+      <div className="flex flex-col items-center justify-center gap-2 p-1"><button type="submit" form={`inventory-add-row-${inventoryFormColumn ?? 0}`} disabled={!newItemName.trim() || !Number.isFinite(Number(newItemAmount)) || Number(newItemAmount) <= 0 || !Number.isFinite(Number(newItemThreshold)) || Number(newItemThreshold) < 0} title="ثبت مادهٔ غذایی" aria-label="ثبت مادهٔ غذایی" className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-700 text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Save size={17}/></button><button type="button" aria-label="انصراف و حذف ردیف افزودن" title="انصراف" onClick={cancelInlineInventoryAdd} className="grid h-9 w-9 place-items-center rounded-xl bg-slate-100 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={15}/></button></div>
+      {purchaseLimitReached && <p role="status" className="col-span-full rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">دو سری خرید فعال داری؛ خرید تازه با جدیدترین سریِ دارای اختلاف انقضای حداکثر ۷ روز و اختلاف قیمت حداکثر ۱۰٪ ترکیب می‌شود؛ در غیر این صورت، جداگانه ثبت می‌شود. تاریخ انقضای زودتر حفظ می‌شود.</p>}
     </form>;
   };
 
@@ -776,7 +751,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       {page === 'home' && <section className="pantry-hero" aria-label="پیشنهاد غذا بر پایهٔ موجودی آشپزخانه">
         <div className="pantry-hero-copy"><span className="pantry-hero-label"><ChefHat size={15}/> آشپزخانهٔ تو</span>
           <h1>امروز چی بپزم؟</h1>
-          <p>{user.kitchenMode === 'without-inventory' ? 'در حالت مستقل از انبار، پیشنهادها بدون توجه به موجودی ثبت‌شده چیده می‌شوند؛ هر زمان خواستی از کلید پایین حالت را عوض کن.' : 'موجودی ثبت‌شده‌ات را به‌روز کن تا پیشنهادها با مواد خانه جور باشند و کسری‌های خرید دقیق حساب شوند.'}</p>
+          <p>{user.kitchenMode === 'without-inventory' ? 'در حالت مستقل از انبار، پیشنهادها بدون توجه به موجودی ثبت‌شده چیده می‌شوند؛ هر زمان خواستی از کلید پایین حالت را عوض کن.' : 'موجودی انبارت را به‌روز نگه دار تا غذاها بر اساس مواد موجود در خانه پیشنهاد شوند و فهرست خریدت فقط شامل مقدار موردنیازِ موادِ کسری باشد.'}</p>
         </div><div className="pantry-hero-photo" role="img" aria-label="زرشک پلو با مرغ زعفرانی خانگی" />
         <div className="pantry-hero-stats">
           <div className="pantry-hero-controls">
@@ -843,8 +818,6 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                         const match = inventory.find(row => isInventoryIngredientMatch(row.name, item.name));
                         const batches = match ? getInventoryBatches(match) : [];
                         const activeBatches = batches.filter(batch => batch.amount > 0);
-                        const mustChooseBatch = activePurchaseBatchCount(batches) >= MAX_ACTIVE_PURCHASE_BATCHES;
-                        const isMerging = Boolean(draft?.mergeBatchId) || mustChooseBatch;
                         return <article key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3 sm:p-4">
                           <div className="mb-3 flex items-center justify-between gap-3">
                             <div className="flex min-w-0 items-center gap-2"><strong className="truncate text-sm font-black text-slate-900">{item.name}</strong>{item.fromRecipe && <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-slate-500">{item.fromRecipe}</span>}</div>
@@ -854,9 +827,9 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                             <label className="text-[11px] font-bold text-slate-600">مقدار خرید <span className="text-rose-600">الزامی</span><input type="number" min="0.001" step="any" value={draft?.amount || ''} onChange={event => updatePurchaseDraft(item.id, { amount: event.target.value })} placeholder="مقدار واقعی" className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-black text-slate-800 outline-none focus:border-[#276556] focus:ring-2 focus:ring-emerald-100" /></label>
                             <label className="text-[11px] font-bold text-slate-600">واحد خرید<select value={draft?.unit || item.unit || suggestPantryUnit(item.name)} onChange={event => updatePurchaseDraft(item.id, { unit: event.target.value })} className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none focus:border-[#276556]">{Array.from(new Set([...(item.unit ? [item.unit] : []), ...PANTRY_UNIT_OPTIONS])).map(unit => <option key={unit} value={unit}>{unit}</option>)}</select></label>
                             <label className="text-[11px] font-bold text-slate-600">قیمت هر واحد (تومان، اختیاری)<input type="number" min="0.01" step="any" value={draft?.unitPrice || ''} onChange={event => updatePurchaseDraft(item.id, { unitPrice: event.target.value })} placeholder="مثلاً ۸۵۰۰۰" className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none focus:border-[#276556]" /></label>
-                            <label className="text-[11px] font-bold text-slate-600">تاریخ انقضا (شمسی، اختیاری)<JalaliDateInput value={draft?.expiresOn || ''} disabled={isMerging} onChange={expiresOn => updatePurchaseDraft(item.id, { expiresOn })} className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none focus:border-[#276556] disabled:bg-slate-100 disabled:text-slate-400" />{isMerging && <small className="mt-1 block text-[10px] font-medium text-amber-800">این خرید به سری موجود اضافه می‌شود و تاریخ همان سری حفظ می‌شود.</small>}</label>
+                            <label className="text-[11px] font-bold text-slate-600">تاریخ انقضا (شمسی، اختیاری)<JalaliDateInput value={draft?.expiresOn || ''} onChange={expiresOn => updatePurchaseDraft(item.id, { expiresOn })} className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none focus:border-[#276556] disabled:bg-slate-100 disabled:text-slate-400" />{draft?.mergeBatchId && <small className="mt-1 block text-[10px] font-medium text-amber-800">مقدارها جمع، قیمت با میانگین موزون خریدها محاسبه و تاریخ انقضای زودتر حفظ می‌شود.</small>}</label>
                           </div>
-                          {match && activeBatches.length > 0 && <label className="mt-3 block max-w-xl text-[11px] font-bold text-slate-600">{mustChooseBatch ? 'این ماده دو سری فعال دارد؛ خرید را به کدام سری اضافه کنیم؟' : 'در صورت تمایل، خرید را به یکی از سری‌های موجود اضافه کن'}<select value={draft?.mergeBatchId || ''} onChange={event => updatePurchaseDraft(item.id, { mergeBatchId: event.target.value, ...(event.target.value ? { expiresOn: '' } : {}) })} className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none focus:border-[#276556]"><option value="">{mustChooseBatch ? 'انتخاب سری خرید الزامی است' : 'ثبت به‌عنوان سری خرید تازه'}</option>{activeBatches.map((batch, index) => <option key={batch.id} value={batch.id}>سری {toPersian(index + 1)} · {toPersian(batch.amount)} {match.unit}{batch.expiresOn ? ` · انقضا ${formatGregorianDateAsPersian(batch.expiresOn)}` : ''}</option>)}</select></label>}
+                          {match && activeBatches.length > 0 && <label className="mt-3 block max-w-xl text-[11px] font-bold text-slate-600">خرید را خودکار ثبت کن یا سری موردنظر را انتخاب کن<select value={draft?.mergeBatchId || ''} onChange={event => updatePurchaseDraft(item.id, { mergeBatchId: event.target.value })} className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none focus:border-[#276556]"><option value="">ثبت خودکار؛ ترکیب سری‌های نزدیک یا ایجاد سری تازه</option>{activeBatches.map((batch, index) => <option key={batch.id} value={batch.id}>سری {toPersian(index + 1)} · {toPersian(batch.amount)} {match.unit}{batch.expiresOn ? ` · انقضا ${formatGregorianDateAsPersian(batch.expiresOn)}` : ''}</option>)}</select></label>}
                           <div className="mt-3 flex justify-end border-t border-slate-200 pt-3">
                             <button type="button" disabled={isSavingPurchasedItems} onClick={() => void savePurchasedItems(item)} className="noosh-cta-3d inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2 text-xs font-black disabled:cursor-wait disabled:opacity-60">
                               <PackageCheck size={16}/>{isSavingPurchasedItems ? 'در حال ثبت…' : 'تأیید و ثبت در انبار'}
@@ -978,11 +951,11 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                   {expiringItemsHighlighted.length > 0 && <div role="status" className="mx-auto flex max-w-5xl items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-right text-xs leading-6 text-amber-950 shadow-sm sm:px-5 sm:py-4 sm:text-sm"><span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-800"><Clock size={17}/></span><p>تاریخ انقضای <strong className="font-black">{expiringItemsHighlighted.join('، ')}</strong> نزدیک است. اولویت اول با غذایی است که همهٔ این اقلام را یکجا مصرف کند؛ بعد، غذاهای دارای مواد پروتئینیِ نزدیک انقضا و غذاهایی که اقلام بیشتری را مصرف می‌کنند بالاتر قرار می‌گیرند.</p></div>}
 
                   <div className="pantry-results-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pb-10">
-                    {filteredResults && filteredResults.length > 0 ? filteredResults.map(({ dish, missingCount, isPerfect, isFullyCookable }) => (
+                    {filteredResults && filteredResults.length > 0 ? filteredResults.map(({ dish, missingItems, missingCount, isPerfect, isFullyCookable }) => (
                       <div key={dish.id} className="relative animate-enter">
                         {isFullyCookable && <div className="absolute -top-2 -right-2 z-20 bg-teal-500 text-white px-3 py-1 rounded-lg shadow-xl border-2 border-white font-black text-[8px] sm:text-[10px]">موجود در انبار</div>}
                         {!isFullyCookable && isPerfect && <div className="absolute -top-2 -right-2 z-20 bg-emerald-500 text-white px-3 py-1 rounded-lg shadow-xl border-2 border-white font-black text-[8px] sm:text-[10px]">آماده طبخ</div>}
-                        <MealCard plan={{ dayName: isFullyCookable ? 'کامل' : isPerfect ? 'آماده' : `${toPersian(missingCount)} کسری`, dish }} user={user} onUpdateUser={onUpdateUser} onOpenInventory={openInventoryForPrices} />
+                        <MealCard plan={{ dayName: isFullyCookable ? 'کامل' : isPerfect ? 'آماده' : `${toPersian(missingCount)} قلم کسری`, dish }} missingItems={missingItems} user={user} onUpdateUser={onUpdateUser} onOpenInventory={openInventoryForPrices} />
                       </div>
                     )) : (
                       <div className="col-span-full py-20 text-center bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100 flex flex-col items-center gap-3">
