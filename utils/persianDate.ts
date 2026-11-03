@@ -8,6 +8,11 @@ const toAsciiDigits = (value: string) => value
 
 export interface PersianDateParts { year: number; month: number; day: number }
 
+export const getTodayIsoDate = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+};
+
 export const getPersianDateParts = (date: Date): PersianDateParts => {
   const parts = partsFormatter.formatToParts(date);
   return {
