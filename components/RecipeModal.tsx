@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { Dish, ShoppingItem, UserProfile } from '../types';
 import DishVisual from './DishVisual';
 import { UserService } from '../services/userService';
-import { isDishProhibited, estimateCalories, estimateCookTime, getDifficulty, getDishNature, getShoppingShortages, parseQuantity, normalizeUnit, getCountryCodes, formatQuantityForDisplay } from '../utils/recipeHelpers';
+import { isDishProhibited, evaluateInventory, estimateCalories, estimateCookTime, getDifficulty, getDishNature, getShoppingShortages, parseQuantity, normalizeUnit, getCountryCodes, formatQuantityForDisplay } from '../utils/recipeHelpers';
 import { getRelevantInventory } from '../utils/kitchenMode';
 import { CookingDraft, prepareCooking } from '../utils/inventoryLedger';
 import { mergeShoppingNeeds } from '../utils/shoppingQuantities';
@@ -57,6 +57,11 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish: sourceDish, isOpen, onC
   const difficulty = dish.difficulty || getDifficulty(dish);
   const natureInfo = getDishNature(dish);
   const costEstimate = estimateRecipeCost(dish, servings, user?.inventory || []);
+  const missingIngredientIndexes = new Set(user && user.kitchenMode !== 'without-inventory'
+    ? evaluateInventory(getRelevantInventory(user), dish.ingredients || [], servings, dish.servings || 4).lines
+      .filter(line => line.status === 'shortage' || line.status === 'blocked')
+      .map(line => line.index)
+    : []);
 
   useEffect(() => {
     const saved = user?.recipeReviews?.[dish.id];
@@ -384,12 +389,13 @@ const RecipeModal: React.FC<RecipeModalProps> = ({ dish: sourceDish, isOpen, onC
                 {hasIngredients ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {dish.ingredients.map((ing, idx) => {
+                      const isMissing = missingIngredientIndexes.has(idx);
                       const scaled = getScaledAmount(ing.amount);
                       const localQuantity = scaled > 0 && normalizeUnit(ing.unit) !== 'به میزان لازم' ? formatQuantityForDisplay(scaled, ing.unit, ing.item) : null;
                       return (
-                        <div key={idx} className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-teal-200 hover:bg-white transition-all group shadow-sm">
-                          <span className="font-bold text-slate-700">{ing.item}</span>
-                          <span className="font-black text-teal-600 text-sm bg-teal-50 px-3 py-1.5 rounded-xl border border-teal-100 group-hover:bg-teal-600 group-hover:text-white transition-all">
+                        <div key={idx} className={`flex justify-between items-center p-4 rounded-2xl border transition-all group shadow-sm ${isMissing ? 'bg-rose-50 border-rose-200 hover:border-rose-300' : 'bg-slate-50 border-slate-100 hover:border-teal-200 hover:bg-white'}`}>
+                          <span className={`font-bold ${isMissing ? 'text-red-700' : 'text-slate-700'}`}>{ing.item}{isMissing && <span className="sr-only"> (کسری موجودی)</span>}</span>
+                          <span className={`font-black text-sm px-3 py-1.5 rounded-xl border transition-all ${isMissing ? 'text-red-700 bg-rose-100 border-rose-200' : 'text-teal-600 bg-teal-50 border-teal-100 group-hover:bg-teal-600 group-hover:text-white'}`}>
                             {localQuantity ? `${toPersianDigits(localQuantity.amount)} ${localQuantity.unit}` : formatQuantityForDisplay(0, ing.unit, ing.item).unit}
                           </span>
                         </div>

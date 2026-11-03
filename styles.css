@@ -158,11 +158,3 @@ button{cursor:pointer}button:disabled{cursor:wait;opacity:.55}button:hover:not(:
 .pantry-starter-grid button{min-width:0;gap:6px}.pantry-starter-grid button .pantry-food-thumbnail{width:28px;height:28px;flex-basis:28px;border-radius:9px}.pantry-starter-grid button>span:not(.pantry-food-thumbnail){min-width:0;overflow-wrap:anywhere}
 .pantry-dense-row{color:#31463a;transition:background .16s,color .16s}.pantry-dense-row:hover{background:#f6faf7}.pantry-dense-row.is-selected{background:var(--green);color:#fff}.pantry-dense-row.is-selected>td{border-color:#ffffff26}.pantry-dense-row.is-selected strong,.pantry-dense-row.is-selected td{color:#fff}.pantry-dense-row.is-selected td input,.pantry-dense-row.is-selected td select{color:#234536}.pantry-dense-row:focus-within{outline:2px solid #80aa8d;outline-offset:-2px}
 .pantry-dense-row.is-expired:not(.is-selected){background:#fff1f2}.pantry-dense-row.is-expired:not(.is-selected)>td:first-child strong{color:#9f1239;font-weight:900}.pantry-dense-row.is-near-expiry:not(.is-selected){background:#fffafa}.pantry-expiry-status{display:inline-flex;flex-shrink:0;align-items:center;justify-content:center;border-radius:9999px;padding:3px 7px;font-size:10px;font-weight:900;line-height:1.4;white-space:nowrap}.pantry-expiry-status--expired{color:#9f1239!important;background:#ffe4e6}.pantry-expiry-status--near{color:#b91c1c!important;background:#fee2e2;animation:noosh-expiry-blink 1.25s ease-in-out infinite}@keyframes noosh-expiry-blink{0%,100%{opacity:1;background:#fee2e2}50%{opacity:.5;background:#fecaca}}@media(prefers-reduced-motion:reduce){.pantry-expiry-status--near{animation:none}}
-
-.meal-ingredients{margin-bottom:12px;text-align:right}
-.meal-ingredients-title{margin:0 0 4px;color:#31463a;font-size:11px;font-weight:800;line-height:1.8}
-.meal-ingredients-list{display:flex;flex-wrap:wrap;gap:2px 5px;margin:0;padding:0;list-style:none}
-.meal-ingredient{color:#64748b;font-size:11px;line-height:1.9;overflow-wrap:anywhere}
-.meal-ingredient:not(:last-child)::after{content:'،';margin-inline-start:2px;color:#94a3b8}
-.meal-ingredient.is-missing{color:#b91c1c;font-weight:800}
-.meal-card .meal-ingredients-buy{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:40px;margin:10px 0 5px;padding:7px 10px;font-size:11px;line-height:20px}

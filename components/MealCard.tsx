@@ -1,12 +1,10 @@
 
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { Utensils, ChevronLeft, Flame, Clock, Leaf, Heart, ThumbsDown, Lock, RefreshCw, Star, ShoppingBag, Loader2 } from 'lucide-react';
+import { Utensils, ChevronLeft, Flame, Clock, Leaf, Heart, ThumbsDown, Lock, RefreshCw, Star } from 'lucide-react';
 import { DayPlan, UserProfile } from '../types';
 const RecipeModal = lazy(() => import('./RecipeModal'));
 import DishVisual from './DishVisual';
-import { estimateCalories, estimateCookTime, getDishNature, getShoppingShortages, isDishProhibited } from '../utils/recipeHelpers';
-import { getRelevantInventory } from '../utils/kitchenMode';
-import { mergeShoppingNeeds } from '../utils/shoppingQuantities';
+import { estimateCalories, estimateCookTime, getDishNature, isDishProhibited } from '../utils/recipeHelpers';
 import { UserService } from '../services/userService';
 import { RecipeService } from '../services/recipeService';
 import { showCreatorRecipes } from '../utils/recipeCreators';
@@ -18,15 +16,11 @@ interface MealCardProps {
   onUpdateUser?: (user: UserProfile) => void;
   onRefresh?: () => void | Promise<void>;
   onOpenInventory?: () => void;
-  missingItems?: string[];
 }
 
-const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh, onOpenInventory, missingItems }) => {
+const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh, onOpenInventory }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isAddingToShopping, setIsAddingToShopping] = useState(false);
-  const [shoppingMessage, setShoppingMessage] = useState('');
-  const [shoppingError, setShoppingError] = useState('');
   const dish = user.personalRecipeEdits?.[plan.dish.id]
     ? { ...plan.dish, ...user.personalRecipeEdits[plan.dish.id], isLocallyEdited: true }
     : plan.dish;
@@ -48,28 +42,6 @@ const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh
   const personalRating = user?.recipeReviews?.[dish.id]?.rating || 0;
   
   const toPersianDigits = (num: number) => num.toString().replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'['0123456789'.indexOf(d)]);
-
-  const handleAddShortages = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    if (isLocked || isAddingToShopping) return;
-    setIsAddingToShopping(true);
-    setShoppingMessage('');
-    setShoppingError('');
-    try {
-      const latestUser = await UserService.getCurrentUser();
-      const servings = latestUser.familySize || 4;
-      const latestDish = { ...dish, ...latestUser.personalRecipeEdits?.[dish.id] };
-      const needs = getShoppingShortages(getRelevantInventory(latestUser), latestDish.ingredients, servings, latestDish.servings || 4);
-      const items = mergeShoppingNeeds(latestUser.customShoppingList || [], needs, `رسپی:${dish.id}`, `${latestDish.name} (${servings} نفر)`);
-      const updatedUser = await UserService.updateShoppingList(latestUser.username, items);
-      onUpdateUser?.(updatedUser);
-      setShoppingMessage(needs.length > 0 ? 'موادِ کسری به فهرست خرید اضافه شد.' : 'همهٔ مواد در انبار موجود است؛ خریدی لازم نیست.');
-    } catch {
-      setShoppingError('ذخیره در فهرست خرید انجام نشد؛ دوباره تلاش کن.');
-    } finally {
-      setIsAddingToShopping(false);
-    }
-  };
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -185,26 +157,6 @@ const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh
              </p>
           </div>
 
-          {missingItems !== undefined && (
-            <div className="meal-ingredients" dir="rtl">
-              <h4 className="meal-ingredients-title">مواد لازم</h4>
-              <ul aria-label="مواد لازم این غذا" className="meal-ingredients-list">
-                {[...new Set(dish.ingredients.map(ingredient => ingredient.item))].map(item => {
-                  const isMissing = missingItems.includes(item);
-                  return <li key={item} className={isMissing ? 'meal-ingredient is-missing' : 'meal-ingredient'}>
-                    <span>{item}</span>{isMissing && <span className="sr-only"> (کسری موجودی)</span>}
-                  </li>;
-                })}
-              </ul>
-              {missingItems.length > 0 && !isLocked && <button type="button" onClick={handleAddShortages} disabled={isAddingToShopping} aria-label={`افزودن مواد کسری ${dish.name} به فهرست خرید`} className="noosh-cta-3d meal-ingredients-buy">
-                {isAddingToShopping ? <Loader2 size={16} className="shrink-0 animate-spin" aria-hidden="true" /> : <ShoppingBag size={16} className="shrink-0" aria-hidden="true" />}
-                <span>{isAddingToShopping ? 'در حال افزودن…' : 'افزودن به فهرست خرید'}</span>
-              </button>}
-              {shoppingMessage && <p role="status" className="mt-2 text-xs font-bold leading-6 text-[#276556]">{shoppingMessage}</p>}
-              {shoppingError && <p role="alert" className="mt-2 text-xs font-bold leading-6 text-rose-700">{shoppingError}</p>}
-            </div>
-          )}
-          
           <div className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-xl font-bold text-sm transition-all duration-500 ${isLocked ? 'bg-slate-50 text-slate-300 cursor-not-allowed' : 'bg-slate-900 text-white group-hover:bg-teal-600 shadow-sm'}`}>
              {isLocked ? <Lock size={10} /> : <Utensils size={10} />} 
              <span>مشاهده دستور</span> 
