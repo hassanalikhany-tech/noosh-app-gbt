@@ -625,6 +625,9 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       default: return rawResults;
     }
   }, [rawResults, activeFilter, user.favoriteDishIds]);
+  const expiringItemsHighlighted = useMemo(() => [...new Set(inventory
+    .filter(item => getInventoryBatches(item).some(batch => batch.amount > 0 && batch.expiresOn && ['soon', 'upcoming'].includes(inventoryExpiryState(batch.expiresOn))))
+    .map(item => item.name))], [inventory]);
 
   const toPersian = (n: number) => n.toLocaleString('fa-IR', { maximumFractionDigits: 6 });
 
@@ -944,12 +947,13 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                      })}
                   </div>
 
+                  {expiringItemsHighlighted.length > 0 && <div role="status" className="mx-auto flex max-w-5xl items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-right text-xs leading-6 text-amber-950 shadow-sm sm:px-5 sm:py-4 sm:text-sm"><span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-800"><Clock size={17}/></span><p>چون تاریخ انقضای <strong className="font-black">{expiringItemsHighlighted.join('، ')}</strong> نزدیک است، اولویت پیشنهادها با غذاهایی است که این اقلام را در رسپی دارند تا زودتر مصرف شوند.</p></div>}
+
                   <div className="pantry-results-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pb-10">
-                    {filteredResults && filteredResults.length > 0 ? filteredResults.map(({ dish, missingCount, isPerfect, isFullyCookable, expiringItemsToUse }) => (
+                    {filteredResults && filteredResults.length > 0 ? filteredResults.map(({ dish, missingCount, isPerfect, isFullyCookable }) => (
                       <div key={dish.id} className="relative animate-enter">
                         {isFullyCookable && <div className="absolute -top-2 -right-2 z-20 bg-teal-500 text-white px-3 py-1 rounded-lg shadow-xl border-2 border-white font-black text-[8px] sm:text-[10px]">موجود در انبار</div>}
                         {!isFullyCookable && isPerfect && <div className="absolute -top-2 -right-2 z-20 bg-emerald-500 text-white px-3 py-1 rounded-lg shadow-xl border-2 border-white font-black text-[8px] sm:text-[10px]">آماده طبخ</div>}
-                        {expiringItemsToUse.length > 0 && <div className="mb-2 flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] font-black leading-5 text-amber-900 sm:text-xs" title={`این رسپی از مواد نزدیک انقضا استفاده می‌کند: ${expiringItemsToUse.join('، ')}`}><Clock size={14} className="shrink-0 text-amber-700"/><span>برای مصرف زودتر: {expiringItemsToUse.slice(0, 2).join('، ')}{expiringItemsToUse.length > 2 ? ` و ${toPersian(expiringItemsToUse.length - 2)} قلم دیگر` : ''}</span></div>}
                         <MealCard plan={{ dayName: isFullyCookable ? 'کامل' : isPerfect ? 'آماده' : `${toPersian(missingCount)} کسری`, dish }} user={user} onUpdateUser={onUpdateUser} onOpenInventory={openInventoryForPrices} />
                       </div>
                     )) : (
