@@ -65,11 +65,11 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
   const visibleNotifications = notifications.filter(n => !deletedIds.includes(n.id));
 
   return (
-    <div className="fixed inset-0 z-[2000] flex items-start justify-center p-4 no-print animate-enter">
+    <div className="notification-center-overlay fixed inset-0 z-[2000] flex items-start justify-center p-4 no-print animate-enter">
       <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm" onClick={onClose}></div>
       
       <div 
-        className="relative w-full max-w-2xl bg-white sm:rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] border border-white/20 flex flex-col transition-all duration-300" 
+        className="notification-center-dialog relative w-full max-w-2xl bg-white sm:rounded-[3rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.4)] border border-white/20 flex flex-col transition-all duration-300" 
         style={{ 
           marginTop: 'auto',
           marginBottom: 'auto',
@@ -78,7 +78,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isOpen, onClose
         }}
         onClick={e => e.stopPropagation()}
       >
-        <div className="p-6 bg-indigo-600 text-white flex justify-between items-center shrink-0">
+        <div className="notification-center-header p-6 bg-indigo-600 text-white flex justify-between items-center shrink-0">
            <div className="flex items-center gap-4">
               <div className="p-3 bg-white/20 rounded-2xl shadow-lg"><Bell size={20}/></div>
               <div>

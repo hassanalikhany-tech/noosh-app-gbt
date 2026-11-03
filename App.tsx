@@ -803,8 +803,8 @@ const AppContent: React.FC = () => {
       </div>
 
       {isShoppingListOpen && (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-0 sm:p-8 bg-black/60 backdrop-blur-sm no-print" onClick={() => setIsShoppingListOpen(false)}>
-           <div className="relative w-full max-w-2xl bg-white sm:rounded-[3rem] shadow-2xl overflow-hidden animate-enter h-[100dvh] sm:h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="shopping-list-modal fixed inset-0 z-[2000] flex items-center justify-center p-0 sm:p-8 bg-black/60 backdrop-blur-sm no-print" onClick={() => setIsShoppingListOpen(false)}>
+           <div className="shopping-list-dialog relative w-full max-w-2xl bg-white sm:rounded-[3rem] shadow-2xl overflow-hidden animate-enter h-[100dvh] sm:h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
               <button onClick={() => setIsShoppingListOpen(false)} aria-label="بستن لیست خرید" className="absolute top-8 left-8 p-3 bg-slate-100 rounded-full text-slate-500 z-[210] hover:bg-slate-200 transition-all shadow-sm"><X size={24} /></button>
               <div className="flex-grow overflow-y-auto">
                 <ShoppingList 
