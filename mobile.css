@@ -481,6 +481,15 @@
   .pantry-mode-switch-wrap, .pantry-mode-switch { width: 100% !important; min-width: 0 !important; }
 }
 
+/* Keep the iOS home-screen controls below the translucent system status area. */
+@media (display-mode: standalone) and (max-width: 767px) {
+  .noosh-app > header {
+    height: calc(86px + env(safe-area-inset-top, 0px));
+    padding-top: calc(env(safe-area-inset-top, 0px) + 30px);
+  }
+  .noosh-app > main { padding-top: calc(86px + env(safe-area-inset-top, 0px)) !important; }
+}
+
 @media (max-width: 767px) {
   .recipe-country-filter { align-items: stretch; }
   .recipe-country-arrow { display: none !important; }
