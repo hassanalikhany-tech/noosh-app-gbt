@@ -656,8 +656,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     return { unitPrice: weightedPrice };
   };
 
-  const renderInventoryColumn = (items: InventoryItem[], column: number) => <div key={`inventory-column-${column}`} className="min-w-0 overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm">
-    <div className="max-h-[min(72dvh,720px)] overflow-auto overscroll-contain">
+  const renderInventoryColumn = (items: InventoryItem[], column: number) => <div key={`inventory-column-${column}`} className="min-w-0 rounded-2xl border border-emerald-100 bg-white shadow-sm">
+    <div>
       <table className="w-full min-w-[850px] table-fixed border-collapse text-right text-[13px]">
         <colgroup><col className="w-[23%]"/><col className="w-[12%]"/><col className="w-[15%]"/><col className="w-[13%]"/><col className="w-[14%]"/><col className="w-[10%]"/><col className="w-[13%]"/></colgroup>
         <thead className="sticky top-0 z-20 bg-[#eaf3ed] text-[12px] font-black text-[#214e3d] shadow-[0_2px_5px_rgba(15,23,42,0.12)] sm:text-[13px]">
@@ -831,7 +831,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                         </div>
                       </div>
 
-                      <div className="bg-white border border-slate-100 rounded-[2rem] overflow-hidden shadow-sm">
+                      <div className="bg-white border border-slate-100 rounded-[2rem] shadow-sm">
                         {inventory.length > 0 ? (
                           <div className="p-3 sm:p-4">
                             {renderInventoryColumn(sortedInventory, 0)}
