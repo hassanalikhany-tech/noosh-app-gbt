@@ -283,17 +283,17 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
             {sortMode !== 'default' && <p className="-mt-1 text-[11px] leading-5 text-slate-500">غذاهایی که به آن‌ها امتیاز داده‌ای اول می‌آیند؛ غذاهای امتیازنداده‌شده بعد از آن‌ها می‌مانند.</p>}
             {activeCreator && <p className="text-xs leading-6 text-slate-600">همهٔ دستورهای این آشپز قابل مشاهده‌اند؛ غذاهای دارای مواد ممنوع شما با هشدار مشخص می‌شوند و همچنان از پیشنهادها و برنامهٔ غذایی کنار گذاشته می‌شوند.</p>}
             {selectedCategory === 'international' && (
-              <div className="relative pt-2 sm:pt-4 border-t border-white/40 animate-enter flex items-center group/flags">
+              <div className="recipe-country-filter relative pt-2 sm:pt-4 border-t border-white/40 animate-enter flex items-center group/flags">
                 <button 
                   onClick={() => scrollFlags('right')}
-                  className="absolute right-0 z-20 p-2 sm:p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-slate-100 text-indigo-600 hover:bg-white transition-all flex items-center justify-center"
+                  className="recipe-country-arrow absolute right-0 z-20 p-2 sm:p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-slate-100 text-indigo-600 hover:bg-white transition-all flex items-center justify-center"
                 >
                   <ChevronRight size={18} sm:size={20} strokeWidth={3} />
                 </button>
 
                 <div 
                   ref={flagsScrollRef}
-                  className="flex gap-2 sm:gap-3 items-center overflow-x-auto no-scrollbar pb-1 w-full px-8 sm:px-10"
+                  className="recipe-country-options flex gap-2 sm:gap-3 items-center overflow-x-auto no-scrollbar pb-1 w-full px-8 sm:px-10"
                 >
                   <button 
                     onClick={() => { setSelectedCountryId('all'); setCurrentPage(1); }} 
@@ -309,13 +309,14 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
                       title={c.label}
                     >
                       <CountryFlag country={c} />
+                      <span className="recipe-country-name">{c.label}</span>
                     </button>
                   ))}
                 </div>
 
                 <button 
                   onClick={() => scrollFlags('left')}
-                  className="absolute left-0 z-20 p-2 sm:p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-slate-100 text-indigo-600 hover:bg-white transition-all flex items-center justify-center"
+                  className="recipe-country-arrow absolute left-0 z-20 p-2 sm:p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-slate-100 text-indigo-600 hover:bg-white transition-all flex items-center justify-center"
                 >
                   <ChevronLeft size={18} sm:size={20} strokeWidth={3} />
                 </button>

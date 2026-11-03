@@ -111,7 +111,7 @@ const JalaliDateInput: React.FC<JalaliDateInputProps> = ({ value = '', onChange,
     <button type="button" disabled={disabled} onClick={openCalendar} aria-label="بازکردن تقویم شمسی" title="انتخاب از تقویم شمسی" className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-emerald-50 text-[#276556] transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"><CalendarDays size={17}/></button>
     </div>
     {dateError && <small role="alert" className="text-right text-[10px] font-bold text-rose-700">{dateError}</small>}
-    {isOpen && rect && createPortal(<div ref={popupRef} dir="rtl" className="fixed z-[13000] w-[304px] rounded-2xl border border-emerald-100 bg-white p-3 shadow-2xl" style={{ left: rect.left, top: rect.top }}>
+    {isOpen && rect && createPortal(<div ref={popupRef} dir="rtl" className="jalali-calendar-popup fixed z-[13000] w-[304px] rounded-2xl border border-emerald-100 bg-white p-3 shadow-2xl" style={{ left: rect.left, top: rect.top }}>
       <div className="mb-3 flex items-center justify-between gap-2">
         <button type="button" onClick={() => moveMonth(1)} aria-label="ماه بعد" className="grid h-9 w-9 place-items-center rounded-xl bg-slate-50 text-slate-700 hover:bg-emerald-50 hover:text-[#276556]"><ChevronRight size={18}/></button>
         <strong className="text-sm font-black text-slate-800">{monthTitle}</strong>
