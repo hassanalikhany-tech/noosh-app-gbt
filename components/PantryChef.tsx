@@ -660,7 +660,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     <div>
       <table className="w-full min-w-[850px] table-fixed border-collapse text-right text-[13px]">
         <colgroup><col className="w-[23%]"/><col className="w-[12%]"/><col className="w-[15%]"/><col className="w-[13%]"/><col className="w-[14%]"/><col className="w-[10%]"/><col className="w-[13%]"/></colgroup>
-        <thead className="sticky top-0 z-20 bg-[#eaf3ed] text-[12px] font-black text-[#214e3d] shadow-[0_2px_5px_rgba(15,23,42,0.12)] sm:text-[13px]">
+        <thead className="sticky top-[104px] z-20 bg-[#eaf3ed] text-[12px] font-black text-[#214e3d] shadow-[0_2px_5px_rgba(15,23,42,0.12)] sm:top-[64px] sm:text-[13px]">
           <tr><th className="px-3 py-4">مادهٔ غذایی</th><th className="px-2 py-4">موجودی</th><th className="px-2 py-4">آستانهٔ هشدار</th><th className="px-2 py-4">تاریخ انقضا</th><th className="px-2 py-4">قیمت هر واحد</th><th className="px-2 py-4">وضعیت</th><th className="px-2 py-4">عملیات</th></tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
@@ -817,7 +817,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                   <div className="grid grid-cols-1 gap-6 pantry-workspace">
                     {/* لیست موجودی فعلی */}
                     <div className="order-1 space-y-4 pantry-inventory-panel">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="sticky top-0 z-40 -mx-3 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-[#f8fafc]/95 px-3 py-3 shadow-sm backdrop-blur sm:-mx-4 sm:px-4">
                         <h3 className="text-slate-800 font-black text-sm sm:text-base flex items-center gap-2">
                           <Package className="text-teal-500" size={20} />
                           موجودی انبار شما
