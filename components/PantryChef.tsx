@@ -161,6 +161,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   const [selectedInventoryItemId, setSelectedInventoryItemId] = useState<string | null>(null);
   const [pendingUnitCorrection, setPendingUnitCorrection] = useState<{ id: string; name: string; oldAmount: number; oldUnit: string; nextUnit: string; oldThreshold: number; oldThresholdUnit: string; amount: string; threshold: string } | null>(null);
   const [inventoryFormColumn, setInventoryFormColumn] = useState<number | null>(null);
+  const [showInventoryAddConfirm, setShowInventoryAddConfirm] = useState(false);
   const [selectedBatchItem, setSelectedBatchItem] = useState<InventoryItem | null>(null);
   const [dishCount, setDishCount] = useState(() => RecipeService.getAllDishes().length);
   const [purchaseDrafts, setPurchaseDrafts] = useState<PurchasedItemDraft[]>([]);
@@ -392,9 +393,9 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     setAddMessage(converted.estimated ? `مقدار ${item.name} با وزن مرجع متوسط تبدیل شد؛ برای دقت کامل، وزن واقعی را وارد کن.` : `واحد ${item.name} با حفظ مقدار واقعی تغییر کرد.`);
   };
 
-  const addToInventory = async (itemName: string, amount = 1, unit?: string, focusNext = false, expiresOn = '', unitPrice?: number, minThreshold = 0, minThresholdUnit?: string) => {
+  const addToInventory = async (itemName: string, amount = 1, unit?: string, focusNext = false, expiresOn = '', unitPrice?: number, minThreshold = 0, minThresholdUnit?: string): Promise<boolean> => {
     const cleanName = itemName.trim();
-    if (!cleanName || !Number.isFinite(amount) || amount <= 0) return;
+    if (!cleanName || !Number.isFinite(amount) || amount <= 0) return false;
     const prepareNextEntry = (nextColumn = 0) => {
       setNewItemName('');
       setNewItemAmount('1');
@@ -414,12 +415,12 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       const incoming = convertAmountBetweenUnits(amount, inputUnit, existingItem.unit, existingItem.name);
       if (!incoming || incoming.estimated) {
         setAddMessage(`واحد ورودی ${inputUnit} با موجودی ${existingItem.unit} تبدیل دقیق ندارد. ابتدا واحد و مقدار واقعی موجودی قبلی را از بخش ویرایش اصلاح کن؛ موجودی دست‌نخورده ماند.`);
-        return;
+        return false;
       }
       let appended: InventoryItem;
       const priceInInventoryUnit = unitPrice && incoming.amount > 0 ? unitPrice * amount / incoming.amount : undefined;
       try { appended = appendInventoryBatch(existingItem, incoming.amount, expiresOn || undefined, priceInInventoryUnit); }
-      catch (error) { setAddMessage(error instanceof Error ? error.message : 'سری خرید تازه ثبت نشد.'); return; }
+      catch (error) { setAddMessage(error instanceof Error ? error.message : 'سری خرید تازه ثبت نشد.'); return false; }
       const newBatch = appended.stockBatches![appended.stockBatches!.length - 1];
       const newInventory = inventory.map(row => row.id === existingItem.id ? { ...appended, lastUpdated: Date.now() } : row);
       const purchaseHistory = mergePurchaseHistory(user.purchaseHistory || [], existingItem, [newBatch]);
@@ -427,7 +428,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       UserService.updateProfile(user.username, { inventory: newInventory, purchaseHistory }).catch(error => console.error('Failed to save purchase:', error));
       setAddMessage(`${cleanName} به موجودی اضافه شد؛ واحد قبلی ${existingItem.unit} حفظ شد.`);
       prepareNextEntry(0);
-      return;
+      return true;
     }
 
     const selectedUnit = unit || suggestPantryUnit(cleanName);
@@ -454,6 +455,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     });
     setAddMessage(`${cleanName} به انبار اضافه شد.`);
     prepareNextEntry(0);
+    return true;
   };
 
   const updatePurchaseDraft = (id: string, patch: Partial<PurchasedItemDraft>) => {
@@ -620,9 +622,33 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   const purchaseLimitReached = Boolean(selectedPurchaseItem && activePurchaseBatchCount(getInventoryBatches(selectedPurchaseItem)) >= MAX_ACTIVE_PURCHASE_BATCHES);
 
   const nextInventoryColumn = 0;
+  const clearInlineInventoryEntry = () => {
+    setNewItemName('');
+    setNewItemAmount('1');
+    setNewItemUnit('');
+    setNewItemThreshold('0');
+    setNewItemThresholdUnit('');
+    setNewItemExpiry('');
+    setNewItemUnitPrice('');
+  };
+  const cancelInlineInventoryAdd = () => {
+    clearInlineInventoryEntry();
+    setShowInventoryAddConfirm(false);
+    setInventoryFormColumn(null);
+    setAddMessage('');
+  };
   const toggleInventoryForm = () => {
     setAddMessage('');
-    setInventoryFormColumn(current => current === null ? nextInventoryColumn : null);
+    if (inventoryFormColumn !== null) cancelInlineInventoryAdd();
+    else setInventoryFormColumn(nextInventoryColumn);
+  };
+
+  const confirmInventoryAdd = async (focusNext: boolean) => {
+    const price = Number(newItemUnitPrice);
+    const saved = await addToInventory(newItemName, Number(newItemAmount), newItemUnit || suggestPantryUnit(newItemName), focusNext, newItemExpiry, Number.isFinite(price) && price > 0 ? price : undefined, Number(newItemThreshold) || 0, newItemThresholdUnit || newItemUnit || suggestPantryUnit(newItemName));
+    if (!saved) return;
+    setShowInventoryAddConfirm(false);
+    if (!focusNext) setInventoryFormColumn(null);
   };
 
   const renderInlineInventoryForm = (compact = false) => {
@@ -630,8 +656,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     const suggestedUnit = newItemUnit || suggestPantryUnit(newItemName);
     const submit = (event: React.FormEvent) => {
       event.preventDefault();
-      const price = Number(newItemUnitPrice);
-      void addToInventory(newItemName, Number(newItemAmount), suggestedUnit, true, newItemExpiry, Number.isFinite(price) && price > 0 ? price : undefined, Number(newItemThreshold) || 0, newItemThresholdUnit || suggestedUnit);
+      if (!newItemName.trim() || !Number.isFinite(Number(newItemAmount)) || Number(newItemAmount) <= 0 || !Number.isFinite(Number(newItemThreshold)) || Number(newItemThreshold) < 0 || purchaseLimitReached) return;
+      setShowInventoryAddConfirm(true);
     };
     return <form id={`inventory-add-row-${inventoryFormColumn ?? 0}`} onSubmit={submit} className={`grid items-stretch gap-2 ${compact ? 'min-w-[850px] grid-cols-[1.8fr_1fr_1.1fr_1fr_1.1fr_.8fr_1fr]' : 'grid-cols-1 sm:grid-cols-2'}`}>
       <div className="min-w-0 p-1"><FoodIngredientCombobox id={`inline-pantry-name-${compact ? inventoryFormColumn ?? 0 : 'empty'}`} inputRef={newItemNameRef} value={newItemName} onChange={value => { const unit = value.trim() ? suggestPantryUnit(value) : ''; setNewItemName(value); setNewItemUnit(unit); setNewItemThresholdUnit(unit); }} onSelect={value => { const unit = suggestPantryUnit(value); setNewItemUnit(unit); setNewItemThresholdUnit(unit); }} placeholder="نام ماده را جست‌وجو یا وارد کن…" /></div>
@@ -640,7 +666,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       <div className="min-w-0 p-1"><JalaliDateInput value={newItemExpiry} onChange={setNewItemExpiry} ariaLabel="تاریخ انقضا به شمسی" className="h-11 w-full rounded-lg border border-slate-200 bg-white px-2 text-center text-xs text-slate-700 outline-none focus:border-[#276556]"/></div>
       <div className="flex min-w-0 items-center justify-center p-1"><input aria-label={`قیمت هر ${suggestedUnit} به تومان (اختیاری)`} title={`قیمت هر ${suggestedUnit} به تومان (اختیاری)`} type="number" min="0.01" step="any" value={newItemUnitPrice} onChange={event => setNewItemUnitPrice(event.target.value)} placeholder="قیمت (تومان)" className="w-full min-w-0 rounded-lg border border-slate-200 bg-white px-2 py-2.5 text-center text-xs"/></div>
       <div className="flex items-center justify-center p-1"><span className="rounded-full bg-emerald-50 px-2 py-1.5 text-center text-[10px] font-black text-emerald-800">قلم تازه</span></div>
-      <div className="flex flex-col items-center justify-center gap-2 p-1"><button type="submit" form={`inventory-add-row-${inventoryFormColumn ?? 0}`} disabled={!newItemName.trim() || !Number.isFinite(Number(newItemAmount)) || Number(newItemAmount) <= 0 || !Number.isFinite(Number(newItemThreshold)) || Number(newItemThreshold) < 0 || purchaseLimitReached} title="ذخیره در انبار" aria-label="ذخیره در انبار" className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-700 text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Save size={17}/></button><button type="button" aria-label="لغو افزودن ماده" title="لغو" onClick={() => setInventoryFormColumn(null)} className="grid h-9 w-9 place-items-center rounded-xl bg-slate-100 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={15}/></button></div>
+      <div className="flex flex-col items-center justify-center gap-2 p-1"><button type="submit" form={`inventory-add-row-${inventoryFormColumn ?? 0}`} disabled={!newItemName.trim() || !Number.isFinite(Number(newItemAmount)) || Number(newItemAmount) <= 0 || !Number.isFinite(Number(newItemThreshold)) || Number(newItemThreshold) < 0 || purchaseLimitReached} title="ثبت مادهٔ غذایی" aria-label="ثبت مادهٔ غذایی" className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-700 text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-40"><Save size={17}/></button><button type="button" aria-label="انصراف و حذف ردیف افزودن" title="انصراف" onClick={cancelInlineInventoryAdd} className="grid h-9 w-9 place-items-center rounded-xl bg-slate-100 text-slate-500 hover:bg-rose-50 hover:text-rose-700"><X size={15}/></button></div>
       {purchaseLimitReached && <p role="status" className="col-span-7 rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">دو سری خرید فعال برای این ماده ثبت شده؛ تا مصرف بخشی از آن‌ها، خرید تازه را اضافه نکن.</p>}
     </form>;
   };
@@ -920,6 +946,26 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
           <button type="button" onClick={() => onNavigate('search')}>جستجوی غذا</button>
         </div>
       </section>}
+      {showInventoryAddConfirm && createPortal(
+        <div className="fixed inset-0 z-[13000] grid place-items-center bg-slate-950/45 p-4 backdrop-blur-sm" dir="rtl" onKeyDown={event => { if (event.key === 'Escape') cancelInlineInventoryAdd(); }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="inventory-add-confirm-title" className="w-full max-w-md overflow-hidden rounded-[26px] border border-emerald-100 bg-[#f8faf7] shadow-2xl" onClick={event => event.stopPropagation()}>
+            <header className="flex items-center gap-3 bg-[#276556] px-5 py-4 text-white">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#d7bd75] text-[#214a3f]"><PackageCheck size={22}/></span>
+              <div><h2 id="inventory-add-confirm-title" className="text-base font-black">ثبت ماده در انبار</h2><p className="mt-1 text-xs font-medium text-white/80">اطلاعات واردشده را بررسی کن</p></div>
+            </header>
+            <div className="space-y-3 p-5">
+              <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3"><span className="text-xs font-bold text-slate-500">مادهٔ غذایی</span><strong className="text-sm font-black text-slate-800">{newItemName}</strong></div>
+              <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3"><span className="text-xs font-bold text-slate-500">موجودی اولیه</span><strong className="text-sm font-black text-[#276556]">{toPersian(Number(newItemAmount))} {newItemUnit || suggestPantryUnit(newItemName)}</strong></div>
+              {addMessage && <p role="alert" className="rounded-xl bg-rose-50 px-3 py-2 text-xs font-bold leading-5 text-rose-700">{addMessage}</p>}
+              <div className="grid gap-2 pt-1 sm:grid-cols-3">
+                <button type="button" onClick={() => void confirmInventoryAdd(false)} className="min-h-11 rounded-xl border border-emerald-200 bg-white px-3 py-2 text-sm font-black text-[#276556] transition hover:bg-emerald-50">ذخیره</button>
+                <button type="button" onClick={() => void confirmInventoryAdd(true)} className="noosh-cta-3d min-h-11 rounded-xl px-3 py-2 text-sm font-black">ذخیره و بعدی</button>
+                <button type="button" onClick={cancelInlineInventoryAdd} className="min-h-11 rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold text-slate-600 transition hover:bg-rose-50 hover:text-rose-700">انصراف</button>
+              </div>
+            </div>
+          </section>
+        </div>, document.body
+      )}
       {pendingUnitCorrection && createPortal(
         <div className="fixed inset-0 z-[11000] grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm" dir="rtl" role="presentation" onClick={() => setPendingUnitCorrection(null)}>
           <section role="dialog" aria-modal="true" aria-labelledby="unit-correction-title" className="w-full max-w-lg rounded-[28px] border border-white/70 bg-[#f7f9f6] p-5 shadow-2xl sm:p-7" onClick={event => event.stopPropagation()}>
