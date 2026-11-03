@@ -658,7 +658,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
 
   const renderInventoryColumn = (items: InventoryItem[], column: number) => <div key={`inventory-column-${column}`} className="min-w-0 rounded-2xl border border-emerald-100 bg-white shadow-sm">
     <div>
-      <table className="w-full min-w-[850px] table-fixed border-collapse text-right text-[13px]">
+      <table className="w-full min-w-[850px] table-fixed border border-slate-200 border-collapse text-right text-[13px] [&_th]:border-b [&_th]:border-l [&_th]:border-slate-200 [&_td]:border-b [&_td]:border-l [&_td]:border-slate-200">
         <colgroup><col className="w-[23%]"/><col className="w-[12%]"/><col className="w-[15%]"/><col className="w-[13%]"/><col className="w-[14%]"/><col className="w-[10%]"/><col className="w-[13%]"/></colgroup>
         <thead className="sticky top-[104px] z-20 bg-[#eaf3ed] text-[12px] font-black text-[#214e3d] shadow-[0_2px_5px_rgba(15,23,42,0.12)] sm:top-[64px] sm:text-[13px]">
           <tr><th className="px-3 py-4">مادهٔ غذایی</th><th className="px-2 py-4">موجودی</th><th className="px-2 py-4">آستانهٔ هشدار</th><th className="px-2 py-4">تاریخ انقضا</th><th className="px-2 py-4">قیمت هر واحد</th><th className="px-2 py-4">وضعیت</th><th className="px-2 py-4">عملیات</th></tr>
