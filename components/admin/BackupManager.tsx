@@ -14,7 +14,9 @@ const BackupManager: React.FC<{personalOnly?: boolean}> = ({personalOnly = false
   const download = () => {
     const data = { format: 'noosh-device-backup', version: 2, profile: GuestService.get(), personalRecipes: RecipeService.getPersonalDishes(), ...(!personalOnly ? { dishes: RecipeService.getRawDishes(), hidden: JSON.parse(localStorage.getItem('global_hidden_dish_ids_v1') || '[]'), renamed: JSON.parse(localStorage.getItem('renamed_dishes_map_v1') || '{}') } : {}) };
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
-    const link = document.createElement('a'); link.href = url; link.download = `noosh-${personalOnly ? 'personal' : 'complete'}-backup.json`; link.click(); URL.revokeObjectURL(url);
+    const now = new Date();
+    const createdDate = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
+    const link = document.createElement('a'); link.href = url; link.download = `noosh-${personalOnly ? 'personal' : 'complete'}-backup-${createdDate}.json`; link.click(); URL.revokeObjectURL(url);
   };
   const restore = async (file?: File) => {
     if (!file) return;
