@@ -148,6 +148,23 @@ const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh
               </button>
           )}
 
+          {missingItems && missingItems.length > 0 && (
+            <div className="meal-shortages-panel" onClick={event => event.stopPropagation()} dir="rtl">
+              <div className="meal-shortages-row"><span className="meal-shortages-label">موادِ کسری</span>
+              <ul aria-label="موادِ کسری این غذا" className="meal-shortages-items" tabIndex={0}>
+                {[...new Set(missingItems)].map(item => (
+                  <li key={item} className="meal-shortages-item">{item}</li>
+                ))}
+              </ul></div>
+              {!isLocked && <button type="button" onClick={handleAddShortages} disabled={isAddingToShopping} aria-label={`افزودن مواد کسری ${dish.name} به فهرست خرید`} className="noosh-cta-3d meal-shortages-buy">
+                {isAddingToShopping ? <Loader2 size={16} className="shrink-0 animate-spin" aria-hidden="true" /> : <ShoppingBag size={16} className="shrink-0" aria-hidden="true" />}
+                <span>{isAddingToShopping ? 'در حال افزودن…' : 'افزودن به فهرست خرید'}</span>
+              </button>}
+              {shoppingMessage && <p role="status" className="mt-2 text-xs font-bold leading-6 text-[#276556]">{shoppingMessage}</p>}
+              {shoppingError && <p role="alert" className="mt-2 text-xs font-bold leading-6 text-rose-700">{shoppingError}</p>}
+            </div>
+          )}
+
           {!isLocked && (
             <div className="absolute bottom-2 left-2 right-2 flex justify-between items-end z-10 opacity-100 transition-all duration-500">
                <div className="flex gap-1">
@@ -170,22 +187,6 @@ const MealCard: React.FC<MealCardProps> = ({ plan, user, onUpdateUser, onRefresh
         <div className="p-3 flex flex-col flex-grow text-right bg-white relative">
           {isDishProhibited(dish, user) && <p role="note" className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-xs font-bold leading-6 text-amber-900">حاوی مواد ممنوع یا نامطلوب ثبت‌شده در تنظیمات شما؛ مناسب پیشنهاد و برنامهٔ غذایی شما نیست.</p>}
           <h3 className={`text-base font-bold transition-all duration-500 mb-1.5 ${isLocked ? 'text-slate-300' : 'text-slate-800 group-hover:text-teal-600'}`}>{dish.name}</h3>
-          {missingItems && missingItems.length > 0 && (
-            <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-amber-950" dir="rtl">
-              <p className="mb-2 text-xs font-bold">موادِ کسری</p>
-              <ul aria-label="موادِ کسری این غذا" className="flex flex-wrap gap-1.5 text-xs leading-5">
-                {[...new Set(missingItems)].map(item => (
-                  <li key={item} className="max-w-full break-words rounded-lg border border-amber-200 bg-white px-2 py-1">{item}</li>
-                ))}
-              </ul>
-              {!isLocked && <button type="button" onClick={handleAddShortages} disabled={isAddingToShopping} aria-label={`افزودن مواد کسری ${dish.name} به فهرست خرید`} className="noosh-cta-3d mt-3 mb-1 inline-flex min-h-11 w-full items-center justify-center gap-2 px-3 py-2 text-xs leading-6">
-                {isAddingToShopping ? <Loader2 size={16} className="shrink-0 animate-spin" aria-hidden="true" /> : <ShoppingBag size={16} className="shrink-0" aria-hidden="true" />}
-                <span>{isAddingToShopping ? 'در حال افزودن…' : 'افزودن به فهرست خرید'}</span>
-              </button>}
-              {shoppingMessage && <p role="status" className="mt-2 text-xs font-bold leading-6 text-[#276556]">{shoppingMessage}</p>}
-              {shoppingError && <p role="alert" className="mt-2 text-xs font-bold leading-6 text-rose-700">{shoppingError}</p>}
-            </div>
-          )}
           {dish.isLocallyEdited && <span className="mb-2 inline-flex w-fit rounded-lg bg-emerald-50 px-2 py-1 text-[10px] font-black text-[#276556]">نسخهٔ شخصی شما</span>}
           {personalRating > 0 && <div className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-lg bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-800" aria-label={`امتیاز شخصی شما ${toPersianDigits(personalRating)} از ۵`} title="امتیاز شخصی شما"><span>امتیاز شما</span><span className="inline-flex items-center gap-0.5"><Star size={12} className="fill-amber-400 text-amber-500" />{toPersianDigits(personalRating)} از ۵</span></div>}
           {dish.isCommunityRecipe && dish.creatorName && <p className="-mt-1 mb-2 text-[10px] leading-5 font-bold text-[#276556]">{formatCommunityAttribution(dish)} <button type="button" onClick={event => { event.stopPropagation(); showCreatorRecipes(dish.creatorName!); }} className="mt-1 inline-flex min-h-9 items-center rounded-lg bg-[#edf4f0] px-2 text-xs font-black text-[#276556] hover:bg-[#dcebe3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#276556]" aria-label={`دیدن همهٔ رسپی‌های ${dish.creatorName}`}>همهٔ رسپی‌های {dish.creatorName} ←</button></p>}
