@@ -17,7 +17,7 @@ import InventoryBatchManager from './InventoryBatchManager';
 import JalaliDateInput from './JalaliDateInput';
 import { activePurchaseBatchCount, appendInventoryBatch, earliestExpiry, getInventoryBatches, inventoryExpiryState, MAX_ACTIVE_PURCHASE_BATCHES, sumInventoryBatches, resizeInventoryBatches } from '../utils/inventoryBatches';
 import { mergePurchaseHistory } from '../utils/purchaseHistory';
-import { formatGregorianDateAsPersian } from '../utils/persianDate';
+import { formatGregorianDateAsPersian, getTodayIsoDate } from '../utils/persianDate';
 import { PANTRY_UNIT_OPTIONS } from '../utils/pantryUnits';
 import { mergeShoppingNeeds } from '../utils/shoppingQuantities';
 
@@ -147,6 +147,8 @@ interface ProcessedResult {
   missingCount: number;
   priorityScore: number;
   proteinMatchScore: number;
+  expiryPriorityScore: number;
+  expiringItemsToUse: string[];
 }
 
 const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNavigate, onKitchenModeChange, pendingPurchasedItems = [], onPurchasedItemsCancel = (_items: ShoppingItem[]) => undefined, onPurchasedItemRemove = (_itemId: string) => undefined }) => {
@@ -290,6 +292,17 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     setIsSearching(true);
     setTimeout(() => {
       const all = RecipeService.getAllDishes(user).filter(dish => !isDishProhibited(dish, user));
+      const todayIso = getTodayIsoDate();
+      const expiryUrgencyByInventoryId = new Map<string, { name: string; urgency: number }>();
+      inventory.forEach(item => {
+        const nearestFutureExpiry = getInventoryBatches(item)
+          .filter(batch => batch.amount > 0 && batch.expiresOn && batch.expiresOn >= todayIso)
+          .map(batch => batch.expiresOn!)
+          .sort()[0];
+        const state = inventoryExpiryState(nearestFutureExpiry);
+        if (nearestFutureExpiry && state === 'soon') expiryUrgencyByInventoryId.set(item.id, { name: item.name, urgency: 2 });
+        else if (nearestFutureExpiry && state === 'upcoming') expiryUrgencyByInventoryId.set(item.id, { name: item.name, urgency: 1 });
+      });
       const processed: ProcessedResult[] = all.map(dish => {
         const evaluation = evaluateInventory(inventory, dish.ingredients, user.familySize || 4, dish.servings || 4);
         const matched = evaluation.lines.filter(line => line.allocations.length > 0).map(line => line.item);
@@ -321,6 +334,14 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
         // -5000 for each unmatched protein (penalty for expensive unselected proteins)
         let proteinMatchScore = (matchedProteins.length * 1000) - (unmatchedProteins.length * 5000);
 
+        const expiringItemsUsed = new Map<string, { name: string; urgency: number }>();
+        evaluation.lines.forEach(line => line.allocations.forEach(allocation => {
+          const expiringItem = expiryUrgencyByInventoryId.get(allocation.inventoryId);
+          if (expiringItem && allocation.consumed > 0) expiringItemsUsed.set(allocation.inventoryId, expiringItem);
+        }));
+        const expiringItemsToUse = [...expiringItemsUsed.values()].map(item => item.name);
+        const expiryPriorityScore = [...expiringItemsUsed.values()].reduce((score, item) => score + item.urgency, 0);
+
         // Check if fully cookable based on inventory amounts
         const isFullyCookable = evaluation.lines.every(line => line.status === 'ready');
 
@@ -332,20 +353,26 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
           isFullyCookable,
           missingCount: essentialMissing.length,
           priorityScore, // Higher is better
-          proteinMatchScore
+          proteinMatchScore,
+          expiryPriorityScore,
+          expiringItemsToUse
         };
       })
       .filter(res => res.matchedItems.length > 0)
       .sort((a, b) => {
-        // First priority: least essential missing items
+        // First use ingredients nearing expiry; then retain the usual cookability order.
+        if (a.expiryPriorityScore !== b.expiryPriorityScore) {
+          return b.expiryPriorityScore - a.expiryPriorityScore;
+        }
+        // Second priority: least essential missing items
         if (a.missingCount !== b.missingCount) {
           return a.missingCount - b.missingCount;
         }
-        // Second priority: Protein Match Quality (Exact matches first, no unselected proteins)
+        // Third priority: Protein Match Quality (Exact matches first, no unselected proteins)
         if (a.proteinMatchScore !== b.proteinMatchScore) {
           return b.proteinMatchScore - a.proteinMatchScore;
         }
-        // Third priority: category score (Proteins > Grains > Vegetables)
+        // Fourth priority: category score (Proteins > Grains > Vegetables)
         return b.priorityScore - a.priorityScore;
       });
 
@@ -918,10 +945,11 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                   </div>
 
                   <div className="pantry-results-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pb-10">
-                    {filteredResults && filteredResults.length > 0 ? filteredResults.map(({ dish, missingCount, isPerfect, isFullyCookable }) => (
+                    {filteredResults && filteredResults.length > 0 ? filteredResults.map(({ dish, missingCount, isPerfect, isFullyCookable, expiringItemsToUse }) => (
                       <div key={dish.id} className="relative animate-enter">
                         {isFullyCookable && <div className="absolute -top-2 -right-2 z-20 bg-teal-500 text-white px-3 py-1 rounded-lg shadow-xl border-2 border-white font-black text-[8px] sm:text-[10px]">موجود در انبار</div>}
                         {!isFullyCookable && isPerfect && <div className="absolute -top-2 -right-2 z-20 bg-emerald-500 text-white px-3 py-1 rounded-lg shadow-xl border-2 border-white font-black text-[8px] sm:text-[10px]">آماده طبخ</div>}
+                        {expiringItemsToUse.length > 0 && <div className="mb-2 flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[10px] font-black leading-5 text-amber-900 sm:text-xs" title={`این رسپی از مواد نزدیک انقضا استفاده می‌کند: ${expiringItemsToUse.join('، ')}`}><Clock size={14} className="shrink-0 text-amber-700"/><span>برای مصرف زودتر: {expiringItemsToUse.slice(0, 2).join('، ')}{expiringItemsToUse.length > 2 ? ` و ${toPersian(expiringItemsToUse.length - 2)} قلم دیگر` : ''}</span></div>}
                         <MealCard plan={{ dayName: isFullyCookable ? 'کامل' : isPerfect ? 'آماده' : `${toPersian(missingCount)} کسری`, dish }} user={user} onUpdateUser={onUpdateUser} onOpenInventory={openInventoryForPrices} />
                       </div>
                     )) : (
