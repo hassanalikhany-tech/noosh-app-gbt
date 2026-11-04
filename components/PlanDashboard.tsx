@@ -55,7 +55,7 @@ export default function PlanDashboard(props: Props) {
         <div className="planner-controls planner-hero-controls"><div className="period-switch" aria-label="بازه برنامه">
           {([{ id: 'daily', label: 'امروز' }, { id: 'weekly', label: 'یک هفته' }, { id: 'monthly', label: '۳۰ روز' }] as const).map(item => <button key={item.id} aria-pressed={period === item.id} onClick={() => setPeriod(item.id)} className={period === item.id ? 'selected noosh-cta-3d' : ''}>{item.label}</button>)}
         </div><div className="diet-filters">{filters.map(({ key, label, icon: Icon }) => <button key={key} aria-pressed={!!user[key]} className={user[key] ? 'active noosh-cta-3d' : ''} onClick={() => props.onToggleFilter(key)}><Icon size={16} />{label}</button>)}</div>
-          <button className="generate-button noosh-cta-3d" disabled={!!loading} onClick={() => props.onGenerate(period)}>{loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}{loading ? 'در حال چیدن برنامه…' : plan.length ? 'برنامهٔ تازه بچین' : 'برنامه‌ام را بچین'}</button>
+          <button type="button" aria-live="polite" aria-busy={!!loading} className="generate-button noosh-cta-3d disabled:cursor-wait disabled:opacity-100" disabled={!!loading} onClick={() => props.onGenerate(period)}>{loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}<span>{loading ? 'در حال آماده‌سازی برنامه…' : plan.length ? 'برنامهٔ تازه بچین' : 'برنامه‌ام را بچین'}</span></button>
         </div>
       </section>
       <section className="planner-panel" aria-label="نتایج برنامه غذایی">
