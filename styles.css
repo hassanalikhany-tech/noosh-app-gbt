@@ -179,3 +179,18 @@ button{cursor:pointer}button:disabled{cursor:wait;opacity:.55}button:hover:not(:
 @keyframes noosh-plan-breathe{0%,100%{transform:scale(.96);filter:drop-shadow(0 0 0 rgb(215 180 90 / 0%))}50%{transform:scale(1.03);filter:drop-shadow(0 4px 8px rgb(215 180 90 / 35%))}}
 @keyframes noosh-plan-shimmer{0%{background-position:100% 0}100%{background-position:-120% 0}}
 @media(max-width:640px){.noosh-plan-loading{min-height:clamp(330px,48vh,470px);padding:24px 13px}.noosh-plan-loading h3{font-size:16px}.noosh-plan-loading>p{max-width:330px;font-size:11px}.noosh-plan-loading-cards{gap:8px;margin-top:19px}.noosh-plan-loading-card{padding:7px}.noosh-plan-loading-image{height:62px}.noosh-plan-loading-line{height:6px;margin-top:8px}}
+.noosh-plan-loading-reserve{min-height:38vh}
+.noosh-plan-loading-portal{position:fixed;z-index:2147483000;inset-inline:12px;inset-block-start:53vh;inset-block-end:calc(78px + env(safe-area-inset-bottom));display:flex;justify-content:center;pointer-events:none}
+.noosh-plan-loading-portal>.noosh-plan-loading{width:min(100%,1280px);height:100%;min-height:0;border-color:#cbded0;padding:12px 20px;box-shadow:0 14px 44px rgb(23 60 43 / 24%)}
+.noosh-plan-loading-portal .noosh-plan-loader-mark{width:72px;height:72px;margin-bottom:6px}
+.noosh-plan-loading-portal .noosh-plan-loader-mark img{width:54px;height:54px;border-radius:12px}
+.noosh-plan-loading-portal .noosh-plan-loading h3{font-size:16px}
+.noosh-plan-loading-portal .noosh-plan-loading>p{margin-top:3px;font-size:11px;line-height:1.6}
+.noosh-plan-loading-portal .noosh-plan-loading-cards{gap:8px;margin-top:10px}
+.noosh-plan-loading-portal .noosh-plan-loading-card{padding:6px}
+.noosh-plan-loading-portal .noosh-plan-loading-image{height:46px}
+.noosh-plan-loading-portal .noosh-plan-loading-line{height:6px;margin-top:6px}
+.noosh-plan-loading-portal .noosh-plan-loading-line.short{height:5px;margin-top:5px}
+.noosh-plan-loading-portal .noosh-plan-loading>small{margin-top:8px;font-size:10px}
+@media(max-width:640px){.noosh-plan-loading-portal{inset-inline:8px;inset-block-start:53vh;inset-block-end:calc(78px + env(safe-area-inset-bottom))}.noosh-plan-loading-portal>.noosh-plan-loading{padding:10px 9px;border-radius:16px}.noosh-plan-loading-portal .noosh-plan-loader-mark{width:60px;height:60px;margin-bottom:4px}.noosh-plan-loading-portal .noosh-plan-loader-mark img{width:44px;height:44px}.noosh-plan-loading-portal .noosh-plan-loading h3{font-size:14px}.noosh-plan-loading-portal .noosh-plan-loading>p{font-size:10px;line-height:1.5}.noosh-plan-loading-portal .noosh-plan-loading-cards{gap:6px;margin-top:7px}.noosh-plan-loading-portal .noosh-plan-loading-card{padding:5px}.noosh-plan-loading-portal .noosh-plan-loading-image{height:38px}.noosh-plan-loading-portal .noosh-plan-loading>small{margin-top:6px;font-size:9px}}
+@media(max-height:680px){.noosh-plan-loading-portal{inset-block-start:45vh;inset-block-end:calc(66px + env(safe-area-inset-bottom))}.noosh-plan-loading-portal>.noosh-plan-loading{padding-block:8px}.noosh-plan-loading-portal .noosh-plan-loader-mark{width:54px;height:54px;margin-bottom:2px}.noosh-plan-loading-portal .noosh-plan-loader-mark img{width:40px;height:40px}}
