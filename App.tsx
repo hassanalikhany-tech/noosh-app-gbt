@@ -23,8 +23,6 @@ import { getRelevantInventory } from './utils/kitchenMode';
 import metadata from './metadata.json';
 import { markApplicationReady } from './utils/startup';
 
-const MIN_PLAN_LOADING_FEEDBACK_MS = 650;
-
 type ViewMode = 'plan' | 'pantry' | 'search' | 'inventory' | 'settings';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -403,9 +401,7 @@ const AppContent: React.FC = () => {
 
     setPlanError('');
     setPlanLoading(type);
-    const loadingStartedAt = performance.now();
     try {
-      await new Promise<void>(resolve => window.requestAnimationFrame(() => resolve()));
       let result;
       if (type === 'daily') result = await generateDailyPlan(currentUser);
       else if (type === 'weekly') result = await generateWeeklyPlan(currentUser);
@@ -416,8 +412,6 @@ const AppContent: React.FC = () => {
     } catch (err: any) {
       setPlanError(err.message || 'خطا در تولید برنامه');
     } finally {
-      const remainingFeedbackTime = MIN_PLAN_LOADING_FEEDBACK_MS - (performance.now() - loadingStartedAt);
-      if (remainingFeedbackTime > 0) await new Promise<void>(resolve => window.setTimeout(resolve, remainingFeedbackTime));
       setPlanLoading(null);
     }
   };
