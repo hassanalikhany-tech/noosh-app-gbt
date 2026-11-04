@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CalendarDays, ChefHat, Clock3, Heart, Leaf, Loader2, Printer, ShoppingBag, Sparkles, Undo2, Zap, ReceiptText } from 'lucide-react';
 import { DayPlan, UserProfile } from '../types';
@@ -27,7 +27,18 @@ export default function PlanDashboard(props: Props) {
   const [query, setQuery] = useState('');
   const [undoing, setUndoing] = useState(false);
   const [undoError, setUndoError] = useState('');
+  const loadingPanelRef = useRef<HTMLDivElement>(null);
   const [foodPhotoSrc, setFoodPhotoSrc] = useState('/hero-chelo-kabab-barg.png');
+  useEffect(() => {
+    if (!loading) return;
+    const frame = window.requestAnimationFrame(() => {
+      loadingPanelRef.current?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'nearest',
+      });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [loading]);
   const times = plan.map(p => p.dish.cookTime).filter((time): time is number => typeof time === 'number' && time > 0);
   const planCost = plan.flatMap(item => [item.dish, ...(item.sideDish ? [item.sideDish] : [])])
     .map(dish => estimateRecipeCost(dish, user.familySize || 4, user.inventory || []))
@@ -63,7 +74,7 @@ export default function PlanDashboard(props: Props) {
           <button disabled={undoing || !!loading} onClick={async () => { setUndoing(true); setUndoError(''); try { await props.onUndo(); } catch { setUndoError('بازگرداندن برنامه انجام نشد. دوباره تلاش کنید.'); } finally { setUndoing(false); } }}><Undo2 size={17} /> برنامهٔ قبلی</button>
         </div>}
         {(props.error || undoError) && <div className="plan-error" role="alert">{props.error || undoError} فیلترها را تغییر دهید یا دوباره تلاش کنید.</div>}
-        {loading ? <div className="noosh-plan-loading" role="status" aria-live="polite" aria-busy="true">
+        {loading ? <div ref={loadingPanelRef} className="noosh-plan-loading" role="status" aria-live="polite" aria-busy="true">
           <div className="noosh-plan-loader-mark" aria-hidden="true"><span className="noosh-plan-loader-ring" /><img src="/brand/noosh-logo.png" alt="" /></div>
           <h3>نوش دارد سفرهٔ تو را می‌چیند</h3>
           <p>غذاها را با توجه به بازه، سلیقه، حساسیت‌ها و موجودی خانه آماده می‌کنیم.</p>
