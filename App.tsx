@@ -23,8 +23,6 @@ import { getRelevantInventory } from './utils/kitchenMode';
 import metadata from './metadata.json';
 import { markApplicationReady } from './utils/startup';
 
-const PLAN_LOADING_TEST_DELAY_MS = 20_000;
-
 type ViewMode = 'plan' | 'pantry' | 'search' | 'inventory' | 'settings';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -404,7 +402,6 @@ const AppContent: React.FC = () => {
     setPlanError('');
     setPlanLoading(type);
     try {
-      await new Promise<void>(resolve => window.setTimeout(resolve, PLAN_LOADING_TEST_DELAY_MS));
       let result;
       if (type === 'daily') result = await generateDailyPlan(currentUser);
       else if (type === 'weekly') result = await generateWeeklyPlan(currentUser);

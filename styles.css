@@ -158,3 +158,24 @@ button{cursor:pointer}button:disabled{cursor:wait;opacity:.55}button:hover:not(:
 .pantry-starter-grid button{min-width:0;gap:6px}.pantry-starter-grid button .pantry-food-thumbnail{width:28px;height:28px;flex-basis:28px;border-radius:9px}.pantry-starter-grid button>span:not(.pantry-food-thumbnail){min-width:0;overflow-wrap:anywhere}
 .pantry-dense-row{color:#31463a;transition:background .16s,color .16s}.pantry-dense-row:hover{background:#f6faf7}.pantry-dense-row.is-selected{background:var(--green);color:#fff}.pantry-dense-row.is-selected>td{border-color:#ffffff26}.pantry-dense-row.is-selected strong,.pantry-dense-row.is-selected td{color:#fff}.pantry-dense-row.is-selected td input,.pantry-dense-row.is-selected td select{color:#234536}.pantry-dense-row:focus-within{outline:2px solid #80aa8d;outline-offset:-2px}
 .pantry-dense-row.is-expired:not(.is-selected){background:#fff1f2}.pantry-dense-row.is-expired:not(.is-selected)>td:first-child strong{color:#9f1239;font-weight:900}.pantry-dense-row.is-near-expiry:not(.is-selected){background:#fffafa}.pantry-expiry-status{display:inline-flex;flex-shrink:0;align-items:center;justify-content:center;border-radius:9999px;padding:3px 7px;font-size:10px;font-weight:900;line-height:1.4;white-space:nowrap}.pantry-expiry-status--expired{color:#9f1239!important;background:#ffe4e6}.pantry-expiry-status--near{color:#b91c1c!important;background:#fee2e2;animation:noosh-expiry-blink 1.25s ease-in-out infinite}@keyframes noosh-expiry-blink{0%,100%{opacity:1;background:#fee2e2}50%{opacity:.5;background:#fecaca}}@media(prefers-reduced-motion:reduce){.pantry-expiry-status--near{animation:none}}
+
+
+.noosh-plan-loading{position:relative;isolation:isolate;display:flex;min-height:clamp(350px,52vh,560px);flex-direction:column;align-items:center;justify-content:center;overflow:hidden;border:1px solid #dbe9df;border-radius:20px;background:radial-gradient(ellipse at 50% 12%,#fff 0%,#f5faf4 54%,#f7f3e8 100%);padding:28px 20px;text-align:center}
+.noosh-plan-loading::before,.noosh-plan-loading::after{position:absolute;z-index:-1;width:230px;height:230px;border:1px solid rgb(39 101 86 / 8%);border-radius:50%;content:"";animation:noosh-plan-orbit 18s linear infinite}
+.noosh-plan-loading::after{width:310px;height:310px;border-color:rgb(215 180 90 / 16%);animation-direction:reverse;animation-duration:26s}
+.noosh-plan-loader-mark{position:relative;display:grid;width:106px;height:106px;place-items:center;margin-bottom:17px}
+.noosh-plan-loader-ring{position:absolute;inset:0;border:3px solid rgb(39 101 86 / 14%);border-top-color:#276556;border-right-color:#d7b45a;border-radius:50%;animation:noosh-plan-orbit 1.8s linear infinite}
+.noosh-plan-loader-mark img{width:78px;height:78px;border-radius:16px;object-fit:cover;box-shadow:0 8px 22px rgb(23 60 43 / 16%);animation:noosh-plan-breathe 2.2s ease-in-out infinite}
+.noosh-plan-loading h3{margin:0;color:#173c2b;font-size:18px;font-weight:900}
+.noosh-plan-loading>p{max-width:440px;margin:7px auto 0;color:#5f7064;font-size:12px;line-height:1.9}
+.noosh-plan-loading-cards{display:grid;width:min(100%,700px);grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:23px;text-align:right}
+.noosh-plan-loading-card{border:1px solid rgb(23 60 43 / 7%);border-radius:14px;background:rgb(255 255 255 / 86%);padding:9px;box-shadow:0 5px 16px rgb(23 60 43 / 5%)}
+.noosh-plan-loading-image,.noosh-plan-loading-line{position:relative;overflow:hidden;background:linear-gradient(100deg,#e8f1e8 22%,#f8faf6 40%,#e8f1e8 62%);background-size:220% 100%;animation:noosh-plan-shimmer 1.8s ease-in-out infinite}
+.noosh-plan-loading-image{height:78px;border-radius:9px}
+.noosh-plan-loading-line{height:8px;width:72%;margin-top:10px;border-radius:999px}
+.noosh-plan-loading-line.short{width:48%;height:6px;margin-top:7px;background-color:#f5efd9}
+.noosh-plan-loading>small{display:flex;align-items:center;gap:7px;margin-top:16px;color:#276556;font-size:11px;font-weight:800}
+@keyframes noosh-plan-orbit{to{transform:rotate(360deg)}}
+@keyframes noosh-plan-breathe{0%,100%{transform:scale(.96);filter:drop-shadow(0 0 0 rgb(215 180 90 / 0%))}50%{transform:scale(1.03);filter:drop-shadow(0 4px 8px rgb(215 180 90 / 35%))}}
+@keyframes noosh-plan-shimmer{0%{background-position:100% 0}100%{background-position:-120% 0}}
+@media(max-width:640px){.noosh-plan-loading{min-height:clamp(330px,48vh,470px);padding:24px 13px}.noosh-plan-loading h3{font-size:16px}.noosh-plan-loading>p{max-width:330px;font-size:11px}.noosh-plan-loading-cards{gap:8px;margin-top:19px}.noosh-plan-loading-card{padding:7px}.noosh-plan-loading-image{height:62px}.noosh-plan-loading-line{height:6px;margin-top:8px}}
