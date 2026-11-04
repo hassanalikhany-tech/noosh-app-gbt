@@ -63,7 +63,7 @@ export default function PlanDashboard(props: Props) {
           <button disabled={undoing || !!loading} onClick={async () => { setUndoing(true); setUndoError(''); try { await props.onUndo(); } catch { setUndoError('بازگرداندن برنامه انجام نشد. دوباره تلاش کنید.'); } finally { setUndoing(false); } }}><Undo2 size={17} /> برنامهٔ قبلی</button>
         </div>}
         {(props.error || undoError) && <div className="plan-error" role="alert">{props.error || undoError} فیلترها را تغییر دهید یا دوباره تلاش کنید.</div>}
-        {loading ? <div className="noosh-plan-loading-reserve" aria-hidden="true" /> : plan.length > 0 ? <>
+        {plan.length > 0 ? <>
           <div className="plan-summary" aria-live="polite"><span><CalendarDays size={16} />{fa(plan.length)} پیشنهاد برای سفرهٔ تو</span>{times.length > 0 && <span><Clock3 size={16} />میانگین زمان پخت: {fa(Math.round(times.reduce((sum, time) => sum + time, 0) / times.length))} دقیقه</span>}</div>
           {(planCost.pricedRows > 0 || planCost.eligibleRows > 0) && <section className="my-4 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between" aria-label="برآورد هزینهٔ برنامه">
             <div className="min-w-0">{planCost.pricedRows > 0 ? <><p className="flex items-center gap-2 font-black text-amber-950"><ReceiptText size={17} />برآورد هزینهٔ مواد قیمت‌گذاری‌شده: حدود {fa(Math.round(planCost.pricedSubtotal))} تومان</p><p className="mt-1 text-xs font-bold leading-5 text-amber-900">{fa(planCost.pricedRows)} از {fa(planCost.eligibleRows)} قلم محاسبه شده{planCost.approximate ? '؛ بخشی از تبدیل‌ها تقریبی است.' : '.'} این مبلغ هزینهٔ کامل برنامه را تضمین نمی‌کند.</p>{planCost.missingIngredients.length > 0 && <p className="mt-1 text-xs text-amber-900">بدون قیمت یا تبدیل مطمئن: {[...new Set(planCost.missingIngredients)].slice(0, 5).join('، ')}{planCost.missingIngredients.length > 5 ? ' و موارد دیگر' : ''}</p>}</> : <p className="font-black text-amber-950">هنوز قیمت قابل محاسبه‌ای برای مواد این برنامه ثبت نشده است.</p>}
@@ -77,14 +77,5 @@ export default function PlanDashboard(props: Props) {
       {plan.length > 0 && createPortal(<button type="button" className="shopping-banner noosh-cta-3d" onClick={props.onShopping} disabled={props.shoppingLoading}>{props.shoppingLoading ? <Loader2 className="animate-spin" /> : <ShoppingBag />}<span><strong>{user.kitchenMode === 'without-inventory' ? 'مواد لازم را به سبد خرید اضافه کن' : 'کسری مواد را به سبد خرید اضافه کن'}</strong><small>{user.kitchenMode === 'without-inventory' ? 'مقدار کامل مواد لازم برای دستورهای برنامه' : 'پس از کسر موجودی ثبت‌شده'}</small></span></button>, document.body)}
       <p className="dashboard-signoff">با حوصله انتخاب کن. با عشق بپز. نوش جان ♡</p>
     </div>
-    {loading && createPortal(<div className="noosh-plan-loading-portal" role="status" aria-live="polite" aria-busy="true">
-      <div className="noosh-plan-loading">
-        <div className="noosh-plan-loader-mark" aria-hidden="true"><span className="noosh-plan-loader-ring" /><img src="/brand/noosh-logo.png" alt="" /></div>
-        <h3>نوش دارد سفرهٔ تو را می‌چیند</h3>
-        <p>غذاها را با توجه به بازه، سلیقه، حساسیت‌ها و موجودی خانه آماده می‌کنیم.</p>
-        <div className="noosh-plan-loading-cards" aria-hidden="true">{[0, 1, 2].map(item => <div key={item} className="noosh-plan-loading-card"><div className="noosh-plan-loading-image" /><div className="noosh-plan-loading-line" /><div className="noosh-plan-loading-line short" /></div>)}</div>
-        <small><Loader2 size={14} className="animate-spin" /> آماده‌سازی برنامه ممکن است چند لحظه طول بکشد…</small>
-      </div>
-    </div>, document.body)}
   </div>;
 }
