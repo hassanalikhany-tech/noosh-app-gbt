@@ -16,11 +16,14 @@ import { UserService } from './services/userService';
 import { NotificationService } from './services/notificationService';
 import { DayPlan, KitchenMode, ShoppingItem, UserProfile, CATEGORY_LABELS, DishCategory, Notification } from './types';
 import { filterDishes, generateDailyPlan, generateWeeklyPlan, generateMonthlyPlan, generateSingleReplacement } from './utils/planner';
+
 import { getShoppingShortages, parseQuantity } from './utils/recipeHelpers';
 import { getBaseIngredientName } from './data/pantry';
 import { getRelevantInventory } from './utils/kitchenMode';
 import metadata from './metadata.json';
 import { markApplicationReady } from './utils/startup';
+
+const PLAN_LOADING_TEST_DELAY_MS = 20_000;
 
 type ViewMode = 'plan' | 'pantry' | 'search' | 'inventory' | 'settings';
 
@@ -401,6 +404,7 @@ const AppContent: React.FC = () => {
     setPlanError('');
     setPlanLoading(type);
     try {
+      await new Promise<void>(resolve => window.setTimeout(resolve, PLAN_LOADING_TEST_DELAY_MS));
       let result;
       if (type === 'daily') result = await generateDailyPlan(currentUser);
       else if (type === 'weekly') result = await generateWeeklyPlan(currentUser);
