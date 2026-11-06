@@ -203,9 +203,9 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   const toPersian = (num: number | string) => num.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
 
   return (
-    <div className="recipe-search flex flex-col h-full [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter">
+    <div className="recipe-search flex min-h-0 flex-col h-full [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter">
       {/* کادر جستجو قفل شده - شیشه‌ای دقیق */}
-      <div className="sticky top-0 [@media(orientation:landscape)_and_(max-height:500px)]:relative z-[900] bg-white/40 backdrop-blur-2xl px-4 py-3 sm:py-6 sm:px-10 border-b border-white/20">
+      <div className="sticky top-0 shrink-0 [@media(orientation:landscape)_and_(max-height:500px)]:relative z-[900] bg-white/40 backdrop-blur-2xl px-4 py-3 sm:py-6 sm:px-10 border-b border-white/20">
         <div className="backdrop-blur-3xl bg-white/50 border border-white/60 rounded-[1.75rem] sm:rounded-[2.5rem] p-3 sm:p-6 shadow-xl shadow-slate-200/50 max-w-7xl mx-auto space-y-3 sm:space-y-5">
            <div className="relative group">
               <input 
@@ -255,7 +255,19 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
               )}
            </div>
 
-           <div className="grid grid-cols-5 grid-rows-2 gap-1.5 pb-1 sm:flex sm:flex-wrap sm:items-center sm:gap-2" role="group" aria-label="فیلتر دسته‌بندی غذاها">
+           <label className="sm:hidden block">
+              <span className="sr-only">فیلتر دسته‌بندی غذاها</span>
+              <select
+                aria-label="فیلتر دسته‌بندی غذاها"
+                value={selectedCategory}
+                onChange={event => { setSelectedCategory(event.target.value as DishCategory | 'all'); setSelectedCountryId('all'); setCurrentPage(1); }}
+                className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 outline-none focus:border-[#276556] focus:ring-2 focus:ring-[#276556]/10"
+              >
+                <option value="all">همهٔ دسته‌ها</option>
+                {(Object.keys(CATEGORY_LABELS) as DishCategory[]).map(cat => <option key={cat} value={cat}>{CATEGORY_LABELS[cat]}</option>)}
+              </select>
+           </label>
+           <div className="hidden grid-cols-5 grid-rows-2 gap-1.5 pb-1 sm:flex sm:flex-wrap sm:items-center sm:gap-2" role="group" aria-label="فیلتر دسته‌بندی غذاها">
               <button 
                 onClick={() => { setSelectedCategory('all'); setSelectedCountryId('all'); setCurrentPage(1); }} 
                 className={`min-h-14 min-w-0 whitespace-normal break-words px-1 py-1.5 text-center leading-4 sm:min-h-11 sm:whitespace-nowrap sm:px-6 sm:py-3.5 rounded-lg sm:rounded-2xl text-[11px] sm:text-sm font-black border transition-all ${selectedCategory === 'all' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white/80 text-slate-600 border-slate-200 hover:border-slate-300'}`}
@@ -325,7 +337,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
         </div>
       </div>
 
-      <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain touch-pan-y [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
           <div className="max-w-7xl mx-auto py-4 sm:py-6 space-y-6 sm:space-y-10">
               {!filteredDishes.length && <div role="status" className="rounded-3xl bg-white p-6 text-center ring-1 ring-[#276556]/15 sm:p-10"><Search className="mx-auto mb-3 text-[#276556]" size={28}/><h2 className="text-lg font-black text-slate-800">رسپی‌ای با این ترکیب فیلترها پیدا نشد</h2><p className="mx-auto mt-2 max-w-lg text-sm leading-7 text-slate-500">نام غذا، دسته و کشور را بررسی کن. غذاهای دارای مواد ممنوع یا حساسیت‌زا نیز قابل مشاهده‌اند و روی کارتشان هشدار دارند.</p><button type="button" onClick={resetFilters} className="mt-4 min-h-11 rounded-xl bg-[#276556] px-5 text-sm font-bold text-white">پاک کردن فیلترهای جست‌وجو</button></div>}
               <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
