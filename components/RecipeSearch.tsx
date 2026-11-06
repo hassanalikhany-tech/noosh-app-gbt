@@ -296,16 +296,25 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
             {activeCreator && <p className="text-xs leading-6 text-slate-600">همهٔ دستورهای این آشپز قابل مشاهده‌اند؛ غذاهای دارای مواد ممنوع شما با هشدار مشخص می‌شوند و همچنان از پیشنهادها و برنامهٔ غذایی کنار گذاشته می‌شوند.</p>}
             {selectedCategory === 'international' && (
               <div className="recipe-country-filter relative pt-2 sm:pt-4 border-t border-white/40 animate-enter flex items-center group/flags">
+                <select
+                  aria-label="فیلتر کشور غذا"
+                  value={selectedCountryId}
+                  onChange={event => { setSelectedCountryId(event.target.value); setCurrentPage(1); }}
+                  className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 md:hidden"
+                >
+                  <option value="all">همهٔ کشورها</option>
+                  {countryOptions.map(country => <option key={country.id} value={country.id}>{country.label}</option>)}
+                </select>
                 <button 
                   onClick={() => scrollFlags('right')}
-                  className="recipe-country-arrow absolute right-0 z-20 p-2 sm:p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-slate-100 text-indigo-600 hover:bg-white transition-all flex items-center justify-center"
+                  className="recipe-country-arrow absolute right-0 z-20 hidden p-2 md:flex md:p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-slate-100 text-indigo-600 hover:bg-white transition-all items-center justify-center"
                 >
                   <ChevronRight size={18} sm:size={20} strokeWidth={3} />
                 </button>
 
                 <div 
                   ref={flagsScrollRef}
-                  className="recipe-country-options flex gap-2 sm:gap-3 items-center overflow-x-auto no-scrollbar pb-1 w-full px-8 sm:px-10"
+                  className="recipe-country-options hidden gap-2 md:flex md:gap-3 items-center overflow-x-auto no-scrollbar pb-1 w-full px-8 md:px-10"
                 >
                   <button 
                     onClick={() => { setSelectedCountryId('all'); setCurrentPage(1); }} 
@@ -328,7 +337,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
 
                 <button 
                   onClick={() => scrollFlags('left')}
-                  className="recipe-country-arrow absolute left-0 z-20 p-2 sm:p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-slate-100 text-indigo-600 hover:bg-white transition-all flex items-center justify-center"
+                  className="recipe-country-arrow absolute left-0 z-20 hidden p-2 md:flex md:p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-slate-100 text-indigo-600 hover:bg-white transition-all items-center justify-center"
                 >
                   <ChevronLeft size={18} sm:size={20} strokeWidth={3} />
                 </button>
