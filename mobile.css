@@ -1,10 +1,10 @@
 /* Phone-first refinement: readable type, comfortable targets, and uncluttered cards. */
+.planner-controls.planner-controls-sticky { position: sticky; top: 0; z-index: 80; justify-content: space-between; gap: 14px; margin: 0 0 16px; padding: 14px 18px; border: 1px solid #d6e4d8; border-radius: 16px; background: #f4f7ed; box-shadow: 0 7px 16px rgb(23 60 43 / 10%); }
 @media (max-width: 767px) {
-  .planner-controls-desktop { display: none !important; }
-  .planner-controls.planner-controls-mobile { position: sticky; top: 0; z-index: 80; display: flex !important; flex-direction: column; align-items: stretch; gap: 8px; margin: 0 -14px; padding: 10px 14px 12px; border-bottom: 1px solid #dce7dd; background: #f8fafc; box-shadow: 0 7px 16px rgb(23 60 43 / 10%); }
-  .planner-controls-mobile .period-switch { width: 100%; }
-  .planner-controls-mobile .diet-filters { width: 100%; }
-  .planner-controls-mobile .generate-button { width: 100%; }
+  .planner-controls.planner-controls-sticky { flex-direction: column; align-items: stretch; gap: 8px; margin: 0 -14px; padding: 10px 14px 12px; border-right: 0; border-left: 0; border-radius: 0; }
+  .planner-controls-sticky .period-switch { width: 100%; }
+  .planner-controls-sticky .diet-filters { width: 100%; }
+  .planner-controls-sticky .generate-button { width: 100%; }
   html, body, #root { min-width: 320px; width: 100%; max-width: 100%; overflow-x: hidden; }
   .noosh-app { min-height: 100dvh; min-height: 100svh; }
   .noosh-app > header { position: fixed; top: 0; box-sizing: border-box; height: calc(56px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 12px 0; background: #fff !important; background-image: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: 0 3px 16px #183d3b0b; }
@@ -198,10 +198,6 @@
   .preferences-page .text-xs { font-size: 13px; line-height: 1.8; }
   [role="dialog"] { max-width: calc(100vw - 20px); }
 }
-@media (min-width: 768px) {
-  .planner-controls-mobile { display: none !important; }
-}
-
 /* Country labels are exposed only in the phone layout. */
 .recipe-country-name { display: none; }
 

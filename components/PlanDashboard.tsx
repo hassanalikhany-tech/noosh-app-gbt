@@ -59,9 +59,8 @@ export default function PlanDashboard(props: Props) {
           {foodPhotoSrc ? <img src={foodPhotoSrc} alt="چلوکباب برگ ایرانی با برنج زعفرانی و گوجه کبابی" loading="eager" fetchPriority="high" onError={() => setFoodPhotoSrc(current => current === '/hero-chelo-kabab-barg.png' ? '/hero-zereshk-polo.png' : '')} /> : <div className="planner-hero-image-fallback" role="img" aria-label="تصویر غذا در دسترس نیست"><ChefHat size={36} aria-hidden="true" /></div>}
         </figure>
         </div>
-        {renderPlannerControls('planner-controls planner-hero-controls planner-controls-desktop')}
       </section>
-      {renderPlannerControls('planner-controls planner-controls-mobile')}
+      {renderPlannerControls('planner-controls planner-controls-sticky')}
       <section className="planner-panel" aria-label="نتایج برنامه غذایی" aria-busy={!!loading}>
         {props.canUndo && <div className="plan-tools planner-panel-tools">
           <button disabled={undoing || !!loading} onClick={async () => { setUndoing(true); setUndoError(''); try { await props.onUndo(); } catch { setUndoError('بازگرداندن برنامه انجام نشد. دوباره تلاش کنید.'); } finally { setUndoing(false); } }}><Undo2 size={17} /> برنامهٔ قبلی</button>
