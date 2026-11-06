@@ -76,6 +76,12 @@ const CountryFlag: React.FC<{ country: { id: string; label: string } }> = ({ cou
   return <img src={sources[sourceIndex]} alt={country.label} className="w-full h-full object-cover" onError={() => setSourceIndex(index => index + 1)} loading="lazy" decoding="async" />;
 };
 
+const countryFlagEmoji = (country: { id: string; label: string }) => {
+  const code = getCountryCodes(country.id)[0] || getCountryCodes(country.label)[0] || getCountryCode(country.id) || getCountryCode(country.label);
+  if (!code || !/^[a-z]{2}$/i.test(code)) return '🌐';
+  return Array.from(code.toUpperCase(), letter => String.fromCodePoint(127397 + letter.charCodeAt(0))).join('');
+};
+
 const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externalSearchTerm = '', creatorRequest, onCreatorRequestHandled, onOpenInventory }) => {
   const [selectedCategory, setSelectedCategory] = useState<DishCategory | 'all'>('all');
   const [selectedCountryId, setSelectedCountryId] = useState<string | 'all'>('all');
@@ -303,7 +309,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
                   className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs font-black text-slate-700 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 md:hidden"
                 >
                   <option value="all">همهٔ کشورها</option>
-                  {countryOptions.map(country => <option key={country.id} value={country.id}>{country.label}</option>)}
+                  {countryOptions.map(country => <option key={country.id} value={country.id}>{countryFlagEmoji(country)} {country.label}</option>)}
                 </select>
                 <button 
                   onClick={() => scrollFlags('right')}
