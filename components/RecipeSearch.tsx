@@ -90,6 +90,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
   const [sortMode, setSortMode] = useState<'default' | 'rating-high' | 'rating-low'>('default');
   const creators = useMemo(() => getRecipeCreators(allDishes), [allDishes]);
   const nooshRecipeCount = useMemo(() => allDishes.filter(dish => !dish.isCommunityRecipe && !dish.isPersonal).length, [allDishes]);
+  const personalRecipeCount = useMemo(() => allDishes.filter(dish => dish.isPersonal).length, [allDishes]);
   const activeCreator = creators.find(creator => creator.key === selectedCreator);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState(externalSearchTerm);
@@ -292,7 +293,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <RecipeCreatorFilter creators={creators} nooshCount={nooshRecipeCount} value={selectedCreator} onChange={selectCreator} />
+              <RecipeCreatorFilter creators={creators} nooshCount={nooshRecipeCount} personalCount={personalRecipeCount} value={selectedCreator} onChange={selectCreator} />
               <div className="flex flex-col gap-2 sm:items-end">
                 <label className="flex min-h-10 items-center gap-2 text-xs font-bold text-slate-600"><span className="shrink-0">مرتب‌سازی</span><select value={sortMode} onChange={event => { setSortMode(event.target.value as typeof sortMode); setCurrentPage(1); }} className="min-h-10 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-800 outline-none focus:border-[#276556] focus:ring-2 focus:ring-[#276556]/10"><option value="default">ترتیب پیش‌فرض</option><option value="rating-high">امتیاز من · زیاد به کم</option><option value="rating-low">امتیاز من · کم به زیاد</option></select></label>
                 <p role="status" className="text-xs leading-6 text-slate-600">{activeCreator ? <><strong className="text-[#276556]">{activeCreator.name}</strong> · {toPersian(activeCreator.count)} رسپی منتشرشده · {toPersian(filteredDishes.length)} نتیجه با فیلترهای فعلی</> : `${toPersian(filteredDishes.length)} غذا مطابق جست‌وجو و فیلترهای شما`}</p>
