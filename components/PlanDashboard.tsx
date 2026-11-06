@@ -38,6 +38,13 @@ export default function PlanDashboard(props: Props) {
       missingIngredients: [...total.missingIngredients, ...estimate.missingIngredients],
       approximate: total.approximate || estimate.approximate,
     }), { pricedSubtotal: 0, pricedRows: 0, eligibleRows: 0, missingIngredients: [] as string[], approximate: false });
+  const renderPlannerControls = (className: string) => <div className={className}>
+    <div className="period-switch" aria-label="بازه برنامه">
+      {([{ id: 'daily', label: 'امروز' }, { id: 'weekly', label: 'یک هفته' }, { id: 'monthly', label: '۳۰ روز' }] as const).map(item => <button key={item.id} aria-pressed={period === item.id} onClick={() => setPeriod(item.id)} className={period === item.id ? 'selected noosh-cta-3d' : ''}>{item.label}</button>)}
+    </div>
+    <div className="diet-filters">{filters.map(({ key, label, icon: Icon }) => <button key={key} aria-pressed={!!user[key]} className={user[key] ? 'active noosh-cta-3d' : ''} onClick={() => props.onToggleFilter(key)}><Icon size={16} />{label}</button>)}</div>
+    <button type="button" aria-live="polite" aria-busy={!!loading} className="generate-button noosh-cta-3d disabled:cursor-wait disabled:opacity-100" disabled={!!loading} onClick={() => props.onGenerate(period)}>{loading ? <Loader2 size={18} className="animate-spin" /> : plan.length ? <RefreshCw size={18} /> : <Sparkles size={18} />}<span>{loading ? 'در حال آماده‌سازی برنامه…' : plan.length ? 'برنامهٔ تازه بچین' : 'برنامه‌ام را بچین'}</span></button>
+  </div>;
   return <div className={`plan-dashboard${plan.length ? ' has-plan' : ''}`}>
     <div className="dashboard-inner">
       <section className="planner-hero planner-hero-with-controls" aria-labelledby="planner-title">
@@ -52,12 +59,9 @@ export default function PlanDashboard(props: Props) {
           {foodPhotoSrc ? <img src={foodPhotoSrc} alt="چلوکباب برگ ایرانی با برنج زعفرانی و گوجه کبابی" loading="eager" fetchPriority="high" onError={() => setFoodPhotoSrc(current => current === '/hero-chelo-kabab-barg.png' ? '/hero-zereshk-polo.png' : '')} /> : <div className="planner-hero-image-fallback" role="img" aria-label="تصویر غذا در دسترس نیست"><ChefHat size={36} aria-hidden="true" /></div>}
         </figure>
         </div>
-        <div className="planner-controls planner-hero-controls"><div className="period-switch" aria-label="بازه برنامه">
-          {([{ id: 'daily', label: 'امروز' }, { id: 'weekly', label: 'یک هفته' }, { id: 'monthly', label: '۳۰ روز' }] as const).map(item => <button key={item.id} aria-pressed={period === item.id} onClick={() => setPeriod(item.id)} className={period === item.id ? 'selected noosh-cta-3d' : ''}>{item.label}</button>)}
-        </div><div className="diet-filters">{filters.map(({ key, label, icon: Icon }) => <button key={key} aria-pressed={!!user[key]} className={user[key] ? 'active noosh-cta-3d' : ''} onClick={() => props.onToggleFilter(key)}><Icon size={16} />{label}</button>)}</div>
-          <button type="button" aria-live="polite" aria-busy={!!loading} className="generate-button noosh-cta-3d disabled:cursor-wait disabled:opacity-100" disabled={!!loading} onClick={() => props.onGenerate(period)}>{loading ? <Loader2 size={18} className="animate-spin" /> : plan.length ? <RefreshCw size={18} /> : <Sparkles size={18} />}<span>{loading ? 'در حال آماده‌سازی برنامه…' : plan.length ? 'برنامهٔ تازه بچین' : 'برنامه‌ام را بچین'}</span></button>
-        </div>
+        {renderPlannerControls('planner-controls planner-hero-controls planner-controls-desktop')}
       </section>
+      {renderPlannerControls('planner-controls planner-controls-mobile')}
       <section className="planner-panel" aria-label="نتایج برنامه غذایی" aria-busy={!!loading}>
         {props.canUndo && <div className="plan-tools planner-panel-tools">
           <button disabled={undoing || !!loading} onClick={async () => { setUndoing(true); setUndoError(''); try { await props.onUndo(); } catch { setUndoError('بازگرداندن برنامه انجام نشد. دوباره تلاش کنید.'); } finally { setUndoing(false); } }}><Undo2 size={17} /> برنامهٔ قبلی</button>
