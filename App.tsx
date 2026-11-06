@@ -24,7 +24,6 @@ import metadata from './metadata.json';
 import { markApplicationReady } from './utils/startup';
 
 type ViewMode = 'plan' | 'pantry' | 'search' | 'inventory' | 'settings';
-const MIN_PLAN_LOADING_FEEDBACK_MS = 700;
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -382,7 +381,6 @@ const AppContent: React.FC = () => {
 
   const handleGeneratePlan = async (type: 'daily' | 'weekly' | 'monthly') => {
     if (!currentUser) return;
-    const loadingStartedAt = performance.now();
 
     const isHidden = currentUser.hiddenGuidanceKeys?.includes(`plan_${type}`);
     if (!isHidden) {
@@ -403,6 +401,7 @@ const AppContent: React.FC = () => {
 
     setPlanError('');
     setPlanLoading(type);
+    await new Promise<void>(resolve => window.setTimeout(resolve, 600));
     try {
       let result;
       if (type === 'daily') result = await generateDailyPlan(currentUser);
@@ -414,8 +413,6 @@ const AppContent: React.FC = () => {
     } catch (err: any) {
       setPlanError(err.message || 'خطا در تولید برنامه');
     } finally {
-      const remainingFeedbackTime = MIN_PLAN_LOADING_FEEDBACK_MS - (performance.now() - loadingStartedAt);
-      if (remainingFeedbackTime > 0) await new Promise(resolve => window.setTimeout(resolve, remainingFeedbackTime));
       setPlanLoading(null);
     }
   };
