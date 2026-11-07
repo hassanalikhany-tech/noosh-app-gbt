@@ -520,3 +520,18 @@
   .personal-recipe-ingredient-row { grid-template-columns: minmax(0, 1fr) minmax(64px, .55fr) minmax(72px, .7fr) 44px !important; gap: 6px !important; }
   .personal-recipe-ingredient-row > input:first-child { grid-column: 1 / -1; }
 }
+
+/* Keep the roulette circular and its control visible beside it on phones. */
+@media (max-width: 767px) {
+  .food-roulette-content { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr) !important; align-items: center; gap: 8px !important; padding: 12px !important; }
+  .food-roulette-wheel-wrap { width: 100%; min-width: 0; max-width: none !important; align-self: center; }
+  .food-roulette-wheel-wrap > div { width: 100%; padding: 4px; }
+  .food-roulette-wheel-frame { width: 100%; aspect-ratio: 1 / 1; }
+  .food-roulette-wheel { width: 100%; height: auto; aspect-ratio: 1 / 1; transform-origin: center center; }
+  .food-roulette-copy { min-width: 0; text-align: center; }
+  .food-roulette-copy > span { gap: 5px; padding: 5px 8px; font-size: 9px; }
+  .food-roulette-copy h2 { margin-top: 7px; font-size: 18px; line-height: 1.4; }
+  .food-roulette-copy > p:first-of-type { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; margin-top: 5px; font-size: 10px; line-height: 1.65; }
+  .food-roulette-copy > button { width: 100%; min-width: 0; min-height: 48px; margin-top: 9px; gap: 5px; padding: 7px 5px; font-size: 10px; line-height: 1.5; }
+  .food-roulette-copy > p[role="status"] { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-height: 0; margin-top: 6px; font-size: 9px; line-height: 1.6; }
+}

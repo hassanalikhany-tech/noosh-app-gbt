@@ -10,7 +10,7 @@ interface FoodRouletteProps {
   onOpenInventory: () => void;
 }
 
-const SPIN_DURATION = 4600;
+const SPIN_DURATION = 6600;
 const SEGMENT_COLORS = [
   { wheel: '#276556', text: '#fffdf6' },
   { wheel: '#d7bd75', text: '#244b3e' },
@@ -91,7 +91,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
     setSpinDuration(duration);
     setResult(null);
     setSpinning(true);
-    setRotation(rotation + 5 * 360 + remainingAngle);
+    setRotation(rotation + 6 * 360 + remainingAngle);
     spinTimer.current = window.setTimeout(() => {
       setResult({ category: selectedCategory.category, dish: selectedDish });
       setSpinning(false);
@@ -100,8 +100,8 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
   };
 
   return <section className="mx-auto my-5 w-[calc(100%-28px)] max-w-6xl overflow-hidden rounded-[28px] border border-[#d9e4d7] bg-white shadow-[0_18px_55px_rgba(23,60,43,0.09)] sm:my-8 sm:w-[calc(100%-64px)] sm:rounded-[34px]" aria-labelledby="food-roulette-title">
-    <div className="grid items-center gap-3 bg-[radial-gradient(ellipse_at_88%_8%,rgba(215,189,117,0.24),transparent_36%),linear-gradient(135deg,#f7f8f2,#edf4ed_62%,#e6f0e8)] px-3 py-4 sm:grid-cols-[minmax(0,1fr)_minmax(300px,390px)] sm:gap-8 sm:px-9 sm:py-8 lg:px-12 lg:py-10">
-      <div className="order-2 text-center sm:order-1 sm:text-right">
+    <div className="food-roulette-content grid items-center gap-3 bg-[radial-gradient(ellipse_at_88%_8%,rgba(215,189,117,0.24),transparent_36%),linear-gradient(135deg,#f7f8f2,#edf4ed_62%,#e6f0e8)] px-3 py-4 sm:grid-cols-[minmax(0,1fr)_minmax(300px,390px)] sm:gap-8 sm:px-9 sm:py-8 lg:px-12 lg:py-10">
+      <div className="food-roulette-copy order-2 text-center sm:order-1 sm:text-right">
         <span className="inline-flex items-center gap-2 rounded-full border border-[#d7bd75]/50 bg-white/70 px-3 py-1.5 text-[10px] font-black text-[#826832] sm:text-xs"><Sparkles size={14}/> انتخاب تصادفی نوش</span>
         <h2 id="food-roulette-title" className="mt-3 text-xl font-black leading-relaxed text-[#173c2b] sm:mt-4 sm:text-3xl">امروز چی بپزم؟</h2>
         <p className="mx-auto mt-2 max-w-xl text-xs font-semibold leading-7 text-[#617267] sm:mx-0 sm:mt-3 sm:text-sm sm:leading-8">گردونه را بچرخان تا یک دستهٔ غذایی و یک دستور تصادفی از همان دسته انتخاب شود. فیلترها و حساسیت‌های شخصی‌ات هم رعایت می‌شوند.</p>
@@ -117,9 +117,9 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
       <div className="food-roulette-wheel-wrap order-1 mx-auto w-full max-w-[280px] sm:order-2 sm:max-w-[330px] lg:max-w-[390px]">
         <div className="relative mx-auto w-full p-2 sm:p-4">
           <span aria-hidden="true" className="absolute left-1/2 top-0 z-20 h-0 w-0 -translate-x-1/2 border-x-[16px] border-x-transparent border-t-[29px] border-t-[#b08c43] drop-shadow-md"/>
-          <div className="relative aspect-square w-full rounded-full border-[7px] border-[#d7bd75] bg-white p-1 shadow-[0_10px_30px_rgba(23,60,43,0.18),inset_0_0_0_2px_rgba(255,255,255,0.8)] sm:border-[9px] sm:p-1.5">
+          <div className="food-roulette-wheel-frame relative mx-auto aspect-square w-full rounded-full border-[7px] border-[#d7bd75] bg-white p-1 shadow-[0_10px_30px_rgba(23,60,43,0.18),inset_0_0_0_2px_rgba(255,255,255,0.8)] sm:border-[9px] sm:p-1.5">
             <div
-              className="relative h-full w-full overflow-hidden rounded-full border border-white/70"
+              className="food-roulette-wheel relative aspect-square w-full overflow-hidden rounded-full border border-white/70"
               role="img"
               aria-label="گردونهٔ انتخاب دستهٔ غذا"
               style={{ background: wheelBackground, transform: `rotate(${rotation}deg)`, transition: `transform ${spinDuration}ms cubic-bezier(0.12, 0.72, 0.12, 1)` }}
