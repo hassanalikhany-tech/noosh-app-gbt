@@ -32,11 +32,12 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<Pick | null>(null);
   const spinTimer = useRef<number | null>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
   const categories = useMemo(() => {
     const eligibleDishes = filterDishes(user);
     return (Object.keys(CATEGORY_LABELS) as DishCategory[])
       .map(category => ({ category, dishes: eligibleDishes.filter(dish => dish.category === category) }))
-      .filter(option => option.dishes.length > 0);
+      .filter(option => option.category !== 'dessert' && option.dishes.length > 0);
   }, [user, recipeRevision]);
 
   useEffect(() => {
@@ -48,6 +49,17 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
   useEffect(() => () => {
     if (spinTimer.current !== null) window.clearTimeout(spinTimer.current);
   }, []);
+
+  useEffect(() => {
+    if (!result) return;
+    const scrollTimer = window.setTimeout(() => {
+      resultRef.current?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'center',
+      });
+    }, 80);
+    return () => window.clearTimeout(scrollTimer);
+  }, [result]);
 
   const wheelBackground = categories.length
     ? `conic-gradient(${categories.map((option, index) => {
@@ -88,7 +100,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
   };
 
   return <section className="mx-auto my-5 w-[calc(100%-28px)] max-w-6xl overflow-hidden rounded-[28px] border border-[#d9e4d7] bg-white shadow-[0_18px_55px_rgba(23,60,43,0.09)] sm:my-8 sm:w-[calc(100%-64px)] sm:rounded-[34px]" aria-labelledby="food-roulette-title">
-    <div className="grid items-center gap-6 bg-[radial-gradient(ellipse_at_88%_8%,rgba(215,189,117,0.24),transparent_36%),linear-gradient(135deg,#f7f8f2,#edf4ed_62%,#e6f0e8)] px-5 py-6 sm:grid-cols-[minmax(0,1fr)_minmax(300px,390px)] sm:gap-8 sm:px-9 sm:py-8 lg:px-12 lg:py-10">
+    <div className="grid items-center gap-3 bg-[radial-gradient(ellipse_at_88%_8%,rgba(215,189,117,0.24),transparent_36%),linear-gradient(135deg,#f7f8f2,#edf4ed_62%,#e6f0e8)] px-3 py-4 sm:grid-cols-[minmax(0,1fr)_minmax(300px,390px)] sm:gap-8 sm:px-9 sm:py-8 lg:px-12 lg:py-10">
       <div className="order-2 text-center sm:order-1 sm:text-right">
         <span className="inline-flex items-center gap-2 rounded-full border border-[#d7bd75]/50 bg-white/70 px-3 py-1.5 text-[10px] font-black text-[#826832] sm:text-xs"><Sparkles size={14}/> انتخاب تصادفی نوش</span>
         <h2 id="food-roulette-title" className="mt-3 text-xl font-black leading-relaxed text-[#173c2b] sm:mt-4 sm:text-3xl">امروز چی بپزم؟</h2>
@@ -102,8 +114,8 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
         </p>
       </div>
 
-      <div className="order-1 mx-auto w-full max-w-[330px] sm:order-2 sm:max-w-[390px]">
-        <div className="relative mx-auto w-full p-3 sm:p-4">
+      <div className="order-1 mx-auto w-full max-w-[280px] sm:order-2 sm:max-w-[330px] lg:max-w-[390px]">
+        <div className="relative mx-auto w-full p-2 sm:p-4">
           <span aria-hidden="true" className="absolute left-1/2 top-0 z-20 h-0 w-0 -translate-x-1/2 border-x-[16px] border-x-transparent border-t-[29px] border-t-[#b08c43] drop-shadow-md"/>
           <div className="relative aspect-square w-full rounded-full border-[7px] border-[#d7bd75] bg-white p-1 shadow-[0_10px_30px_rgba(23,60,43,0.18),inset_0_0_0_2px_rgba(255,255,255,0.8)] sm:border-[9px] sm:p-1.5">
             <div
@@ -134,7 +146,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
       </div>
     </div>
 
-    {result && <div className="border-t border-[#e7ece4] bg-white px-5 py-5 sm:px-9 sm:py-7">
+    {result && <div ref={resultRef} className="scroll-mt-6 border-t border-[#e7ece4] bg-white px-4 py-5 sm:px-9 sm:py-7">
       <div className="mx-auto max-w-sm">
         <div className="mb-3 flex items-center justify-between gap-3"><span className="inline-flex items-center gap-2 rounded-full bg-[#edf4ed] px-3 py-1.5 text-xs font-black text-[#276556]"><ChefHat size={15}/>{CATEGORY_LABELS[result.category]}</span><span className="text-[10px] font-bold text-slate-400">پیشنهاد این دور</span></div>
         <MealCard plan={{ dayName: CATEGORY_LABELS[result.category], dish: result.dish }} user={user} onUpdateUser={onUpdateUser} onOpenInventory={onOpenInventory}/>

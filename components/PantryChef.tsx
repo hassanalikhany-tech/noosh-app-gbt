@@ -969,7 +969,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
               )}
           </div>
       </div>
-      </> : page === 'inventory' ? <section className="mx-4 mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm font-bold leading-7 text-amber-900 sm:mx-10">برای باز کردن انبار، به صفحهٔ «آشپزخانه من» برو و کلید «استفاده از موجودی انبار» را روشن کن.</section> : !isInventoryMode && <FoodRoulette user={user} onUpdateUser={onUpdateUser} onOpenInventory={openInventoryForPrices}/>}
+      </> : page === 'inventory' ? <section className="mx-4 mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm font-bold leading-7 text-amber-900 sm:mx-10">برای باز کردن انبار، به صفحهٔ «آشپزخانه من» برو و کلید «استفاده از موجودی انبار» را روشن کن.</section> : !isInventoryMode && <div className="min-h-0 flex-grow overflow-y-auto overscroll-contain pb-20 no-scrollbar"><FoodRoulette user={user} onUpdateUser={onUpdateUser} onOpenInventory={openInventoryForPrices}/></div>}
       {showInventoryAddConfirm && createPortal(
         <div className="fixed inset-0 z-[13000] grid place-items-center bg-slate-950/45 p-4 backdrop-blur-sm" dir="rtl" onKeyDown={event => { if (event.key === 'Escape') cancelInlineInventoryAdd(); }}>
           <section role="dialog" aria-modal="true" aria-labelledby="inventory-add-confirm-title" className="w-full max-w-md overflow-hidden rounded-[26px] border border-emerald-100 bg-[#f8faf7] shadow-2xl" onClick={event => event.stopPropagation()}>
