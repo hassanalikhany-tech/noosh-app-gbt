@@ -10,7 +10,7 @@ interface FoodRouletteProps {
   onOpenInventory: () => void;
 }
 
-const SPIN_DURATION = 6600;
+const SPIN_DURATION = 7800;
 const SEGMENT_COLORS = [
   { wheel: '#276556', text: '#fffdf6' },
   { wheel: '#d7bd75', text: '#244b3e' },
@@ -91,7 +91,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
     setSpinDuration(duration);
     setResult(null);
     setSpinning(true);
-    setRotation(rotation + 6 * 360 + remainingAngle);
+    setRotation(rotation + 7 * 360 + remainingAngle);
     spinTimer.current = window.setTimeout(() => {
       setResult({ category: selectedCategory.category, dish: selectedDish });
       setSpinning(false);
