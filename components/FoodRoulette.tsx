@@ -114,7 +114,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
         </p>
       </div>
 
-      <div className="order-1 mx-auto w-full max-w-[280px] sm:order-2 sm:max-w-[330px] lg:max-w-[390px]">
+      <div className="food-roulette-wheel-wrap order-1 mx-auto w-full max-w-[280px] sm:order-2 sm:max-w-[330px] lg:max-w-[390px]">
         <div className="relative mx-auto w-full p-2 sm:p-4">
           <span aria-hidden="true" className="absolute left-1/2 top-0 z-20 h-0 w-0 -translate-x-1/2 border-x-[16px] border-x-transparent border-t-[29px] border-t-[#b08c43] drop-shadow-md"/>
           <div className="relative aspect-square w-full rounded-full border-[7px] border-[#d7bd75] bg-white p-1 shadow-[0_10px_30px_rgba(23,60,43,0.18),inset_0_0_0_2px_rgba(255,255,255,0.8)] sm:border-[9px] sm:p-1.5">

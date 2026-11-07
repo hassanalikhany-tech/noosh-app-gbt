@@ -748,7 +748,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   </div>;
 
   return (
-    <div className="pantry-page flex flex-col h-full [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter">
+    <div className="pantry-page flex min-h-0 flex-1 flex-col [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter">
       {page === 'home' && <section className="pantry-hero" aria-label="پیشنهاد غذا بر پایهٔ موجودی آشپزخانه">
         <div className="pantry-hero-copy"><span className="pantry-hero-label"><ChefHat size={15}/> آشپزخانهٔ تو</span>
           <h1>امروز چی بپزم؟</h1>
