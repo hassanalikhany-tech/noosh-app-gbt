@@ -9,7 +9,7 @@ let recipeOverrides: { dishes: Dish[]; hiddenDishIds: string[]; quantityReviewed
 let bundledCatalogPromise: Promise<void> | null = null;
 let catalogRevision = '';
 
-const PUBLIC_CATALOG_URL = 'https://noosh-app-gbt.netlify.app/data/recipes_overrides.json';
+const PUBLIC_CATALOG_URL = 'https://nooshapp.netlify.app/data/recipes_overrides.json';
 
 const catalogDigest = async (catalog: unknown): Promise<string> => {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(catalog)));

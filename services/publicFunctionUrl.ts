@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 
-const PUBLIC_SITE_ORIGIN = 'https://noosh-app-gbt.netlify.app';
+const PUBLIC_SITE_ORIGIN = 'https://nooshapp.netlify.app';
 
 /** Public Netlify endpoints used by the Android WebView need an absolute site URL. */
 export const publicFunctionUrl = (name: string, query = '') => {

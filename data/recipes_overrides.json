@@ -46327,7 +46327,9 @@
       ],
       "hasRealData": true,
       "servings": 4,
-      "localEdited": true
+      "localEdited": true,
+      "imageUrl": "/images/recipes/dish-dolmeh-kalam-tabrizi.png",
+      "imageReviewStatus": "approved"
     }
   ],
   "hiddenDishIds": [
