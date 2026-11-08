@@ -46263,57 +46263,68 @@
         {
           "item": "کلم برگ سفید بزرگ",
           "amount": 1,
-          "unit": "عدد"
+          "unit": "عدد",
+          "state": "raw"
         },
         {
           "item": "گوشت چرخ‌کرده",
           "amount": 300,
-          "unit": "گرم"
+          "unit": "گرم",
+          "state": "raw"
         },
         {
           "item": "برنج",
           "amount": 1,
-          "unit": "پیمانه"
+          "unit": "پیمانه",
+          "state": "raw"
         },
         {
           "item": "لپه",
           "amount": 0.5,
-          "unit": "پیمانه"
+          "unit": "پیمانه",
+          "state": "raw"
         },
         {
           "item": "پیاز بزرگ",
           "amount": 1,
-          "unit": "عدد"
+          "unit": "عدد",
+          "state": "raw"
         },
         {
           "item": "سبزی معطر (ترخون و شوید)",
           "amount": 1,
-          "unit": "به مقدار لازم"
+          "unit": "به مقدار لازم",
+          "state": "raw"
         },
         {
           "item": "رب گوجه‌فرنگی",
           "amount": 1,
-          "unit": "قاشق غذاخوری"
+          "unit": "قاشق غذاخوری",
+          "state": "raw"
         },
         {
           "item": "روغن",
           "amount": 2,
-          "unit": "قاشق غذاخوری"
+          "unit": "قاشق غذاخوری",
+          "state": "raw"
         },
         {
           "item": "سرکه",
           "amount": 1,
-          "unit": "یک‌سوم لیوان"
+          "unit": "یک‌سوم لیوان",
+          "state": "raw"
         },
         {
           "item": "آب",
           "amount": 1,
-          "unit": "تا ۲ پیمانه"
+          "unit": "تا ۲ پیمانه",
+          "state": "raw"
         },
         {
           "item": "نمک، فلفل و زردچوبه",
           "amount": 1,
-          "unit": "به مقدار لازم"
+          "unit": "به مقدار لازم",
+          "state": "raw"
         }
       ],
       "recipeSteps": [
@@ -46329,7 +46340,12 @@
       "servings": 4,
       "localEdited": true,
       "imageUrl": "/images/recipes/dish-dolmeh-kalam-tabrizi.png",
-      "imageReviewStatus": "approved"
+      "imageReviewStatus": "approved",
+      "cookTime": "120",
+      "calories": "550",
+      "difficulty": "سخت",
+      "nature": "balanced",
+      "natureLabel": "معتدل"
     }
   ],
   "hiddenDishIds": [
@@ -46512,6 +46528,7 @@
     "dish-12-1766958808663",
     "dish-12-1766959134380",
     "dish-12-1766961078330",
-    "dish-12-1766961391030"
+    "dish-12-1766961391030",
+    "dish-dolmeh-kalam-tabrizi"
   ]
 }
