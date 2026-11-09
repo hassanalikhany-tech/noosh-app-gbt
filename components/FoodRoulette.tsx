@@ -111,6 +111,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
   const [spinDuration, setSpinDuration] = useState(SPIN_DURATION);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<Pick | null>(null);
+  const [filtersExpanded, setFiltersExpanded] = useState(true);
   const [settings, setSettings] = useState<RouletteSettings>(() => readSettings(user.username));
   const [settingsOwner, setSettingsOwner] = useState(user.username);
   const spinTimer = useRef<number | null>(null);
@@ -119,6 +120,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
     setSettings(readSettings(user.username));
     setSettingsOwner(user.username);
     setResult(null);
+    setFiltersExpanded(true);
   }, [user.username]);
 
   useEffect(() => {
@@ -169,7 +171,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
 
   const updateSettings = (update: (current: RouletteSettings) => RouletteSettings) => {
     setSettings(current => update(current));
-    setResult(null);
+    setFiltersExpanded(true);
   };
 
   const toggleCategory = (category: DishCategory) => updateSettings(current => ({
@@ -208,7 +210,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
 
     if (spinTimer.current !== null) window.clearTimeout(spinTimer.current);
     setSpinDuration(duration);
-    setResult(null);
+    setFiltersExpanded(false);
     setSpinning(true);
     setRotation(rotation + 7 * 360 + remainingAngle);
     spinTimer.current = window.setTimeout(() => {
@@ -230,7 +232,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
       : 'با دسته‌ها و شخصی‌سازی‌های فعلی غذایی پیدا نشد؛ دسته‌ای را دوباره فعال کن یا تنظیماتت را بررسی کن.';
 
   return <section className="mx-auto my-5 w-[calc(100%-28px)] max-w-6xl overflow-hidden rounded-[28px] border border-[#d9e4d7] bg-white shadow-[0_18px_55px_rgba(23,60,43,0.09)] sm:my-8 sm:w-[calc(100%-64px)] sm:rounded-[34px]" aria-labelledby="food-roulette-title">
-    <div className={`food-roulette-content grid items-start gap-3 bg-[radial-gradient(ellipse_at_88%_8%,rgba(215,189,117,0.24),transparent_36%),linear-gradient(135deg,#f7f8f2,#edf4ed_62%,#e6f0e8)] px-3 py-4 sm:grid-cols-[minmax(280px,38%)_minmax(0,1fr)] sm:gap-8 sm:px-9 sm:py-8 lg:px-12 lg:py-10 ${result ? 'food-roulette-has-result' : ''}`}>
+    <div className={`food-roulette-content grid items-start gap-3 bg-[radial-gradient(ellipse_at_88%_8%,rgba(215,189,117,0.24),transparent_36%),linear-gradient(135deg,#f7f8f2,#edf4ed_62%,#e6f0e8)] px-3 py-4 sm:grid-cols-[minmax(280px,38%)_minmax(0,1fr)] sm:gap-8 sm:px-9 sm:py-8 lg:px-12 lg:py-10 ${!filtersExpanded ? 'food-roulette-is-collapsed' : ''}`}>
       <div className="food-roulette-copy order-2 text-center sm:order-1 sm:text-right">
         <span className="inline-flex items-center gap-2 rounded-full border border-[#d7bd75]/50 bg-white/70 px-3 py-1.5 text-[10px] font-black text-[#826832] sm:text-xs"><Sparkles size={14}/> انتخاب تصادفی نوش</span>
         <h2 id="food-roulette-title" className="mt-3 text-xl font-black leading-relaxed text-[#173c2b] sm:mt-4 sm:text-3xl">امروز چی بپزم؟</h2>
@@ -276,7 +278,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
         </button>
       </div>
 
-      <div className={`food-roulette-settings flex flex-col rounded-2xl border border-white/90 bg-white/75 p-2.5 text-right shadow-sm sm:p-3 ${settings.mode === 'proteins' ? 'food-roulette-settings-proteins' : ''} ${result ? 'food-roulette-settings-result' : ''}`}>
+      <div className={`food-roulette-settings flex flex-col rounded-2xl border border-white/90 bg-white/75 p-2.5 text-right shadow-sm sm:p-3 ${settings.mode === 'proteins' ? 'food-roulette-settings-proteins' : ''} ${!filtersExpanded ? 'food-roulette-settings-result' : ''}`}>
         <div className="grid grid-cols-2 gap-1 rounded-xl bg-[#edf2ec] p-1" role="group" aria-label="حالت گردونه">
           <button type="button" disabled={spinning} aria-pressed={settings.mode === 'categories'} onClick={() => updateSettings(current => ({ ...current, mode: 'categories' }))} className={`min-h-9 rounded-lg px-2 text-[10px] font-black transition sm:min-h-10 sm:text-xs ${settings.mode === 'categories' ? 'bg-[#276556] text-white shadow-sm' : 'text-[#52675b] hover:bg-white'}`}>
             انتخاب از دسته‌ها
@@ -286,7 +288,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
           </button>
         </div>
 
-        <div className={`food-roulette-options ${result ? 'food-roulette-options-collapsed' : ''}`} aria-hidden={Boolean(result)} inert={Boolean(result)}>
+        <div className={`food-roulette-options ${!filtersExpanded ? 'food-roulette-options-collapsed' : ''}`} aria-hidden={!filtersExpanded} inert={!filtersExpanded}>
         <div className="food-roulette-category-panel mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9] p-2">
           {settings.mode === 'proteins' && <div className="mb-1.5 flex items-center justify-between gap-2">
             <span className="text-[9px] font-black text-[#345c4b] sm:text-[10px]">دسته‌های مجاز</span>
@@ -329,7 +331,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
           </div>
         </div>}
         </div>
-        {result && <div className="food-roulette-result mt-2 min-w-0 rounded-xl border border-[#e4eae0] bg-white p-2 sm:mt-3 sm:p-3">
+        {result && <div key={result.dish.id} className="food-roulette-result mt-2 min-w-0 rounded-xl border border-[#e4eae0] bg-white p-2 sm:mt-3 sm:p-3">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#edf4ed] px-2.5 py-1 text-[10px] font-black text-[#276556] sm:text-xs"><ChefHat size={14}/>{CATEGORY_LABELS[result.category]}</span>
             <span className="text-[9px] font-bold text-slate-400 sm:text-[10px]">پیشنهاد این دور</span>
