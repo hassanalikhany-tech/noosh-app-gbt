@@ -19,7 +19,7 @@ const fa = (n: number) => n.toLocaleString('fa-IR');
 const filters = [
   { key: 'meatlessMode' as const, label: 'گیاهی', icon: Leaf },
   { key: 'quickMealsMode' as const, label: 'پخت سریع', icon: Zap },
-  { key: 'onlyFavoritesMode' as const, label: 'علاقه‌مندی‌ها', icon: Heart },
+  { key: 'onlyFavoritesMode' as const, label: 'غذاهای محبوب', icon: Heart },
 ];
 export default function PlanDashboard(props: Props) {
   const { user, plan, loading } = props;
