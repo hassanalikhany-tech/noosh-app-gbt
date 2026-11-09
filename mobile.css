@@ -526,6 +526,8 @@
 .food-roulette-copy { grid-area: copy; }
 .food-roulette-wheel-wrap { grid-area: wheel; }
 .food-roulette-settings { grid-area: settings; min-width: 0; }
+.food-roulette-settings-proteins .food-roulette-protein-panel { order: 1; }
+.food-roulette-settings-proteins .food-roulette-category-panel { order: 2; }
 
 /* On phones, keep the wheel and spin control visible together, then give filters the full width. */
 @media (max-width: 767px) {

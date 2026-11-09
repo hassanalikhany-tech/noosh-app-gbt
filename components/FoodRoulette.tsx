@@ -288,17 +288,17 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
         </div>
       </div>
 
-      <div className="food-roulette-settings rounded-2xl border border-white/90 bg-white/75 p-2.5 text-right shadow-sm sm:p-3">
+      <div className={`food-roulette-settings flex flex-col rounded-2xl border border-white/90 bg-white/75 p-2.5 text-right shadow-sm sm:p-3 ${settings.mode === 'proteins' ? 'food-roulette-settings-proteins' : ''}`}>
         <div className="grid grid-cols-2 gap-1 rounded-xl bg-[#edf2ec] p-1" role="group" aria-label="حالت گردونه">
           <button type="button" disabled={spinning} aria-pressed={settings.mode === 'categories'} onClick={() => updateSettings(current => ({ ...current, mode: 'categories' }))} className={`min-h-9 rounded-lg px-2 text-[10px] font-black transition sm:min-h-10 sm:text-xs ${settings.mode === 'categories' ? 'bg-[#276556] text-white shadow-sm' : 'text-[#52675b] hover:bg-white'}`}>
             انتخاب از دسته‌ها
           </button>
           <button type="button" disabled={spinning} aria-pressed={settings.mode === 'proteins'} onClick={() => updateSettings(current => ({ ...current, mode: 'proteins' }))} className={`min-h-9 rounded-lg px-2 text-[10px] font-black transition sm:min-h-10 sm:text-xs ${settings.mode === 'proteins' ? 'bg-[#276556] text-white shadow-sm' : 'text-[#52675b] hover:bg-white'}`}>
-            با مواد پروتئینی
+            مواد پروتئینی
           </button>
         </div>
 
-        <div className="mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9] p-2">
+        <div className="food-roulette-category-panel mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9] p-2">
           {settings.mode === 'proteins' && <div className="mb-1.5 flex items-center justify-between gap-2">
             <span className="text-[9px] font-black text-[#345c4b] sm:text-[10px]">دسته‌های مجاز</span>
             <span className="rounded-full bg-[#edf4ed] px-2 py-1 text-[8px] font-bold text-[#617267]">{activeCategoryCount.toLocaleString('fa-IR')} فعال</span>
@@ -319,7 +319,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
             })}
           </div>
         </div>
-        {settings.mode === 'proteins' && <div className="mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9] p-2">
+        {settings.mode === 'proteins' && <div className="food-roulette-protein-panel mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9] p-2">
           <div className="mb-1.5 flex items-center justify-between gap-2">
             <span className="text-[9px] font-black text-[#345c4b] sm:text-[10px]">ماده‌های پروتئینی</span>
             <span className="rounded-full bg-[#edf4ed] px-2 py-1 text-[8px] font-bold text-[#617267]">{settings.selectedProteins.length ? `${settings.selectedProteins.length.toLocaleString('fa-IR')} انتخاب` : 'انتخاب نشده'}</span>
