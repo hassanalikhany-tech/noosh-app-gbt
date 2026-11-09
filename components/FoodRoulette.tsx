@@ -272,7 +272,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
               const count = preferencePool.filter(dish => dish.category === category && (settings.mode === 'categories' || !settings.selectedProteins.length || dish.ingredients?.some(ingredient => settings.selectedProteins.some(protein => proteinMatchesIngredient(protein, ingredient.item))))).length;
               return <button key={category} type="button" disabled={spinning} aria-pressed={selected} onClick={() => toggleCategory(category)} className={`flex min-h-8 min-w-0 items-center gap-1.5 rounded-lg border px-2 text-right text-[9px] font-bold transition sm:min-h-9 sm:text-[10px] ${selected ? 'border-[#c9dccd] bg-[#edf6ef] text-[#285b45]' : 'border-transparent bg-[#f5f6f2] text-[#89938a]'} disabled:opacity-60`}>
                 <span className={`grid h-3.5 w-3.5 shrink-0 place-items-center rounded border ${selected ? 'border-[#276556] bg-[#276556] text-white' : 'border-[#cbd4cb] bg-white'}`}>{selected && <Check size={10}/>}</span>
-                <span className="min-w-0 flex-1 truncate">{CATEGORY_LABELS[category]}</span>
+                <span className="min-w-0 flex-1">{CATEGORY_LABELS[category]}</span>
                 <span className="shrink-0 text-[8px] opacity-60">{count.toLocaleString('fa-IR')}</span>
               </button>;
             })}

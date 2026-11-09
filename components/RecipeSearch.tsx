@@ -262,7 +262,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
               )}
            </div>
 
-           <label className="hidden sm:hidden">
+           <label className="sm:hidden block">
               <span className="sr-only">فیلتر دسته‌بندی غذاها</span>
               <select
                 aria-label="فیلتر دسته‌بندی غذاها"
@@ -274,10 +274,10 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
                 {(Object.keys(CATEGORY_LABELS) as DishCategory[]).map(cat => <option key={cat} value={cat}>{CATEGORY_LABELS[cat]}</option>)}
               </select>
            </label>
-           <div className="grid grid-cols-2 gap-2 pb-1 sm:flex sm:flex-wrap sm:items-center sm:gap-2" role="group" aria-label="فیلتر دسته‌بندی غذاها">
+           <div className="hidden grid-cols-5 grid-rows-2 gap-1.5 pb-1 sm:flex sm:flex-wrap sm:items-center sm:gap-2" role="group" aria-label="فیلتر دسته‌بندی غذاها">
               <button 
                 onClick={() => { setSelectedCategory('all'); setSelectedCountryId('all'); setCurrentPage(1); }} 
-                className={`min-h-12 min-w-0 whitespace-normal break-words px-2.5 py-2 text-center leading-5 sm:min-h-11 sm:whitespace-nowrap sm:px-6 sm:py-3.5 rounded-lg sm:rounded-2xl text-xs sm:text-sm font-black border transition-all ${selectedCategory === 'all' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white/80 text-slate-600 border-slate-200 hover:border-slate-300'}`}
+                className={`min-h-14 min-w-0 whitespace-normal break-words px-1 py-1.5 text-center leading-4 sm:min-h-11 sm:whitespace-nowrap sm:px-6 sm:py-3.5 rounded-lg sm:rounded-2xl text-[11px] sm:text-sm font-black border transition-all ${selectedCategory === 'all' ? 'bg-slate-900 text-white shadow-lg' : 'bg-white/80 text-slate-600 border-slate-200 hover:border-slate-300'}`}
               >
                  <span className="block w-full">همه غذاها</span>
               </button>
@@ -285,7 +285,7 @@ const RecipeSearch: React.FC<RecipeSearchProps> = ({ user, onUpdateUser, externa
                 <button 
                   key={cat} 
                   onClick={() => { setSelectedCategory(cat); setSelectedCountryId('all'); setCurrentPage(1); }} 
-                  className={`min-h-12 min-w-0 whitespace-normal break-words px-2.5 py-2 text-center leading-5 sm:min-h-11 sm:whitespace-nowrap sm:px-6 sm:py-3.5 rounded-lg sm:rounded-2xl text-xs sm:text-sm font-black border transition-all ${selectedCategory === cat ? 'bg-emerald-600 text-white shadow-lg' : 'bg-white/80 text-slate-600 border-slate-200 hover:border-slate-300'}`}
+                  className={`min-h-14 min-w-0 whitespace-normal break-words px-1 py-1.5 text-center leading-4 sm:min-h-11 sm:whitespace-nowrap sm:px-6 sm:py-3.5 rounded-lg sm:rounded-2xl text-[11px] sm:text-sm font-black border transition-all ${selectedCategory === cat ? 'bg-emerald-600 text-white shadow-lg' : 'bg-white/80 text-slate-600 border-slate-200 hover:border-slate-300'}`}
                 >
                   <span className="block w-full">{CATEGORY_LABELS[cat]}</span>
                 </button>

@@ -395,8 +395,8 @@
   .planner-hero-controls .period-switch button { min-height: 44px; }
 
   .recipe-search > .sticky { position: relative; top: auto; }
-  .recipe-search [aria-label="فیلتر دسته‌بندی غذاها"] { grid-template-columns: minmax(0, 1fr) !important; grid-template-rows: auto !important; gap: 8px !important; }
-  .recipe-search [aria-label="فیلتر دسته‌بندی غذاها"] button { display: flex !important; width: 100% !important; min-width: 0 !important; min-height: 48px !important; height: auto !important; justify-content: center; padding: 8px 12px !important; font-size: 13px !important; line-height: 1.7 !important; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; overflow-wrap: anywhere !important; word-break: normal !important; }
+  .recipe-search [aria-label="فیلتر دسته‌بندی غذاها"] { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto; gap: 6px; }
+  .recipe-search [aria-label="فیلتر دسته‌بندی غذاها"] button { min-height: 44px; padding: 7px 5px; font-size: 13px !important; line-height: 1.45; }
   .recipe-search [aria-label="مرتب‌سازی"] { width: 100%; flex-wrap: wrap; font-size: 13px; }
   .recipe-search [aria-label="مرتب‌سازی"] select { min-width: 0; flex: 1; min-height: 44px; font-size: 14px; }
   .recipe-search .catalog-status { font-size: 13px; }
@@ -563,8 +563,9 @@
   .food-roulette-intro-inner > p[role="status"] { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-height: 0; margin-top: 6px; font-size: 9px; line-height: 1.6; }
   .food-roulette-settings { width: 100%; padding: 9px !important; }
   .food-roulette-category-panel { padding: 9px; }
-  .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
-  .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] > button { min-height: 36px; padding-inline: 8px; font-size: 10px; }
+  .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] > button { min-height: 40px; padding-inline: 10px; font-size: 11px; white-space: normal; }
+  .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] > button > span.flex-1 { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 1.5; }
   .food-roulette-settings .food-roulette-filter-list { max-height: 190px; }
   .food-roulette-settings-result { padding: 8px !important; }
   .food-roulette-result { padding: 10px !important; }
