@@ -588,7 +588,7 @@
 /* The initial route choice stays inside the Noosh home hero. */
 .pantry-hero-start { min-height: 318px; }
 .pantry-hero-start .pantry-hero-copy { padding-bottom: 102px; }
-.pantry-hero-start .pantry-hero-stats { min-height: 82px; justify-content: center; background: var(--paper); border-top-color: #dce6e0; color: #315e43; }
+.pantry-hero-start .pantry-hero-stats { min-height: 82px; justify-content: center; background: #f4f7ed; border-top-color: #d6e4d8; color: #315e43; }
 .pantry-start-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: min(100%, 740px); margin-inline: auto; }
 .pantry-start-option { display: flex; min-width: 0; min-height: 58px; align-items: center; gap: 11px; padding: 9px 14px; color: #fff; text-align: right; }
 .pantry-start-option.noosh-cta-3d { justify-content: flex-start; }
