@@ -114,7 +114,6 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
   const [settings, setSettings] = useState<RouletteSettings>(() => readSettings(user.username));
   const [settingsOwner, setSettingsOwner] = useState(user.username);
   const spinTimer = useRef<number | null>(null);
-  const resultRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSettings(readSettings(user.username));
@@ -156,17 +155,6 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
   useEffect(() => () => {
     if (spinTimer.current !== null) window.clearTimeout(spinTimer.current);
   }, []);
-
-  useEffect(() => {
-    if (!result) return;
-    const scrollTimer = window.setTimeout(() => {
-      resultRef.current?.scrollIntoView({
-        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-        block: 'center',
-      });
-    }, 80);
-    return () => window.clearTimeout(scrollTimer);
-  }, [result]);
 
   const wheelBackground = categories.length
     ? `conic-gradient(${categories.map((option, index) => {
@@ -242,7 +230,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
       : 'با دسته‌ها و شخصی‌سازی‌های فعلی غذایی پیدا نشد؛ دسته‌ای را دوباره فعال کن یا تنظیماتت را بررسی کن.';
 
   return <section className="mx-auto my-5 w-[calc(100%-28px)] max-w-6xl overflow-hidden rounded-[28px] border border-[#d9e4d7] bg-white shadow-[0_18px_55px_rgba(23,60,43,0.09)] sm:my-8 sm:w-[calc(100%-64px)] sm:rounded-[34px]" aria-labelledby="food-roulette-title">
-    <div className={`food-roulette-content grid items-center gap-3 bg-[radial-gradient(ellipse_at_88%_8%,rgba(215,189,117,0.24),transparent_36%),linear-gradient(135deg,#f7f8f2,#edf4ed_62%,#e6f0e8)] px-3 py-4 sm:grid-cols-[minmax(0,1fr)_minmax(300px,390px)] sm:gap-8 sm:px-9 sm:py-8 lg:px-12 lg:py-10 ${result ? 'food-roulette-has-result' : ''}`}>
+    <div className={`food-roulette-content grid items-start gap-3 bg-[radial-gradient(ellipse_at_88%_8%,rgba(215,189,117,0.24),transparent_36%),linear-gradient(135deg,#f7f8f2,#edf4ed_62%,#e6f0e8)] px-3 py-4 sm:grid-cols-[minmax(280px,38%)_minmax(0,1fr)] sm:gap-8 sm:px-9 sm:py-8 lg:px-12 lg:py-10 ${result ? 'food-roulette-has-result' : ''}`}>
       <div className="food-roulette-copy order-2 text-center sm:order-1 sm:text-right">
         <span className="inline-flex items-center gap-2 rounded-full border border-[#d7bd75]/50 bg-white/70 px-3 py-1.5 text-[10px] font-black text-[#826832] sm:text-xs"><Sparkles size={14}/> انتخاب تصادفی نوش</span>
         <h2 id="food-roulette-title" className="mt-3 text-xl font-black leading-relaxed text-[#173c2b] sm:mt-4 sm:text-3xl">امروز چی بپزم؟</h2>
@@ -298,7 +286,8 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
           </button>
         </div>
 
-        {!result && <div className="food-roulette-category-panel mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9] p-2">
+        <div className={`food-roulette-options ${result ? 'food-roulette-options-collapsed' : ''}`} aria-hidden={Boolean(result)} inert={Boolean(result)}>
+        <div className="food-roulette-category-panel mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9] p-2">
           {settings.mode === 'proteins' && <div className="mb-1.5 flex items-center justify-between gap-2">
             <span className="text-[9px] font-black text-[#345c4b] sm:text-[10px]">دسته‌های مجاز</span>
             <span className="rounded-full bg-[#edf4ed] px-2 py-1 text-[8px] font-bold text-[#617267]">{activeCategoryCount.toLocaleString('fa-IR')} فعال</span>
@@ -318,8 +307,8 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
               </button>;
             })}
           </div>
-        </div>}
-        {!result && settings.mode === 'proteins' && <div className="food-roulette-protein-panel mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9] p-2">
+        </div>
+        {settings.mode === 'proteins' && <div className="food-roulette-protein-panel mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9] p-2">
           <div className="mb-1.5 flex items-center justify-between gap-2">
             <span className="text-[9px] font-black text-[#345c4b] sm:text-[10px]">ماده‌های پروتئینی</span>
             <span className="rounded-full bg-[#edf4ed] px-2 py-1 text-[8px] font-bold text-[#617267]">{settings.selectedProteins.length ? `${settings.selectedProteins.length.toLocaleString('fa-IR')} انتخاب` : 'انتخاب نشده'}</span>
@@ -339,7 +328,8 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
             </div>)}
           </div>
         </div>}
-        {result && <div ref={resultRef} className="food-roulette-result mt-2 min-w-0 rounded-xl border border-[#e4eae0] bg-white p-2 sm:mt-3 sm:p-3">
+        </div>
+        {result && <div className="food-roulette-result mt-2 min-w-0 rounded-xl border border-[#e4eae0] bg-white p-2 sm:mt-3 sm:p-3">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#edf4ed] px-2.5 py-1 text-[10px] font-black text-[#276556] sm:text-xs"><ChefHat size={14}/>{CATEGORY_LABELS[result.category]}</span>
             <span className="text-[9px] font-bold text-slate-400 sm:text-[10px]">پیشنهاد این دور</span>

@@ -521,21 +521,26 @@
   .personal-recipe-ingredient-row > input:first-child { grid-column: 1 / -1; }
 }
 
-/* Keep the desktop roulette wheel beside its copy, with settings directly below the copy. */
-.food-roulette-content { grid-template-areas: "copy wheel" "settings wheel"; }
+/* Keep the wheel fixed on the left while the right side changes between setup and result. */
+.food-roulette-content { grid-template-areas: "wheel copy" "wheel settings"; }
 .food-roulette-content.food-roulette-has-result { grid-template-areas: "wheel result"; }
 .food-roulette-copy { grid-area: copy; }
 .food-roulette-wheel-wrap { grid-area: wheel; }
+.food-roulette-wheel-wrap { align-self: start; }
 .food-roulette-settings { grid-area: settings; min-width: 0; }
 .food-roulette-has-result .food-roulette-copy { display: none; }
 .food-roulette-has-result .food-roulette-settings { grid-area: result; align-self: stretch; }
+.food-roulette-options { display: flex; flex-direction: column; max-height: 1200px; overflow: hidden; opacity: 1; transition: max-height 460ms cubic-bezier(.2,.7,.2,1), opacity 260ms ease, margin 460ms cubic-bezier(.2,.7,.2,1); }
+.food-roulette-options-collapsed { max-height: 0; margin-top: 0; opacity: 0; pointer-events: none; }
+.food-roulette-result { animation: roulette-result-arrive 420ms cubic-bezier(.2,.7,.2,1) both; }
+@keyframes roulette-result-arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .food-roulette-settings-proteins .food-roulette-protein-panel { order: 1; }
 .food-roulette-settings-proteins .food-roulette-category-panel { order: 2; }
 
 /* On phones, keep the wheel and its spin control together, then give filters the full width. */
 @media (max-width: 767px) {
-  .food-roulette-content { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr) !important; grid-template-areas: "wheel copy" "settings settings" !important; align-items: center; gap: 8px !important; padding: 12px !important; }
-  .food-roulette-wheel-wrap { width: 100%; min-width: 0; max-width: none !important; align-self: center; }
+  .food-roulette-content { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; grid-template-areas: "wheel copy" "settings settings" !important; align-items: start; gap: 8px !important; padding: 12px !important; }
+  .food-roulette-wheel-wrap { width: 100%; min-width: 0; max-width: none !important; align-self: start; }
   .food-roulette-wheel-wrap > div { width: 100%; padding: 4px; }
   .food-roulette-wheel-frame { width: 100%; aspect-ratio: 1 / 1; }
   .food-roulette-wheel { width: 100%; height: auto; aspect-ratio: 1 / 1; transform-origin: center center; }
@@ -546,11 +551,11 @@
   .food-roulette-spin-button { min-width: 0; min-height: 48px; gap: 5px; padding: 7px 5px; font-size: 10px; line-height: 1.5; }
   .food-roulette-copy > p[role="status"] { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-height: 0; margin-top: 6px; font-size: 9px; line-height: 1.6; }
   .food-roulette-settings { width: 100%; padding: 9px !important; }
-  .food-roulette-settings > div:nth-child(2) { padding: 9px; }
+  .food-roulette-category-panel { padding: 9px; }
   .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
   .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] > button { min-height: 36px; padding-inline: 8px; font-size: 10px; }
   .food-roulette-settings .food-roulette-filter-list { max-height: 190px; }
-  .food-roulette-content.food-roulette-has-result { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr) !important; grid-template-areas: "wheel result" !important; align-items: start; }
+  .food-roulette-content.food-roulette-has-result { grid-template-areas: "wheel result" !important; align-items: start; }
   .food-roulette-settings-result { padding: 8px !important; }
   .food-roulette-result { padding: 7px !important; }
   .food-roulette-result .meal-card { min-width: 0; border-radius: 12px !important; }
@@ -558,4 +563,9 @@
   .food-roulette-result .meal-card > div:last-child { padding: 8px; }
   .food-roulette-result .meal-card h3 { font-size: 12px; line-height: 1.55; }
   .food-roulette-result .meal-card p { font-size: 10px; line-height: 1.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .food-roulette-options { transition-duration: 1ms; }
+  .food-roulette-result { animation-duration: 1ms; }
 }
