@@ -248,10 +248,6 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
         <h2 id="food-roulette-title" className="mt-3 text-xl font-black leading-relaxed text-[#173c2b] sm:mt-4 sm:text-3xl">امروز چی بپزم؟</h2>
         <p className="mx-auto mt-2 max-w-xl text-xs font-semibold leading-7 text-[#617267] sm:mx-0 sm:mt-3 sm:text-sm sm:leading-8">دسته‌های دلخواهت را برای قرعه‌کشی انتخاب کن، یا یک یا چند مادهٔ پروتئینی را مشخص کن تا فقط غذاهای دارای دست‌کم یکی از آن‌ها پیشنهاد شوند. سلیقه و حساسیت‌هایت هم رعایت می‌شوند.</p>
 
-        <button type="button" onClick={spin} disabled={!canSpin} aria-busy={spinning} className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#d5bd79] bg-[#276556] px-5 text-sm font-black text-white shadow-[0_7px_0_#19483d,0_13px_24px_rgba(23,60,43,0.18)] transition hover:-translate-y-0.5 hover:bg-[#215b4d] active:translate-y-1 active:shadow-[0_3px_0_#19483d] disabled:cursor-not-allowed disabled:opacity-65 sm:mt-4 sm:min-h-14 sm:w-auto sm:min-w-56 sm:px-7 sm:text-base">
-          {spinning ? <RefreshCw size={18} className="animate-spin"/> : result ? <RefreshCw size={18}/> : <Sparkles size={18}/>}
-          <span>{spinning ? 'گردونه می‌چرخد…' : result ? 'دوباره بچرخان' : 'گردونه را بچرخان'}</span>
-        </button>
         <p aria-live="polite" role="status" className="mt-2 min-h-6 text-[10px] font-bold leading-5 text-[#276556] sm:mt-3 sm:text-xs sm:leading-6">
           {spinning ? 'دسته و غذا به‌صورت تصادفی انتخاب می‌شوند…' : result ? (settings.mode === 'proteins' ? `این غذا با ${result.matchedProteins.map(item => `«${item}»`).join(' و ')} جور است.` : `از دستهٔ ${CATEGORY_LABELS[result.category]} انتخاب شد.`) : categories.length ? (settings.mode === 'proteins' && !settings.selectedProteins.length ? emptyMessage : `${categories.length.toLocaleString('fa-IR')} دسته با رسپی‌های مناسب آمادهٔ قرعه‌کشی است.`) : emptyMessage}
         </p>
@@ -286,6 +282,10 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
             </div>
           </div>
         </div>
+        <button type="button" onClick={spin} disabled={!canSpin} aria-busy={spinning} className="food-roulette-spin-button mt-2 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#d5bd79] bg-[#276556] px-3 text-[11px] font-black text-white shadow-[0_7px_0_#19483d,0_13px_24px_rgba(23,60,43,0.18)] transition hover:-translate-y-0.5 hover:bg-[#215b4d] active:translate-y-1 active:shadow-[0_3px_0_#19483d] disabled:cursor-not-allowed disabled:opacity-65 sm:mt-3 sm:min-h-14 sm:px-5 sm:text-base">
+          {spinning ? <RefreshCw size={18} className="animate-spin"/> : result ? <RefreshCw size={18}/> : <Sparkles size={18}/>}
+          <span>{spinning ? 'گردونه می‌چرخد…' : result ? 'دوباره بچرخان' : 'گردونه را بچرخان'}</span>
+        </button>
       </div>
 
       <div className={`food-roulette-settings flex flex-col rounded-2xl border border-white/90 bg-white/75 p-2.5 text-right shadow-sm sm:p-3 ${settings.mode === 'proteins' ? 'food-roulette-settings-proteins' : ''}`}>
