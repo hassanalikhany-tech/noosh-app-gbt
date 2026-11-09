@@ -395,8 +395,8 @@
   .planner-hero-controls .period-switch button { min-height: 44px; }
 
   .recipe-search > .sticky { position: relative; top: auto; }
-  .recipe-search [aria-label="فیلتر دسته‌بندی غذاها"] { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto; gap: 6px; }
-  .recipe-search [aria-label="فیلتر دسته‌بندی غذاها"] button { min-height: 44px; padding: 7px 5px; font-size: 13px !important; line-height: 1.45; }
+  .recipe-search [aria-label="فیلتر دسته‌بندی غذاها"] { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; gap: 8px; }
+  .recipe-search [aria-label="فیلتر دسته‌بندی غذاها"] button { min-height: 48px; padding: 8px 10px; font-size: 13px !important; line-height: 1.6; white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
   .recipe-search [aria-label="مرتب‌سازی"] { width: 100%; flex-wrap: wrap; font-size: 13px; }
   .recipe-search [aria-label="مرتب‌سازی"] select { min-width: 0; flex: 1; min-height: 44px; font-size: 14px; }
   .recipe-search .catalog-status { font-size: 13px; }
