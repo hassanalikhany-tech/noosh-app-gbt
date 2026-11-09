@@ -521,9 +521,15 @@
   .personal-recipe-ingredient-row > input:first-child { grid-column: 1 / -1; }
 }
 
-/* Keep the roulette circular and its control visible beside it on phones. */
+/* Keep the desktop roulette wheel beside its copy, with settings directly below the copy. */
+.food-roulette-content { grid-template-areas: "copy wheel" "settings wheel"; }
+.food-roulette-copy { grid-area: copy; }
+.food-roulette-wheel-wrap { grid-area: wheel; }
+.food-roulette-settings { grid-area: settings; min-width: 0; }
+
+/* On phones, keep the wheel and spin control visible together, then give filters the full width. */
 @media (max-width: 767px) {
-  .food-roulette-content { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr) !important; align-items: center; gap: 8px !important; padding: 12px !important; }
+  .food-roulette-content { grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr) !important; grid-template-areas: "wheel copy" "settings settings" !important; align-items: center; gap: 8px !important; padding: 12px !important; }
   .food-roulette-wheel-wrap { width: 100%; min-width: 0; max-width: none !important; align-self: center; }
   .food-roulette-wheel-wrap > div { width: 100%; padding: 4px; }
   .food-roulette-wheel-frame { width: 100%; aspect-ratio: 1 / 1; }
@@ -534,4 +540,9 @@
   .food-roulette-copy > p:first-of-type { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; margin-top: 5px; font-size: 10px; line-height: 1.65; }
   .food-roulette-copy > button { width: 100%; min-width: 0; min-height: 48px; margin-top: 9px; gap: 5px; padding: 7px 5px; font-size: 10px; line-height: 1.5; }
   .food-roulette-copy > p[role="status"] { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-height: 0; margin-top: 6px; font-size: 9px; line-height: 1.6; }
+  .food-roulette-settings { width: 100%; padding: 9px !important; }
+  .food-roulette-settings > div:nth-child(2) { padding: 9px; }
+  .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+  .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] > button { min-height: 36px; padding-inline: 8px; font-size: 10px; }
+  .food-roulette-settings .food-roulette-filter-list { max-height: 190px; }
 }

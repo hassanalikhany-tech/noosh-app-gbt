@@ -248,58 +248,6 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
         <h2 id="food-roulette-title" className="mt-3 text-xl font-black leading-relaxed text-[#173c2b] sm:mt-4 sm:text-3xl">امروز چی بپزم؟</h2>
         <p className="mx-auto mt-2 max-w-xl text-xs font-semibold leading-7 text-[#617267] sm:mx-0 sm:mt-3 sm:text-sm sm:leading-8">دسته‌های دلخواهت را برای قرعه‌کشی انتخاب کن، یا یک یا چند مادهٔ پروتئینی را مشخص کن تا فقط غذاهای دارای دست‌کم یکی از آن‌ها پیشنهاد شوند. سلیقه و حساسیت‌هایت هم رعایت می‌شوند.</p>
 
-        <div className="food-roulette-settings mt-3 rounded-2xl border border-white/90 bg-white/75 p-2.5 text-right shadow-sm sm:mt-4 sm:p-3">
-          <div className="grid grid-cols-2 gap-1 rounded-xl bg-[#edf2ec] p-1" role="group" aria-label="حالت گردونه">
-            <button type="button" disabled={spinning} aria-pressed={settings.mode === 'categories'} onClick={() => updateSettings(current => ({ ...current, mode: 'categories' }))} className={`min-h-9 rounded-lg px-2 text-[10px] font-black transition sm:min-h-10 sm:text-xs ${settings.mode === 'categories' ? 'bg-[#276556] text-white shadow-sm' : 'text-[#52675b] hover:bg-white'}`}>
-              انتخاب از دسته‌ها
-            </button>
-            <button type="button" disabled={spinning} aria-pressed={settings.mode === 'proteins'} onClick={() => updateSettings(current => ({ ...current, mode: 'proteins' }))} className={`min-h-9 rounded-lg px-2 text-[10px] font-black transition sm:min-h-10 sm:text-xs ${settings.mode === 'proteins' ? 'bg-[#276556] text-white shadow-sm' : 'text-[#52675b] hover:bg-white'}`}>
-              با مواد پروتئینی
-            </button>
-          </div>
-
-          <details className="mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9]">
-            <summary className="flex min-h-9 cursor-pointer list-none items-center justify-between gap-2 px-2.5 text-[9px] font-black text-[#345c4b] marker:hidden sm:text-[11px]">
-              <span>{settings.mode === 'proteins' ? 'دسته‌های مجاز برای پیشنهاد' : 'دسته‌های روی گردونه'}</span><span className="rounded-full bg-[#edf4ed] px-2 py-1 text-[8px] text-[#617267]">{activeCategoryCount.toLocaleString('fa-IR')} فعال</span>
-            </summary>
-            <div className="border-t border-[#e4eae0] p-2">
-              <div className="mb-1.5 flex justify-end">
-                <button type="button" disabled={spinning || activeCategoryCount === WHEEL_CATEGORIES.length} onClick={() => updateSettings(current => ({ ...current, enabledCategories: DEFAULT_CATEGORY_SELECTION }))} className="text-[9px] font-bold text-[#758579] underline-offset-2 hover:underline disabled:opacity-40 sm:text-[10px]">فعال‌کردن همه</button>
-              </div>
-              <div className="grid grid-cols-2 gap-1 sm:grid-cols-3" aria-label="فعال یا غیرفعال کردن دسته‌های غذا">
-                {WHEEL_CATEGORIES.map(category => {
-                  const selected = settings.enabledCategories.includes(category);
-                  const count = preferencePool.filter(dish => dish.category === category && (settings.mode === 'categories' || !settings.selectedProteins.length || dish.ingredients?.some(ingredient => settings.selectedProteins.some(protein => proteinMatchesIngredient(protein, ingredient.item))))).length;
-                  return <button key={category} type="button" disabled={spinning} aria-pressed={selected} onClick={() => toggleCategory(category)} className={`flex min-h-8 min-w-0 items-center gap-1.5 rounded-lg border px-2 text-right text-[9px] font-bold transition sm:min-h-9 sm:text-[10px] ${selected ? 'border-[#c9dccd] bg-[#edf6ef] text-[#285b45]' : 'border-transparent bg-[#f5f6f2] text-[#89938a]'} disabled:opacity-60`}>
-                    <span className={`grid h-3.5 w-3.5 shrink-0 place-items-center rounded border ${selected ? 'border-[#276556] bg-[#276556] text-white' : 'border-[#cbd4cb] bg-white'}`}>{selected && <Check size={10}/>}</span>
-                    <span className="min-w-0 flex-1 truncate">{CATEGORY_LABELS[category]}</span>
-                    <span className="shrink-0 text-[8px] opacity-60">{count.toLocaleString('fa-IR')}</span>
-                  </button>;
-                })}
-              </div>
-            </div>
-          </details>
-          {settings.mode === 'proteins' && <details className="mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9]">
-            <summary className="flex min-h-9 cursor-pointer list-none items-center justify-between gap-2 px-2.5 text-[9px] font-black text-[#345c4b] marker:hidden sm:text-[11px]">
-              <span>انتخاب مادهٔ پروتئینی</span><span className="rounded-full bg-[#edf4ed] px-2 py-1 text-[8px] text-[#617267]">{settings.selectedProteins.length ? `${settings.selectedProteins.length.toLocaleString('fa-IR')} انتخاب` : 'انتخاب نشده'}</span>
-            </summary>
-            <div className="food-roulette-filter-list max-h-[142px] space-y-2 overflow-y-auto overscroll-contain border-t border-[#e4eae0] bg-[#f7f8f4] p-2 sm:max-h-[172px]">
-              <p className="text-[8px] font-semibold leading-4 text-[#758579] sm:text-[9px]">برای دیدن همهٔ مواد، داخل فهرست بالا و پایین برو.</p>
-              {PROTEIN_GROUPS.map(group => <div key={group.id}>
-                <p className="mb-1 text-[8px] font-black text-[#89938a] sm:text-[9px]">{group.title}</p>
-                <div className="flex flex-wrap gap-1">
-                  {group.items.map(protein => {
-                    const selected = settings.selectedProteins.includes(protein);
-                    return <button key={protein} type="button" disabled={spinning} aria-pressed={selected} onClick={() => toggleProtein(protein)} className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-2 text-[9px] font-bold transition sm:min-h-8 sm:text-[10px] ${selected ? 'border-[#276556] bg-[#276556] text-white' : 'border-[#e0e7dc] bg-white text-[#52675b] hover:border-[#adc7b1]'} disabled:opacity-60`}>
-                      {selected && <Check size={11}/>}<span>{protein}</span>
-                    </button>;
-                  })}
-                </div>
-              </div>)}
-            </div>
-          </details>}
-        </div>
-
         <button type="button" onClick={spin} disabled={!canSpin} aria-busy={spinning} className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#d5bd79] bg-[#276556] px-5 text-sm font-black text-white shadow-[0_7px_0_#19483d,0_13px_24px_rgba(23,60,43,0.18)] transition hover:-translate-y-0.5 hover:bg-[#215b4d] active:translate-y-1 active:shadow-[0_3px_0_#19483d] disabled:cursor-not-allowed disabled:opacity-65 sm:mt-4 sm:min-h-14 sm:w-auto sm:min-w-56 sm:px-7 sm:text-base">
           {spinning ? <RefreshCw size={18} className="animate-spin"/> : result ? <RefreshCw size={18}/> : <Sparkles size={18}/>}
           <span>{spinning ? 'گردونه می‌چرخد…' : result ? 'دوباره بچرخان' : 'گردونه را بچرخان'}</span>
@@ -338,6 +286,59 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="food-roulette-settings rounded-2xl border border-white/90 bg-white/75 p-2.5 text-right shadow-sm sm:p-3">
+        <div className="grid grid-cols-2 gap-1 rounded-xl bg-[#edf2ec] p-1" role="group" aria-label="حالت گردونه">
+          <button type="button" disabled={spinning} aria-pressed={settings.mode === 'categories'} onClick={() => updateSettings(current => ({ ...current, mode: 'categories' }))} className={`min-h-9 rounded-lg px-2 text-[10px] font-black transition sm:min-h-10 sm:text-xs ${settings.mode === 'categories' ? 'bg-[#276556] text-white shadow-sm' : 'text-[#52675b] hover:bg-white'}`}>
+            انتخاب از دسته‌ها
+          </button>
+          <button type="button" disabled={spinning} aria-pressed={settings.mode === 'proteins'} onClick={() => updateSettings(current => ({ ...current, mode: 'proteins' }))} className={`min-h-9 rounded-lg px-2 text-[10px] font-black transition sm:min-h-10 sm:text-xs ${settings.mode === 'proteins' ? 'bg-[#276556] text-white shadow-sm' : 'text-[#52675b] hover:bg-white'}`}>
+            با مواد پروتئینی
+          </button>
+        </div>
+
+        <div className="mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9] p-2">
+          {settings.mode === 'proteins' && <div className="mb-1.5 flex items-center justify-between gap-2">
+            <span className="text-[9px] font-black text-[#345c4b] sm:text-[10px]">دسته‌های مجاز</span>
+            <span className="rounded-full bg-[#edf4ed] px-2 py-1 text-[8px] font-bold text-[#617267]">{activeCategoryCount.toLocaleString('fa-IR')} فعال</span>
+          </div>}
+          <div className="mb-1.5 flex items-center justify-between gap-2">
+            {settings.mode === 'categories' && <span className="rounded-full bg-[#edf4ed] px-2 py-1 text-[8px] font-bold text-[#617267]">{activeCategoryCount.toLocaleString('fa-IR')} دسته فعال</span>}
+            <button type="button" disabled={spinning || activeCategoryCount === WHEEL_CATEGORIES.length} onClick={() => updateSettings(current => ({ ...current, enabledCategories: DEFAULT_CATEGORY_SELECTION }))} className="text-[9px] font-bold text-[#758579] underline-offset-2 hover:underline disabled:opacity-40 sm:text-[10px]">فعال‌کردن همه</button>
+          </div>
+          <div className="grid grid-cols-2 gap-1 sm:grid-cols-3" aria-label="فعال یا غیرفعال کردن دسته‌های غذا">
+            {WHEEL_CATEGORIES.map(category => {
+              const selected = settings.enabledCategories.includes(category);
+              const count = preferencePool.filter(dish => dish.category === category && (settings.mode === 'categories' || !settings.selectedProteins.length || dish.ingredients?.some(ingredient => settings.selectedProteins.some(protein => proteinMatchesIngredient(protein, ingredient.item))))).length;
+              return <button key={category} type="button" disabled={spinning} aria-pressed={selected} onClick={() => toggleCategory(category)} className={`flex min-h-8 min-w-0 items-center gap-1.5 rounded-lg border px-2 text-right text-[9px] font-bold transition sm:min-h-9 sm:text-[10px] ${selected ? 'border-[#c9dccd] bg-[#edf6ef] text-[#285b45]' : 'border-transparent bg-[#f5f6f2] text-[#89938a]'} disabled:opacity-60`}>
+                <span className={`grid h-3.5 w-3.5 shrink-0 place-items-center rounded border ${selected ? 'border-[#276556] bg-[#276556] text-white' : 'border-[#cbd4cb] bg-white'}`}>{selected && <Check size={10}/>}</span>
+                <span className="min-w-0 flex-1 truncate">{CATEGORY_LABELS[category]}</span>
+                <span className="shrink-0 text-[8px] opacity-60">{count.toLocaleString('fa-IR')}</span>
+              </button>;
+            })}
+          </div>
+        </div>
+        {settings.mode === 'proteins' && <div className="mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9] p-2">
+          <div className="mb-1.5 flex items-center justify-between gap-2">
+            <span className="text-[9px] font-black text-[#345c4b] sm:text-[10px]">ماده‌های پروتئینی</span>
+            <span className="rounded-full bg-[#edf4ed] px-2 py-1 text-[8px] font-bold text-[#617267]">{settings.selectedProteins.length ? `${settings.selectedProteins.length.toLocaleString('fa-IR')} انتخاب` : 'انتخاب نشده'}</span>
+          </div>
+          <div className="food-roulette-filter-list max-h-[142px] space-y-2 overflow-y-auto overscroll-contain rounded-lg bg-[#f7f8f4] p-2 sm:max-h-[172px]">
+            <p className="text-[8px] font-semibold leading-4 text-[#758579] sm:text-[9px]">برای دیدن همهٔ مواد، داخل فهرست بالا و پایین برو.</p>
+            {PROTEIN_GROUPS.map(group => <div key={group.id}>
+              <p className="mb-1 text-[8px] font-black text-[#89938a] sm:text-[9px]">{group.title}</p>
+              <div className="flex flex-wrap gap-1">
+                {group.items.map(protein => {
+                  const selected = settings.selectedProteins.includes(protein);
+                  return <button key={protein} type="button" disabled={spinning} aria-pressed={selected} onClick={() => toggleProtein(protein)} className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-2 text-[9px] font-bold transition sm:min-h-8 sm:text-[10px] ${selected ? 'border-[#276556] bg-[#276556] text-white' : 'border-[#e0e7dc] bg-white text-[#52675b] hover:border-[#adc7b1]'} disabled:opacity-60`}>
+                    {selected && <Check size={11}/>}<span>{protein}</span>
+                  </button>;
+                })}
+              </div>
+            </div>)}
+          </div>
+        </div>}
       </div>
     </div>
 
