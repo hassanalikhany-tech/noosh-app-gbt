@@ -539,7 +539,7 @@
 .food-roulette-options { display: grid; grid-template-rows: 1fr; overflow: hidden; opacity: 1; transition: grid-template-rows 950ms cubic-bezier(.22,.61,.36,1), opacity 700ms ease; }
 .food-roulette-options-inner { display: flex; min-height: 0; flex-direction: column; overflow: hidden; }
 .food-roulette-options-collapsed { grid-template-rows: 0fr; opacity: 0; pointer-events: none; }
-.food-roulette-result { animation: roulette-result-arrive 420ms cubic-bezier(.2,.7,.2,1) both; }
+.food-roulette-result { width: calc(100% + 16px); margin-inline: -8px; padding: 12px; animation: roulette-result-arrive 420ms cubic-bezier(.2,.7,.2,1) both; }
 @keyframes roulette-result-arrive { from { opacity: 0; } to { opacity: 1; } }
 .food-roulette-settings-proteins .food-roulette-protein-panel { order: 1; }
 .food-roulette-settings-proteins .food-roulette-category-panel { order: 2; }
@@ -564,7 +564,7 @@
   .food-roulette-settings .food-roulette-filter-list { max-height: 190px; }
   .food-roulette-content.food-roulette-is-collapsed { grid-template-areas: "wheel copy" "wheel result" !important; align-items: start; }
   .food-roulette-settings-result { padding: 8px !important; }
-  .food-roulette-result { padding: 7px !important; }
+  .food-roulette-result { padding: 10px !important; }
   .food-roulette-result .meal-card { min-width: 0; border-radius: 12px !important; }
   .food-roulette-result .meal-card .meal-image { height: clamp(96px, 31vw, 140px); }
   .food-roulette-result .meal-card > div:last-child { padding: 8px; }
