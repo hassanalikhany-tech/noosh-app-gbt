@@ -3,7 +3,6 @@ import { Check, ChefHat, RefreshCw, Sparkles } from 'lucide-react';
 import { CATEGORY_LABELS, Dish, DishCategory, UserProfile } from '../types';
 import { PANTRY_ITEMS } from '../data/pantry';
 import { filterDishes } from '../utils/planner';
-import { isIngredientMatch } from '../utils/recipeHelpers';
 import MealCard from './MealCard';
 
 interface FoodRouletteProps {
@@ -30,6 +29,54 @@ const PROTEIN_GROUPS = PANTRY_ITEMS.find(category => category.id === 'proteins')
 const PROTEIN_OPTIONS = PROTEIN_GROUPS.flatMap(group => group.items);
 const DEFAULT_CATEGORY_SELECTION = [...WHEEL_CATEGORIES];
 const STORAGE_KEY_PREFIX = 'noosh-food-roulette-v1';
+const PROTEIN_ALIASES: Record<string, string[]> = {
+  'اردک': ['اردک', 'مرغابی'],
+  'تن ماهی': ['تن ماهی', 'ماهی تن'],
+  'تخم مرغ': ['تخم مرغ'],
+  'پاچه گوساله': ['پاچه گوساله'],
+  'گوشت بز': ['گوشت بز', 'گوشت بزغاله', 'بزغاله'],
+  'گوشت سینه مرغ': ['سینه مرغ'],
+  'گوشت شتر': ['گوشت شتر', 'شتر'],
+  'گوشت غاز': ['گوشت غاز', 'غاز'],
+  'گوشت گاو و گوساله': ['گوشت گاو', 'گوشت گوساله', 'گاو', 'گوساله'],
+  'گوشت گوسفندی': ['گوشت گوسفندی', 'گوشت گوسفند', 'گوسفند', 'بره'],
+  'کله و پاچه': ['کله و پاچه', 'کله پاچه'],
+};
+
+const normalizeProteinText = (value: string) => value
+  .toLocaleLowerCase('fa')
+  .replace(/[يى]/g, 'ی')
+  .replace(/ك/g, 'ک')
+  .replace(/[آأإ]/g, 'ا')
+  .replace(/[\u200B-\u200F\u0640]/g, ' ')
+  .replace(/[^\p{L}\p{N}]+/gu, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
+
+const includesProteinPhrase = (ingredient: string, phrase: string) => {
+  const text = ` ${normalizeProteinText(ingredient)} `;
+  const target = normalizeProteinText(phrase);
+  return Boolean(target) && text.includes(` ${target} `);
+};
+
+/** Exact ingredient words and known recipe aliases; e.g. مرغ must not match تخم‌مرغ. */
+const proteinMatchesIngredient = (selected: string, ingredient: string) => {
+  const key = normalizeProteinText(selected);
+  const text = normalizeProteinText(ingredient);
+  if (!key || !text) return false;
+
+  if (key === normalizeProteinText('مرغ')) {
+    if (includesProteinPhrase(ingredient, 'تخم مرغ') || includesProteinPhrase(ingredient, 'مرغابی')) return false;
+    return includesProteinPhrase(ingredient, 'مرغ') || includesProteinPhrase(ingredient, 'جوجه');
+  }
+
+  if (key === normalizeProteinText('گوشت چرخ‌کرده')) {
+    return includesProteinPhrase(ingredient, 'گوشت چرخ‌کرده') || (includesProteinPhrase(ingredient, 'گوشت') && includesProteinPhrase(ingredient, 'چرخ‌کرده'));
+  }
+
+  const aliases = PROTEIN_ALIASES[selected] || [selected];
+  return aliases.some(alias => includesProteinPhrase(ingredient, alias));
+};
 
 type RouletteMode = 'categories' | 'proteins';
 type RouletteSettings = { mode: RouletteMode; enabledCategories: DishCategory[]; selectedProteins: string[] };
@@ -85,14 +132,13 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
   const preferencePool = useMemo(() => filterDishes(user).filter(dish => dish.category !== 'dessert'), [user, recipeRevision]);
 
   const eligibleDishes = useMemo(() => {
-    if (settings.mode === 'categories') {
-      const enabled = new Set(settings.enabledCategories);
-      return preferencePool.filter(dish => enabled.has(dish.category));
-    }
-    if (!settings.selectedProteins.length) return [];
-    return preferencePool.filter(dish => dish.ingredients?.some(ingredient =>
-      settings.selectedProteins.some(protein => isIngredientMatch(protein, ingredient.item))
-    ));
+    const enabled = new Set(settings.enabledCategories);
+    return preferencePool.filter(dish => {
+      if (!enabled.has(dish.category)) return false;
+      if (settings.mode === 'categories') return true;
+      if (!settings.selectedProteins.length) return false;
+      return dish.ingredients?.some(ingredient => settings.selectedProteins.some(protein => proteinMatchesIngredient(protein, ingredient.item))) ?? false;
+    });
   }, [preferencePool, settings]);
 
   const categories = useMemo(() => WHEEL_CATEGORIES
@@ -161,7 +207,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
     const dishPool = alternativeDishes.length ? alternativeDishes : selectedCategory.dishes;
     const selectedDish = dishPool[Math.floor(Math.random() * dishPool.length)];
     const matchedProteins = settings.mode === 'proteins'
-      ? settings.selectedProteins.filter(protein => selectedDish.ingredients?.some(ingredient => isIngredientMatch(protein, ingredient.item)))
+      ? settings.selectedProteins.filter(protein => selectedDish.ingredients?.some(ingredient => proteinMatchesIngredient(protein, ingredient.item)))
       : [];
     const segmentAngle = 360 / categories.length;
     const centerAngle = (categoryIndex + 0.5) * segmentAngle;
@@ -184,9 +230,11 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
 
   const activeCategoryCount = settings.enabledCategories.length;
   const emptyMessage = settings.mode === 'proteins'
-    ? settings.selectedProteins.length === 0
+    ? activeCategoryCount === 0
+      ? 'همهٔ دسته‌ها خاموش‌اند؛ برای قرعه‌کشی پروتئینی دست‌کم یک دسته را فعال کن.'
+      : settings.selectedProteins.length === 0
       ? 'برای شروع، یک مادهٔ پروتئینی انتخاب کن؛ گردونه با دسته‌هایی که رسپی مناسب دارند پر می‌شود.'
-      : 'با مواد انتخاب‌شده و شخصی‌سازی‌های فعلی غذایی پیدا نشد؛ مادهٔ دیگری انتخاب کن یا فیلترها را بازبینی کن.'
+      : 'در دسته‌های فعال و با مواد پروتئینی انتخاب‌شده غذایی پیدا نشد؛ دسته یا مادهٔ دیگری انتخاب کن.'
     : settings.enabledCategories.length === 0
       ? 'همهٔ دسته‌ها خاموش‌اند؛ دست‌کم یک دسته را برای قرعه‌کشی فعال کن.'
       : 'با دسته‌ها و شخصی‌سازی‌های فعلی غذایی پیدا نشد؛ دسته‌ای را دوباره فعال کن یا تنظیماتت را بررسی کن.';
@@ -208,9 +256,9 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
             </button>
           </div>
 
-          {settings.mode === 'categories' ? <details className="mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9]">
+          <details className="mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9]">
             <summary className="flex min-h-9 cursor-pointer list-none items-center justify-between gap-2 px-2.5 text-[9px] font-black text-[#345c4b] marker:hidden sm:text-[11px]">
-              <span>دسته‌های روی گردونه</span><span className="rounded-full bg-[#edf4ed] px-2 py-1 text-[8px] text-[#617267]">{activeCategoryCount.toLocaleString('fa-IR')} فعال</span>
+              <span>{settings.mode === 'proteins' ? 'دسته‌های مجاز برای پیشنهاد' : 'دسته‌های روی گردونه'}</span><span className="rounded-full bg-[#edf4ed] px-2 py-1 text-[8px] text-[#617267]">{activeCategoryCount.toLocaleString('fa-IR')} فعال</span>
             </summary>
             <div className="border-t border-[#e4eae0] p-2">
               <div className="mb-1.5 flex justify-end">
@@ -219,7 +267,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
               <div className="grid grid-cols-2 gap-1 sm:grid-cols-3" aria-label="فعال یا غیرفعال کردن دسته‌های غذا">
                 {WHEEL_CATEGORIES.map(category => {
                   const selected = settings.enabledCategories.includes(category);
-                  const count = preferencePool.filter(dish => dish.category === category).length;
+                  const count = preferencePool.filter(dish => dish.category === category && (settings.mode === 'categories' || !settings.selectedProteins.length || dish.ingredients?.some(ingredient => settings.selectedProteins.some(protein => proteinMatchesIngredient(protein, ingredient.item))))).length;
                   return <button key={category} type="button" disabled={spinning} aria-pressed={selected} onClick={() => toggleCategory(category)} className={`flex min-h-8 min-w-0 items-center gap-1.5 rounded-lg border px-2 text-right text-[9px] font-bold transition sm:min-h-9 sm:text-[10px] ${selected ? 'border-[#c9dccd] bg-[#edf6ef] text-[#285b45]' : 'border-transparent bg-[#f5f6f2] text-[#89938a]'} disabled:opacity-60`}>
                     <span className={`grid h-3.5 w-3.5 shrink-0 place-items-center rounded border ${selected ? 'border-[#276556] bg-[#276556] text-white' : 'border-[#cbd4cb] bg-white'}`}>{selected && <Check size={10}/>}</span>
                     <span className="min-w-0 flex-1 truncate">{CATEGORY_LABELS[category]}</span>
@@ -228,7 +276,8 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
                 })}
               </div>
             </div>
-          </details> : <details className="mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9]">
+          </details>
+          {settings.mode === 'proteins' && <details className="mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9]">
             <summary className="flex min-h-9 cursor-pointer list-none items-center justify-between gap-2 px-2.5 text-[9px] font-black text-[#345c4b] marker:hidden sm:text-[11px]">
               <span>انتخاب مادهٔ پروتئینی</span><span className="rounded-full bg-[#edf4ed] px-2 py-1 text-[8px] text-[#617267]">{settings.selectedProteins.length ? `${settings.selectedProteins.length.toLocaleString('fa-IR')} انتخاب` : 'انتخاب نشده'}</span>
             </summary>
