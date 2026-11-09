@@ -462,7 +462,7 @@ const Preferences: React.FC<PreferencesProps> = ({ user, onUpdateUser, onLogout,
                   <div className="bg-white rounded-2xl p-4 shadow-sm ring-1 ring-slate-100 space-y-4 sm:p-5">
                     <div className="flex items-center gap-3 sm:gap-4">
                       <div className="p-3 bg-slate-100 text-slate-600 rounded-xl sm:rounded-[1.5rem]"><ThumbsDown size={22}/></div>
-                      <h2 className="text-sm sm:text-xl font-black text-slate-800">لیست سیاه غذاها</h2>
+                      <h2 className="text-sm sm:text-xl font-black text-slate-800">لیست غذاهایی که نمی‌پسندم</h2>
                     </div>
                     <div className="grid grid-cols-2 gap-2 sm:gap-3 max-h-48 sm:max-h-64 overflow-y-auto no-scrollbar">
                         {blacklistedList.length > 0 ? blacklistedList.map(dish => (
