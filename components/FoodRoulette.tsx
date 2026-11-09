@@ -292,6 +292,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
         </div>
 
         <div className={`food-roulette-options ${!filtersExpanded ? 'food-roulette-options-collapsed' : ''}`} aria-hidden={!filtersExpanded} inert={!filtersExpanded}>
+        <div className="food-roulette-options-inner">
         <div className="food-roulette-category-panel mt-2.5 rounded-xl border border-[#e4eae0] bg-[#fbfcf9] p-2">
           {settings.mode === 'proteins' && <div className="mb-1.5 flex items-center justify-between gap-2">
             <span className="text-[9px] font-black text-[#345c4b] sm:text-[10px]">دسته‌های مجاز</span>
@@ -333,6 +334,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
             </div>)}
           </div>
         </div>}
+        </div>
         </div>
         {result && <div key={result.dish.id} className="food-roulette-result mt-2 min-w-0 rounded-xl border border-[#e4eae0] bg-white p-2 sm:mt-3 sm:p-3">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">

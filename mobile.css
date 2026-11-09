@@ -522,7 +522,7 @@
 }
 
 /* Keep the wheel fixed on the left while the right side changes between setup and result. */
-.food-roulette-content { grid-template-areas: "wheel copy" "wheel settings"; transition: row-gap 460ms cubic-bezier(.2,.7,.2,1); }
+.food-roulette-content { grid-template-areas: "wheel copy" "wheel settings"; transition: row-gap 950ms cubic-bezier(.22,.61,.36,1); }
 .food-roulette-content.food-roulette-is-collapsed { grid-template-areas: "wheel copy" "wheel result"; }
 .food-roulette-is-collapsed { row-gap: 8px !important; }
 .food-roulette-copy { grid-area: copy; }
@@ -530,14 +530,15 @@
 .food-roulette-wheel-wrap { align-self: start; }
 .food-roulette-settings { grid-area: settings; min-width: 0; }
 .food-roulette-is-collapsed .food-roulette-settings { grid-area: result; align-self: stretch; }
-.food-roulette-copy > span { max-height: 40px; overflow: hidden; transition: max-height 460ms cubic-bezier(.2,.7,.2,1), opacity 260ms ease, margin 460ms cubic-bezier(.2,.7,.2,1), padding 460ms cubic-bezier(.2,.7,.2,1); }
+.food-roulette-copy > span { max-height: 40px; overflow: hidden; transition: max-height 950ms cubic-bezier(.22,.61,.36,1), opacity 700ms ease, margin 950ms cubic-bezier(.22,.61,.36,1), padding 950ms cubic-bezier(.22,.61,.36,1); }
 .food-roulette-is-collapsed .food-roulette-copy > span { max-height: 0; margin-block: 0 !important; padding-block: 0 !important; opacity: 0; }
-.food-roulette-intro { display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows 460ms cubic-bezier(.2,.7,.2,1), opacity 260ms ease; }
+.food-roulette-intro { display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows 950ms cubic-bezier(.22,.61,.36,1), opacity 700ms ease; }
 .food-roulette-intro-inner { min-height: 0; overflow: hidden; }
 .food-roulette-intro-collapsed { grid-template-rows: 0fr; opacity: 0; }
-.food-roulette-is-collapsed .food-roulette-copy h2 { margin-top: 0 !important; transition: margin 460ms cubic-bezier(.2,.7,.2,1), font-size 460ms cubic-bezier(.2,.7,.2,1), line-height 460ms cubic-bezier(.2,.7,.2,1); }
-.food-roulette-options { display: flex; flex-direction: column; max-height: 500px; overflow: hidden; opacity: 1; transition: max-height 460ms cubic-bezier(.2,.7,.2,1), opacity 260ms ease, margin 460ms cubic-bezier(.2,.7,.2,1); }
-.food-roulette-options-collapsed { max-height: 0; margin-top: 0; opacity: 0; pointer-events: none; }
+.food-roulette-is-collapsed .food-roulette-copy h2 { margin-top: 0 !important; transition: margin 950ms cubic-bezier(.22,.61,.36,1), font-size 950ms cubic-bezier(.22,.61,.36,1), line-height 950ms cubic-bezier(.22,.61,.36,1); }
+.food-roulette-options { display: grid; grid-template-rows: 1fr; overflow: hidden; opacity: 1; transition: grid-template-rows 950ms cubic-bezier(.22,.61,.36,1), opacity 700ms ease; }
+.food-roulette-options-inner { display: flex; min-height: 0; flex-direction: column; overflow: hidden; }
+.food-roulette-options-collapsed { grid-template-rows: 0fr; opacity: 0; pointer-events: none; }
 .food-roulette-result { animation: roulette-result-arrive 420ms cubic-bezier(.2,.7,.2,1) both; }
 @keyframes roulette-result-arrive { from { opacity: 0; } to { opacity: 1; } }
 .food-roulette-settings-proteins .food-roulette-protein-panel { order: 1; }
