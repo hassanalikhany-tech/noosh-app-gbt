@@ -231,12 +231,10 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
       ? 'همهٔ دسته‌ها خاموش‌اند؛ دست‌کم یک دسته را برای قرعه‌کشی فعال کن.'
       : 'با دسته‌ها و شخصی‌سازی‌های فعلی غذایی پیدا نشد؛ دسته‌ای را دوباره فعال کن یا تنظیماتت را بررسی کن.';
 
-  return <section className="mx-auto mt-1 mb-5 w-[calc(100%-28px)] max-w-6xl overflow-hidden rounded-[28px] border border-[#d9e4d7] bg-white shadow-[0_18px_55px_rgba(23,60,43,0.09)] sm:mt-2 sm:mb-8 sm:w-[calc(100%-64px)] sm:rounded-[34px]" aria-labelledby="food-roulette-title">
+  return <section className="mx-auto mt-1 mb-5 w-[calc(100%-28px)] max-w-6xl overflow-hidden rounded-[28px] border border-[#d9e4d7] bg-white shadow-[0_18px_55px_rgba(23,60,43,0.09)] sm:mt-2 sm:mb-8 sm:w-[calc(100%-64px)] sm:rounded-[34px]" aria-label="گردونهٔ پیشنهاد غذا">
     <div className={`food-roulette-content grid items-start gap-3 bg-[radial-gradient(ellipse_at_88%_8%,rgba(215,189,117,0.24),transparent_36%),linear-gradient(135deg,#f7f8f2,#edf4ed_62%,#e6f0e8)] px-3 py-3 sm:grid-cols-[minmax(280px,38%)_minmax(0,1fr)] sm:gap-8 sm:px-9 sm:pt-4 sm:pb-8 lg:px-12 lg:pt-5 lg:pb-10 ${!filtersExpanded ? 'food-roulette-is-collapsed' : ''}`}>
       <div className={`food-roulette-info ${!filtersExpanded ? 'food-roulette-info-collapsed' : ''}`}>
       <div className="food-roulette-copy text-center sm:text-right">
-        <span className="inline-flex items-center gap-2 rounded-full border border-[#d7bd75]/50 bg-white/70 px-3 py-1.5 text-[10px] font-black text-[#826832] sm:text-xs"><Sparkles size={14}/> انتخاب تصادفی نوش</span>
-        <h2 id="food-roulette-title" className="mt-3 text-xl font-black leading-relaxed text-[#173c2b] sm:mt-4 sm:text-3xl">امروز چی بپزم؟</h2>
         <div className={`food-roulette-intro ${!filtersExpanded ? 'food-roulette-intro-collapsed' : ''}`}>
           <div className="food-roulette-intro-inner">
             <p className="mx-auto mt-2 max-w-xl text-xs font-semibold leading-7 text-[#617267] sm:mx-0 sm:mt-3 sm:text-sm sm:leading-8">دسته‌های دلخواهت را برای قرعه‌کشی انتخاب کن، یا یک یا چند مادهٔ پروتئینی را مشخص کن تا فقط غذاهای دارای دست‌کم یکی از آن‌ها پیشنهاد شوند. سلیقه و حساسیت‌هایت هم رعایت می‌شوند.</p>
