@@ -759,36 +759,25 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     </div>
   </div>;
 
-  if (page === 'home' && !hasChosenHomeMode) return <main className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-4 py-8 sm:px-8 sm:py-12">
-    <section className="w-full max-w-4xl rounded-[2rem] border border-emerald-100 bg-white p-5 shadow-[0_24px_70px_rgba(39,101,86,0.12)] sm:p-10">
-      <div className="mx-auto max-w-2xl text-center">
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-emerald-50 text-[#276556] sm:h-16 sm:w-16"><ChefHat size={30}/></span>
-        <p className="mt-4 text-xs font-black tracking-wide text-[#276556] sm:text-sm">آشپزخانهٔ نوش‌اپ</p>
-        <h1 className="mt-2 text-2xl font-black text-slate-900 sm:text-4xl">امروز چی بپزم؟</h1>
-        <p className="mx-auto mt-3 max-w-xl text-sm font-medium leading-7 text-slate-600 sm:text-base">برای دیدن پیشنهاد غذا، یکی از این دو روش را انتخاب کن.</p>
-      </div>
-      <div className="mx-auto mt-7 grid max-w-3xl grid-cols-1 gap-3 sm:mt-9 sm:grid-cols-2 sm:gap-5">
-        <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('with-inventory')} className="group flex min-h-28 items-center gap-4 rounded-2xl border-2 border-emerald-200 bg-emerald-50/70 p-4 text-right transition hover:-translate-y-0.5 hover:border-[#276556] hover:bg-emerald-50 hover:shadow-lg disabled:cursor-wait disabled:opacity-70 sm:min-h-36 sm:flex-col sm:justify-center sm:text-center">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#276556] text-white shadow-md sm:h-14 sm:w-14"><Package size={25}/></span>
-          <span><strong className="block text-base font-black text-slate-900 sm:text-lg">با استفاده از موجودی انبار</strong><small className="mt-1 block text-xs font-semibold leading-5 text-slate-600 sm:text-sm">پیشنهاد غذا بر اساس مواد موجود در خانه</small></span>
-        </button>
-        <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('without-inventory')} className="group flex min-h-28 items-center gap-4 rounded-2xl border-2 border-amber-200 bg-amber-50/70 p-4 text-right transition hover:-translate-y-0.5 hover:border-amber-500 hover:bg-amber-50 hover:shadow-lg disabled:cursor-wait disabled:opacity-70 sm:min-h-36 sm:flex-col sm:justify-center sm:text-center">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-amber-500 text-white shadow-md sm:h-14 sm:w-14"><Sparkles size={25}/></span>
-          <span><strong className="block text-base font-black text-slate-900 sm:text-lg">بدون نیاز به انبار</strong><small className="mt-1 block text-xs font-semibold leading-5 text-slate-600 sm:text-sm">پیشنهاد تصادفی با گردونهٔ غذا</small></span>
-        </button>
-      </div>
-      {isChoosingHomeMode && <p role="status" className="mt-5 text-center text-sm font-bold text-[#276556]">در حال آماده‌سازی…</p>}
-    </section>
-  </main>;
-
   return (
     <div className="pantry-page flex min-h-0 flex-1 flex-col [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter">
-      {page === 'home' && <section className="pantry-hero" aria-label="پیشنهاد غذا بر پایهٔ موجودی آشپزخانه">
+      {page === 'home' && <section className={`pantry-hero ${!hasChosenHomeMode ? 'pantry-hero-start' : ''}`} aria-label="پیشنهاد غذا بر پایهٔ موجودی آشپزخانه">
         <div className="pantry-hero-copy"><span className="pantry-hero-label"><ChefHat size={15}/> آشپزخانهٔ تو</span>
           <h1>امروز چی بپزم؟</h1>
-          <p>{user.kitchenMode === 'without-inventory' ? 'در حالت مستقل از انبار، پیشنهادها بدون توجه به موجودی ثبت‌شده چیده می‌شوند؛ هر زمان خواستی از کلید پایین حالت را عوض کن.' : 'موجودی انبارت را به‌روز نگه دار تا غذاها بر اساس مواد موجود در خانه پیشنهاد شوند و فهرست خریدت فقط شامل مقدار موردنیازِ موادِ کسری باشد.'}</p>
+          <p>{!hasChosenHomeMode ? 'روش پیشنهاد غذا را انتخاب کن تا بر پایهٔ موجودی خانه پیشنهاد بگیری یا با گردونه یک غذا انتخاب کنی.' : user.kitchenMode === 'without-inventory' ? 'در حالت مستقل از انبار، پیشنهادها بدون توجه به موجودی ثبت‌شده چیده می‌شوند؛ هر زمان خواستی از کلید پایین حالت را عوض کن.' : 'موجودی انبارت را به‌روز نگه دار تا غذاها بر اساس مواد موجود در خانه پیشنهاد شوند و فهرست خریدت فقط شامل مقدار موردنیازِ موادِ کسری باشد.'}</p>
         </div><div className="pantry-hero-photo" role="img" aria-label="زرشک پلو با مرغ زعفرانی خانگی" />
         <div className="pantry-hero-stats">
+          {!hasChosenHomeMode ? <>
+            <div className="pantry-start-options">
+              <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('with-inventory')} className="pantry-start-option pantry-start-option-inventory disabled:cursor-wait disabled:opacity-60">
+                <span className="pantry-start-option-icon"><Package size={20}/></span><span><strong>با استفاده از موجودی انبار</strong><small>پیشنهاد بر اساس مواد خانه</small></span>
+              </button>
+              <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('without-inventory')} className="pantry-start-option pantry-start-option-roulette disabled:cursor-wait disabled:opacity-60">
+                <span className="pantry-start-option-icon"><Sparkles size={20}/></span><span><strong>بدون نیاز به انبار</strong><small>انتخاب غذا با گردونه</small></span>
+              </button>
+            </div>
+            {isChoosingHomeMode && <p role="status" className="pantry-start-loading">در حال آماده‌سازی…</p>}
+          </> : <>
           <div className="pantry-hero-controls">
             <div className="pantry-mode-switch-wrap">
               <button
@@ -834,10 +823,11 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
             <i/>
             <span className={lowStockItems.length ? 'stock-alert' : ''}><AlertTriangle size={14}/><strong>{toPersian(lowStockItems.length)}</strong> نیازمند توجه</span>
           </div>}
+          </>}
         </div>
       </section>}
       {page === 'inventory' && <section className="mx-4 mb-2 mt-4 flex items-center gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3 shadow-sm sm:mx-10"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-50 text-[#276556]"><Package size={20}/></span><div><h1 className="text-base font-black text-slate-900 sm:text-xl">انبار مواد غذایی آشپزخانه</h1><p className="text-xs font-semibold text-slate-500">ثبت و به‌روزرسانی موجودی شخصی شما · {toPersian(inventory.length)} قلم</p></div></section>}
-      {(page === 'inventory' && isInventoryMode) || (page === 'home' && isInventoryMode && rawResults) ? <>
+      {hasChosenHomeMode && ((page === 'inventory' && isInventoryMode) || (page === 'home' && isInventoryMode && rawResults)) ? <>
       <div className="flex-grow overflow-y-auto [@media(orientation:landscape)_and_(max-height:500px)]:overflow-visible px-4 sm:px-10 pb-20 no-scrollbar">
           <div className="max-w-7xl mx-auto py-4 sm:py-6 space-y-6 sm:space-y-10">
               {page === 'inventory' && <div className="space-y-6 animate-enter">
@@ -1003,7 +993,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
               )}
           </div>
       </div>
-      </> : page === 'inventory' ? <section className="mx-4 mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm font-bold leading-7 text-amber-900 sm:mx-10">برای باز کردن انبار، به صفحهٔ «آشپزخانه من» برو و کلید «استفاده از موجودی انبار» را روشن کن.</section> : !isInventoryMode && <div className="min-h-0 flex-grow overflow-y-auto overscroll-contain pb-20 no-scrollbar"><FoodRoulette user={user} onUpdateUser={onUpdateUser} onOpenInventory={openInventoryForPrices}/></div>}
+      </> : page === 'inventory' ? <section className="mx-4 mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm font-bold leading-7 text-amber-900 sm:mx-10">برای باز کردن انبار، به صفحهٔ «آشپزخانه من» برو و کلید «استفاده از موجودی انبار» را روشن کن.</section> : hasChosenHomeMode && !isInventoryMode ? <div className="min-h-0 flex-grow overflow-y-auto overscroll-contain pb-20 no-scrollbar"><FoodRoulette user={user} onUpdateUser={onUpdateUser} onOpenInventory={openInventoryForPrices}/></div> : null}
       {showInventoryAddConfirm && createPortal(
         <div className="fixed inset-0 z-[13000] grid place-items-center bg-slate-950/45 p-4 backdrop-blur-sm" dir="rtl" onKeyDown={event => { if (event.key === 'Escape') cancelInlineInventoryAdd(); }}>
           <section role="dialog" aria-modal="true" aria-labelledby="inventory-add-confirm-title" className="w-full max-w-md overflow-hidden rounded-[26px] border border-emerald-100 bg-[#f8faf7] shadow-2xl" onClick={event => event.stopPropagation()}>
