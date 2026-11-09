@@ -233,7 +233,8 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
 
   return <section className="mx-auto mt-1 mb-5 w-[calc(100%-28px)] max-w-6xl overflow-hidden rounded-[28px] border border-[#d9e4d7] bg-white shadow-[0_18px_55px_rgba(23,60,43,0.09)] sm:mt-2 sm:mb-8 sm:w-[calc(100%-64px)] sm:rounded-[34px]" aria-labelledby="food-roulette-title">
     <div className={`food-roulette-content grid items-start gap-3 bg-[radial-gradient(ellipse_at_88%_8%,rgba(215,189,117,0.24),transparent_36%),linear-gradient(135deg,#f7f8f2,#edf4ed_62%,#e6f0e8)] px-3 py-3 sm:grid-cols-[minmax(280px,38%)_minmax(0,1fr)] sm:gap-8 sm:px-9 sm:pt-4 sm:pb-8 lg:px-12 lg:pt-5 lg:pb-10 ${!filtersExpanded ? 'food-roulette-is-collapsed' : ''}`}>
-      <div className="food-roulette-copy order-2 text-center sm:order-1 sm:text-right">
+      <div className={`food-roulette-info ${!filtersExpanded ? 'food-roulette-info-collapsed' : ''}`}>
+      <div className="food-roulette-copy text-center sm:text-right">
         <span className="inline-flex items-center gap-2 rounded-full border border-[#d7bd75]/50 bg-white/70 px-3 py-1.5 text-[10px] font-black text-[#826832] sm:text-xs"><Sparkles size={14}/> انتخاب تصادفی نوش</span>
         <h2 id="food-roulette-title" className="mt-3 text-xl font-black leading-relaxed text-[#173c2b] sm:mt-4 sm:text-3xl">امروز چی بپزم؟</h2>
         <div className={`food-roulette-intro ${!filtersExpanded ? 'food-roulette-intro-collapsed' : ''}`}>
@@ -244,41 +245,6 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
             </p>
           </div>
         </div>
-      </div>
-
-      <div className="food-roulette-wheel-wrap order-1 mx-auto w-full max-w-[280px] sm:order-2 sm:max-w-[330px] lg:max-w-[390px]">
-        <div className="relative mx-auto w-full p-2 sm:p-4">
-          <span aria-hidden="true" className="absolute left-1/2 top-0 z-20 h-0 w-0 -translate-x-1/2 border-x-[16px] border-x-transparent border-t-[29px] border-t-[#b08c43] drop-shadow-md"/>
-          <div className="food-roulette-wheel-frame relative mx-auto aspect-square w-full rounded-full border-[7px] border-[#d7bd75] bg-white p-1 shadow-[0_10px_30px_rgba(23,60,43,0.18),inset_0_0_0_2px_rgba(255,255,255,0.8)] sm:border-[9px] sm:p-1.5">
-            <div
-              className="food-roulette-wheel relative aspect-square w-full overflow-hidden rounded-full border border-white/70"
-              role="img"
-              aria-label={settings.mode === 'proteins' ? 'گردونهٔ انتخاب غذا بر اساس مادهٔ پروتئینی' : 'گردونهٔ انتخاب دستهٔ غذا'}
-              style={{ background: wheelBackground, transform: `rotate(${rotation}deg)`, transition: `transform ${spinDuration}ms cubic-bezier(0.12, 0.72, 0.12, 1)` }}
-            >
-              <div aria-hidden="true" className="absolute inset-2 rounded-full border border-white/40"/>
-              {categories.length ? categories.map((option, index) => {
-                const segment = 360 / categories.length;
-                const radians = ((index + 0.5) * segment - 90) * Math.PI / 180;
-                const left = 50 + Math.cos(radians) * 35;
-                const top = 50 + Math.sin(radians) * 35;
-                const color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
-                return <span key={option.category} className="absolute z-[1] flex w-[24%] -translate-x-1/2 -translate-y-1/2 items-center justify-center text-center text-[8px] font-black leading-[1.25] sm:text-[10px]" style={{ left: `${left}%`, top: `${top}%`, color: color.text, textShadow: color.text === '#fffdf6' ? '0 1px 2px rgba(0,0,0,.24)' : 'none' }}>
-                  <span style={{ transform: `rotate(${-rotation}deg)` }}>{CATEGORY_LABELS[option.category]}</span>
-                </span>;
-              }) : <span className="absolute left-1/2 top-[18%] z-[1] w-[65%] -translate-x-1/2 text-center text-[9px] font-black leading-5 text-white drop-shadow sm:text-xs">{settings.mode === 'proteins' && settings.selectedProteins.length ? 'غذای جور پیدا نشد' : 'یک ماده را انتخاب کن'}</span>}
-              <div aria-hidden="true" className="absolute left-1/2 top-1/2 z-10 grid aspect-square w-[31%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-[5px] border-[#d7bd75] bg-[#f8f7ef] shadow-[0_3px_14px_rgba(23,60,43,0.28)] sm:border-[6px]">
-                <div className="grid aspect-square w-[78%] place-items-center overflow-hidden rounded-full border border-[#dbe5d9] bg-white">
-                  <img src="/brand/noosh-logo.png" alt="" className="h-full w-full object-cover"/>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <button type="button" onClick={spin} disabled={!canSpin} aria-busy={spinning} className="food-roulette-spin-button mt-2 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#d5bd79] bg-[#276556] px-3 text-[11px] font-black text-white shadow-[0_7px_0_#19483d,0_13px_24px_rgba(23,60,43,0.18)] transition hover:-translate-y-0.5 hover:bg-[#215b4d] active:translate-y-1 active:shadow-[0_3px_0_#19483d] disabled:cursor-not-allowed disabled:opacity-65 sm:mt-3 sm:min-h-14 sm:px-5 sm:text-base">
-          {spinning ? <RefreshCw size={18} className="animate-spin"/> : result ? <RefreshCw size={18}/> : <Sparkles size={18}/>}
-          <span>{spinning ? 'گردونه می‌چرخد…' : result ? 'دوباره بچرخان' : 'گردونه را بچرخان'}</span>
-        </button>
       </div>
 
       <div className={`food-roulette-settings flex flex-col rounded-2xl border border-white/90 bg-white/75 p-2.5 text-right shadow-sm sm:p-3 ${settings.mode === 'proteins' ? 'food-roulette-settings-proteins' : ''} ${!filtersExpanded ? 'food-roulette-settings-result' : ''}`}>
@@ -343,6 +309,42 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
           </div>
           <MealCard plan={{ dayName: CATEGORY_LABELS[result.category], dish: result.dish }} user={user} onUpdateUser={onUpdateUser} onOpenInventory={onOpenInventory}/>
         </div>}
+      </div>
+      </div>
+
+      <div className="food-roulette-wheel-wrap mx-auto w-full max-w-[280px] sm:max-w-[330px] lg:max-w-[390px]">
+        <div className="relative mx-auto w-full p-2 sm:p-4">
+          <span aria-hidden="true" className="absolute left-1/2 top-0 z-20 h-0 w-0 -translate-x-1/2 border-x-[16px] border-x-transparent border-t-[29px] border-t-[#b08c43] drop-shadow-md"/>
+          <div className="food-roulette-wheel-frame relative mx-auto aspect-square w-full rounded-full border-[7px] border-[#d7bd75] bg-white p-1 shadow-[0_10px_30px_rgba(23,60,43,0.18),inset_0_0_0_2px_rgba(255,255,255,0.8)] sm:border-[9px] sm:p-1.5">
+            <div
+              className="food-roulette-wheel relative aspect-square w-full overflow-hidden rounded-full border border-white/70"
+              role="img"
+              aria-label={settings.mode === 'proteins' ? 'گردونهٔ انتخاب غذا بر اساس مادهٔ پروتئینی' : 'گردونهٔ انتخاب دستهٔ غذا'}
+              style={{ background: wheelBackground, transform: `rotate(${rotation}deg)`, transition: `transform ${spinDuration}ms cubic-bezier(0.12, 0.72, 0.12, 1)` }}
+            >
+              <div aria-hidden="true" className="absolute inset-2 rounded-full border border-white/40"/>
+              {categories.length ? categories.map((option, index) => {
+                const segment = 360 / categories.length;
+                const radians = ((index + 0.5) * segment - 90) * Math.PI / 180;
+                const left = 50 + Math.cos(radians) * 35;
+                const top = 50 + Math.sin(radians) * 35;
+                const color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
+                return <span key={option.category} className="absolute z-[1] flex w-[24%] -translate-x-1/2 -translate-y-1/2 items-center justify-center text-center text-[8px] font-black leading-[1.25] sm:text-[10px]" style={{ left: `${left}%`, top: `${top}%`, color: color.text, textShadow: color.text === '#fffdf6' ? '0 1px 2px rgba(0,0,0,.24)' : 'none' }}>
+                  <span style={{ transform: `rotate(${-rotation}deg)` }}>{CATEGORY_LABELS[option.category]}</span>
+                </span>;
+              }) : <span className="absolute left-1/2 top-[18%] z-[1] w-[65%] -translate-x-1/2 text-center text-[9px] font-black leading-5 text-white drop-shadow sm:text-xs">{settings.mode === 'proteins' && settings.selectedProteins.length ? 'غذای جور پیدا نشد' : 'یک ماده را انتخاب کن'}</span>}
+              <div aria-hidden="true" className="absolute left-1/2 top-1/2 z-10 grid aspect-square w-[31%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-[5px] border-[#d7bd75] bg-[#f8f7ef] shadow-[0_3px_14px_rgba(23,60,43,0.28)] sm:border-[6px]">
+                <div className="grid aspect-square w-[78%] place-items-center overflow-hidden rounded-full border border-[#dbe5d9] bg-white">
+                  <img src="/brand/noosh-logo.png" alt="" className="h-full w-full object-cover"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button type="button" onClick={spin} disabled={!canSpin} aria-busy={spinning} className="food-roulette-spin-button mt-2 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#d5bd79] bg-[#276556] px-3 text-[11px] font-black text-white shadow-[0_7px_0_#19483d,0_13px_24px_rgba(23,60,43,0.18)] transition hover:-translate-y-0.5 hover:bg-[#215b4d] active:translate-y-1 active:shadow-[0_3px_0_#19483d] disabled:cursor-not-allowed disabled:opacity-65 sm:mt-3 sm:min-h-14 sm:px-5 sm:text-base">
+          {spinning ? <RefreshCw size={18} className="animate-spin"/> : result ? <RefreshCw size={18}/> : <Sparkles size={18}/>}
+          <span>{spinning ? 'گردونه می‌چرخد…' : result ? 'دوباره بچرخان' : 'گردونه را بچرخان'}</span>
+        </button>
       </div>
     </div>
   </section>;

@@ -521,15 +521,13 @@
   .personal-recipe-ingredient-row > input:first-child { grid-column: 1 / -1; }
 }
 
-/* Keep the wheel fixed on the left while the right side changes between setup and result. */
-.food-roulette-content { grid-template-areas: "wheel copy" "wheel settings"; transition: row-gap 950ms cubic-bezier(.22,.61,.36,1); }
-.food-roulette-content.food-roulette-is-collapsed { grid-template-areas: "wheel copy" "wheel result"; }
-.food-roulette-is-collapsed { row-gap: 8px !important; }
-.food-roulette-copy { grid-area: copy; }
+/* The information column flows independently of the wheel, so controls can slide up smoothly. */
+.food-roulette-content { grid-template-areas: "wheel info"; }
+.food-roulette-info { grid-area: info; display: flex; min-width: 0; flex-direction: column; gap: 24px; transition: gap 950ms cubic-bezier(.22,.61,.36,1); }
+.food-roulette-info-collapsed { gap: 8px; }
 .food-roulette-wheel-wrap { grid-area: wheel; }
 .food-roulette-wheel-wrap { align-self: start; }
-.food-roulette-settings { grid-area: settings; min-width: 0; }
-.food-roulette-is-collapsed .food-roulette-settings { grid-area: result; align-self: stretch; }
+.food-roulette-settings { width: 100%; min-width: 0; }
 .food-roulette-copy > span { max-height: 40px; overflow: hidden; transition: max-height 950ms cubic-bezier(.22,.61,.36,1), opacity 700ms ease, margin 950ms cubic-bezier(.22,.61,.36,1), padding 950ms cubic-bezier(.22,.61,.36,1); }
 .food-roulette-is-collapsed .food-roulette-copy > span { max-height: 0; margin-block: 0 !important; padding-block: 0 !important; opacity: 0; }
 .food-roulette-intro { display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows 950ms cubic-bezier(.22,.61,.36,1), opacity 700ms ease; }
@@ -540,18 +538,24 @@
 .food-roulette-options-inner { display: flex; min-height: 0; flex-direction: column; overflow: hidden; }
 .food-roulette-options-collapsed { grid-template-rows: 0fr; opacity: 0; pointer-events: none; }
 .food-roulette-result { width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; margin-inline: 0; padding: 12px; animation: roulette-result-arrive 420ms cubic-bezier(.2,.7,.2,1) both; }
+.food-roulette-result .meal-card { width: 100%; max-width: 100%; min-width: 0; }
+.food-roulette-result .meal-card:hover { transform: none !important; }
+.food-roulette-result .meal-card > div:last-child { min-width: 0; }
+.food-roulette-result .meal-card > div:last-child > div.flex { flex-wrap: wrap; }
 @keyframes roulette-result-arrive { from { opacity: 0; } to { opacity: 1; } }
 .food-roulette-settings-proteins .food-roulette-protein-panel { order: 1; }
 .food-roulette-settings-proteins .food-roulette-category-panel { order: 2; }
 
-/* On phones, keep the wheel and its spin control together, then give filters the full width. */
+/* On phones, keep the wheel and its spin control beside a wider, contained suggestion panel. */
 @media (max-width: 767px) {
-  .food-roulette-content { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; grid-template-areas: "wheel copy" "settings settings" !important; align-items: start; gap: 8px !important; padding: 6px 12px 12px !important; }
+  .food-roulette-content { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr) !important; grid-template-areas: "wheel info" !important; align-items: start; gap: 8px !important; padding: 6px 10px 12px !important; }
   .food-roulette-wheel-wrap { width: 100%; min-width: 0; max-width: none !important; align-self: start; }
   .food-roulette-wheel-wrap > div { width: 100%; padding: 4px; }
   .food-roulette-wheel-frame { width: 100%; aspect-ratio: 1 / 1; }
   .food-roulette-wheel { width: 100%; height: auto; aspect-ratio: 1 / 1; transform-origin: center center; }
-  .food-roulette-copy { min-width: 0; text-align: center; }
+  .food-roulette-info { gap: 12px; }
+  .food-roulette-info-collapsed { gap: 8px; }
+  .food-roulette-copy { min-width: 0; text-align: right; }
   .food-roulette-copy > span { gap: 5px; padding: 5px 8px; font-size: 9px; }
   .food-roulette-copy h2 { margin-top: 7px; font-size: 18px; line-height: 1.4; }
   .food-roulette-intro-inner > p:first-child { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; margin-top: 5px; font-size: 10px; line-height: 1.65; }
@@ -562,10 +566,9 @@
   .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
   .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] > button { min-height: 36px; padding-inline: 8px; font-size: 10px; }
   .food-roulette-settings .food-roulette-filter-list { max-height: 190px; }
-  .food-roulette-content.food-roulette-is-collapsed { grid-template-areas: "wheel copy" "wheel result" !important; align-items: start; }
   .food-roulette-settings-result { padding: 8px !important; }
   .food-roulette-result { padding: 10px !important; }
-  .food-roulette-result .meal-card { min-width: 0; border-radius: 12px !important; }
+  .food-roulette-result .meal-card { width: 100%; max-width: 100%; min-width: 0; border-radius: 12px !important; }
   .food-roulette-result .meal-card .meal-image { height: clamp(96px, 31vw, 140px); }
   .food-roulette-result .meal-card > div:last-child { padding: 8px; }
   .food-roulette-result .meal-card h3 { font-size: 12px; line-height: 1.55; }
