@@ -44,6 +44,7 @@ const AppContent: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [displayPlan, setDisplayPlan] = useState<DayPlan[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('pantry');
+  const [hasChosenHomeMode, setHasChosenHomeMode] = useState(false);
   const [globalSearchTerm, setGlobalSearchTerm] = useState('');
   const [creatorRequest, setCreatorRequest] = useState<{ name: string; token: number } | null>(null);
   useEffect(() => {
@@ -66,6 +67,12 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     if (viewMode === 'inventory' && currentUser?.kitchenMode === 'without-inventory') setViewMode('pantry');
   }, [viewMode, currentUser?.kitchenMode]);
+  useEffect(() => {
+    if (currentUser?.username) {
+      setViewMode('pantry');
+      setHasChosenHomeMode(false);
+    }
+  }, [currentUser?.username]);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [appVersion, setAppVersion] = useState(metadata.name.split(' ').pop() || "V16.2");
   const [planLoading, setPlanLoading] = useState<'daily' | 'weekly' | 'monthly' | null>(null);
@@ -318,18 +325,25 @@ const AppContent: React.FC = () => {
     setCurrentUser(updatedUser);
   };
 
-  const handleKitchenModeChange = async (kitchenMode: KitchenMode) => {
-    if (!currentUser || currentUser.kitchenMode === kitchenMode) return;
+  const handleKitchenModeChange = async (kitchenMode: KitchenMode): Promise<boolean> => {
+    if (!currentUser) return false;
+    if (currentUser.kitchenMode === kitchenMode) return true;
     try {
       const updatedUser = await UserService.updateProfile(currentUser.username, { kitchenMode });
       setCurrentUser(updatedUser);
       const savedPlanMode = currentUser.weeklyPlanMode || currentUser.kitchenMode || 'with-inventory';
       setDisplayPlan(savedPlanMode === kitchenMode ? currentUser.weeklyPlan || [] : []);
       setPreviousPlan(null);
+      return true;
     } catch (err) {
       console.error('Kitchen mode update failed:', err);
       setPlanError('تغییر حالت استفاده ذخیره نشد. دوباره تلاش کنید.');
+      return false;
     }
+  };
+
+  const handleHomeModeSelected = async (kitchenMode: KitchenMode) => {
+    if (await handleKitchenModeChange(kitchenMode)) setHasChosenHomeMode(true);
   };
 
   const openInventoryForPrices = async () => {
@@ -759,7 +773,7 @@ const AppContent: React.FC = () => {
             setDisplayPlan(previousPlan); setCurrentUser(updated); setPreviousPlan(null);
           }}
         />}
-        {viewMode === 'pantry' && <PantryChef page="home" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} />}
+        {viewMode === 'pantry' && <PantryChef page="home" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} hasChosenHomeMode={hasChosenHomeMode} onHomeModeSelected={handleHomeModeSelected} />}
         {viewMode === 'inventory' && <PantryChef page="inventory" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} pendingPurchasedItems={currentUser?.pendingPurchasedItems || []} onPurchasedItemsCancel={handleCancelPurchasedItems} onPurchasedItemRemove={handleRemovePendingPurchasedItem} />}
         {viewMode === 'search' && <RecipeSearch user={currentUser!} onUpdateUser={setCurrentUser} onOpenInventory={openInventoryForPrices} externalSearchTerm={globalSearchTerm} creatorRequest={creatorRequest} onCreatorRequestHandled={() => setCreatorRequest(null)} />}
         {viewMode === 'settings' && (

@@ -25,9 +25,11 @@ import { mergeShoppingNeeds } from '../utils/shoppingQuantities';
 interface PantryChefProps {
   page: 'home' | 'inventory';
   user: UserProfile;
+  hasChosenHomeMode?: boolean;
+  onHomeModeSelected?: (mode: KitchenMode) => Promise<void> | void;
   onUpdateUser: (user: UserProfile) => void;
   onNavigate: (view: 'plan' | 'search' | 'inventory') => void;
-  onKitchenModeChange: (mode: KitchenMode) => Promise<void> | void;
+  onKitchenModeChange: (mode: KitchenMode) => Promise<void | boolean> | void;
   pendingPurchasedItems?: ShoppingItem[];
   onPurchasedItemsCancel?: (items: ShoppingItem[]) => Promise<void> | void;
   onPurchasedItemRemove?: (itemId: string) => Promise<void> | void;
@@ -155,7 +157,7 @@ interface ProcessedResult {
   expiringItemsToUse: string[];
 }
 
-const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNavigate, onKitchenModeChange, pendingPurchasedItems = [], onPurchasedItemsCancel = (_items: ShoppingItem[]) => undefined, onPurchasedItemRemove = (_itemId: string) => undefined }) => {
+const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNavigate, onKitchenModeChange, hasChosenHomeMode = true, onHomeModeSelected, pendingPurchasedItems = [], onPurchasedItemsCancel = (_items: ShoppingItem[]) => undefined, onPurchasedItemRemove = (_itemId: string) => undefined }) => {
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('1');
   const [newItemUnit, setNewItemUnit] = useState('');
@@ -173,6 +175,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   const [purchaseDrafts, setPurchaseDrafts] = useState<PurchasedItemDraft[]>([]);
   const [purchaseReviewError, setPurchaseReviewError] = useState('');
   const [isSavingPurchasedItems, setIsSavingPurchasedItems] = useState(false);
+  const [isChoosingHomeMode, setIsChoosingHomeMode] = useState(false);
 
   useEffect(() => {
     setPurchaseDrafts(current => {
@@ -639,6 +642,15 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
     }
   };
   const isInventoryMode = user.kitchenMode !== 'without-inventory';
+  const chooseHomeMode = async (mode: KitchenMode) => {
+    if (isChoosingHomeMode) return;
+    setIsChoosingHomeMode(true);
+    try {
+      await onHomeModeSelected?.(mode);
+    } finally {
+      setIsChoosingHomeMode(false);
+    }
+  };
   const openInventoryForPrices = async () => {
     setSelectedDish(null);
     if (!isInventoryMode) await onKitchenModeChange('with-inventory');
@@ -746,6 +758,28 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
       </table>
     </div>
   </div>;
+
+  if (page === 'home' && !hasChosenHomeMode) return <main className="flex min-h-0 flex-1 items-center justify-center overflow-y-auto px-4 py-8 sm:px-8 sm:py-12">
+    <section className="w-full max-w-4xl rounded-[2rem] border border-emerald-100 bg-white p-5 shadow-[0_24px_70px_rgba(39,101,86,0.12)] sm:p-10">
+      <div className="mx-auto max-w-2xl text-center">
+        <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-emerald-50 text-[#276556] sm:h-16 sm:w-16"><ChefHat size={30}/></span>
+        <p className="mt-4 text-xs font-black tracking-wide text-[#276556] sm:text-sm">آشپزخانهٔ نوش‌اپ</p>
+        <h1 className="mt-2 text-2xl font-black text-slate-900 sm:text-4xl">امروز چی بپزم؟</h1>
+        <p className="mx-auto mt-3 max-w-xl text-sm font-medium leading-7 text-slate-600 sm:text-base">برای دیدن پیشنهاد غذا، یکی از این دو روش را انتخاب کن.</p>
+      </div>
+      <div className="mx-auto mt-7 grid max-w-3xl grid-cols-1 gap-3 sm:mt-9 sm:grid-cols-2 sm:gap-5">
+        <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('with-inventory')} className="group flex min-h-28 items-center gap-4 rounded-2xl border-2 border-emerald-200 bg-emerald-50/70 p-4 text-right transition hover:-translate-y-0.5 hover:border-[#276556] hover:bg-emerald-50 hover:shadow-lg disabled:cursor-wait disabled:opacity-70 sm:min-h-36 sm:flex-col sm:justify-center sm:text-center">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#276556] text-white shadow-md sm:h-14 sm:w-14"><Package size={25}/></span>
+          <span><strong className="block text-base font-black text-slate-900 sm:text-lg">با استفاده از موجودی انبار</strong><small className="mt-1 block text-xs font-semibold leading-5 text-slate-600 sm:text-sm">پیشنهاد غذا بر اساس مواد موجود در خانه</small></span>
+        </button>
+        <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('without-inventory')} className="group flex min-h-28 items-center gap-4 rounded-2xl border-2 border-amber-200 bg-amber-50/70 p-4 text-right transition hover:-translate-y-0.5 hover:border-amber-500 hover:bg-amber-50 hover:shadow-lg disabled:cursor-wait disabled:opacity-70 sm:min-h-36 sm:flex-col sm:justify-center sm:text-center">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-amber-500 text-white shadow-md sm:h-14 sm:w-14"><Sparkles size={25}/></span>
+          <span><strong className="block text-base font-black text-slate-900 sm:text-lg">بدون نیاز به انبار</strong><small className="mt-1 block text-xs font-semibold leading-5 text-slate-600 sm:text-sm">پیشنهاد تصادفی با گردونهٔ غذا</small></span>
+        </button>
+      </div>
+      {isChoosingHomeMode && <p role="status" className="mt-5 text-center text-sm font-bold text-[#276556]">در حال آماده‌سازی…</p>}
+    </section>
+  </main>;
 
   return (
     <div className="pantry-page flex min-h-0 flex-1 flex-col [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter">
