@@ -2,7 +2,7 @@ import { normalizePersian } from '../utils/text';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChefHat, Sparkles, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Save, ShoppingCart, Pencil, CalendarDays, PackageCheck } from 'lucide-react';
+import { ChefHat, Sparkles, FerrisWheel, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Save, ShoppingCart, Pencil, CalendarDays, PackageCheck } from 'lucide-react';
 import { PANTRY_ITEMS, getIngredientCategoryId } from '../data/pantry';
 import { RecipeService } from '../services/recipeService';
 import { Dish, KitchenMode, UserProfile, InventoryItem, InventoryBatch, ShoppingItem } from '../types';
@@ -773,7 +773,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                 <span className="pantry-start-option-icon"><Package size={20}/></span><span><strong>با استفاده از موجودی انبار</strong><small>پیشنهاد بر اساس مواد خانه</small></span>
               </button>
               <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('without-inventory')} className="pantry-start-option pantry-start-option-roulette noosh-cta-3d disabled:cursor-wait disabled:opacity-60">
-                <span className="pantry-start-option-icon"><Sparkles size={20}/></span><span><strong>بدون نیاز به انبار</strong><small>انتخاب غذا با گردونه</small></span>
+                <span className="pantry-start-option-icon"><FerrisWheel size={20} aria-hidden="true"/></span><span><strong>بدون نیاز به انبار</strong><small>انتخاب غذا با گردونه</small></span>
               </button>
             </div>
             {isChoosingHomeMode && <p role="status" className="pantry-start-loading">در حال آماده‌سازی…</p>}

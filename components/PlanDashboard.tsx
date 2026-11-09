@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { CalendarDays, ChefHat, Clock3, Heart, Leaf, Loader2, Printer, RefreshCw, ShoppingBag, Sparkles, Undo2, Zap, ReceiptText } from 'lucide-react';
+import { CalendarDays, CalendarCheck2, ChefHat, Clock3, Heart, Leaf, Loader2, Printer, RefreshCw, ShoppingBag, Undo2, Zap, ReceiptText } from 'lucide-react';
 import { DayPlan, UserProfile } from '../types';
 import MealCard from './MealCard';
 import { estimateRecipeCost } from '../utils/recipeCosts';
@@ -43,7 +43,7 @@ export default function PlanDashboard(props: Props) {
       {([{ id: 'daily', label: 'امروز' }, { id: 'weekly', label: 'یک هفته' }, { id: 'monthly', label: '۳۰ روز' }] as const).map(item => <button key={item.id} aria-pressed={period === item.id} onClick={() => setPeriod(item.id)} className={period === item.id ? 'selected noosh-cta-3d' : ''}>{item.label}</button>)}
     </div>
     <div className="diet-filters">{filters.map(({ key, label, icon: Icon }) => <button key={key} aria-pressed={!!user[key]} className={user[key] ? 'active noosh-cta-3d' : ''} onClick={() => props.onToggleFilter(key)}><Icon size={16} />{label}</button>)}</div>
-    <button type="button" aria-live="polite" aria-busy={!!loading} className="generate-button noosh-cta-3d disabled:cursor-wait disabled:opacity-100" disabled={!!loading} onClick={() => props.onGenerate(period)}>{loading ? <RefreshCw size={18} className="animate-spin" /> : plan.length ? <RefreshCw size={18} /> : <Sparkles size={18} />}<span>{loading ? 'در حال آماده‌سازی برنامه…' : plan.length ? 'برنامهٔ تازه بچین' : 'برنامه‌ام را بچین'}</span></button>
+    <button type="button" aria-live="polite" aria-busy={!!loading} className="generate-button noosh-cta-3d disabled:cursor-wait disabled:opacity-100" disabled={!!loading} onClick={() => props.onGenerate(period)}>{loading ? <RefreshCw size={18} className="animate-spin" /> : plan.length ? <RefreshCw size={18} /> : <CalendarCheck2 size={18} aria-hidden="true" />}<span>{loading ? 'در حال آماده‌سازی برنامه…' : plan.length ? 'برنامهٔ تازه بچین' : 'برنامه‌ام را بچین'}</span></button>
   </div>;
   return <div className={`plan-dashboard${plan.length ? ' has-plan' : ''}`}>
     <div className="dashboard-inner">
