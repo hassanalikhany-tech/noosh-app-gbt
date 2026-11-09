@@ -283,10 +283,10 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
 
       <div className={`food-roulette-settings flex flex-col rounded-2xl border border-white/90 bg-white/75 p-2.5 text-right shadow-sm sm:p-3 ${settings.mode === 'proteins' ? 'food-roulette-settings-proteins' : ''} ${!filtersExpanded ? 'food-roulette-settings-result' : ''}`}>
         <div className="grid grid-cols-2 gap-1 rounded-xl bg-[#edf2ec] p-1" role="group" aria-label="حالت گردونه">
-          <button type="button" disabled={spinning} aria-pressed={settings.mode === 'categories'} onClick={() => updateSettings(current => ({ ...current, mode: 'categories' }))} className={`min-h-9 rounded-lg px-2 text-[10px] font-black transition sm:min-h-10 sm:text-xs ${settings.mode === 'categories' ? 'bg-[#276556] text-white shadow-sm' : 'text-[#52675b] hover:bg-white'}`}>
+          <button type="button" title="از دسته‌های فعال، یک غذا تصادفی پیشنهاد می‌شود؛ مواد پروتئینی انتخاب‌شده اثری ندارند." aria-description="از دسته‌های فعال، یک غذا تصادفی پیشنهاد می‌شود؛ مواد پروتئینی انتخاب‌شده اثری ندارند." disabled={spinning} aria-pressed={settings.mode === 'categories'} onClick={() => updateSettings(current => ({ ...current, mode: 'categories' }))} className={`min-h-9 rounded-lg px-2 text-[10px] font-black transition sm:min-h-10 sm:text-xs ${settings.mode === 'categories' ? 'bg-[#276556] text-white shadow-sm' : 'text-[#52675b] hover:bg-white'}`}>
             انتخاب از دسته‌ها
           </button>
-          <button type="button" disabled={spinning} aria-pressed={settings.mode === 'proteins'} onClick={() => updateSettings(current => ({ ...current, mode: 'proteins' }))} className={`min-h-9 rounded-lg px-2 text-[10px] font-black transition sm:min-h-10 sm:text-xs ${settings.mode === 'proteins' ? 'bg-[#276556] text-white shadow-sm' : 'text-[#52675b] hover:bg-white'}`}>
+          <button type="button" title="غذا باید دست‌کم یکی از مواد پروتئینی انتخاب‌شده را داشته باشد و در یکی از دسته‌های فعال باشد." aria-description="غذا باید دست‌کم یکی از مواد پروتئینی انتخاب‌شده را داشته باشد و در یکی از دسته‌های فعال باشد." disabled={spinning} aria-pressed={settings.mode === 'proteins'} onClick={() => updateSettings(current => ({ ...current, mode: 'proteins' }))} className={`min-h-9 rounded-lg px-2 text-[10px] font-black transition sm:min-h-10 sm:text-xs ${settings.mode === 'proteins' ? 'bg-[#276556] text-white shadow-sm' : 'text-[#52675b] hover:bg-white'}`}>
             مواد پروتئینی
           </button>
         </div>
