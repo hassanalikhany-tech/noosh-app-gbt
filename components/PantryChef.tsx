@@ -769,10 +769,10 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
         <div className="pantry-hero-stats">
           {!hasChosenHomeMode ? <>
             <div className="pantry-start-options">
-              <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('with-inventory')} className="pantry-start-option pantry-start-option-inventory disabled:cursor-wait disabled:opacity-60">
+              <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('with-inventory')} className="pantry-start-option pantry-start-option-inventory noosh-cta-3d disabled:cursor-wait disabled:opacity-60">
                 <span className="pantry-start-option-icon"><Package size={20}/></span><span><strong>با استفاده از موجودی انبار</strong><small>پیشنهاد بر اساس مواد خانه</small></span>
               </button>
-              <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('without-inventory')} className="pantry-start-option pantry-start-option-roulette disabled:cursor-wait disabled:opacity-60">
+              <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('without-inventory')} className="pantry-start-option pantry-start-option-roulette noosh-cta-3d disabled:cursor-wait disabled:opacity-60">
                 <span className="pantry-start-option-icon"><Sparkles size={20}/></span><span><strong>بدون نیاز به انبار</strong><small>انتخاب غذا با گردونه</small></span>
               </button>
             </div>
