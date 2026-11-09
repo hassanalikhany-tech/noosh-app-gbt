@@ -522,15 +522,19 @@
 }
 
 /* Keep the wheel fixed on the left while the right side changes between setup and result. */
-.food-roulette-content { grid-template-areas: "wheel copy" "wheel settings"; }
+.food-roulette-content { grid-template-areas: "wheel copy" "wheel settings"; transition: row-gap 460ms cubic-bezier(.2,.7,.2,1); }
 .food-roulette-content.food-roulette-is-collapsed { grid-template-areas: "wheel copy" "wheel result"; }
+.food-roulette-is-collapsed { row-gap: 8px !important; }
 .food-roulette-copy { grid-area: copy; }
 .food-roulette-wheel-wrap { grid-area: wheel; }
 .food-roulette-wheel-wrap { align-self: start; }
 .food-roulette-settings { grid-area: settings; min-width: 0; }
 .food-roulette-is-collapsed .food-roulette-settings { grid-area: result; align-self: stretch; }
-.food-roulette-is-collapsed .food-roulette-copy > span,
-.food-roulette-is-collapsed .food-roulette-copy > p { max-height: 0; margin-block: 0 !important; padding-block: 0 !important; overflow: hidden; opacity: 0; transition: max-height 460ms cubic-bezier(.2,.7,.2,1), opacity 260ms ease, margin 460ms cubic-bezier(.2,.7,.2,1), padding 460ms cubic-bezier(.2,.7,.2,1); }
+.food-roulette-copy > span { max-height: 40px; overflow: hidden; transition: max-height 460ms cubic-bezier(.2,.7,.2,1), opacity 260ms ease, margin 460ms cubic-bezier(.2,.7,.2,1), padding 460ms cubic-bezier(.2,.7,.2,1); }
+.food-roulette-is-collapsed .food-roulette-copy > span { max-height: 0; margin-block: 0 !important; padding-block: 0 !important; opacity: 0; }
+.food-roulette-intro { display: grid; grid-template-rows: 1fr; opacity: 1; transition: grid-template-rows 460ms cubic-bezier(.2,.7,.2,1), opacity 260ms ease; }
+.food-roulette-intro-inner { min-height: 0; overflow: hidden; }
+.food-roulette-intro-collapsed { grid-template-rows: 0fr; opacity: 0; }
 .food-roulette-is-collapsed .food-roulette-copy h2 { margin-top: 0 !important; transition: margin 460ms cubic-bezier(.2,.7,.2,1), font-size 460ms cubic-bezier(.2,.7,.2,1), line-height 460ms cubic-bezier(.2,.7,.2,1); }
 .food-roulette-options { display: flex; flex-direction: column; max-height: 500px; overflow: hidden; opacity: 1; transition: max-height 460ms cubic-bezier(.2,.7,.2,1), opacity 260ms ease, margin 460ms cubic-bezier(.2,.7,.2,1); }
 .food-roulette-options-collapsed { max-height: 0; margin-top: 0; opacity: 0; pointer-events: none; }
@@ -549,9 +553,9 @@
   .food-roulette-copy { min-width: 0; text-align: center; }
   .food-roulette-copy > span { gap: 5px; padding: 5px 8px; font-size: 9px; }
   .food-roulette-copy h2 { margin-top: 7px; font-size: 18px; line-height: 1.4; }
-  .food-roulette-copy > p:first-of-type { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; margin-top: 5px; font-size: 10px; line-height: 1.65; }
+  .food-roulette-intro-inner > p:first-child { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; margin-top: 5px; font-size: 10px; line-height: 1.65; }
   .food-roulette-spin-button { min-width: 0; min-height: 48px; gap: 5px; padding: 7px 5px; font-size: 10px; line-height: 1.5; }
-  .food-roulette-copy > p[role="status"] { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-height: 0; margin-top: 6px; font-size: 9px; line-height: 1.6; }
+  .food-roulette-intro-inner > p[role="status"] { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; min-height: 0; margin-top: 6px; font-size: 9px; line-height: 1.6; }
   .food-roulette-settings { width: 100%; padding: 9px !important; }
   .food-roulette-category-panel { padding: 9px; }
   .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
@@ -570,7 +574,9 @@
 @media (prefers-reduced-motion: reduce) {
   .food-roulette-options,
   .food-roulette-is-collapsed .food-roulette-copy > span,
-  .food-roulette-is-collapsed .food-roulette-copy > p,
-  .food-roulette-is-collapsed .food-roulette-copy h2 { transition-duration: 1ms; }
+  .food-roulette-copy > span,
+  .food-roulette-intro,
+  .food-roulette-is-collapsed .food-roulette-copy h2,
+  .food-roulette-content { transition-duration: 1ms; }
   .food-roulette-result { animation-duration: 1ms; }
 }

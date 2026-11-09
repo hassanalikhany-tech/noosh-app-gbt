@@ -236,11 +236,14 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
       <div className="food-roulette-copy order-2 text-center sm:order-1 sm:text-right">
         <span className="inline-flex items-center gap-2 rounded-full border border-[#d7bd75]/50 bg-white/70 px-3 py-1.5 text-[10px] font-black text-[#826832] sm:text-xs"><Sparkles size={14}/> انتخاب تصادفی نوش</span>
         <h2 id="food-roulette-title" className="mt-3 text-xl font-black leading-relaxed text-[#173c2b] sm:mt-4 sm:text-3xl">امروز چی بپزم؟</h2>
-        <p className="mx-auto mt-2 max-w-xl text-xs font-semibold leading-7 text-[#617267] sm:mx-0 sm:mt-3 sm:text-sm sm:leading-8">دسته‌های دلخواهت را برای قرعه‌کشی انتخاب کن، یا یک یا چند مادهٔ پروتئینی را مشخص کن تا فقط غذاهای دارای دست‌کم یکی از آن‌ها پیشنهاد شوند. سلیقه و حساسیت‌هایت هم رعایت می‌شوند.</p>
-
-        <p aria-live="polite" role="status" className="mt-2 min-h-6 text-[10px] font-bold leading-5 text-[#276556] sm:mt-3 sm:text-xs sm:leading-6">
-          {spinning ? 'دسته و غذا به‌صورت تصادفی انتخاب می‌شوند…' : result ? (settings.mode === 'proteins' ? `این غذا با ${result.matchedProteins.map(item => `«${item}»`).join(' و ')} جور است.` : `از دستهٔ ${CATEGORY_LABELS[result.category]} انتخاب شد.`) : categories.length ? (settings.mode === 'proteins' && !settings.selectedProteins.length ? emptyMessage : `${categories.length.toLocaleString('fa-IR')} دسته با رسپی‌های مناسب آمادهٔ قرعه‌کشی است.`) : emptyMessage}
-        </p>
+        <div className={`food-roulette-intro ${!filtersExpanded ? 'food-roulette-intro-collapsed' : ''}`}>
+          <div className="food-roulette-intro-inner">
+            <p className="mx-auto mt-2 max-w-xl text-xs font-semibold leading-7 text-[#617267] sm:mx-0 sm:mt-3 sm:text-sm sm:leading-8">دسته‌های دلخواهت را برای قرعه‌کشی انتخاب کن، یا یک یا چند مادهٔ پروتئینی را مشخص کن تا فقط غذاهای دارای دست‌کم یکی از آن‌ها پیشنهاد شوند. سلیقه و حساسیت‌هایت هم رعایت می‌شوند.</p>
+            <p aria-live="polite" role="status" className="mt-2 min-h-6 text-[10px] font-bold leading-5 text-[#276556] sm:mt-3 sm:text-xs sm:leading-6">
+              {spinning ? 'دسته و غذا به‌صورت تصادفی انتخاب می‌شوند…' : result ? (settings.mode === 'proteins' ? `این غذا با ${result.matchedProteins.map(item => `«${item}»`).join(' و ')} جور است.` : `از دستهٔ ${CATEGORY_LABELS[result.category]} انتخاب شد.`) : categories.length ? (settings.mode === 'proteins' && !settings.selectedProteins.length ? emptyMessage : `${categories.length.toLocaleString('fa-IR')} دسته با رسپی‌های مناسب آمادهٔ قرعه‌کشی است.`) : emptyMessage}
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="food-roulette-wheel-wrap order-1 mx-auto w-full max-w-[280px] sm:order-2 sm:max-w-[330px] lg:max-w-[390px]">
