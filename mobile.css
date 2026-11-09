@@ -523,9 +523,12 @@
 
 /* Keep the desktop roulette wheel beside its copy, with settings directly below the copy. */
 .food-roulette-content { grid-template-areas: "copy wheel" "settings wheel"; }
+.food-roulette-content.food-roulette-has-result { grid-template-areas: "wheel result"; }
 .food-roulette-copy { grid-area: copy; }
 .food-roulette-wheel-wrap { grid-area: wheel; }
 .food-roulette-settings { grid-area: settings; min-width: 0; }
+.food-roulette-has-result .food-roulette-copy { display: none; }
+.food-roulette-has-result .food-roulette-settings { grid-area: result; align-self: stretch; }
 .food-roulette-settings-proteins .food-roulette-protein-panel { order: 1; }
 .food-roulette-settings-proteins .food-roulette-category-panel { order: 2; }
 
@@ -547,4 +550,12 @@
   .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
   .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] > button { min-height: 36px; padding-inline: 8px; font-size: 10px; }
   .food-roulette-settings .food-roulette-filter-list { max-height: 190px; }
+  .food-roulette-content.food-roulette-has-result { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr) !important; grid-template-areas: "wheel result" !important; align-items: start; }
+  .food-roulette-settings-result { padding: 8px !important; }
+  .food-roulette-result { padding: 7px !important; }
+  .food-roulette-result .meal-card { min-width: 0; border-radius: 12px !important; }
+  .food-roulette-result .meal-card .meal-image { height: clamp(96px, 31vw, 140px); }
+  .food-roulette-result .meal-card > div:last-child { padding: 8px; }
+  .food-roulette-result .meal-card h3 { font-size: 12px; line-height: 1.55; }
+  .food-roulette-result .meal-card p { font-size: 10px; line-height: 1.6; }
 }
