@@ -129,7 +129,9 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
     } catch { /* The roulette remains usable if local storage is unavailable. */ }
   }, [settings, settingsOwner, user.username]);
 
-  const preferencePool = useMemo(() => filterDishes(user).filter(dish => dish.category !== 'dessert'), [user, recipeRevision]);
+  // This roulette has its own category switches. Do not remove those categories
+  // a second time through the profile's excludedCategories setting.
+  const preferencePool = useMemo(() => filterDishes({ ...user, excludedCategories: [] }).filter(dish => dish.category !== 'dessert'), [user, recipeRevision]);
 
   const eligibleDishes = useMemo(() => {
     const enabled = new Set(settings.enabledCategories);
