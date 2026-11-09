@@ -541,7 +541,7 @@
 
 /* On phones, keep the wheel and its spin control together, then give filters the full width. */
 @media (max-width: 767px) {
-  .food-roulette-content { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; grid-template-areas: "wheel copy" "settings settings" !important; align-items: start; gap: 8px !important; padding: 12px !important; }
+  .food-roulette-content { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; grid-template-areas: "wheel copy" "settings settings" !important; align-items: start; gap: 8px !important; padding: 6px 12px 12px !important; }
   .food-roulette-wheel-wrap { width: 100%; min-width: 0; max-width: none !important; align-self: start; }
   .food-roulette-wheel-wrap > div { width: 100%; padding: 4px; }
   .food-roulette-wheel-frame { width: 100%; aspect-ratio: 1 / 1; }
