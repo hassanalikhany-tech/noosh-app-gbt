@@ -760,7 +760,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   </div>;
 
   return (
-    <div className="pantry-page flex min-h-0 flex-1 flex-col [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter">
+    <div className={`pantry-page flex min-h-0 flex-1 flex-col [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter${page === 'home' && !hasChosenHomeMode ? ' pantry-page-start' : ''}`}>
       {page === 'home' && <section className={`pantry-hero ${!hasChosenHomeMode ? 'pantry-hero-start' : ''}`} aria-label="پیشنهاد غذا بر پایهٔ موجودی آشپزخانه">
         <div className="pantry-hero-copy"><span className="pantry-hero-label"><ChefHat size={15}/> آشپزخانهٔ تو</span>
           <h1>امروز چی بپزم؟</h1>
@@ -770,10 +770,10 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
           {!hasChosenHomeMode ? <>
             <div className="pantry-start-options">
               <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('with-inventory')} className="pantry-start-option pantry-start-option-inventory noosh-cta-3d disabled:cursor-wait disabled:opacity-60">
-                <span className="pantry-start-option-icon"><Package size={20}/></span><span><strong>با استفاده از موجودی انبار</strong><small>پیشنهاد بر اساس مواد خانه</small></span>
+                <span className="pantry-start-option-icon"><Package size={22}/></span><span><strong>با استفاده از موجودی انبار</strong><small>پیشنهاد بر اساس مواد خانه</small><em>انتخاب این روش ←</em></span>
               </button>
               <button type="button" disabled={isChoosingHomeMode} onClick={() => void chooseHomeMode('without-inventory')} className="pantry-start-option pantry-start-option-roulette noosh-cta-3d disabled:cursor-wait disabled:opacity-60">
-                <span className="pantry-start-option-icon"><FerrisWheel size={20} aria-hidden="true"/></span><span><strong>بدون نیاز به انبار</strong><small>انتخاب غذا با گردونه</small></span>
+                <span className="pantry-start-option-icon"><FerrisWheel size={22} aria-hidden="true"/></span><span><strong>بدون نیاز به انبار</strong><small>انتخاب غذا با گردونه</small><em>انتخاب این روش ←</em></span>
               </button>
             </div>
             {isChoosingHomeMode && <p role="status" className="pantry-start-loading">در حال آماده‌سازی…</p>}

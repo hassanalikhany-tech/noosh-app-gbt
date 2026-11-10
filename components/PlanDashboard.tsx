@@ -29,6 +29,7 @@ export default function PlanDashboard(props: Props) {
   const [undoing, setUndoing] = useState(false);
   const [undoError, setUndoError] = useState('');
   const [foodPhotoSrc, setFoodPhotoSrc] = useState('/hero-chelo-kabab-barg.png');
+  const [hasAnimatedShoppingBanner, setHasAnimatedShoppingBanner] = useState(false);
   const times = plan.map(p => p.dish.cookTime).filter((time): time is number => typeof time === 'number' && time > 0);
   const planCost = plan.flatMap(item => [item.dish, ...(item.sideDish ? [item.sideDish] : [])])
     .map(dish => estimateRecipeCost(dish, user.familySize || 4, user.inventory || []))
@@ -78,7 +79,7 @@ export default function PlanDashboard(props: Props) {
           <div className="meal-grid">{plan.map((item, index) => <MealCard key={`${index}-${item.dish.id}`} plan={item} user={user} onUpdateUser={props.onUpdateUser} onRefresh={() => props.onRefresh(index)} onOpenInventory={props.onOpenInventory} />)}</div>
         </> : loading ? <div className="planner-generating" role="status"><Loader2 className="animate-spin" size={24}/><span>دارم برنامهٔ سفره‌ات را می‌چینم…</span></div> : null}
       </section>
-      {isActive && plan.length > 0 && !loading && createPortal(<button type="button" className="shopping-banner shopping-banner-arrive noosh-cta-3d" onClick={props.onShopping} disabled={props.shoppingLoading}>{props.shoppingLoading ? <Loader2 className="animate-spin" /> : <ShoppingBag />}<span><strong>{user.kitchenMode === 'without-inventory' ? 'مواد لازم را به سبد خرید اضافه کن' : 'کسری مواد را به سبد خرید اضافه کن'}</strong><small>{user.kitchenMode === 'without-inventory' ? 'مقدار کامل مواد لازم برای دستورهای برنامه' : 'پس از کسر موجودی ثبت‌شده'}</small></span></button>, document.body)}
+      {isActive && plan.length > 0 && !loading && createPortal(<button type="button" className={`shopping-banner noosh-cta-3d${hasAnimatedShoppingBanner ? '' : ' shopping-banner-arrive'}`} onAnimationEnd={() => setHasAnimatedShoppingBanner(true)} onClick={props.onShopping} disabled={props.shoppingLoading}>{props.shoppingLoading ? <Loader2 className="animate-spin" /> : <ShoppingBag />}<span><strong>{user.kitchenMode === 'without-inventory' ? 'مواد لازم را به سبد خرید اضافه کن' : 'کسری مواد را به سبد خرید اضافه کن'}</strong><small>{user.kitchenMode === 'without-inventory' ? 'مقدار کامل مواد لازم برای دستورهای برنامه' : 'پس از کسر موجودی ثبت‌شده'}</small></span></button>, document.body)}
       <p className="dashboard-signoff">با حوصله انتخاب کن. با عشق بپز. نوش جان ♡</p>
     </div>
   </div>;
