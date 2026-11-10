@@ -759,7 +759,7 @@ const AppContent: React.FC = () => {
       <NotificationCenter isOpen={isNotificationCenterOpen} onClose={() => { setIsNotificationCenterOpen(false); checkUnreadNotifications(currentUser!); }} user={currentUser!} />
 
       <Suspense fallback={<div role="status" className="flex-1 flex items-center justify-center">در حال آماده‌سازی آشپزخانه…</div>}><main className="flex-grow pt-12 sm:pt-14 lg:pt-16 pb-12 sm:pb-16 no-print overflow-hidden [@media(orientation:landscape)_and_(max-height:500px)]:overflow-y-auto flex flex-col bg-[#f8fafc]">
-        {viewMode === 'plan' && <PlanDashboard
+        <div style={{ display: viewMode === 'plan' ? 'contents' : 'none' }}><PlanDashboard
           user={currentUser} plan={displayPlan} loading={planLoading} error={planError}
           canUndo={previousPlan !== null}
           onGenerate={handleGeneratePlan} onToggleFilter={handleToggleFilter}
@@ -772,8 +772,8 @@ const AppContent: React.FC = () => {
             const updated = await UserService.updateProfile(currentUser.username, { weeklyPlan: previousPlan, weeklyPlanMode: currentUser.kitchenMode || 'with-inventory' });
             setDisplayPlan(previousPlan); setCurrentUser(updated); setPreviousPlan(null);
           }}
-        />}
-        {viewMode === 'pantry' && <PantryChef page="home" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} hasChosenHomeMode={hasChosenHomeMode} onHomeModeSelected={handleHomeModeSelected} />}
+        /></div>
+        <div style={{ display: viewMode === 'pantry' ? 'contents' : 'none' }}><PantryChef page="home" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} hasChosenHomeMode={hasChosenHomeMode} onHomeModeSelected={handleHomeModeSelected} /></div>
         {viewMode === 'inventory' && <PantryChef page="inventory" user={currentUser!} onUpdateUser={setCurrentUser} onNavigate={setViewMode} onKitchenModeChange={handleKitchenModeChange} pendingPurchasedItems={currentUser?.pendingPurchasedItems || []} onPurchasedItemsCancel={handleCancelPurchasedItems} onPurchasedItemRemove={handleRemovePendingPurchasedItem} />}
         {viewMode === 'search' && <RecipeSearch user={currentUser!} onUpdateUser={setCurrentUser} onOpenInventory={openInventoryForPrices} externalSearchTerm={globalSearchTerm} creatorRequest={creatorRequest} onCreatorRequestHandled={() => setCreatorRequest(null)} />}
         {viewMode === 'settings' && (
