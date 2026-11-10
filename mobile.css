@@ -284,6 +284,10 @@
 .pantry-hero-stats .pantry-mode-track i{width:18px;height:18px;top:3px;left:3px}
 .pantry-hero-stats .pantry-mode-switch.is-on .pantry-mode-track{background:#4c9878}
 .pantry-hero-inventory{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.pantry-hero-stock-cta-needs-inventory{gap:9px}
+.pantry-stock-empty-copy{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:2px;text-align:right;white-space:normal;line-height:1.45}
+.pantry-stock-empty-copy strong{font-size:12px}
+.pantry-stock-empty-copy small{color:#e4eee7;font-size:9px;font-weight:700}
 .pantry-hero-inventory .pantry-toolbar-title{min-width:0;gap:8px;color:#fff}
 .pantry-hero-inventory .pantry-toolbar-icon{width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:#ffffff18;color:#e8c878}
 .pantry-hero-inventory .pantry-toolbar-title>div:last-child{min-width:0}
@@ -305,6 +309,8 @@
   .pantry-hero-stats .pantry-mode-switch{min-height:52px;padding:6px 9px}
   .pantry-hero-inventory .pantry-toolbar-title strong{font-size:11px}
   .pantry-hero-stock-cta{min-height:38px;padding:7px 10px;font-size:10px;white-space:nowrap}
+  .pantry-hero-stock-cta-needs-inventory{min-height:54px!important;justify-content:center;white-space:normal}
+  .pantry-stock-empty-copy{align-items:center;text-align:center}
   .pantry-hero-metrics{justify-content:space-between;gap:5px;padding-top:6px;font-size:8px}
   .pantry-hero-metrics span{gap:3px}
   .pantry-hero-metrics span svg{width:12px;height:12px}
