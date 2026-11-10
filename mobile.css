@@ -255,6 +255,20 @@
 @media(max-width:767px){.pantry-page-start{min-height:100%}.pantry-page-start .pantry-hero-start{min-height:0!important;width:calc(100% - 24px);margin:8px 12px;padding:14px;border-radius:20px!important}.pantry-page-start .pantry-hero-start .pantry-hero-copy{padding:8px 6px 0!important}.pantry-page-start .pantry-hero-start .pantry-hero-stats{margin-top:18px;padding:14px 10px!important;border-radius:18px}.pantry-page-start .pantry-start-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.pantry-page-start .pantry-start-option{min-height:clamp(132px,21vh,170px);gap:7px;padding:14px 7px}.pantry-page-start .pantry-start-option-icon{width:40px;height:40px;flex-basis:40px}.pantry-page-start .pantry-start-option strong{font-size:12px}.pantry-page-start .pantry-start-option small{font-size:10px}.pantry-page-start .pantry-start-option em{font-size:10px}}
 @media(max-width:380px){.pantry-page-start .pantry-start-option{min-height:138px;padding:12px 5px}.pantry-page-start .pantry-start-option strong{font-size:11px}.pantry-page-start .pantry-start-option small{font-size:9px}.pantry-page-start .pantry-start-option em{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.pantry-page-start .pantry-hero-start,.pantry-page:not(.pantry-page-start)>.pantry-hero,.shopping-banner-arrive{animation:none!important;transition:none!important}}
+
+/* Keep the same home hero mounted and in a flex layout so its expanded chooser
+   can glide into the compact, selected state instead of snapping layouts. */
+.pantry-home-page{transition:min-height 1.55s cubic-bezier(.65,0,.35,1)}
+.pantry-home-page .pantry-home-hero{display:flex!important;flex-direction:column;transition:flex 1.55s cubic-bezier(.65,0,.35,1),min-height 1.55s cubic-bezier(.65,0,.35,1),width 1.55s cubic-bezier(.65,0,.35,1),margin 1.55s cubic-bezier(.65,0,.35,1),padding 1.55s cubic-bezier(.65,0,.35,1),border-radius 1.55s cubic-bezier(.65,0,.35,1)}
+.pantry-page-ready .pantry-home-hero{flex:0 0 auto;min-height:238px;width:calc(100% - 42px);margin:16px auto 0;padding:0;border-radius:22px}
+.pantry-page-ready .pantry-home-hero .pantry-hero-copy{width:58%;padding:23px 35px 20px}
+.pantry-page-ready .pantry-home-hero .pantry-hero-stats{width:100%;min-height:42px;margin:0;padding:8px 25px;border-radius:0 0 22px 22px;background:#102e28db}
+.planner-controls.planner-controls-expanded{transition:flex 1.45s cubic-bezier(.65,0,.35,1),min-height 1.45s cubic-bezier(.65,0,.35,1),padding 1.45s cubic-bezier(.65,0,.35,1),gap 1.45s cubic-bezier(.65,0,.35,1),border-radius 1.45s cubic-bezier(.65,0,.35,1),background 1.45s ease,box-shadow 1.45s ease}
+.plan-dashboard .planner-controls{transition:flex 1.45s cubic-bezier(.65,0,.35,1),min-height 1.45s cubic-bezier(.65,0,.35,1),padding 1.45s cubic-bezier(.65,0,.35,1),gap 1.45s cubic-bezier(.65,0,.35,1),margin 1.45s cubic-bezier(.65,0,.35,1)}
+.planner-panel{animation-duration:950ms;animation-delay:120ms}
+.plan-dashboard.has-plan .meal-grid>.meal-card{animation-duration:900ms;animation-delay:180ms}
+@media(max-width:767px){.pantry-page-ready .pantry-home-hero{min-height:222px;width:calc(100% - 24px);margin:8px 12px 0;border-radius:20px}.pantry-page-ready .pantry-home-hero .pantry-hero-copy{width:68%;padding:14px 16px 20px}.pantry-page-ready .pantry-home-hero .pantry-hero-stats{min-height:0;padding:10px 12px;border-radius:0 0 18px 18px}}
+@media(prefers-reduced-motion:reduce){.pantry-home-page,.pantry-home-page .pantry-home-hero,.planner-controls.planner-controls-expanded,.plan-dashboard .planner-controls{transition:none!important}}
 .pantry-hero-stats{position:relative;grid-column:1/-1;inset:auto;min-height:0;padding:10px 16px 11px;display:flex;flex-direction:column;align-items:stretch;gap:8px;background:#102e28f2;border-top:1px solid #ffffff25;color:#d2e1d6}
 .pantry-hero-controls{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);align-items:center;gap:12px;min-width:0}
 .pantry-hero-stats .pantry-mode-switch-wrap{padding:0;background:transparent}
@@ -660,3 +674,8 @@
   .pantry-start-option strong { font-size: 12px; }
   .pantry-start-option small { font-size: 10px; }
 }
+
+/* Let the long, soft collapse finish before the planner content takes focus. */
+.pantry-home-page:not(.pantry-page-start)>.pantry-home-hero{animation:none!important}
+.plan-dashboard:not(.is-empty) .planner-controls{transition:flex 1.45s cubic-bezier(.65,0,.35,1),min-height 1.45s cubic-bezier(.65,0,.35,1),padding 1.45s cubic-bezier(.65,0,.35,1),gap 1.45s cubic-bezier(.65,0,.35,1),margin 1.45s cubic-bezier(.65,0,.35,1)}
+

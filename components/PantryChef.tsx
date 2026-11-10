@@ -760,8 +760,8 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   </div>;
 
   return (
-    <div className={`pantry-page flex min-h-0 flex-1 flex-col [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter${page === 'home' && !hasChosenHomeMode ? ' pantry-page-start' : ''}`}>
-      {page === 'home' && <section className={`pantry-hero ${!hasChosenHomeMode ? 'pantry-hero-start' : ''}`} aria-label="پیشنهاد غذا بر پایهٔ موجودی آشپزخانه">
+    <div className={`pantry-page flex min-h-0 flex-1 flex-col [@media(orientation:landscape)_and_(max-height:500px)]:h-auto animate-enter${page === 'home' ? ` pantry-home-page${!hasChosenHomeMode ? ' pantry-page-start' : ' pantry-page-ready'}` : ''}`}>
+      {page === 'home' && <section className={`pantry-hero pantry-home-hero ${!hasChosenHomeMode ? 'pantry-hero-start' : ''}`} aria-label="پیشنهاد غذا بر پایهٔ موجودی آشپزخانه">
         <div className="pantry-hero-copy"><span className="pantry-hero-label"><ChefHat size={15}/> آشپزخانهٔ تو</span>
           <h1>امروز چی بپزم؟</h1>
           <p>{!hasChosenHomeMode ? 'روش پیشنهاد غذا را انتخاب کن تا بر پایهٔ موجودی خانه پیشنهاد بگیری یا با گردونه یک غذا انتخاب کنی.' : user.kitchenMode === 'without-inventory' ? 'در حالت مستقل از انبار، پیشنهادها بدون توجه به موجودی ثبت‌شده چیده می‌شوند؛ هر زمان خواستی از کلید پایین حالت را عوض کن.' : 'موجودی انبارت را به‌روز نگه دار تا غذاها بر اساس مواد موجود در خانه پیشنهاد شوند و فهرست خریدت فقط شامل مقدار موردنیازِ موادِ کسری باشد.'}</p>
