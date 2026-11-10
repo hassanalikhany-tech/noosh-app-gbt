@@ -39,14 +39,14 @@ export default function PlanDashboard(props: Props) {
       missingIngredients: [...total.missingIngredients, ...estimate.missingIngredients],
       approximate: total.approximate || estimate.approximate,
     }), { pricedSubtotal: 0, pricedRows: 0, eligibleRows: 0, missingIngredients: [] as string[], approximate: false });
-  const renderPlannerControls = (className: string) => <div className={className}>
+  const renderPlannerControls = (className: string, expanded = false) => <div className={`${className}${expanded ? ' planner-controls-expanded' : ''}`}>
     <div className="period-switch" aria-label="بازه برنامه">
       {([{ id: 'daily', label: 'امروز' }, { id: 'weekly', label: 'یک هفته' }, { id: 'monthly', label: '۳۰ روز' }] as const).map(item => <button key={item.id} aria-pressed={period === item.id} onClick={() => setPeriod(item.id)} className={period === item.id ? 'selected noosh-cta-3d' : ''}>{item.label}</button>)}
     </div>
     <div className="diet-filters">{filters.map(({ key, label, icon: Icon }) => <button key={key} aria-pressed={!!user[key]} className={user[key] ? 'active noosh-cta-3d' : ''} onClick={() => props.onToggleFilter(key)}><Icon size={16} />{label}</button>)}</div>
     <button type="button" aria-live="polite" aria-busy={!!loading} className="generate-button noosh-cta-3d disabled:cursor-wait disabled:opacity-100" disabled={!!loading} onClick={() => props.onGenerate(period)}>{loading ? <RefreshCw size={18} className="animate-spin" /> : plan.length ? <RefreshCw size={18} /> : <CalendarCheck2 size={18} aria-hidden="true" />}<span>{loading ? 'در حال آماده‌سازی برنامه…' : plan.length ? 'برنامهٔ تازه بچین' : 'برنامه‌ام را بچین'}</span></button>
   </div>;
-  return <div className={`plan-dashboard${plan.length ? ' has-plan' : ''}`}>
+  return <div className={`plan-dashboard${plan.length ? ' has-plan' : ' is-empty'}${loading ? ' is-generating' : ''}`}>
     <div className="dashboard-inner">
       <section className="planner-hero planner-hero-with-controls" aria-labelledby="planner-title">
         <div className="planner-hero-title-row"><div><span className="planner-hero-eyebrow">کمتر فکر کن، متنوع‌تر بپز</span><h2 id="planner-title">برنامهٔ غذایی من</h2></div>
@@ -61,7 +61,7 @@ export default function PlanDashboard(props: Props) {
         </figure>
         </div>
       </section>
-      {renderPlannerControls('planner-controls planner-controls-sticky')}
+      {renderPlannerControls('planner-controls planner-controls-sticky', plan.length === 0 && !loading)}
       <section className="planner-panel" aria-label="نتایج برنامه غذایی" aria-busy={!!loading}>
         {props.canUndo && <div className="plan-tools planner-panel-tools">
           <button disabled={undoing || !!loading} onClick={async () => { setUndoing(true); setUndoError(''); try { await props.onUndo(); } catch { setUndoError('بازگرداندن برنامه انجام نشد. دوباره تلاش کنید.'); } finally { setUndoing(false); } }}><Undo2 size={17} /> برنامهٔ قبلی</button>
@@ -76,9 +76,9 @@ export default function PlanDashboard(props: Props) {
             <button type="button" className="price-update-cta noosh-cta-3d inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl px-4 py-2 text-xs font-black" onClick={props.onOpenInventory}><ReceiptText size={16}/>به‌روزرسانی قیمت‌ها</button>
           </section>}
           <div className="meal-grid">{plan.map((item, index) => <MealCard key={`${index}-${item.dish.id}`} plan={item} user={user} onUpdateUser={props.onUpdateUser} onRefresh={() => props.onRefresh(index)} onOpenInventory={props.onOpenInventory} />)}</div>
-        </> : !loading ? <div className="plan-empty"><div><CalendarDays size={34} /></div><h3>این‌جا جای برنامهٔ خوشمزهٔ توست</h3><p>بازه و سلیقه‌ات را انتخاب کن و «برنامه‌ام را بچین» را بزن.<br />هر غذایی را هم نپسندیدی، با یک لمس عوضش کن.</p></div> : null}
+        </> : loading ? <div className="planner-generating" role="status"><Loader2 className="animate-spin" size={24}/><span>دارم برنامهٔ سفره‌ات را می‌چینم…</span></div> : null}
       </section>
-      {isActive && plan.length > 0 && !loading && createPortal(<button type="button" className="shopping-banner noosh-cta-3d" onClick={props.onShopping} disabled={props.shoppingLoading}>{props.shoppingLoading ? <Loader2 className="animate-spin" /> : <ShoppingBag />}<span><strong>{user.kitchenMode === 'without-inventory' ? 'مواد لازم را به سبد خرید اضافه کن' : 'کسری مواد را به سبد خرید اضافه کن'}</strong><small>{user.kitchenMode === 'without-inventory' ? 'مقدار کامل مواد لازم برای دستورهای برنامه' : 'پس از کسر موجودی ثبت‌شده'}</small></span></button>, document.body)}
+      {isActive && plan.length > 0 && !loading && createPortal(<button type="button" className="shopping-banner shopping-banner-arrive noosh-cta-3d" onClick={props.onShopping} disabled={props.shoppingLoading}>{props.shoppingLoading ? <Loader2 className="animate-spin" /> : <ShoppingBag />}<span><strong>{user.kitchenMode === 'without-inventory' ? 'مواد لازم را به سبد خرید اضافه کن' : 'کسری مواد را به سبد خرید اضافه کن'}</strong><small>{user.kitchenMode === 'without-inventory' ? 'مقدار کامل مواد لازم برای دستورهای برنامه' : 'پس از کسر موجودی ثبت‌شده'}</small></span></button>, document.body)}
       <p className="dashboard-signoff">با حوصله انتخاب کن. با عشق بپز. نوش جان ♡</p>
     </div>
   </div>;

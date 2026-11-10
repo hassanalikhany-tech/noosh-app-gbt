@@ -204,6 +204,28 @@
 /* The pantry mode and inventory actions live in the hero's dark footer. */
 .pantry-hero{grid-template-rows:minmax(0,1fr) auto}
 .pantry-hero-photo{bottom:0}
+
+/* The unplanned state gives the planning choices room to breathe; generating
+   the plan smoothly returns the card to its compact, familiar toolbar size. */
+.plan-dashboard.is-empty .dashboard-inner{box-sizing:border-box;display:flex;min-height:100%;flex-direction:column}
+.plan-dashboard .planner-controls{transition:flex 650ms cubic-bezier(.22,.61,.36,1),min-height 650ms cubic-bezier(.22,.61,.36,1),padding 650ms cubic-bezier(.22,.61,.36,1),gap 650ms cubic-bezier(.22,.61,.36,1),margin 650ms cubic-bezier(.22,.61,.36,1)}
+.plan-dashboard.is-empty:not(.is-generating) .planner-panel{display:none}
+.planner-controls.planner-controls-expanded{box-sizing:border-box;display:flex;flex:1 1 0%;min-height:310px;flex-direction:column;align-items:stretch;justify-content:center;gap:clamp(20px,3vh,34px);margin:0 0 18px;padding:clamp(24px,4vw,48px);border:1px solid #d7e5d8;border-radius:24px;background:linear-gradient(145deg,#f5f8f0 0%,#edf4eb 55%,#e4efe5 100%);box-shadow:0 16px 38px #1d4b3210;transition:flex 650ms cubic-bezier(.22,.61,.36,1),min-height 650ms cubic-bezier(.22,.61,.36,1),padding 650ms cubic-bezier(.22,.61,.36,1),gap 650ms cubic-bezier(.22,.61,.36,1),border-radius 650ms cubic-bezier(.22,.61,.36,1),background 650ms ease,box-shadow 650ms ease}
+.planner-controls-expanded .period-switch{display:grid;width:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:6px;border-radius:16px}
+.planner-controls-expanded .period-switch button{min-height:58px;border-radius:12px;font-size:clamp(14px,1.6vw,18px);transition:all 250ms ease}
+.planner-controls .period-switch button,.planner-controls .diet-filters button,.planner-controls .generate-button{transition:all 450ms cubic-bezier(.22,.61,.36,1)}
+.planner-controls-expanded .diet-filters{display:grid;width:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.planner-controls-expanded .diet-filters button{min-height:58px;justify-content:center;gap:8px;border-radius:14px;font-size:clamp(12px,1.3vw,15px);transition:all 250ms ease}
+.planner-controls-expanded .generate-button{width:100%;min-height:64px;min-width:0;margin:0;border-radius:15px;font-size:16px;transition:all 250ms ease}
+.plan-dashboard:not(.is-empty) .planner-controls{flex:0 0 auto;transition:flex 650ms cubic-bezier(.22,.61,.36,1),gap 600ms cubic-bezier(.22,.61,.36,1),padding 600ms cubic-bezier(.22,.61,.36,1),margin 600ms cubic-bezier(.22,.61,.36,1)}
+.planner-panel{animation:planner-results-arrive 550ms cubic-bezier(.22,.61,.36,1) both}
+.planner-generating{display:flex;min-height:140px;align-items:center;justify-content:center;gap:12px;color:#426c50;font-size:14px;font-weight:800;animation:planner-results-arrive 400ms ease both}
+.plan-dashboard.has-plan .meal-grid>.meal-card{animation:planner-results-arrive 500ms cubic-bezier(.22,.61,.36,1) both}
+.shopping-banner-arrive{transform-origin:center;animation:shopping-banner-arrive 620ms cubic-bezier(.18,.72,.28,1.12) both}
+@keyframes planner-results-arrive{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes shopping-banner-arrive{0%{opacity:0;transform:scale(.72)}70%{opacity:1;transform:scale(1.035)}100%{opacity:1;transform:scale(1)}}
+@media(max-width:767px){.plan-dashboard.is-empty .dashboard-inner{min-height:100%}.planner-controls.planner-controls-expanded{min-height:340px;gap:clamp(18px,3vh,28px);padding:22px 16px;border-radius:21px}.planner-controls-expanded .period-switch{gap:5px;padding:4px}.planner-controls-expanded .period-switch button{min-height:54px;padding:8px 4px;font-size:14px}.planner-controls-expanded .diet-filters{grid-template-columns:1fr;gap:8px}.planner-controls-expanded .diet-filters button{min-height:52px;justify-content:flex-start;padding-inline:16px;font-size:14px}.planner-controls-expanded .generate-button{min-height:58px;font-size:15px}.planner-generating{min-height:110px;font-size:13px}}
+@media(prefers-reduced-motion:reduce){.planner-controls.planner-controls-expanded,.plan-dashboard:not(.is-empty) .planner-controls,.planner-panel,.planner-generating,.shopping-banner-arrive{animation:none!important;transition:none!important}}
 .pantry-hero-stats{position:relative;grid-column:1/-1;inset:auto;min-height:0;padding:10px 16px 11px;display:flex;flex-direction:column;align-items:stretch;gap:8px;background:#102e28f2;border-top:1px solid #ffffff25;color:#d2e1d6}
 .pantry-hero-controls{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);align-items:center;gap:12px;min-width:0}
 .pantry-hero-stats .pantry-mode-switch-wrap{padding:0;background:transparent}

@@ -15,7 +15,7 @@ import { RecipeService } from './services/recipeService';
 import { UserService } from './services/userService';
 import { NotificationService } from './services/notificationService';
 import { DayPlan, KitchenMode, ShoppingItem, UserProfile, CATEGORY_LABELS, DishCategory, Notification } from './types';
-import { filterDishes, generateDailyPlan, generateWeeklyPlan, generateMonthlyPlan, generateSingleReplacement } from './utils/planner';
+import { generateDailyPlan, generateWeeklyPlan, generateMonthlyPlan, generateSingleReplacement } from './utils/planner';
 
 import { getShoppingShortages, parseQuantity } from './utils/recipeHelpers';
 import { getBaseIngredientName } from './data/pantry';
@@ -218,9 +218,6 @@ const AppContent: React.FC = () => {
           if (!user.kitchenMode) UserService.updateProfile(user.username, { kitchenMode }).catch(err => console.error('Kitchen mode initialization failed:', err));
           setViewMode('pantry');
           setCurrentUser({ ...user, kitchenMode });
-          const savedPlanMode = user.weeklyPlanMode || kitchenMode;
-          if (user.weeklyPlan && savedPlanMode === kitchenMode) setDisplayPlan(user.weeklyPlan);
-          
           // فرآیندهای فرعی و تحت شبکه که نباید لود اولیه اپلیکیشن را معطل نگه دارند
           checkUnreadNotifications(user).catch(err => console.error("Notification check failed:", err));
           UserService.updateProfile(user.username, { lastActiveAt: Date.now() }).catch(err => console.error("Last active update failed:", err));
@@ -254,27 +251,6 @@ const AppContent: React.FC = () => {
       window.removeEventListener('storage', handleUserUpdate);
     };
   }, []);
-
-  // Never leave a visible suggestion that conflicts with the user's current saved food preferences.
-  useEffect(() => {
-    if (!currentUser || displayPlan.length === 0) return;
-    const allowedDishIds = new Set(filterDishes(currentUser).map(dish => dish.id));
-    setDisplayPlan(previous => {
-      const compatible = previous.filter(item => allowedDishIds.has(item.dish.id));
-      return compatible.length === previous.length ? previous : compatible;
-    });
-    setPreviousPlan(null);
-  }, [
-    currentUser?.blacklistedDishIds,
-    currentUser?.dislikedIngredients,
-    currentUser?.excludedCategories,
-    currentUser?.excludedNationalities,
-    currentUser?.preferredNatures,
-    currentUser?.favoriteDishIds,
-    currentUser?.onlyFavoritesMode,
-    currentUser?.meatlessMode,
-    currentUser?.quickMealsMode,
-  ]);
 
   useEffect(() => {
     if (filterNotif.show && !filterNotif.exiting) {
@@ -331,9 +307,6 @@ const AppContent: React.FC = () => {
     try {
       const updatedUser = await UserService.updateProfile(currentUser.username, { kitchenMode });
       setCurrentUser(updatedUser);
-      const savedPlanMode = currentUser.weeklyPlanMode || currentUser.kitchenMode || 'with-inventory';
-      setDisplayPlan(savedPlanMode === kitchenMode ? currentUser.weeklyPlan || [] : []);
-      setPreviousPlan(null);
       return true;
     } catch (err) {
       console.error('Kitchen mode update failed:', err);
@@ -517,7 +490,7 @@ const AppContent: React.FC = () => {
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    try { await UserService.logout(); setCurrentUser(null); }
+    try { await UserService.logout(); setCurrentUser(null); setDisplayPlan([]); setPreviousPlan(null); setHasChosenHomeMode(false); }
     catch (error) { console.error(error); }
     finally { setIsLoggingOut(false); }
   };
