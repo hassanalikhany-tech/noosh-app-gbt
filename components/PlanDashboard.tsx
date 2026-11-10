@@ -8,6 +8,7 @@ import { estimateRecipeCost } from '../utils/recipeCosts';
 type Period = 'daily' | 'weekly' | 'monthly';
 type Filter = 'meatlessMode' | 'onlyFavoritesMode' | 'quickMealsMode';
 interface Props {
+  isActive?: boolean;
   user: UserProfile; plan: DayPlan[]; loading: Period | null; error: string; canUndo: boolean;
   onGenerate: (period: Period) => void; onToggleFilter: (filter: Filter) => void;
   onRefresh: (index: number) => Promise<void>; onUpdateUser: (user: UserProfile) => void;
@@ -22,7 +23,7 @@ const filters = [
   { key: 'onlyFavoritesMode' as const, label: 'غذاهای محبوب', icon: Heart },
 ];
 export default function PlanDashboard(props: Props) {
-  const { user, plan, loading } = props;
+  const { user, plan, loading, isActive = true } = props;
   const [period, setPeriod] = useState<Period>('weekly');
   const [query, setQuery] = useState('');
   const [undoing, setUndoing] = useState(false);
@@ -77,7 +78,7 @@ export default function PlanDashboard(props: Props) {
           <div className="meal-grid">{plan.map((item, index) => <MealCard key={`${index}-${item.dish.id}`} plan={item} user={user} onUpdateUser={props.onUpdateUser} onRefresh={() => props.onRefresh(index)} onOpenInventory={props.onOpenInventory} />)}</div>
         </> : !loading ? <div className="plan-empty"><div><CalendarDays size={34} /></div><h3>این‌جا جای برنامهٔ خوشمزهٔ توست</h3><p>بازه و سلیقه‌ات را انتخاب کن و «برنامه‌ام را بچین» را بزن.<br />هر غذایی را هم نپسندیدی، با یک لمس عوضش کن.</p></div> : null}
       </section>
-      {plan.length > 0 && !loading && createPortal(<button type="button" className="shopping-banner noosh-cta-3d" onClick={props.onShopping} disabled={props.shoppingLoading}>{props.shoppingLoading ? <Loader2 className="animate-spin" /> : <ShoppingBag />}<span><strong>{user.kitchenMode === 'without-inventory' ? 'مواد لازم را به سبد خرید اضافه کن' : 'کسری مواد را به سبد خرید اضافه کن'}</strong><small>{user.kitchenMode === 'without-inventory' ? 'مقدار کامل مواد لازم برای دستورهای برنامه' : 'پس از کسر موجودی ثبت‌شده'}</small></span></button>, document.body)}
+      {isActive && plan.length > 0 && !loading && createPortal(<button type="button" className="shopping-banner noosh-cta-3d" onClick={props.onShopping} disabled={props.shoppingLoading}>{props.shoppingLoading ? <Loader2 className="animate-spin" /> : <ShoppingBag />}<span><strong>{user.kitchenMode === 'without-inventory' ? 'مواد لازم را به سبد خرید اضافه کن' : 'کسری مواد را به سبد خرید اضافه کن'}</strong><small>{user.kitchenMode === 'without-inventory' ? 'مقدار کامل مواد لازم برای دستورهای برنامه' : 'پس از کسر موجودی ثبت‌شده'}</small></span></button>, document.body)}
       <p className="dashboard-signoff">با حوصله انتخاب کن. با عشق بپز. نوش جان ♡</p>
     </div>
   </div>;

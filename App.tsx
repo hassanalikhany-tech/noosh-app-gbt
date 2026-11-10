@@ -760,6 +760,7 @@ const AppContent: React.FC = () => {
 
       <Suspense fallback={<div role="status" className="flex-1 flex items-center justify-center">در حال آماده‌سازی آشپزخانه…</div>}><main className="flex-grow pt-12 sm:pt-14 lg:pt-16 pb-12 sm:pb-16 no-print overflow-hidden [@media(orientation:landscape)_and_(max-height:500px)]:overflow-y-auto flex flex-col bg-[#f8fafc]">
         <div style={{ display: viewMode === 'plan' ? 'contents' : 'none' }}><PlanDashboard
+          isActive={viewMode === 'plan'}
           user={currentUser} plan={displayPlan} loading={planLoading} error={planError}
           canUndo={previousPlan !== null}
           onGenerate={handleGeneratePlan} onToggleFilter={handleToggleFilter}
