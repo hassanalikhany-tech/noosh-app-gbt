@@ -268,6 +268,7 @@
 .planner-panel{animation-duration:950ms;animation-delay:120ms}
 .plan-dashboard.has-plan .meal-grid>.meal-card{animation-duration:900ms;animation-delay:180ms}
 @media(max-width:767px){.pantry-page-ready .pantry-home-hero{min-height:222px;width:calc(100% - 24px);margin:8px 12px 0;border-radius:20px}.pantry-page-ready .pantry-home-hero .pantry-hero-copy{width:68%;padding:14px 16px 20px}.pantry-page-ready .pantry-home-hero .pantry-hero-stats{min-height:0;padding:10px 12px;border-radius:0 0 18px 18px}}
+@media(max-width:767px){.pantry-page-ready .pantry-home-hero .pantry-hero-stats{position:relative;z-index:2}.pantry-page-ready .pantry-home-hero .pantry-hero-stock-cta{position:relative;z-index:3;min-height:46px;touch-action:manipulation;pointer-events:auto}}
 @media(prefers-reduced-motion:reduce){.pantry-home-page,.pantry-home-page .pantry-home-hero,.planner-controls.planner-controls-expanded,.plan-dashboard .planner-controls{transition:none!important}}
 .pantry-hero-stats{position:relative;grid-column:1/-1;inset:auto;min-height:0;padding:10px 16px 11px;display:flex;flex-direction:column;align-items:stretch;gap:8px;background:#102e28f2;border-top:1px solid #ffffff25;color:#d2e1d6}
 .pantry-hero-controls{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);align-items:center;gap:12px;min-width:0}

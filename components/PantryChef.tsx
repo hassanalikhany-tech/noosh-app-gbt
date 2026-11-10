@@ -610,6 +610,10 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
 
   const suggestFromInventory = () => {
     const availableItems = inventory.filter(i => i.amount > 0).map(i => i.name);
+    if (availableItems.length === 0) {
+      onNavigate('inventory');
+      return;
+    }
     findRecipes(availableItems);
   };
 
@@ -801,11 +805,12 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
               {isInventoryMode ? <button
                 type="button"
                 onClick={suggestFromInventory}
-                disabled={inventory.length === 0 || isSearching}
+                disabled={isSearching}
+                aria-label={inventory.some(item => item.amount > 0) ? 'پیشنهاد غذا بر اساس مواد موجود در انبار' : 'افزودن مواد به انبار برای دریافت پیشنهاد غذا'}
                 className="pantry-hero-stock-cta noosh-cta-3d pantry-hero-stock-cta-primary"
               >
                 {isSearching ? <RefreshCw className="animate-spin" size={16} /> : <Sparkles size={16} />}
-                <span>{isSearching ? 'در حال بررسی…' : 'پیشنهاد غذا با موجودی'}</span>
+                <span>{isSearching ? 'در حال بررسی…' : inventory.some(item => item.amount > 0) ? 'پیشنهاد غذا با موجودی' : 'افزودن موجودی برای پیشنهاد'}</span>
               </button> : <button
                 type="button"
                 onClick={() => void onKitchenModeChange('with-inventory')}
