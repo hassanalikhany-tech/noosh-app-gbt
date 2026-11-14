@@ -707,6 +707,9 @@
   .pantry-page .pantry-mode-copy small,
   .pantry-page .pantry-start-option small { font-size: 14px; }
   .food-roulette-copy > span { font-size: 14px; }
+  /* Wheel slices are narrow; keep their labels compact and wrap the full Persian names. */
+  .noosh-app .food-roulette-wheel-category-label { width: 24%; font-size: 8px !important; line-height: 1.3; overflow-wrap: anywhere; }
+  .noosh-app .food-roulette-wheel-category-label > span { white-space: normal; overflow-wrap: anywhere; word-break: normal; }
   .food-roulette-intro-inner > p:first-child { font-size: 15px; }
   .food-roulette-spin-button { font-size: 15px; }
   .food-roulette-intro-inner > p[role="status"] { font-size: 14px; }

@@ -327,8 +327,8 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
                 const left = 50 + Math.cos(radians) * 35;
                 const top = 50 + Math.sin(radians) * 35;
                 const color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
-                return <span key={option.category} className="absolute z-[1] flex w-[24%] -translate-x-1/2 -translate-y-1/2 items-center justify-center text-center text-[8px] font-black leading-[1.25] sm:text-[10px]" style={{ left: `${left}%`, top: `${top}%`, color: color.text, textShadow: color.text === '#fffdf6' ? '0 1px 2px rgba(0,0,0,.24)' : 'none' }}>
-                  <span style={{ transform: `rotate(${-rotation}deg)` }}>{CATEGORY_LABELS[option.category]}</span>
+                return <span key={option.category} className="food-roulette-wheel-category-label absolute z-[1] flex w-[24%] -translate-x-1/2 -translate-y-1/2 items-center justify-center text-center text-[8px] font-black leading-[1.25] sm:text-[10px]" style={{ left: `${left}%`, top: `${top}%`, color: color.text, textShadow: color.text === '#fffdf6' ? '0 1px 2px rgba(0,0,0,.24)' : 'none' }}>
+                  <span className="block max-w-full" style={{ transform: `rotate(${-rotation}deg)` }}>{CATEGORY_LABELS[option.category]}</span>
                 </span>;
               }) : <span className="absolute left-1/2 top-[18%] z-[1] w-[65%] -translate-x-1/2 text-center text-[9px] font-black leading-5 text-white drop-shadow sm:text-xs">{settings.mode === 'proteins' && settings.selectedProteins.length ? 'غذای جور پیدا نشد' : 'یک ماده را انتخاب کن'}</span>}
               <div aria-hidden="true" className="absolute left-1/2 top-1/2 z-10 grid aspect-square w-[31%] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-[5px] border-[#d7bd75] bg-[#f8f7ef] shadow-[0_3px_14px_rgba(23,60,43,0.28)] sm:border-[6px]">
