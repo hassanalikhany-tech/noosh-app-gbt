@@ -715,3 +715,50 @@
   .food-roulette-result .meal-card p { font-size: 14px; }
 }
 
+/* Raise fixed-size labels from the app's older, compact mobile rules too. */
+@media (max-width: 767px) {
+  .noosh-app .welcome-row time,
+  .noosh-app .eyebrow,
+  .noosh-app .local-note,
+  .noosh-app .plan-summary,
+  .noosh-app .plan-tools button,
+  .noosh-app .catalog-status,
+  .noosh-app .recipe-modal-meta-row > div > div,
+  .noosh-app .recipe-modal-serving-row > div:first-child span,
+  .noosh-app .recipe-modal-serving-row > div:last-child > span,
+  .noosh-app .settings-tabs [role="tab"],
+  .noosh-app .preferences-page p { font-size: 14px !important; }
+
+  .noosh-app .planner-hero-eyebrow,
+  .noosh-app .planner-hero-kicker,
+  .noosh-app .planner-hero-steps,
+  .noosh-app .planner-controls .period-switch button,
+  .noosh-app .planner-controls .diet-filters button,
+  .noosh-app .recipe-search [aria-label="فیلتر دسته‌بندی غذاها"] button,
+  .noosh-app .recipe-search [aria-label="مرتب‌سازی"],
+  .noosh-app .pantry-result-filters button { font-size: 15px !important; }
+
+  .noosh-app .planner-hero-copy > p,
+  .noosh-app .plan-empty p,
+  .noosh-app .planner-controls .generate-button,
+  .noosh-app .recipe-modal-meta-row > button,
+  .noosh-app .pantry-page .pantry-result-filters > button,
+  .noosh-app .pantry-page .pantry-results-grid .meal-card h3,
+  .noosh-app .recipe-search .meal-card h3,
+  .noosh-app .plan-dashboard .meal-card h3 { font-size: 16px !important; }
+
+  .noosh-app .planner-hero-steps i { min-width: 26px; min-height: 26px; font-size: 14px !important; }
+  .noosh-app .pantry-hero-stats .pantry-mode-copy strong,
+  .noosh-app .pantry-hero-inventory .pantry-toolbar-title strong,
+  .noosh-app .pantry-hero-metrics strong { font-size: 15px !important; }
+  .noosh-app .pantry-hero-stats .pantry-mode-copy small,
+  .noosh-app .pantry-hero-stats .pantry-mode-status,
+  .noosh-app .pantry-hero-metrics,
+  .noosh-app .pantry-hero-metrics span,
+  .noosh-app .pantry-hero-inventory .pantry-toolbar-title span,
+  .noosh-app .pantry-hero-stock-cta { font-size: 14px !important; }
+  .noosh-app .pantry-hero-metrics span { white-space: normal; line-height: 1.55; }
+  .noosh-app .shopping-list-ui .shopping-item .truncate { font-size: 15px !important; line-height: 1.7; }
+  .noosh-app .purchase-report-table tbody tr > td::before { font-size: 13px; }
+}
+
