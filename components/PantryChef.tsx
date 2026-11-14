@@ -2,7 +2,7 @@ import { normalizePersian } from '../utils/text';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChefHat, Sparkles, FerrisWheel, X, UtensilsCrossed, RefreshCw, Trash2, CheckCircle2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Save, ShoppingCart, Pencil, CalendarDays, PackageCheck } from 'lucide-react';
+import { ChefHat, Sparkles, FerrisWheel, X, UtensilsCrossed, RefreshCw, Trash2, AlertCircle, Clock, Heart, Filter, Package, AlertTriangle, Plus, Save, ShoppingCart, Pencil, CalendarDays, PackageCheck } from 'lucide-react';
 import { PANTRY_ITEMS, getIngredientCategoryId } from '../data/pantry';
 import { RecipeService } from '../services/recipeService';
 import { Dish, KitchenMode, UserProfile, InventoryItem, InventoryBatch, ShoppingItem } from '../types';
@@ -37,7 +37,7 @@ interface PantryChefProps {
 
 interface PurchasedItemDraft { id: string; amount: string; unit: string; unitPrice: string; expiresOn: string; mergeBatchId: string }
 
-type ResultFilter = 'all' | 'perfect' | 'near' | 'cookable' | 'quick' | 'favorites';
+type ResultFilter = 'all' | 'near' | 'cookable' | 'quick' | 'favorites';
 
 const PANTRY_STARTER_ITEMS = ['مرغ', 'تخم مرغ', 'برنج', 'گوجه فرنگی', 'پیاز', 'سیب زمینی', 'ماست', 'گوشت چرخ‌کرده'];
 
@@ -145,7 +145,6 @@ interface ProcessedResult {
   dish: Dish;
   matchedItems: string[];
   missingItems: string[];
-  isPerfect: boolean;
   isFullyCookable: boolean;
   missingCount: number;
   unmeasuredCount: number;
@@ -362,7 +361,6 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
           dish,
           matchedItems: matched,
           missingItems: missing,
-          isPerfect: isFullyCookable,
           isFullyCookable,
           missingCount: essentialMissing.length,
           unmeasuredCount,
@@ -625,7 +623,6 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   const filteredResults = useMemo(() => {
     if (!rawResults) return null;
     switch (activeFilter) {
-      case 'perfect': return rawResults.filter(r => r.isPerfect);
       case 'cookable': return rawResults.filter(r => r.isFullyCookable);
       case 'near': return rawResults.filter(r => r.missingCount > 0 && r.missingCount <= 2);
       case 'quick': return rawResults.filter(r => (r.dish.cookTime || 60) <= 45);
@@ -642,7 +639,6 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
   const getResultCount = (filter: ResultFilter) => {
     if (!rawResults) return 0;
     switch (filter) {
-      case 'perfect': return rawResults.filter(r => r.isPerfect).length;
       case 'cookable': return rawResults.filter(r => r.isFullyCookable).length;
       case 'near': return rawResults.filter(r => r.missingCount > 0 && r.missingCount <= 2).length;
       case 'quick': return rawResults.filter(r => (r.dish.cookTime || 60) <= 45).length;
@@ -962,7 +958,6 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                      {[
                        { id: 'all', label: 'همه پیشنهادات', icon: Sparkles },
                        { id: 'cookable', label: 'قابل پخت', icon: UtensilsCrossed },
-                       { id: 'perfect', label: 'آماده طبخ', icon: CheckCircle2 },
                        { id: 'near', label: 'کمبود جزئی', icon: AlertCircle },
                        { id: 'favorites', label: 'محبوب‌ها', icon: Heart },
                      ].map(filter => {
@@ -986,11 +981,10 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
                   {expiringItemsHighlighted.length > 0 && <div role="status" className="mx-auto flex max-w-5xl items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-right text-xs leading-6 text-amber-950 shadow-sm sm:px-5 sm:py-4 sm:text-sm"><span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-800"><Clock size={17}/></span><p>تاریخ انقضای <strong className="font-black">{expiringItemsHighlighted.join('، ')}</strong> نزدیک است. اولویت اول با غذایی است که همهٔ این اقلام را یکجا مصرف کند؛ بعد، غذاهای دارای مواد پروتئینیِ نزدیک انقضا و غذاهایی که اقلام بیشتری را مصرف می‌کنند بالاتر قرار می‌گیرند.</p></div>}
 
                   <div className="pantry-results-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 pb-10">
-                    {filteredResults && filteredResults.length > 0 ? filteredResults.map(({ dish, missingCount, isPerfect, isFullyCookable }) => (
+                    {filteredResults && filteredResults.length > 0 ? filteredResults.map(({ dish, missingCount, isFullyCookable }) => (
                       <div key={dish.id} className="relative animate-enter">
                         {isFullyCookable && <div className="absolute -top-2 -right-2 z-20 bg-teal-500 text-white px-3 py-1 rounded-lg shadow-xl border-2 border-white font-black text-[8px] sm:text-[10px]">موجود در انبار</div>}
-                        {!isFullyCookable && isPerfect && <div className="absolute -top-2 -right-2 z-20 bg-emerald-500 text-white px-3 py-1 rounded-lg shadow-xl border-2 border-white font-black text-[8px] sm:text-[10px]">آماده طبخ</div>}
-                        <MealCard plan={{ dayName: isFullyCookable ? 'کامل' : isPerfect ? 'آماده' : `${toPersian(missingCount)} قلم کسری`, dish }} user={user} onUpdateUser={onUpdateUser} onOpenInventory={openInventoryForPrices} />
+                        <MealCard plan={{ dayName: isFullyCookable ? 'کامل' : `${toPersian(missingCount)} قلم کسری`, dish }} user={user} onUpdateUser={onUpdateUser} onOpenInventory={openInventoryForPrices} />
                       </div>
                     )) : (
                       <div className="col-span-full py-20 text-center bg-white rounded-[2.5rem] border-2 border-dashed border-slate-100 flex flex-col items-center gap-3">
