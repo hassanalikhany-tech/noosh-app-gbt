@@ -686,3 +686,30 @@
 .pantry-home-page:not(.pantry-page-start)>.pantry-home-hero{animation:none!important}
 .plan-dashboard:not(.is-empty) .planner-controls{transition:flex 1.45s cubic-bezier(.65,0,.35,1),min-height 1.45s cubic-bezier(.65,0,.35,1),padding 1.45s cubic-bezier(.65,0,.35,1),gap 1.45s cubic-bezier(.65,0,.35,1),margin 1.45s cubic-bezier(.65,0,.35,1)}
 
+/* Improve phone readability without scaling the page layout or desktop text. */
+@media (max-width: 767px) {
+  .noosh-app small { font-size: 12px !important; line-height: 1.6; }
+  .noosh-app [class~="text-[8px]"] { font-size: 10px !important; }
+  .noosh-app [class~="text-[9px]"] { font-size: 11px !important; }
+  .noosh-app [class~="text-[10px]"] { font-size: 12px !important; }
+  .noosh-app [class~="text-[11px]"] { font-size: 13px !important; }
+  .noosh-app [class~="text-[12px]"] { font-size: 14px !important; }
+  .noosh-app [class~="text-[13px]"] { font-size: 15px !important; }
+  .noosh-app [class~="text-[14px]"] { font-size: 15px !important; }
+  .noosh-app [class~="text-xs"] { font-size: 13px !important; }
+  .noosh-app [class~="text-sm"] { font-size: 15px !important; }
+
+  .noosh-app > div.fixed.bottom-0 > div > button { font-size: 13px !important; }
+  .noosh-app > div.fixed.bottom-0 > div > button > span { font-size: 12px !important; }
+  .pantry-page .pantry-hero-copy > p { font-size: 13px; }
+  .pantry-page .pantry-mode-copy small,
+  .pantry-page .pantry-start-option small { font-size: 12px; }
+  .food-roulette-copy > span { font-size: 11px; }
+  .food-roulette-intro-inner > p:first-child { font-size: 12px; }
+  .food-roulette-spin-button { font-size: 12px; }
+  .food-roulette-intro-inner > p[role="status"] { font-size: 11px; }
+  .food-roulette-settings [aria-label="فعال یا غیرفعال کردن دسته‌های غذا"] > button { font-size: 12px; }
+  .food-roulette-result .meal-card h3 { font-size: 14px; }
+  .food-roulette-result .meal-card p { font-size: 12px; }
+}
+
