@@ -148,6 +148,7 @@ interface ProcessedResult {
   isPerfect: boolean;
   isFullyCookable: boolean;
   missingCount: number;
+  unmeasuredCount: number;
   priorityScore: number;
   proteinMatchScore: number;
   expiryPriorityScore: number;
@@ -355,6 +356,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
 
         // Check if fully cookable based on inventory amounts
         const isFullyCookable = evaluation.lines.every(line => line.status === 'ready');
+        const unmeasuredCount = evaluation.lines.filter(line => line.status === 'unmeasured').length;
 
         return {
           dish,
@@ -363,6 +365,7 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
           isPerfect: isFullyCookable,
           isFullyCookable,
           missingCount: essentialMissing.length,
+          unmeasuredCount,
           priorityScore, // Higher is better
           proteinMatchScore,
           expiryPriorityScore,
@@ -372,7 +375,9 @@ const PantryChef: React.FC<PantryChefProps> = ({ page, user, onUpdateUser, onNav
           expiringItemsToUse
         };
       })
-      .filter(res => res.matchedItems.length > 0)
+      .filter(res => res.matchedItems.length > 0 && res.unmeasuredCount === 0 && (
+        res.isFullyCookable || (res.missingCount > 0 && res.missingCount <= 2)
+      ))
       .sort((a, b) => {
         // One dish that uses every near-expiry item is best; after that, favor
         // near-expiry proteins, broader coverage, and more urgent expiry dates.
