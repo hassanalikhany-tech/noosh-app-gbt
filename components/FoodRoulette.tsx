@@ -306,13 +306,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
         {result && <div key={result.dish.id} className="food-roulette-result mt-2 min-w-0 rounded-xl border border-[#e4eae0] bg-white p-2 sm:mt-3 sm:p-3">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#edf4ed] px-2.5 py-1 text-[10px] font-black text-[#276556] sm:text-xs"><ChefHat size={14}/>{CATEGORY_LABELS[result.category]}</span>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[9px] font-bold text-slate-400 sm:text-[10px]">پیشنهاد این دور</span>
-              <button type="button" aria-pressed={lockedCategory === result.category} aria-label={lockedCategory === result.category ? `قفل دستهٔ ${CATEGORY_LABELS[result.category]} فعال است؛ برای آزاد کردن انتخاب کن` : `قفل روی دستهٔ ${CATEGORY_LABELS[result.category]}`} title={lockedCategory === result.category ? 'آزاد کردن دسته' : 'پیشنهاد بعدی هم از همین دسته باشد'} onClick={() => setLockedCategory(current => current === result.category ? null : result.category)} className={`inline-flex min-h-8 items-center gap-1.5 rounded-full border px-2.5 text-[9px] font-black transition-colors sm:text-[10px] ${lockedCategory === result.category ? 'border-[#c6a85b] bg-[#fff8df] text-[#755b1d]' : 'border-[#dce7dc] bg-white text-[#52675b] hover:border-[#c6a85b] hover:text-[#755b1d]'}`}>
-                {lockedCategory === result.category ? <Lock size={13}/> : <Unlock size={13}/>}
-                {lockedCategory === result.category ? 'قفل فعال است' : 'همین دسته را نگه دار'}
-              </button>
-            </div>
+            <span className="text-[9px] font-bold text-slate-400 sm:text-[10px]">پیشنهاد این دور</span>
           </div>
           <MealCard plan={{ dayName: CATEGORY_LABELS[result.category], dish: result.dish }} user={user} onUpdateUser={onUpdateUser} onOpenInventory={onOpenInventory}/>
         </div>}
@@ -323,6 +317,9 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
         <div className="relative mx-auto w-full p-2 sm:p-4">
           <span aria-hidden="true" className="absolute left-1/2 top-0 z-20 h-0 w-0 -translate-x-1/2 border-x-[16px] border-x-transparent border-t-[29px] border-t-[#b08c43] drop-shadow-md"/>
           <div className="food-roulette-wheel-frame relative mx-auto aspect-square w-full rounded-full border-[7px] border-[#d7bd75] bg-white p-1 shadow-[0_10px_30px_rgba(23,60,43,0.18),inset_0_0_0_2px_rgba(255,255,255,0.8)] sm:border-[9px] sm:p-1.5">
+            {result && <button type="button" disabled={spinning} aria-pressed={lockedCategory === result.category} aria-label={lockedCategory === result.category ? `قفل دستهٔ ${CATEGORY_LABELS[result.category]} فعال است؛ برای آزاد کردن انتخاب کن` : `قفل روی دستهٔ ${CATEGORY_LABELS[result.category]}`} title={lockedCategory === result.category ? 'آزاد کردن دسته' : 'پیشنهاد بعدی هم از همین دسته باشد'} onClick={() => setLockedCategory(current => current === result.category ? null : result.category)} className={`absolute right-1 top-1 z-30 grid h-10 w-10 place-items-center rounded-full border shadow-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#276556] focus-visible:ring-offset-2 disabled:opacity-60 ${lockedCategory === result.category ? 'border-[#c6a85b] bg-[#fff8df] text-[#755b1d]' : 'border-white bg-white/95 text-[#52675b] hover:border-[#c6a85b] hover:text-[#755b1d]'}`}>
+              {lockedCategory === result.category ? <Lock size={17}/> : <Unlock size={17}/>}
+            </button>}
             <div
               className="food-roulette-wheel relative aspect-square w-full overflow-hidden rounded-full border border-white/70"
               role="img"
