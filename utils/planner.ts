@@ -15,6 +15,70 @@ const shuffleArray = <T>(array: T[]): T[] => {
 
 const toPersianDigits = (num: number | string) => num.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
 
+const ANIMAL_PROTEIN_TERMS = [
+  'گوشت', 'مرغ', 'جوجه', 'ماهی', 'میگو', 'کالباس', 'سوسیس', 'ژامبون', 'بره', 'گوساله', 'گوسفند',
+  'گاو', 'بز', 'بوقلمون', 'جگر', 'زبان', 'سیرابی', 'کله', 'پاچه', 'شتر', 'بلدرچین', 'اردک', 'غاز',
+  'کبوتر', 'خوک', 'خرگوش', 'گوزن', 'گراز', 'شترمرغ', 'قرقاول', 'کبک', 'فیله', 'استیک', 'کباب', 'دل',
+  'قلوه', 'دنبه', 'تن ماهی', 'سالمون', 'قزل آلا', 'خاویار', 'ماهی مرکب', 'هشت پا', 'اختاپوس', 'کالاماری',
+  'خرچنگ', 'صدف', 'لابستر', 'تخم مرغ', 'تخممرغ', 'شیر', 'ماست', 'پنیر', 'کره', 'خامه', 'دوغ', 'کشک',
+  'سرشیر', 'آب پنیر', 'وی پروتئین', 'کازئین', 'ژلاتین', 'آب مرغ', 'آب گوشت', 'آب قلم', 'عصاره مرغ',
+  'عصاره گوشت', 'عصاره استخوان',
+  'chicken', 'poultry', 'beef', 'veal', 'lamb', 'mutton', 'pork', 'ham', 'bacon', 'sausage', 'turkey',
+  'fish', 'tuna', 'salmon', 'trout', 'shrimp', 'prawn', 'crab', 'lobster', 'oyster', 'anchovy', 'duck',
+  'goose', 'quail', 'rabbit', 'venison', 'bison', 'squid', 'calamari', 'octopus', 'scallop', 'mussel', 'clam',
+  'egg', 'eggs', 'milk', 'buttermilk', 'dairy', 'cheese', 'butter', 'cream', 'yogurt', 'yoghurt',
+  'whey', 'casein', 'gelatin', 'gelatine', 'collagen', 'bone broth', 'chicken broth', 'chicken stock', 'beef broth',
+  'beef stock', 'fish stock',
+];
+
+const normalizeDietaryText = (value: string | null | undefined) => String(value || '')
+  .normalize('NFKC')
+  .toLocaleLowerCase('fa')
+  .replace(/[يى]/g, 'ی')
+  .replace(/ك/g, 'ک')
+  .replace(/[آأإ]/g, 'ا')
+  .replace(/[\u200B-\u200F\u0640]/g, ' ')
+  .replace(/[^\p{L}\p{N}]+/gu, ' ')
+  .replace(/\s+/g, ' ')
+  .trim();
+
+const hasAnimalProtein = (dish: Dish): boolean => {
+  const plantMilkTerms = ['نارگیل', 'بادام', 'سویا', 'جو', 'برنج', 'گیاهی', 'coconut', 'almond', 'soy', 'oat', 'rice'];
+  const recipeText = [
+    dish.name,
+    dish.description,
+    ...(dish.ingredients || []).map(ingredient => ingredient.item),
+    ...(dish.recipeSteps || []),
+  ].map(normalizeDietaryText).filter(Boolean);
+
+  return recipeText.some(text => {
+    const words = text.split(' ');
+    return ANIMAL_PROTEIN_TERMS.some(term => {
+      const normalizedTerm = normalizeDietaryText(term);
+      if (normalizedTerm.includes(' ')) return text.includes(` ${normalizedTerm} `);
+
+      return words.some((word, index) => {
+        if (word === normalizedTerm) {
+          // «کره‌ای» means Korean, not butter.
+          if (normalizedTerm === 'کره' && words[index + 1] === 'ای') return false;
+          // Plant milks remain valid in a plant-based recipe.
+          if (normalizedTerm === 'شیر' || normalizedTerm === 'milk') {
+            if (plantMilkTerms.includes(words[index + 1])) return false;
+          }
+          return true;
+        }
+
+        // Some ingredient names join animal terms into a single word (e.g. گوشتچرخکرده).
+        if (['گوشت', 'مرغ', 'ماهی', 'میگو', 'بوقلمون'].includes(normalizedTerm) && word.includes(normalizedTerm)) {
+          // «مرغوب» (high-quality) is not chicken; avoid that common text false positive.
+          return !(normalizedTerm === 'مرغ' && word.startsWith('مرغوب'));
+        }
+        return false;
+      });
+    });
+  });
+};
+
 /**
  * فیلتر کردن غذاها بر اساس تنظیمات کاربر
  */
@@ -50,23 +114,10 @@ export const filterDishes = (user: UserProfile) => {
       pool = favorites;
   }
   
-  // --- تقویت شدید فیلتر گیاهی (فقط مواد غیرگوشتی) ---
+  // Apply the plant-based filter to every recipe field, including cooking steps;
+  // some catalog entries omit animal protein from their ingredient metadata.
   if (user.meatlessMode) {
-      const meatKeywords = [
-        'گوشت', 'مرغ', 'ماهی', 'میگو', 'کالباس', 'سوسیس', 'ژامبون', 'بره', 'گوساله', 'گوسفند', 
-        'بوقلمون', 'جگر', 'زبان', 'سیرابی', 'کله', 'پاچه', 'شتر', 'بلدرچین', 'اردک', 'غاز', 
-        'فیله', 'استیک', 'کباب', 'مغز', 'دل', 'قلوه', 'خویش', 'دنبه', 'تن ماهی', 'ژلاتین'
-      ];
-      
-      pool = pool.filter(dish => {
-          const nameHasMeat = meatKeywords.some(k => dish.name.includes(k));
-          const descHasMeat = meatKeywords.some(k => (dish.description || "").includes(k));
-          const ingredientsHaveMeat = dish.ingredients.some(ing => 
-            meatKeywords.some(k => ing.item.includes(k))
-          );
-          const isKababCategory = dish.category === 'kabab' && !dish.name.includes('گیاهی');
-          return !nameHasMeat && !descHasMeat && !ingredientsHaveMeat && !isKababCategory;
-      });
+      pool = pool.filter(dish => !hasAnimalProtein(dish));
   }
   
   if (user.quickMealsMode) {

@@ -40,7 +40,7 @@ for (const category of PANTRY_ITEMS) for (const ingredient of category.items) {
   pantryItemOwners.set(ingredient, category.id);
 }
 RecipeService.dishes = [
- { id: 'veg', name: 'خوراک سبزیجات', category: 'khorak', cookTime: 20, nature: 'گرم', ingredients: [{item:'هویج', amount:1, unit:'کیلوگرم'}] },
+ { id: 'veg', name: 'خوراک سبزیجات', description: 'با رب انار مرغوب و به سبک کره‌ای', category: 'khorak', cookTime: 20, nature: 'گرم', ingredients: [{item:'هویج', amount:1, unit:'کیلوگرم'}], recipeSteps: ['هویج را بپزید.'] },
  { id: 'meat', name: 'خورش گوشت', category: 'stew', cookTime: 120, nature: 'cold', ingredients: [{item:'گوشت', amount:1, unit:'کیلوگرم'}] },
  { id: 'unknown-time', name: 'خورش', category: 'stew', ingredients: [{item:'بادمجان', amount:1, unit:'کیلوگرم'}] },
 ];
@@ -49,12 +49,24 @@ assert.deepEqual(filterDishes({...base, excludedCategories:['khorak','stew']}), 
 assert.deepEqual(filterDishes({...base, quickMealsMode:true}).map(d=>d.id), ['veg'], 'Unknown slow dish must not pass quick filter');
 assert.deepEqual(filterDishes({...base, preferredNatures:['hot']}).map(d=>d.id), ['veg'], 'Persian nature values must normalize');
 assert.ok(!filterDishes({...base, meatlessMode:true}).some(d=>d.id==='meat'));
+assert.deepEqual(filterDishes({...base, meatlessMode:true}).map(d=>d.id), ['veg', 'unknown-time'], 'Plant-based filter checks cooking steps and does not mistake مرغوب for chicken');
 assert.ok(!filterDishes({...base, dislikedIngredients:['هویج']}).some(d=>d.id==='veg'));
 const trackedUser = { ...base, kitchenMode:'with-inventory' as const, inventory:[{id:'carrot',name:'هویج',amount:1,unit:'کیلوگرم',minThreshold:0,lastUpdated:0}] };
 assert.equal(usesInventory(trackedUser), true, 'Tracked mode reads pantry stock');
 assert.equal(getRelevantInventory({...trackedUser, kitchenMode:'without-inventory'}).length, 0, 'Flexible mode ignores even stale pantry stock');
 assert.equal(getPlanningPool(trackedUser)[0].id, 'veg', 'Tracked meal plans prioritize dishes covered by pantry stock');
 assert.deepEqual(getPlanningPool({...trackedUser, kitchenMode:'without-inventory'}).map(dish=>dish.id).sort(), ['meat','unknown-time','veg'], 'Flexible plans keep the preference-filtered catalogue available');
+const ordinaryPlannerDishes = RecipeService.dishes;
+RecipeService.dishes = [...ordinaryPlannerDishes,
+ { id: 'hidden-chicken', name: 'خوراک سبزیجات ویژه', description: 'خوراک سبزیجات', category: 'khorak', cookTime: 20, nature: 'گرم', ingredients: [{item:'کرفس', amount:1, unit:'کیلوگرم'}], recipeSteps: ['در پایان تکه‌های مرغ را اضافه کنید.'] },
+ { id: 'hidden-egg', name: 'خوراک گیاهی ویژه', description: 'خوراک سبزیجات', category: 'khorak', cookTime: 20, nature: 'گرم', ingredients: [{item:'کرفس', amount:1, unit:'کیلوگرم'}], recipeSteps: ['تخم‌مرغ را اضافه و مخلوط کنید.'] },
+];
+assert.ok(!filterDishes({...base, meatlessMode:true}).some(d=>['hidden-chicken','hidden-egg'].includes(d.id)), 'Animal protein mentioned only in cooking steps is excluded');
+for (let attempt = 0; attempt < 8; attempt++) {
+  const replacement = await generateSingleReplacement({ ...base, meatlessMode:true, quickMealsMode:true, onlyFavoritesMode:true, favoriteDishIds:['veg','hidden-chicken','hidden-egg'] }, ['veg']);
+  assert.equal(replacement.id, 'veg', 'Repeated replacements keep all active filters and cannot fall back to an animal-protein recipe');
+}
+RecipeService.dishes = ordinaryPlannerDishes;
 const carrotNeed = [{item:'هویج', amount:1, unit:'کیلوگرم'}];
 assert.equal(getShoppingShortages(getRelevantInventory({...trackedUser, kitchenMode:'without-inventory'}), carrotNeed, 4)[0].amount, 1, 'Flexible shopping lists the full recipe requirement regardless of saved stock');
 assert.deepEqual(getShoppingShortages([{...trackedUser.inventory[0], amount:0.4}], carrotNeed, 4).map(item=>[item.amount,item.unit]), [[600,'گرم']], 'Tracked shopping subtracts available stock and lists only the shortage');
