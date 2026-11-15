@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, ChefHat, RefreshCw, Sparkles } from 'lucide-react';
+import { Check, ChefHat, Lock, RefreshCw, Sparkles, Unlock } from 'lucide-react';
 import { CATEGORY_LABELS, Dish, DishCategory, UserProfile } from '../types';
 import { PANTRY_ITEMS } from '../data/pantry';
 import { filterDishes } from '../utils/planner';
@@ -111,6 +111,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
   const [spinDuration, setSpinDuration] = useState(SPIN_DURATION);
   const [spinning, setSpinning] = useState(false);
   const [result, setResult] = useState<Pick | null>(null);
+  const [lockedCategory, setLockedCategory] = useState<DishCategory | null>(null);
   const [filtersExpanded, setFiltersExpanded] = useState(true);
   const [settings, setSettings] = useState<RouletteSettings>(() => readSettings(user.username));
   const [settingsOwner, setSettingsOwner] = useState(user.username);
@@ -120,6 +121,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
     setSettings(readSettings(user.username));
     setSettingsOwner(user.username);
     setResult(null);
+    setLockedCategory(null);
     setFiltersExpanded(true);
   }, [user.username]);
 
@@ -167,7 +169,8 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
     }).join(',')})`
     : 'conic-gradient(#276556 0deg 120deg,#d7bd75 120deg 240deg,#789477 240deg 360deg)';
 
-  const canSpin = !spinning && categories.length > 0 && (settings.mode === 'categories' || settings.selectedProteins.length > 0);
+  const lockedCategoryIndex = lockedCategory ? categories.findIndex(option => option.category === lockedCategory) : -1;
+  const canSpin = !spinning && categories.length > 0 && (settings.mode === 'categories' || settings.selectedProteins.length > 0) && (!lockedCategory || lockedCategoryIndex >= 0);
 
   const updateSettings = (update: (current: RouletteSettings) => RouletteSettings) => {
     setSettings(current => update(current));
@@ -191,7 +194,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
   const spin = () => {
     if (!canSpin) return;
 
-    const categoryIndex = Math.floor(Math.random() * categories.length);
+    const categoryIndex = lockedCategoryIndex >= 0 ? lockedCategoryIndex : Math.floor(Math.random() * categories.length);
     const selectedCategory = categories[categoryIndex];
     const alternativeDishes = result
       ? selectedCategory.dishes.filter(dish => dish.id !== result.dish.id)
@@ -303,7 +306,13 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
         {result && <div key={result.dish.id} className="food-roulette-result mt-2 min-w-0 rounded-xl border border-[#e4eae0] bg-white p-2 sm:mt-3 sm:p-3">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[#edf4ed] px-2.5 py-1 text-[10px] font-black text-[#276556] sm:text-xs"><ChefHat size={14}/>{CATEGORY_LABELS[result.category]}</span>
-            <span className="text-[9px] font-bold text-slate-400 sm:text-[10px]">پیشنهاد این دور</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[9px] font-bold text-slate-400 sm:text-[10px]">پیشنهاد این دور</span>
+              <button type="button" aria-pressed={lockedCategory === result.category} aria-label={lockedCategory === result.category ? `قفل دستهٔ ${CATEGORY_LABELS[result.category]} فعال است؛ برای آزاد کردن انتخاب کن` : `قفل روی دستهٔ ${CATEGORY_LABELS[result.category]}`} title={lockedCategory === result.category ? 'آزاد کردن دسته' : 'پیشنهاد بعدی هم از همین دسته باشد'} onClick={() => setLockedCategory(current => current === result.category ? null : result.category)} className={`inline-flex min-h-8 items-center gap-1.5 rounded-full border px-2.5 text-[9px] font-black transition-colors sm:text-[10px] ${lockedCategory === result.category ? 'border-[#c6a85b] bg-[#fff8df] text-[#755b1d]' : 'border-[#dce7dc] bg-white text-[#52675b] hover:border-[#c6a85b] hover:text-[#755b1d]'}`}>
+                {lockedCategory === result.category ? <Lock size={13}/> : <Unlock size={13}/>}
+                {lockedCategory === result.category ? 'قفل فعال است' : 'همین دسته را نگه دار'}
+              </button>
+            </div>
           </div>
           <MealCard plan={{ dayName: CATEGORY_LABELS[result.category], dish: result.dish }} user={user} onUpdateUser={onUpdateUser} onOpenInventory={onOpenInventory}/>
         </div>}
@@ -341,7 +350,7 @@ export default function FoodRoulette({ user, onUpdateUser, onOpenInventory }: Fo
         </div>
         <button type="button" onClick={spin} disabled={!canSpin} aria-busy={spinning} className="food-roulette-spin-button mt-2 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-[#d5bd79] bg-[#276556] px-3 text-[11px] font-black text-white shadow-[0_7px_0_#19483d,0_13px_24px_rgba(23,60,43,0.18)] transition hover:-translate-y-0.5 hover:bg-[#215b4d] active:translate-y-1 active:shadow-[0_3px_0_#19483d] disabled:cursor-not-allowed disabled:opacity-65 sm:mt-3 sm:min-h-14 sm:px-5 sm:text-base">
           {spinning ? <RefreshCw size={18} className="animate-spin"/> : result ? <RefreshCw size={18}/> : <Sparkles size={18}/>}
-          <span>{spinning ? 'گردونه می‌چرخد…' : result ? 'دوباره بچرخان' : 'گردونه را بچرخان'}</span>
+          <span>{spinning ? 'گردونه می‌چرخد…' : result ? lockedCategory ? 'از همین دسته دوباره بچرخان' : 'دوباره بچرخان' : 'گردونه را بچرخان'}</span>
         </button>
       </div>
     </div>

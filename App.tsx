@@ -407,14 +407,18 @@ const AppContent: React.FC = () => {
   const handleRefreshSingleMeal = async (index: number) => {
       if (!currentUser) return;
       try {
+          // Read the persisted profile so a replacement uses the latest active
+          // diet filters, even if the React profile snapshot is stale.
+          const latestUser = await UserService.getCurrentUser();
+          const replacementUser = { ...latestUser, meatlessMode: Boolean(currentUser.meatlessMode || latestUser.meatlessMode) };
           const currentDishIds = displayPlan.map(p => p.dish.id);
-          const newDish = await generateSingleReplacement(currentUser, currentDishIds);
+          const newDish = await generateSingleReplacement(replacementUser, currentDishIds);
           
           const newPlan = [...displayPlan];
           newPlan[index] = { ...newPlan[index], dish: newDish };
           
           setDisplayPlan(newPlan);
-          const updatedUser = await UserService.updateProfile(currentUser.username, { weeklyPlan: newPlan, weeklyPlanMode: currentUser.kitchenMode || 'with-inventory' });
+          const updatedUser = await UserService.updateProfile(replacementUser.username, { weeklyPlan: newPlan, weeklyPlanMode: replacementUser.kitchenMode || 'with-inventory', meatlessMode: replacementUser.meatlessMode });
           setCurrentUser(updatedUser);
       } catch (err: any) {
           setPlanError(err.message || 'تعویض غذا انجام نشد.');
